@@ -472,7 +472,7 @@ export const WorkspaceClient: React.FC = () => {
 
   // Professional View Settings
   const [showWorkspaceSettings, setShowWorkspaceSettings] = useState<boolean>(false);
-  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
   const [dualViewMode, setDualViewMode] = useState<boolean>(false);
   const [dualSecondaryVarga, setDualSecondaryVarga] = useState<VargaId>('D9');
 
@@ -1261,6 +1261,18 @@ ${Object.values(chartData.planets)
                     title="South Indian 12-Box Chart"
                   >
                     South (Box)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChartStyle('east')}
+                    className={`px-3 py-1 rounded-lg cursor-pointer transition-all ${
+                      chartStyle === 'east'
+                        ? 'bg-[#8C2D19] text-white font-bold shadow-2xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="East Indian (Bengali/Mithila) Chart"
+                  >
+                    East (Bengali)
                   </button>
                 </div>
 

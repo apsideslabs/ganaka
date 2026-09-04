@@ -38,6 +38,7 @@ import { PanchangaSettingsDialog } from '@/components/settings/PanchangaSettings
 import { RASHIS } from '@/lib/jyotisha/constants';
 import { RashiNumber } from '@/lib/jyotisha/types';
 import { getPlatformSettings, subscribeToSettings } from '@/lib/settings/settings-storage';
+import { DEFAULT_PLATFORM_SETTINGS, PlatformSettings } from '@/lib/settings/types';
 
 import {
   Award,
@@ -180,7 +181,7 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
   );
 
   // 2. Location & Ayanamsha State (Initialized from Platform Settings)
-  const [platformSettings, setPlatformSettings] = useState(() => getPlatformSettings());
+  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
 
   const initialLocation = useMemo<CityLocation>(() => {
     const loc = platformSettings.defaultLocation;
@@ -222,7 +223,12 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
 
   // Subscribe to platform settings updates so changes in settings modal are real and live!
   useEffect(() => {
-    return subscribeToSettings((scope) => {
+    const timer = setTimeout(() => {
+      const initial = getPlatformSettings();
+      setPlatformSettings(initial);
+    }, 0);
+
+    const unsubscribe = subscribeToSettings((scope) => {
       if (scope === 'platform') {
         const fresh = getPlatformSettings();
         setPlatformSettings(fresh);
@@ -246,6 +252,11 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
         }
       }
     });
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   // Quick Day Stepper

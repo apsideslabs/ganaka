@@ -868,28 +868,27 @@ export function PlatformSettingsDialog({
                   <label className="text-xs font-mono uppercase tracking-wider text-slate-600 font-bold block">
                     Default Kundali Chart Rendering Style
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <button
                       type="button"
                       id="platform-chart-style-north"
                       onClick={() => updateSetting('defaultChartStyle', 'north')}
                       className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all active:scale-[0.98] ${
                         settings.defaultChartStyle === 'north'
-                          ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs'
+                          ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-blue-600/30'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-serif font-bold text-slate-900">
-                          North Indian (Diamond)
+                          North Indian
                         </span>
                         <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
                           Fixed Houses
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 font-normal">
-                        Lagna is fixed in the top central diamond. Zodiac signs rotate through the
-                        houses.
+                        Lagna is fixed in the top central diamond. Zodiac signs rotate counter-clockwise.
                       </p>
                     </button>
 
@@ -899,20 +898,43 @@ export function PlatformSettingsDialog({
                       onClick={() => updateSetting('defaultChartStyle', 'south')}
                       className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all active:scale-[0.98] ${
                         settings.defaultChartStyle === 'south'
-                          ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs'
+                          ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-blue-600/30'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-serif font-bold text-slate-900">
-                          South Indian (Box)
+                          South Indian
                         </span>
                         <span className="text-[10px] font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
                           Fixed Signs
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 font-normal">
-                        12 zodiac signs are fixed in a clockwise grid starting from Aries (Meṣa) top-left.
+                        12 zodiac signs are fixed in a clockwise grid starting from Pisces/Aries top-row.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      id="platform-chart-style-east"
+                      onClick={() => updateSetting('defaultChartStyle', 'east')}
+                      className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all active:scale-[0.98] ${
+                        settings.defaultChartStyle === 'east'
+                          ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-blue-600/30'
+                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-serif font-bold text-slate-900">
+                          East Indian
+                        </span>
+                        <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                          Bengali/Mithila
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 font-normal">
+                        Fixed signs with bisected corner chambers. Aries top-center, anti-clockwise.
                       </p>
                     </button>
                   </div>

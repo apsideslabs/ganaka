@@ -34,7 +34,7 @@ export const JanmaPanchangaPanel: React.FC<JanmaPanchangaPanelProps> = ({
   second,
   cityName,
 }) => {
-  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
   const { panchanga, planets, lagna, meta } = chart;
   const { tithi, vara, nakshatra, yoga, karana, sunTimes, muhurtas, calendar } = panchanga;
 
@@ -108,6 +108,17 @@ export const JanmaPanchangaPanel: React.FC<JanmaPanchangaPanelProps> = ({
               }`}
             >
               South
+            </button>
+            <button
+              type="button"
+              onClick={() => setChartStyle('east')}
+              className={`px-2.5 py-1 text-xs rounded-xs font-bold transition-all cursor-pointer ${
+                chartStyle === 'east'
+                  ? 'bg-[#8B2F0B] text-[#FCFAF6] shadow-xs'
+                  : 'text-[#5C5850] hover:text-[#171614]'
+              }`}
+            >
+              East
             </button>
           </div>
         </div>

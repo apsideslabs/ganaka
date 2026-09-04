@@ -21,6 +21,7 @@ import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha'
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
 import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
 import { getPlatformSettings, subscribeToSettings } from '@/lib/settings/settings-storage';
+import { DEFAULT_PLATFORM_SETTINGS, PlatformSettings } from '@/lib/settings/types';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function HomeBirthDetailsPanel() {
@@ -32,15 +33,25 @@ export function HomeBirthDetailsPanel() {
   const [isQuickFilling, setIsQuickFilling] = useState<boolean>(false);
   const [usedDefaultLocSuccess, setUsedDefaultLocSuccess] = useState<boolean>(false);
 
-  // Platform settings
-  const [platformSettings, setPlatformSettings] = useState(() => getPlatformSettings());
+  // Platform settings - initialize with static defaults to ensure SSR/CSR hydration match
+  const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
 
   useEffect(() => {
-    return subscribeToSettings((scope) => {
+    // Read local storage settings safely on client mount without triggering SSR hydration mismatch
+    const timer = setTimeout(() => {
+      setPlatformSettings(getPlatformSettings());
+    }, 0);
+
+    const unsubscribe = subscribeToSettings((scope) => {
       if (scope === 'platform') {
         setPlatformSettings(getPlatformSettings());
       }
     });
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   // Core Form States
@@ -272,10 +283,11 @@ export function HomeBirthDetailsPanel() {
                 type="button"
                 id="home-use-default-location-btn"
                 onClick={handleApplyDefaultLocation}
+                suppressHydrationWarning
                 title={`Quickly apply default location: ${defaultLocName}`}
                 className="text-[10px] font-mono text-blue-700 hover:text-blue-900 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/60 px-2 py-0.5 rounded-xs transition-all active:scale-[0.97] cursor-pointer flex items-center gap-1"
               >
-                <span>{usedDefaultLocSuccess ? '✓ Applied' : `Use: ${defaultLocName.split(' (')[0]}`}</span>
+                <span suppressHydrationWarning>{usedDefaultLocSuccess ? '✓ Applied' : `Use: ${defaultLocName.split(' (')[0]}`}</span>
               </button>
             </div>
 

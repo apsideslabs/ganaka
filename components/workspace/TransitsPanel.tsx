@@ -43,7 +43,7 @@ export function TransitsPanel({
 }: TransitsPanelProps) {
   const [transitDate, setTransitDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<'table' | 'chart' | 'overlay'>('table');
-  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
 
   const transitData = useMemo(() => {
     return calculateCurrentTransits(
@@ -326,11 +326,19 @@ export function TransitsPanel({
             </button>
             <button
               onClick={() => setChartStyle('south')}
-              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all cursor-pointer ${
                 chartStyle === 'south' ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-sm' : 'text-[#4A3B32]'
               }`}
             >
               South Style
+            </button>
+            <button
+              onClick={() => setChartStyle('east')}
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all cursor-pointer ${
+                chartStyle === 'east' ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-sm' : 'text-[#4A3B32]'
+              }`}
+            >
+              East Style
             </button>
           </div>
 

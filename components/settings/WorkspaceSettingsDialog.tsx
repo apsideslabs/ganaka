@@ -179,20 +179,21 @@ export function WorkspaceSettingsDialog({
                   <label className="text-xs font-mono uppercase tracking-wider text-slate-600 font-bold block">
                     Chart Style Projection
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <button
                       type="button"
                       id="ws-style-north"
                       onClick={() => updateSetting('chartStyle', 'north')}
-                      className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
                         settings.chartStyle === 'north'
-                          ? 'border-[#8C2D19] bg-amber-50/40 text-slate-900 font-bold shadow-xs'
+                          ? 'border-[#8C2D19] bg-amber-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-[#8C2D19]/30'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <span className="text-xs font-serif font-bold block">North Indian (Diamond)</span>
+                      <span className="text-xs font-serif font-bold block">North Indian</span>
+                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Diamond / Kendra</span>
                       <span className="text-[11px] text-slate-500 font-normal mt-1 block">
-                        Lagna fixed top center. Signs rotate. Standard in Northern India.
+                        Lagna fixed top center. Signs rotate counter-clockwise.
                       </span>
                     </button>
 
@@ -200,15 +201,33 @@ export function WorkspaceSettingsDialog({
                       type="button"
                       id="ws-style-south"
                       onClick={() => updateSetting('chartStyle', 'south')}
-                      className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
+                      className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
                         settings.chartStyle === 'south'
-                          ? 'border-[#8C2D19] bg-amber-50/40 text-slate-900 font-bold shadow-xs'
+                          ? 'border-[#8C2D19] bg-amber-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-[#8C2D19]/30'
                           : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
-                      <span className="text-xs font-serif font-bold block">South Indian (Box)</span>
+                      <span className="text-xs font-serif font-bold block">South Indian</span>
+                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Fixed 4×4 Box</span>
                       <span className="text-[11px] text-slate-500 font-normal mt-1 block">
-                        Signs fixed in clockwise square. Lagna is marked with double diagonal slash.
+                        Signs fixed clockwise. Lagna marked with diagonal slash.
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      id="ws-style-east"
+                      onClick={() => updateSetting('chartStyle', 'east')}
+                      className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                        settings.chartStyle === 'east'
+                          ? 'border-[#8C2D19] bg-amber-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-[#8C2D19]/30'
+                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-xs font-serif font-bold block">East Indian</span>
+                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Bengali / Mithila</span>
+                      <span className="text-[11px] text-slate-500 font-normal mt-1 block">
+                        Signs fixed with bisected corners. Mesha top-center, anti-clockwise.
                       </span>
                     </button>
                   </div>

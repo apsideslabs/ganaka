@@ -22,7 +22,7 @@ interface VargasPanelProps {
 
 export function VargasPanel({ vargas, vargottamaPlanets, onNavigateToNavamsha }: VargasPanelProps) {
   const [selectedVargaId, setSelectedVargaId] = useState<VargaId>('D9');
-  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
 
   const activeVarga = vargas[selectedVargaId] || vargas['D1'];
 
@@ -82,6 +82,17 @@ export function VargasPanel({ vargas, vargottamaPlanets, onNavigateToNavamsha }:
               }`}
             >
               South (Box)
+            </button>
+            <button
+              id="btn-varga-east-style"
+              onClick={() => setChartStyle('east')}
+              className={`rounded-lg px-3 py-1 font-semibold transition-all cursor-pointer ${
+                chartStyle === 'east'
+                  ? 'bg-[#8C2D19] text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              East (Bengali)
             </button>
           </div>
 

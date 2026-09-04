@@ -24,12 +24,12 @@ export interface PlatformSettings {
   degreeFormat: 'dms' | 'decimal';
   timeFormat: '24h' | '12h';
   dinaManaUnit: 'hours' | 'ghatis' | 'both';
-  defaultChartStyle: 'north' | 'south';
+  defaultChartStyle: 'north' | 'south' | 'east';
   themeTone: 'classic_parchment' | 'pure_white' | 'slate_astronomy';
 }
 
 export interface WorkspaceSettings {
-  chartStyle: 'north' | 'south';
+  chartStyle: 'north' | 'south' | 'east';
   nodeMode: 'mean' | 'true';
   houseSystem: 'equal_whole' | 'sripati' | 'placidus';
   showDegreesInCells: boolean;
