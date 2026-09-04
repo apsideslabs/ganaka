@@ -19,7 +19,20 @@ export type MuhurtaObjectiveId =
   | 'namakarana' // Child Naming Ceremony
   | 'bhumi_kraya' // Land / Real Estate Purchase
   | 'vahana_kraya' // Vehicle Purchase
-  | 'chikitsarambha'; // Medical / Surgery / Treatment Commencement
+  | 'chikitsarambha' // Medical Treatment Commencement
+  | 'shalyakarma' // Surgery & Invasive Procedures
+  | 'suvarna_ratna' // Wearing Gold & Gemstones
+  | 'nutana_vastra'; // New Clothes & Luxury Adornments
+
+export interface MahaDoshaAuditRecord {
+  id: string;
+  name: string;
+  sanskritName: string;
+  status: 'CLEARED' | 'AFFLICTED' | 'MITIGATED';
+  detail: string;
+  mitigationText?: string;
+  citationText?: string;
+}
 
 /**
  * 4 Explicit Practical Classical Selection Tiers:
@@ -227,7 +240,42 @@ export interface CandidateMuhurtaPeriod {
     isGulika: boolean;
     isDurmuhurta: boolean;
     isBhadra: boolean;
+    // Window Specific Chronometry:
+    activeHoraLord: string;
+    activeHoraLordSanskrit: string;
+    activeHoraFavorability: string;
+    activeChoghadiyaName: string;
+    activeChoghadiyaNature: string;
+    activeChoghadiyaIsAuspicious: boolean;
+    isGodhuli: boolean;
+    isVijaya: boolean;
+    isBrahmaMuhurta: boolean;
+    isDagdhaTithi: boolean;
+    isYamaghantaYoga: boolean;
+    isMrityuYoga: boolean;
+    isDagdhaYoga: boolean;
   };
+  jamitraShuddhi: {
+    isClean: boolean;
+    planetsIn7th: string[];
+    description: string;
+  };
+  chandraLagnaRelation: {
+    rashiDistance: number;
+    isShadashtaka: boolean;
+    isDvidvadasha: boolean;
+    description: string;
+  };
+  combustionStatus: {
+    isJupiterCombust: boolean;
+    isVenusCombust: boolean;
+    description: string;
+  };
+  sankrantiStatus: {
+    isNearSankranti: boolean;
+    description: string;
+  };
+  mahaDoshasAudit: MahaDoshaAuditRecord[];
   citations: ClassicalCitation[];
 }
 

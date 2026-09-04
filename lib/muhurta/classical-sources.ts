@@ -141,5 +141,59 @@ export const CLASSICAL_SOURCES_REGISTRY: Record<string, ClassicalCitation> = {
     englishTranslation:
       'Puṣya Nakṣatra conjoined with Thursday (Guru Puṣya) or Sunday (Ravi Puṣya) fulfills all auspicious worldly and spiritual deeds, acting as a supreme sovereign blessing (excluding marriage).',
   },
+  mc_godhuli_parihara: {
+    text: 'Muhūrta Cintāmaṇi',
+    sanskritTitle: 'मुहूर्तचिन्तामणिः',
+    chapter: 'Vivāha Prakaraṇa (Ch. 6)',
+    shlokaRange: 'Śloka 48–51',
+    sanskritQuote: 'गोधूलिमुहूर्तस्तु सर्वदोषनिवारकः। रविरस्तंगतो यत्र घटिकाद्वयसंयुतः॥',
+    englishTranslation:
+      'Godhūli Muhūrta (the golden dust horizon window occurring at Sunset) acts as an authentic sovereign neutralizer of planetary afflictions and Lagna defects when no pure rising sign is accessible.',
+  },
+  mc_jamitra_shuddhi: {
+    text: 'Muhūrta Cintāmaṇi',
+    sanskritTitle: 'मुहूर्तचिन्तामणिः',
+    chapter: 'Vivāha & Sambandha (Ch. 6)',
+    shlokaRange: 'Śloka 15–18',
+    sanskritQuote: 'जामित्रे यदि पापोऽस्ति लग्नाच्चन्द्राच्च सप्तमे। तदा सर्वं विनश्येत जामित्रदोषसंज्ञितम्॥',
+    englishTranslation:
+      'If any malefic planet resides in the 7th house from the rising Lagna or the 7th from Moon, Jāmitra Doṣa arises, imperiling partnership, longevity, and matrimonial accord.',
+  },
+  mc_suvarna_ratna: {
+    text: 'Muhūrta Cintāmaṇi',
+    sanskritTitle: 'मुहूर्तचिन्तामणिः',
+    chapter: 'Ābhūṣaṇa & Suvarṇa Prakaraṇa (Ch. 12)',
+    shlokaRange: 'Śloka 1–4',
+    sanskritQuote: 'रत्नहेमाम्बरधरा पुष्ये हस्तपुनर्वसौ। गुरुशुक्रार्कवारेषु श्रीवृद्धिं कुरुते सदा॥',
+    englishTranslation:
+      'Wearing precious gemstones, gold, and divine jewelry in Puṣya, Hasta, Punarvasu, Rohiṇī, or Revatī on Sunday, Thursday, or Friday permanently magnifies wealth, longevity, and radiance.',
+  },
+  mc_nutana_vastra: {
+    text: 'Muhūrta Cintāmaṇi & Bṛhat Saṁhitā',
+    sanskritTitle: 'मुहूर्तचिन्तामणिः एवं बृहत्संहिता',
+    chapter: 'Vastradhāraṇa Prakaraṇa (Ch. 12 / Ch. 71)',
+    shlokaRange: 'Śloka 5–8',
+    sanskritQuote: 'नूतनवस्त्रपरिधानं बुधशुक्रसुधाहिते। अश्विनीरोहिणीहस्ते धनसौभाग्यवर्धनम्॥',
+    englishTranslation:
+      'First adornment of new attire on Wednesday, Friday, or Monday in gentle Nakṣatras grants immense fortune, beauty, marital happiness, and warding of negative energies.',
+  },
+  sushruta_shalyakarma: {
+    text: 'Suśruta Saṁhitā & Muhūrta Cintāmaṇi',
+    sanskritTitle: 'सुश्रुतसंहिता एवं मुहूर्तचिन्तामणिः',
+    chapter: 'Sūtrasthāna & Rogārambha (Ch. 5 / Ch. 14)',
+    shlokaRange: 'Śloka 10–14',
+    sanskritQuote: 'शल्यकर्म प्रशस्तं स्यात् कुजसौरे शुभान्विते। अष्टमे पापहीने तु रिपुनाशसमृद्धये॥',
+    englishTranslation:
+      'Surgical excision and invasive healing procedures succeed when Mars is dignified and the 8th house is guarded from afflictions, avoiding full Moon and organ-sensitive lunar transits.',
+  },
+  mc_ekavimshati_mahadosha: {
+    text: 'Muhūrta Cintāmaṇi',
+    sanskritTitle: 'मुहूर्तचिन्तामणिः',
+    chapter: 'Mahādoṣa Nirūpaṇa (Ch. 6)',
+    shlokaRange: 'Śloka 30–42',
+    sanskritQuote: 'एकविंशतिदोषाणां परिहारो विधीयते। पञ्चाङ्गशुद्धिलग्ने तु सर्वसिद्धिः प्रजायते॥',
+    englishTranslation:
+      'The 21 classical Mahā-Doṣas (including Pañcāṅga blemishes, Jāmitra, Aṣṭama affliction, Kartarī, Saṅkrānti, Bhadrā, and combustion) must be scrupulously audited for flawless electional auspiciousness.',
+  },
 };
 

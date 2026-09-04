@@ -606,6 +606,146 @@ export const MUHURTA_OBJECTIVES: MuhurtaObjectiveDefinition[] = [
       },
     ],
   },
+  {
+    id: 'shalyakarma',
+    name: 'Śalyakarma (Surgery & Invasive Procedures)',
+    sanskritName: 'शल्यकर्म मुहूर्तः',
+    category: 'Sāmānya',
+    briefDescription:
+      'Surgical excision, operative procedures, dental surgery, and aggressive curative treatments per Suśruta Saṁhitā.',
+    classicalSources: [CLASSICAL_SOURCES_REGISTRY.sushruta_shalyakarma],
+    dynamicQuestions: [
+      {
+        id: 'surgeryType',
+        label: 'Procedure Classification',
+        sanskritTerm: 'कर्मविभागः',
+        description: 'Nature of surgical operation.',
+        type: 'select',
+        options: [
+          { label: 'Elective / Reconstructive Surgery', value: 'elective' },
+          { label: 'Excision / Tumor / Tissue Removal', value: 'excision' },
+          { label: 'Dental / Minor Surgery', value: 'dental' },
+        ],
+        defaultValue: 'elective',
+      },
+    ],
+    favorableTithis: [2, 3, 5, 7, 10, 11, 13, 17, 18, 20, 22, 25, 26, 28],
+    favorableVaras: [2, 6, 0, 4], // Mars (Tuesday) and Saturn (Saturday) favored classically for cutting/scalpel
+    favorableNakshatras: [1, 3, 5, 6, 9, 10, 16, 18, 19, 20], // Ashwini, Krittika, Mrigashira, Ardra, Ashlesha, Magha, Vishakha, Jyeshtha, Mula, Purvashadha
+    favorableLagnas: [1, 8, 10, 11], // Aries, Scorpio, Capricorn, Aquarius
+    prohibitedTithis: [4, 9, 14, 19, 24, 29, 30], // Avoid Rikta & Amavasya
+    prohibitedVaras: [1], // Monday avoided for major bleeding risk
+    rules: [
+      {
+        id: 'shalya_rule_kuja',
+        name: 'Maṅgala (Mars) Strength & Purity',
+        sanskritName: 'कुजबलावेक्षणम्',
+        category: 'Planetary',
+        ruleTier: 'MAJOR_CONDITION',
+        description: 'Mars as the lord of scalpel and surgical precision must be fortified and not debilitated in Cancer.',
+        citation: CLASSICAL_SOURCES_REGISTRY.sushruta_shalyakarma,
+        isMandatory: true,
+      },
+      {
+        id: 'shalya_rule_ashtama',
+        name: 'Aṣṭama Bhāva Protection',
+        sanskritName: 'अष्टमस्थानरक्षणम्',
+        category: 'Lagna',
+        ruleTier: 'ABSOLUTE_PROHIBITION',
+        description: '8th house from rising Lagna must be devoid of malefic afflictions to ensure safe post-operative recovery.',
+        citation: CLASSICAL_SOURCES_REGISTRY.sushruta_shalyakarma,
+        isMandatory: true,
+      },
+    ],
+  },
+  {
+    id: 'suvarna_ratna',
+    name: 'Suvarṇa & Ratna Dhāraṇa (Gold & Gemstones)',
+    sanskritName: 'सुवर्णरत्नधारण मुहूर्तः',
+    category: 'Vāṇijya & Artha',
+    briefDescription:
+      'First wearing of consecrated gemstone talismans, gold ornaments, and divine jewelry per Muhūrta Cintāmaṇi Ch. 12.',
+    classicalSources: [CLASSICAL_SOURCES_REGISTRY.mc_suvarna_ratna],
+    dynamicQuestions: [
+      {
+        id: 'gemstoneType',
+        label: 'Gemstone / Metal Category',
+        sanskritTerm: 'रत्नधातुभेदः',
+        description: 'Specific gemstone or metal to be worn.',
+        type: 'select',
+        options: [
+          { label: 'Gold / Ruby / Sun Talisman (Sunday / Surya)', value: 'gold_ruby' },
+          { label: 'Yellow Sapphire / Topaz (Thursday / Guru)', value: 'yellow_sapphire' },
+          { label: 'Diamond / White Sapphire (Friday / Shukra)', value: 'diamond' },
+          { label: 'Emerald / Green Tourmaline (Wednesday / Budha)', value: 'emerald' },
+          { label: 'Pearl / Moonstone (Monday / Chandra)', value: 'pearl' },
+          { label: 'Blue Sapphire / Amethyst (Saturday / Shani)', value: 'blue_sapphire' },
+          { label: 'Red Coral / Mars Talisman (Tuesday / Mangala)', value: 'red_coral' },
+        ],
+        defaultValue: 'gold_ruby',
+      },
+    ],
+    favorableTithis: [2, 3, 5, 7, 10, 11, 12, 13, 15, 17, 18, 20, 22, 25, 26, 27],
+    favorableVaras: [0, 1, 3, 4, 5],
+    favorableNakshatras: [1, 4, 5, 7, 8, 12, 13, 14, 15, 17, 21, 22, 27], // Pushya, Rohini, Hasta, Chitra, Revati foremost
+    favorableLagnas: [2, 4, 5, 7, 9, 11, 12],
+    prohibitedTithis: [4, 9, 14, 19, 24, 29, 30],
+    prohibitedVaras: [],
+    rules: [
+      {
+        id: 'ratna_rule_pushya',
+        name: 'Puṣya & Ravi/Guru Confluence',
+        sanskritName: 'पुष्यनक्षत्रप्राशस्त्यम्',
+        category: 'Nakshatra',
+        ruleTier: 'SUPPORTING_CONDITION',
+        description: 'Puṣya, Hasta, and Revatī conjoined with Sunday or Thursday bestow supreme sovereign luster.',
+        citation: CLASSICAL_SOURCES_REGISTRY.mc_suvarna_ratna,
+        isMandatory: false,
+      },
+    ],
+  },
+  {
+    id: 'nutana_vastra',
+    name: 'Nūtana Vastra (New Clothes & Luxury Adornments)',
+    sanskritName: 'नूतनवस्त्रधारण मुहूर्तः',
+    category: 'Vāṇijya & Artha',
+    briefDescription:
+      'First wearing of new ceremonial clothes, wedding attire, and royal robes per Muhūrta Cintāmaṇi Ch. 12.',
+    classicalSources: [CLASSICAL_SOURCES_REGISTRY.mc_nutana_vastra],
+    dynamicQuestions: [
+      {
+        id: 'garmentType',
+        label: 'Attire Nature',
+        sanskritTerm: 'वस्त्रप्रकारः',
+        description: 'Ceremonial wedding attire vs Daily formal wear.',
+        type: 'select',
+        options: [
+          { label: 'Ceremonial / Festive Attire', value: 'ceremonial' },
+          { label: 'Professional / Business Suit', value: 'business' },
+          { label: 'Spiritual / Pūjā Vestments', value: 'spiritual' },
+        ],
+        defaultValue: 'ceremonial',
+      },
+    ],
+    favorableTithis: [2, 3, 5, 7, 10, 11, 13, 15, 17, 18, 20, 22, 25, 26, 27],
+    favorableVaras: [1, 3, 4, 5], // Monday, Wednesday, Thursday, Friday
+    favorableNakshatras: [1, 4, 5, 7, 8, 12, 13, 14, 15, 17, 21, 22, 27], // Ashwini, Rohini, Punarvasu, Pushya, Hasta, Chitra, Swati, Anuradha, Revati
+    favorableLagnas: [2, 3, 4, 6, 7, 9, 11, 12],
+    prohibitedTithis: [4, 9, 14, 19, 24, 29, 30],
+    prohibitedVaras: [0, 2], // Sunday and Tuesday avoided classically for new garments
+    rules: [
+      {
+        id: 'vastra_rule_shukra',
+        name: 'Śukra (Venus) Day & Dignity',
+        sanskritName: 'शुक्रवारप्राशस्त्यम्',
+        category: 'Vara',
+        ruleTier: 'SUPPORTING_CONDITION',
+        description: 'Friday (Venus day) in Saumya Nakṣatras magnifies aesthetic charm, health, and harmony.',
+        citation: CLASSICAL_SOURCES_REGISTRY.mc_nutana_vastra,
+        isMandatory: false,
+      },
+    ],
+  },
 ];
 
 export function getObjectiveById(id: MuhurtaObjectiveId): MuhurtaObjectiveDefinition {

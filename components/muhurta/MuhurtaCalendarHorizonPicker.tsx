@@ -304,15 +304,15 @@ export function MuhurtaCalendarHorizonPicker({
   return (
     <div
       id="muhurta-calendar-horizon-picker"
-      className="bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs p-4 sm:p-5 shadow-xs font-sans"
+      className="bg-white border border-[#E2E8F0] rounded-lg p-4 sm:p-5 shadow-xs font-sans"
     >
       {/* Top Header: Current Selected Horizon Summary */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DCD5C6] pb-3.5 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2E8F0] pb-3.5 mb-4">
         <div>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#8B2F0B] font-bold">
+          <span className="text-[11px] font-mono uppercase tracking-wider text-[#1D4ED8] font-bold">
             Search Horizon &amp; Astronomical Date Span
           </span>
-          <div className="text-sm sm:text-base font-serif font-bold text-[#171614] flex items-center gap-2 mt-0.5">
+          <div className="text-sm sm:text-base font-serif font-bold text-[#0F172A] flex items-center gap-2 mt-0.5">
             <span>
               {startDate.toLocaleDateString('en-US', {
                 month: 'short',
@@ -320,7 +320,7 @@ export function MuhurtaCalendarHorizonPicker({
                 year: 'numeric',
               })}
             </span>
-            <span className="text-[#847E72] font-normal">to</span>
+            <span className="text-[#64748B] font-normal">to</span>
             <span>
               {endDate.toLocaleDateString('en-US', {
                 month: 'short',
@@ -328,21 +328,21 @@ export function MuhurtaCalendarHorizonPicker({
                 year: 'numeric',
               })}
             </span>
-            <span className="text-xs font-mono px-2 py-0.5 bg-[#ECE7DC] text-[#8B2F0B] font-semibold rounded-xs ml-1">
+            <span className="text-xs font-mono px-2 py-0.5 bg-blue-50 text-[#1D4ED8] font-semibold rounded-md border border-blue-100 ml-1">
               {diffDays} {diffDays === 1 ? 'Day' : 'Days'} Window
             </span>
           </div>
         </div>
 
         {/* Start / End Selection Toggle Indicator */}
-        <div className="flex items-center gap-1 bg-[#ECE7DC] p-0.5 rounded-xs border border-[#DCD5C6] text-xs font-mono">
+        <div className="flex items-center gap-1 bg-[#F8FAFC] p-1 rounded-md border border-[#E2E8F0] text-xs font-mono">
           <button
             type="button"
             onClick={() => setSelectionTarget('start')}
-            className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               selectionTarget === 'start'
-                ? 'bg-[#171614] text-[#FCFAF6] font-bold'
-                : 'text-[#5C5850] hover:text-[#171614]'
+                ? 'bg-[#1D4ED8] text-white font-bold shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
             1. Set Start Date
@@ -350,10 +350,10 @@ export function MuhurtaCalendarHorizonPicker({
           <button
             type="button"
             onClick={() => setSelectionTarget('end')}
-            className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
               selectionTarget === 'end'
-                ? 'bg-[#171614] text-[#FCFAF6] font-bold'
-                : 'text-[#5C5850] hover:text-[#171614]'
+                ? 'bg-[#1D4ED8] text-white font-bold shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
             2. Set End Date
@@ -364,7 +364,7 @@ export function MuhurtaCalendarHorizonPicker({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Quick Preset Horizon Chips */}
         <div className="lg:col-span-5 space-y-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-[#5C5850] font-semibold block mb-1">
+          <span className="text-xs font-mono uppercase tracking-wider text-[#64748B] font-semibold block mb-1">
             Real-World Constraint Presets
           </span>
           <div className="grid grid-cols-2 gap-1.5 max-h-72 overflow-y-auto pr-1">
@@ -377,49 +377,49 @@ export function MuhurtaCalendarHorizonPicker({
                   key={preset.id}
                   type="button"
                   onClick={() => handleApplyPreset(preset)}
-                  className={`text-left p-2 text-xs font-mono border rounded-xs transition-all flex flex-col justify-between cursor-pointer ${
+                  className={`text-left p-2.5 text-xs font-mono border rounded-md transition-all flex flex-col justify-between cursor-pointer ${
                     isMatch
-                      ? 'bg-[#171614] text-[#FCFAF6] border-[#171614] font-bold shadow-xs ring-1 ring-[#171614]'
-                      : 'bg-[#F4F0E7] text-[#171614] border-[#DCD5C6] hover:border-[#8B2F0B] hover:bg-[#ECE7DC]'
+                      ? 'bg-[#0F172A] text-white border-[#0F172A] font-bold shadow-xs'
+                      : 'bg-[#F8FAFC] text-[#0F172A] border-[#E2E8F0] hover:border-[#1D4ED8] hover:bg-blue-50/50'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span className="font-bold">{preset.label}</span>
-                    {isMatch && <Check className="w-3 h-3 text-[#C49A45]" />}
+                    {isMatch && <Check className="w-3.5 h-3.5 text-blue-400" />}
                   </div>
-                  <span className={`text-[10px] mt-0.5 block truncate ${isMatch ? 'text-[#C49A45]' : 'text-[#847E72]'}`}>
+                  <span className={`text-[10px] mt-0.5 block truncate ${isMatch ? 'text-blue-200' : 'text-[#64748B]'}`}>
                     {preset.sublabel}
                   </span>
                 </button>
               );
             })}
           </div>
-          <div className="pt-2 text-[11px] text-[#847E72] font-serif leading-tight">
-            * <strong>Constraint-First Selection:</strong> Searches strictly within your required time horizon. Blemishes are disclosed with classical mitigations.
+          <div className="pt-2 text-[11px] text-[#64748B] font-serif leading-tight">
+            * <strong>Constraint-First Selection:</strong> Evaluates all rising ascendants strictly within your chosen date horizon with genuine classical clearance.
           </div>
         </div>
 
         {/* Right Column: Interactive Clean Bespoke Calendar Month Grid */}
-        <div className="lg:col-span-7 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs p-4">
+        <div className="lg:col-span-7 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md p-4">
           {/* Month Navigation Bar */}
-          <div className="flex items-center justify-between pb-3 border-b border-[#DCD5C6]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1.5 rounded-xs hover:bg-[#ECE7DC] text-[#171614] border border-[#DCD5C6] cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-white text-[#0F172A] border border-[#E2E8F0] cursor-pointer shadow-2xs"
               title="Previous Month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="text-sm font-serif font-bold text-[#171614] tracking-wide">
+            <span className="text-sm font-serif font-bold text-[#0F172A] tracking-wide">
               {MONTH_NAMES[viewMonth]} {viewYear}
             </span>
 
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1.5 rounded-xs hover:bg-[#ECE7DC] text-[#171614] border border-[#DCD5C6] cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-white text-[#0F172A] border border-[#E2E8F0] cursor-pointer shadow-2xs"
               title="Next Month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -427,9 +427,9 @@ export function MuhurtaCalendarHorizonPicker({
           </div>
 
           {/* Weekday Header Row */}
-          <div className="grid grid-cols-7 gap-1 text-center py-2 border-b border-[#DCD5C6] text-[11px] font-mono font-bold text-[#5C5850]">
+          <div className="grid grid-cols-7 gap-1 text-center py-2 border-b border-[#E2E8F0] text-[11px] font-mono font-bold text-[#64748B]">
             {WEEKDAY_NAMES.map((wd, i) => (
-              <div key={wd} className={i === 0 ? 'text-[#8B2F0B]' : ''}>
+              <div key={wd} className={i === 0 ? 'text-rose-600' : ''}>
                 {wd}
               </div>
             ))}
@@ -442,13 +442,13 @@ export function MuhurtaCalendarHorizonPicker({
               const isEnd = item.isSelectedEnd;
               const inRange = item.isInRange;
 
-              let btnClass = 'text-[#171614] hover:bg-[#ECE7DC]';
+              let btnClass = 'text-[#0F172A] hover:bg-white';
               if (!item.isCurrentMonth) {
-                btnClass = 'text-[#A69F91] opacity-40 hover:bg-transparent';
+                btnClass = 'text-slate-300 opacity-40 hover:bg-transparent';
               } else if (isStart || isEnd) {
-                btnClass = 'bg-[#8B2F0B] text-[#FCFAF6] font-bold shadow-xs';
+                btnClass = 'bg-[#1D4ED8] text-white font-bold shadow-xs';
               } else if (inRange) {
-                btnClass = 'bg-[#ECE7DC] text-[#8B2F0B] font-semibold';
+                btnClass = 'bg-blue-100 text-[#1D4ED8] font-semibold';
               }
 
               return (
@@ -457,11 +457,11 @@ export function MuhurtaCalendarHorizonPicker({
                   type="button"
                   disabled={!item.isCurrentMonth}
                   onClick={() => item.isCurrentMonth && handleSelectDay(item.date)}
-                  className={`h-9 sm:h-10 text-xs sm:text-sm font-mono rounded-xs flex flex-col items-center justify-center relative transition-colors cursor-pointer ${btnClass}`}
+                  className={`h-9 sm:h-10 text-xs sm:text-sm font-mono rounded-md flex flex-col items-center justify-center relative transition-colors cursor-pointer ${btnClass}`}
                 >
                   <span>{item.dayNumber}</span>
                   {item.isToday && !isStart && !isEnd && (
-                    <span className="absolute bottom-1 w-1 h-1 rounded-full bg-[#8B2F0B]" />
+                    <span className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-[#1D4ED8]" />
                   )}
                 </button>
               );

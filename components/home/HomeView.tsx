@@ -2,9 +2,26 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { GeometricSolarSystemBackground } from '@/components/background/GeometricSolarSystemBackground';
-import { HomeBirthDetailsPanel } from '@/components/home/HomeBirthDetailsPanel';
 import { GanakaButton } from '@/components/ui/GanakaButton';
+
+const HomeBirthDetailsPanel = dynamic(
+  () =>
+    import('@/components/home/HomeBirthDetailsPanel').then(
+      (mod) => mod.HomeBirthDetailsPanel
+    ),
+  {
+    loading: () => (
+      <div className="w-full min-h-[360px] p-6 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs flex flex-col items-center justify-center space-y-3">
+        <div className="w-6 h-6 border-2 border-[#8B2F0B] border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs font-mono text-[#5C5850]">
+          Initializing Ephemeris &amp; Geodetic Console...
+        </span>
+      </div>
+    ),
+  }
+);
 import {
   Compass,
   Layers,

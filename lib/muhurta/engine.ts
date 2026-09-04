@@ -18,6 +18,7 @@ import {
   MuhurtaQualityTier,
   MuhurtaSearchResult,
   SearchHorizonPreset,
+  MahaDoshaAuditRecord,
 } from './types';
 import { getObjectiveById } from './objectives-registry';
 import { calculateJulianDay, normalizeDegrees } from '@/lib/astronomy/julian';
@@ -61,6 +62,73 @@ const AMRITA_SIDDHI_MAP: Record<number, number> = {
   4: 8,  // Thu + Pushya
   5: 27, // Fri + Revati
   6: 4,  // Sat + Rohini
+};
+
+// Dagdha Tithis by Weekday (0 = Sun, ..., 6 = Sat)
+// Tithis 1-15 (and corresponding Krishna 16-30)
+const DAGDHA_TITHIS_MAP: Record<number, number> = {
+  0: 12, // Sun + 12 (Dvadashi)
+  1: 11, // Mon + 11 (Ekadashi)
+  2: 5,  // Tue + 5 (Panchami)
+  3: 3,  // Wed + 3 (Tritiya)
+  4: 6,  // Thu + 6 (Shashthi)
+  5: 8,  // Fri + 8 (Ashtami)
+  6: 9,  // Sat + 9 (Navami)
+};
+
+// Yamaghanta Yoga (Weekday -> Prohibited Nakshatra)
+const YAMAGHANTA_YOGA_MAP: Record<number, number> = {
+  0: 10, // Sun + Magha (10)
+  1: 16, // Mon + Vishakha (16)
+  2: 6,  // Tue + Ardra (6)
+  3: 19, // Wed + Mula (19)
+  4: 3,  // Thu + Krittika (3)
+  5: 4,  // Fri + Rohini (4)
+  6: 13, // Sat + Hasta (13)
+};
+
+// Mrityu Yoga (Weekday -> Prohibited Nakshatra)
+const MRITYU_YOGA_MAP: Record<number, number> = {
+  0: 17, // Sun + Anuradha (17)
+  1: 21, // Mon + Uttarashadha (21)
+  2: 24, // Tue + Shatabhisha (24)
+  3: 1,  // Wed + Ashwini (1)
+  4: 5,  // Thu + Mrigashira (5)
+  5: 9,  // Fri + Ashlesha (9)
+  6: 13, // Sat + Hasta (13)
+};
+
+// Dagdha Yoga (Weekday -> Prohibited Nakshatra)
+const DAGDHA_YOGA_MAP: Record<number, number> = {
+  0: 2,  // Sun + Bharani (2)
+  1: 14, // Mon + Chitra (14)
+  2: 21, // Tue + Uttarashadha (21)
+  3: 23, // Wed + Dhanishtha (23)
+  4: 18, // Thu + Jyeshtha (18)
+  5: 20, // Fri + Purvashadha (20)
+  6: 27, // Sat + Revati (27)
+};
+
+// Choghadiya Patterns (Daytime and Nighttime)
+type ChoghadiyaName = 'Amrit' | 'Shubh' | 'Labh' | 'Char' | 'Rog' | 'Kaal' | 'Udveg';
+const CHOGHADIYA_DAY_PATTERNS: Record<number, ChoghadiyaName[]> = {
+  0: ['Udveg', 'Char', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg'],
+  1: ['Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Char', 'Labh', 'Amrit'],
+  2: ['Rog', 'Udveg', 'Char', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog'],
+  3: ['Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Char', 'Labh'],
+  4: ['Shubh', 'Rog', 'Udveg', 'Char', 'Labh', 'Amrit', 'Kaal', 'Shubh'],
+  5: ['Char', 'Labh', 'Amrit', 'Kaal', 'Shubh', 'Rog', 'Udveg', 'Char'],
+  6: ['Kaal', 'Shubh', 'Rog', 'Udveg', 'Char', 'Labh', 'Amrit', 'Kaal'],
+};
+
+const CHOGHADIYA_NIGHT_PATTERNS: Record<number, ChoghadiyaName[]> = {
+  0: ['Shubh', 'Amrit', 'Char', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh'],
+  1: ['Char', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Char'],
+  2: ['Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Char', 'Rog', 'Kaal'],
+  3: ['Udveg', 'Shubh', 'Amrit', 'Char', 'Rog', 'Kaal', 'Labh', 'Udveg'],
+  4: ['Amrit', 'Char', 'Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit'],
+  5: ['Rog', 'Kaal', 'Labh', 'Udveg', 'Shubh', 'Amrit', 'Char', 'Rog'],
+  6: ['Labh', 'Udveg', 'Shubh', 'Amrit', 'Char', 'Rog', 'Kaal', 'Labh'],
 };
 
 // Gandanta Nakshatra Numbers (Junctions of Water & Fire signs)
@@ -522,6 +590,9 @@ function evaluateSingleMuhurtaWindow(
 
   // F. Diurnal Time Windows & Inauspicious Slots
   const dayLength = sunsetDec - sunriseDec;
+  const midHourDec = (lagna.startHourDecimal + lagna.endHourDecimal) / 2;
+  const isDay = lagna.isDaytime;
+
   const rahuKalaOrder: Record<number, number> = { 0: 8, 1: 2, 2: 7, 3: 5, 4: 6, 5: 4, 6: 3 };
   const rkSegment = rahuKalaOrder[varaNum] || 8;
   const rkStart = sunriseDec + ((rkSegment - 1) * dayLength) / 8;
@@ -554,6 +625,19 @@ function evaluateSingleMuhurtaWindow(
     !(lagnaEnd <= abhijitStart || lagnaStart >= abhijitEnd) &&
     varaNum !== 3; // Wednesday Abhijit is excluded per tradition
 
+  // Godhūli Muhūrta (12 minutes before to 12 minutes after Sunset: 0.2 hr window)
+  const isGodhuli = !(lagnaEnd <= sunsetDec - 0.2 || lagnaStart >= sunsetDec + 0.2);
+
+  // Vijaya Muhūrta (14th Muhūrta of daytime: 13/15 to 14/15)
+  const vijayaStart = sunriseDec + (13 * dayLength) / 15;
+  const vijayaEnd = sunriseDec + (14 * dayLength) / 15;
+  const isVijaya = lagna.isDaytime && !(lagnaEnd <= vijayaStart || lagnaStart >= vijayaEnd);
+
+  // Brahma Muhūrta (14th Muhūrta of nighttime: approx 96 min before sunrise)
+  const brahmaStart = sunriseDec - 1.6;
+  const brahmaEnd = sunriseDec - 0.8;
+  const isBrahmaMuhurta = !(lagnaEnd <= brahmaStart || lagnaStart >= brahmaEnd);
+
   // Bhadrā / Viṣṭi Karaṇa check
   const isBhadra =
     panchanga.karana.name.toLowerCase().includes('viṣṭi') ||
@@ -562,6 +646,110 @@ function evaluateSingleMuhurtaWindow(
 
   // Gaṇḍānta Check
   const isGandanta = GANDANTA_NAKSHATRAS.includes(nakNum);
+
+  // Active Horā Lord Determination for this specific window
+  const HORA_PLANETS_ORDER: PlanetId[] = ['saturn', 'jupiter', 'mars', 'sun', 'venus', 'mercury', 'moon'];
+  const VARA_START_HORA: Record<number, PlanetId> = {
+    0: 'sun', 1: 'moon', 2: 'mars', 3: 'mercury', 4: 'jupiter', 5: 'venus', 6: 'saturn'
+  };
+  const horaStartLord = VARA_START_HORA[varaNum] || 'sun';
+  const horaCycleStartIdx = HORA_PLANETS_ORDER.indexOf(horaStartLord);
+  let horaIndex = 0;
+  if (isDay) {
+    const elapsedDay = Math.max(0, midHourDec - sunriseDec);
+    horaIndex = Math.min(11, Math.floor((elapsedDay / dayLength) * 12));
+  } else {
+    const elapsedNight = midHourDec >= sunsetDec ? midHourDec - sunsetDec : midHourDec + 24 - sunsetDec;
+    const nightLength = 24 - dayLength;
+    horaIndex = 12 + Math.min(11, Math.floor((elapsedNight / nightLength) * 12));
+  }
+  const activeHoraLordId = HORA_PLANETS_ORDER[(horaCycleStartIdx + horaIndex) % 7];
+  const activeHoraLordName = GRAHA_PROPERTIES[activeHoraLordId]?.name || activeHoraLordId;
+  const activeHoraLordSanskrit = GRAHA_PROPERTIES[activeHoraLordId]?.sanskritName || activeHoraLordId;
+  const isHoraBenefic = naturalBenefics.includes(activeHoraLordId);
+  const activeHoraFavorability = isHoraBenefic
+    ? 'Benefic Horā (शुभ होरा) — Harmonious'
+    : activeHoraLordId === 'sun' || activeHoraLordId === 'mars'
+    ? 'Dynamic Horā (उग्र होरा) — Suited for initiative & surgery'
+    : 'Challenging Horā (मन्द होरा)';
+
+  // Active Choghadiyā Determination
+  let activeChoghadiyaName: ChoghadiyaName = 'Char';
+  if (isDay) {
+    const elapsedDay = Math.max(0, midHourDec - sunriseDec);
+    const slot = Math.min(7, Math.floor((elapsedDay / dayLength) * 8));
+    activeChoghadiyaName = CHOGHADIYA_DAY_PATTERNS[varaNum]?.[slot] || 'Char';
+  } else {
+    const elapsedNight = midHourDec >= sunsetDec ? midHourDec - sunsetDec : midHourDec + 24 - sunsetDec;
+    const nightLength = 24 - dayLength;
+    const slot = Math.min(7, Math.floor((elapsedNight / nightLength) * 8));
+    activeChoghadiyaName = CHOGHADIYA_NIGHT_PATTERNS[varaNum]?.[slot] || 'Char';
+  }
+  const choghadiyaNatureMap: Record<ChoghadiyaName, { nature: string; isAuspicious: boolean }> = {
+    Amrit: { nature: 'Supreme Nectar (अमृत)', isAuspicious: true },
+    Shubh: { nature: 'Auspicious (शुभ)', isAuspicious: true },
+    Labh: { nature: 'Commercial Gain (लाभ)', isAuspicious: true },
+    Char: { nature: 'Active Mobility (चल)', isAuspicious: true },
+    Rog: { nature: 'Disease & Obstacle (रोग)', isAuspicious: false },
+    Kaal: { nature: 'Destruction & Loss (काल)', isAuspicious: false },
+    Udveg: { nature: 'Anxiety & Agitation (उद्वेग)', isAuspicious: false },
+  };
+  const choghadiyaInfo = choghadiyaNatureMap[activeChoghadiyaName] || { nature: 'Neutral', isAuspicious: true };
+
+  // Dagdha Tithi Check
+  const tithiInPaksha = ((tithiNum - 1) % 15) + 1;
+  const isDagdhaTithi = DAGDHA_TITHIS_MAP[varaNum] === tithiInPaksha;
+
+  // Inauspicious Yogas
+  const isYamaghantaYoga = YAMAGHANTA_YOGA_MAP[varaNum] === nakNum;
+  const isMrityuYoga = MRITYU_YOGA_MAP[varaNum] === nakNum;
+  const isDagdhaYoga = DAGDHA_YOGA_MAP[varaNum] === nakNum;
+
+  // Jāmitra Śuddhi (7th from Lagna and 7th from Moon)
+  const planetsIn7thLagna = planetsByHouse[7];
+  const moon7thHouse = (((moonHouse + 6 - 1) % 12) + 1);
+  const planetsIn7thMoon = planetsByHouse[moon7thHouse];
+  const all7thPlanets = [...planetsIn7thLagna, ...planetsIn7thMoon.filter(p => !planetsIn7thLagna.some(lp => lp.planetId === p.planetId))];
+  const hasMaleficIn7th = planetsIn7thLagna.some((p) => p.isMalefic) || planetsIn7thMoon.some((p) => p.isMalefic);
+  const jamitraDescription = hasMaleficIn7th
+    ? `Afflicted: 7th house contains ${all7thPlanets.filter(p => p.isMalefic).map(p => p.sanskritName).join(', ')} (Jāmitra Doṣa)`
+    : planetsIn7thLagna.length === 0
+    ? 'Pure 7th House (जामित्रशुद्धिः) — No occupants in 7th'
+    : `Fortified: 7th house supported by benefic ${all7thPlanets.map(p => p.sanskritName).join(', ')}`;
+
+  // Candra-Lagna Relation (Distance in Rashis)
+  const chandraLagnaDist = (((moonRashiNum - lagnaRashi + 12) % 12) + 1);
+  const isShadashtaka = chandraLagnaDist === 6 || chandraLagnaDist === 8;
+  const isDvidvadasha = chandraLagnaDist === 2 || chandraLagnaDist === 12;
+  const chandraLagnaDesc = isShadashtaka
+    ? `Ṣaḍaṣṭaka (6/8 axis): Moon is 6/8 from rising Lagna, introducing mental unrest`
+    : isDvidvadasha
+    ? `Dvidvādaśa (2/12 axis): Moon is 2/12 from rising Lagna`
+    : `Harmonious (House ${chandraLagnaDist} relationship from Lagna)`;
+
+  // Guru & Śukra Combustion (Mūḍhatva)
+  const sunLon = planets.sun ? planets.sun.siderealLongitude : 0;
+  const jupLon = planets.jupiter ? planets.jupiter.siderealLongitude : 0;
+  const venLon = planets.venus ? planets.venus.siderealLongitude : 0;
+  const jupSunDiff = Math.min((jupLon - sunLon + 360) % 360, (sunLon - jupLon + 360) % 360);
+  const venSunDiff = Math.min((venLon - sunLon + 360) % 360, (sunLon - venLon + 360) % 360);
+  const isJupiterCombust = jupSunDiff <= 11.0;
+  const isVenusCombust = venSunDiff <= 10.0;
+  let combustionDesc = 'Both Jupiter and Venus are bright and uncombust.';
+  if (isJupiterCombust && isVenusCombust) {
+    combustionDesc = 'Severe: Both Guru and Śukra are combust (Mūḍha / अस्त).';
+  } else if (isJupiterCombust) {
+    combustionDesc = 'Guru is combust (गुरु मौढ्य / अस्त) — inauspicious for marriage and major initiations.';
+  } else if (isVenusCombust) {
+    combustionDesc = 'Śukra is combust (शुक्र मौढ्य / अस्त) — inauspicious for marriage and auspicious milestones.';
+  }
+
+  // Sūrya Saṅkrānti Proximity
+  const sunDegInRashi = planets.sun ? planets.sun.siderealLongitude % 30 : 15;
+  const isNearSankranti = sunDegInRashi < 1.0 || sunDegInRashi > 29.0;
+  const sankrantiDesc = isNearSankranti
+    ? `Saṅkrānti Sandhi: Sun at ${sunDegInRashi.toFixed(1)}° of ${sunRashiInfo?.name || ''} (within 16 Ghaṭīs transition)`
+    : `Stable Solar Phase: Sun at ${sunDegInRashi.toFixed(1)}° of ${sunRashiInfo?.name || ''}`;
 
   // G. Special Auspicious Yogas & Classical Parihāras
   // 1. Sarvārtha Siddhī Yoga
@@ -627,6 +815,29 @@ function evaluateSingleMuhurtaWindow(
       mitigatesDosha: 'Weekday and planetary neutralities',
       citation: CLASSICAL_SOURCES_REGISTRY.sarvartha_siddhi_parihara,
     });
+  }
+
+  // 5. Godhūli Muhūrta
+  if (isGodhuli) {
+    specialYogas.push('Godhūli Muhūrta (गोधूलि वेला)');
+    appliedPariharas.push({
+      id: 'parihara_godhuli',
+      title: 'Godhūli Muhūrta Parihāra',
+      sanskritTitle: 'गोधूलि परिहारः',
+      description: 'The auspicious sunset twilight window neutralizes planetary blemishes when pure Lagnas are unavailable per Muhūrta Cintāmaṇi 6.48.',
+      mitigatesDosha: 'Lagna defects and directional blemishes',
+      citation: CLASSICAL_SOURCES_REGISTRY.mc_godhuli_parihara,
+    });
+  }
+
+  // 6. Vijaya Muhūrta
+  if (isVijaya) {
+    specialYogas.push('Vijaya Muhūrta (विजय मुहूर्त)');
+  }
+
+  // 7. Brahma Muhūrta
+  if (isBrahmaMuhurta) {
+    specialYogas.push('Brahma Muhūrta (ब्रह्म मुहूर्त)');
   }
 
   // --- 3. EVALUATE ALL OBJECTIVE-SPECIFIC CONDITIONS ---
@@ -1027,15 +1238,244 @@ function evaluateSingleMuhurtaWindow(
   if (isAmritaSiddhi) rawPurity += 15;
   if (isGuruPushya || isRaviPushya) rawPurity += 20;
   if (isAbhijitOverlap) rawPurity += 12;
+  if (isGodhuli) rawPurity += 14;
+  if (isVijaya) rawPurity += 10;
+  if (isBrahmaMuhurta) rawPurity += 10;
+  if (choghadiyaInfo.isAuspicious) rawPurity += 6;
+  if (isHoraBenefic) rawPurity += 5;
   if (isWaxing) rawPurity += 5;
   if (isMoonExalted || isMoonOwnSign) rawPurity += 8;
   if (isMoonDebilitated) rawPurity -= 18;
   if (isLagnaPapaKartari) rawPurity -= 15;
   if (isRahuKalaOverlap) rawPurity -= 35;
   if (isBhadra) rawPurity -= 35;
+  if (isYamaghantaYoga) {
+    rawPurity -= 25;
+    keyNegativeFactors.push(`Yamaghaṇṭa Yoga (${panchanga.vara.name} + ${panchanga.nakshatra.name})`);
+  }
+  if (isMrityuYoga) {
+    rawPurity -= 30;
+    keyNegativeFactors.push(`Mṛtyu Yoga (${panchanga.vara.name} + ${panchanga.nakshatra.name})`);
+  }
+  if (isDagdhaYoga) {
+    rawPurity -= 25;
+    keyNegativeFactors.push(`Dagdha Yoga (${panchanga.vara.name} + ${panchanga.nakshatra.name})`);
+  }
+  if (isDagdhaTithi) {
+    if (!isAbhijitOverlap) {
+      rawPurity -= 15;
+      keyNegativeFactors.push(`Dagdha Tithi (${panchanga.tithi.name} on ${panchanga.vara.name})`);
+    }
+  }
+  if (hasMaleficIn7th) {
+    const penalty = objective.id === 'vivaha' ? 35 : 15;
+    rawPurity -= penalty;
+    keyNegativeFactors.push(`Jāmitra Doṣa: Malefic in 7th house`);
+  }
+  if (isShadashtaka) {
+    rawPurity -= 10;
+    keyNegativeFactors.push(`Candra-Lagna Ṣaḍaṣṭaka (6/8 axis)`);
+  }
+  if (isJupiterCombust || isVenusCombust) {
+    const penalty = objective.id === 'vivaha' || objective.id === 'grihapravesha' ? 25 : 10;
+    rawPurity -= penalty;
+    keyNegativeFactors.push(isJupiterCombust ? 'Guru Mūḍha (Combust Jupiter)' : 'Śukra Mūḍha (Combust Venus)');
+  }
+  if (isNearSankranti) {
+    rawPurity -= 20;
+    keyNegativeFactors.push('Sūrya Saṅkrānti Sandhi (Solar transition window)');
+  }
   if (unmitigatedProhibitions.length > 0) rawPurity = Math.min(rawPurity, 30);
 
   const purityScore = Math.max(5, Math.min(100, Math.round(rawPurity)));
+
+  // Build the 21 Classical Mahā-Doṣas Structured Audit Ledger
+  const mahaDoshasAudit: MahaDoshaAuditRecord[] = [
+    {
+      id: 'md_tithi',
+      name: 'Tithi Śuddhi',
+      sanskritName: 'तिथि शुद्धि',
+      status: [4, 9, 14, 19, 24, 29, 30].includes(tithiNum) ? 'AFFLICTED' : 'CLEARED',
+      detail: [4, 9, 14, 19, 24, 29].includes(tithiNum)
+        ? `Rikta Tithi (${panchanga.tithi.name}) active — avoided in classical texts`
+        : tithiNum === 30
+        ? 'Amāvasyā (New Moon) active — universally prohibited'
+        : `Auspicious ${panchanga.tithi.name} (${panchanga.tithi.paksha} Pakṣa)`,
+      mitigationText: (isAbhijitOverlap || isGuruPushya) && tithiNum !== 30 ? 'Mitigated by Abhijit / Sovereign Yoga' : undefined,
+    },
+    {
+      id: 'md_vara',
+      name: 'Vāra Śuddhi',
+      sanskritName: 'वार शुद्धि',
+      status: objective.prohibitedVaras.includes(varaNum) ? 'AFFLICTED' : 'CLEARED',
+      detail: objective.prohibitedVaras.includes(varaNum)
+        ? `${panchanga.vara.name} is prohibited for ${objective.name}`
+        : `${panchanga.vara.name} is harmonious`,
+    },
+    {
+      id: 'md_nakshatra',
+      name: 'Nakṣatra Śuddhi',
+      sanskritName: 'नक्षत्र शुद्धि',
+      status: objective.favorableNakshatras.includes(nakNum) ? 'CLEARED' : 'AFFLICTED',
+      detail: objective.favorableNakshatras.includes(nakNum)
+        ? `${panchanga.nakshatra.name} (Pada ${panchanga.nakshatra.pada}) is praised`
+        : `${panchanga.nakshatra.name} is neutral/secondary for this deed`,
+      mitigationText: isSarvarthaSiddhi ? 'Conjoined in Sarvārtha Siddhi Yoga' : undefined,
+    },
+    {
+      id: 'md_yoga',
+      name: 'Yoga Śuddhi',
+      sanskritName: 'योग शुद्धि',
+      status: [17, 27].includes(panchanga.yoga.number) ? 'AFFLICTED' : 'CLEARED',
+      detail: panchanga.yoga.number === 17
+        ? 'Vyatīpāta Mahādoṣa — strictly avoid'
+        : panchanga.yoga.number === 27
+        ? 'Vaidhṛti Mahādoṣa — strictly avoid'
+        : `Pure Solar-Lunar Yoga (${panchanga.yoga.name})`,
+    },
+    {
+      id: 'md_karana',
+      name: 'Karaṇa Śuddhi (Viṣṭi/Bhadrā)',
+      sanskritName: 'करण शुद्धि (भद्रा)',
+      status: isBhadra ? 'AFFLICTED' : 'CLEARED',
+      detail: isBhadra
+        ? 'Viṣṭi (Bhadrā) Karaṇa active — severe prohibition'
+        : `Fortified Karaṇa (${panchanga.karana.name})`,
+    },
+    {
+      id: 'md_sankranti',
+      name: 'Sūrya Saṅkrānti Sandhi',
+      sanskritName: 'सूर्य सङ्क्रान्ति सन्धि',
+      status: isNearSankranti ? 'AFFLICTED' : 'CLEARED',
+      detail: sankrantiDesc,
+    },
+    {
+      id: 'md_kartari',
+      name: 'Pāpa-Kartarī on Lagna',
+      sanskritName: 'पापकर्तरी दोष',
+      status: isLagnaPapaKartari ? 'AFFLICTED' : 'CLEARED',
+      detail: isLagnaPapaKartari
+        ? 'Rising Lagna is hemmed between malefics in 12th & 2nd houses'
+        : 'Rising Lagna is clear of adjacent malefic scissors',
+    },
+    {
+      id: 'md_chandra_shadashtaka',
+      name: 'Candra-Lagna Ṣaḍaṣṭaka',
+      sanskritName: 'चन्द्र-लग्न षडाष्टक',
+      status: isShadashtaka ? 'AFFLICTED' : 'CLEARED',
+      detail: chandraLagnaDesc,
+    },
+    {
+      id: 'md_chandra_dvidvadasha',
+      name: 'Candra-Lagna Dvidvādaśa',
+      sanskritName: 'चन्द्र-लग्न द्विर्द्वादश',
+      status: isDvidvadasha ? 'AFFLICTED' : 'CLEARED',
+      detail: isDvidvadasha ? 'Moon sits 2nd or 12th from Lagna' : 'Balanced alignment',
+    },
+    {
+      id: 'md_jamitra',
+      name: 'Jāmitra Doṣa (7th House)',
+      sanskritName: 'जामित्र दोष (सप्तम शुद्धि)',
+      status: hasMaleficIn7th ? 'AFFLICTED' : 'CLEARED',
+      detail: jamitraDescription,
+    },
+    {
+      id: 'md_ashtama',
+      name: 'Aṣṭama Doṣa (8th House Purity)',
+      sanskritName: 'अष्टम दोष (अष्टम शुद्धि)',
+      status: is8thClean ? 'CLEARED' : hasMaleficIn8th ? 'AFFLICTED' : 'MITIGATED',
+      detail: ashtamaDescription,
+    },
+    {
+      id: 'md_dagdha_tithi',
+      name: 'Dagdha Tithi',
+      sanskritName: 'दग्ध तिथि दोष',
+      status: isDagdhaTithi ? 'AFFLICTED' : 'CLEARED',
+      detail: isDagdhaTithi
+        ? `Tithi ${panchanga.tithi.name} is Dagdha on ${panchanga.vara.name}`
+        : 'Tithi is not Dagdha for today',
+      mitigationText: isAbhijitOverlap ? 'Neutralized by Abhijit window' : undefined,
+    },
+    {
+      id: 'md_yamaghanta',
+      name: 'Yamaghaṇṭa Yoga',
+      sanskritName: 'यमघण्ट योग',
+      status: isYamaghantaYoga ? 'AFFLICTED' : 'CLEARED',
+      detail: isYamaghantaYoga
+        ? `Inauspicious confluence of ${panchanga.vara.name} with ${panchanga.nakshatra.name}`
+        : 'Free from Yamaghaṇṭa affliction',
+    },
+    {
+      id: 'md_mrityu_yoga',
+      name: 'Mṛtyu Yoga',
+      sanskritName: 'मृत्यु योग',
+      status: isMrityuYoga ? 'AFFLICTED' : 'CLEARED',
+      detail: isMrityuYoga
+        ? `Hazardous confluence of ${panchanga.vara.name} with ${panchanga.nakshatra.name}`
+        : 'Free from Mṛtyu Yoga',
+    },
+    {
+      id: 'md_dagdha_yoga',
+      name: 'Dagdha Yoga',
+      sanskritName: 'दग्ध योग',
+      status: isDagdhaYoga ? 'AFFLICTED' : 'CLEARED',
+      detail: isDagdhaYoga
+        ? `Combust day-star pairing (${panchanga.vara.name} + ${panchanga.nakshatra.name})`
+        : 'Free from Dagdha Yoga',
+    },
+    {
+      id: 'md_rahu_kala',
+      name: 'Rāhukāla Window',
+      sanskritName: 'राहुकाल वेला',
+      status: isRahuKalaOverlap ? 'AFFLICTED' : 'CLEARED',
+      detail: isRahuKalaOverlap
+        ? 'Window overlaps with daytime Rāhu Kāla'
+        : 'Completely clear of Rāhu Kāla',
+    },
+    {
+      id: 'md_yamaganda',
+      name: 'Yamagaṇḍa Window',
+      sanskritName: 'यमगण्ड वेला',
+      status: isYamagandaOverlap ? 'AFFLICTED' : 'CLEARED',
+      detail: isYamagandaOverlap
+        ? 'Window overlaps with Yamagaṇḍa period'
+        : 'Completely clear of Yamagaṇḍa',
+    },
+    {
+      id: 'md_gulika',
+      name: 'Gulika Kāla Window',
+      sanskritName: 'गुलिक काल वेला',
+      status: isGulikaOverlap ? 'AFFLICTED' : 'CLEARED',
+      detail: isGulikaOverlap
+        ? 'Window overlaps with Gulika Kāla'
+        : 'Completely clear of Gulika Kāla',
+    },
+    {
+      id: 'md_gandanta',
+      name: 'Gaṇḍānta Sandhi',
+      sanskritName: 'गण्डान्त सन्धि',
+      status: isGandanta ? 'AFFLICTED' : 'CLEARED',
+      detail: isGandanta
+        ? `Moon in Gaṇḍānta star (${panchanga.nakshatra.name})`
+        : 'Clear of Gaṇḍānta junction',
+    },
+    {
+      id: 'md_combustion',
+      name: 'Guru-Śukra Mūḍhatva',
+      sanskritName: 'गुरु-शुक्र मौढ्य (अस्त)',
+      status: (isJupiterCombust || isVenusCombust) ? 'AFFLICTED' : 'CLEARED',
+      detail: combustionDesc,
+    },
+    {
+      id: 'md_kharmasa',
+      name: 'Kharmāsa / Malamāsa',
+      sanskritName: 'खरमास (धनु-मीन सूर्य)',
+      status: isKharmas ? 'AFFLICTED' : 'CLEARED',
+      detail: isKharmas
+        ? `Sun in ${sunRashiInfo?.name || ''} (Kharmāsa)`
+        : `Sun in ${sunRashiInfo?.name || ''} (Pure solar month)`,
+    },
+  ];
 
   // Calculate the 4-tier Classification
   let classification: MuhurtaClassification;
@@ -1187,7 +1627,41 @@ function evaluateSingleMuhurtaWindow(
       isGulika: isGulikaOverlap,
       isDurmuhurta: false,
       isBhadra,
+      activeHoraLord: activeHoraLordName,
+      activeHoraLordSanskrit: activeHoraLordSanskrit,
+      activeHoraFavorability,
+      activeChoghadiyaName,
+      activeChoghadiyaNature: choghadiyaInfo.nature,
+      activeChoghadiyaIsAuspicious: choghadiyaInfo.isAuspicious,
+      isGodhuli,
+      isVijaya,
+      isBrahmaMuhurta,
+      isDagdhaTithi,
+      isYamaghantaYoga,
+      isMrityuYoga,
+      isDagdhaYoga,
     },
+    jamitraShuddhi: {
+      isClean: !hasMaleficIn7th,
+      planetsIn7th: all7thPlanets.map((p) => p.sanskritName),
+      description: jamitraDescription,
+    },
+    chandraLagnaRelation: {
+      rashiDistance: chandraLagnaDist,
+      isShadashtaka,
+      isDvidvadasha,
+      description: chandraLagnaDesc,
+    },
+    combustionStatus: {
+      isJupiterCombust,
+      isVenusCombust,
+      description: combustionDesc,
+    },
+    sankrantiStatus: {
+      isNearSankranti,
+      description: sankrantiDesc,
+    },
+    mahaDoshasAudit,
     citations: objective.classicalSources,
   };
 }
