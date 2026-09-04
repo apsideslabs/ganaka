@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-canvas: #F2EDE3;
+    --bg-surface: #FCFAF6;
+    --bg-surface-subtle: #ECE7DC;
+    --bg-surface-raised: #FFFFFF;
+    --text-primary: #171614;
+    --text-secondary: #5C5850;
+    --text-muted: #847E72;
+    --border-subtle: #DCD5C6;
+    --border-strong: #BCB4A4;
+    --accent-copper: #8B2F0B;
+    --accent-copper-hover: #732609;
+    --accent-copper-subtle: #F1E9DF;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #F2EDE3;
+    color: #171614;
+  }
+
+  body {
+    background-color: #F2EDE3;
+    color: #171614;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: #E6DCce;
+    color: #8B2F0B;
+  }
+}
+
+/* Tactile 3D Horological Elevation & Micro-Bevel Classes */
+.shadow-3d-console {
+  box-shadow: 
+    0 1px 2px rgba(23, 22, 20, 0.04),
+    0 6px 16px -2px rgba(23, 22, 20, 0.07),
+    0 24px 48px -12px rgba(23, 22, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.shadow-3d-card {
+  box-shadow: 
+    0 1px 3px rgba(23, 22, 20, 0.04),
+    0 6px 14px -3px rgba(23, 22, 20, 0.06),
+    0 16px 32px -8px rgba(23, 22, 20, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.shadow-3d-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 2px 6px rgba(23, 22, 20, 0.05),
+    0 12px 24px -4px rgba(23, 22, 20, 0.09),
+    0 24px 48px -12px rgba(23, 22, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.shadow-3d-dark {
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 12px 28px -4px rgba(0, 0, 0, 0.4),
+    0 24px 48px -12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.shadow-inset-groove {
+  box-shadow: 
+    inset 0 1px 3px rgba(23, 22, 20, 0.08),
+    inset 0 0 0 1px rgba(23, 22, 20, 0.03),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.shadow-tactile-btn {
+  box-shadow: 
+    0 1px 2px rgba(23, 22, 20, 0.1),
+    0 3px 6px -1px rgba(139, 47, 11, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.shadow-tactile-btn:active {
+  transform: translateY(1px);
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 0 transparent;
+}
+
+/* Subtle astronomical coordinate grid rotation */
+@keyframes celestial-drift {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-celestial-drift {
+  animation: celestial-drift 480s linear infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-celestial-drift {
+    animation: none;
+  }
+}
+
+
+

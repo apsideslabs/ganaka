@@ -1,0 +1,6 @@
+{
+  "name": "Gaṇaka",
+  "description": "Jyotiṣa Calculation & Research — A modern platform for astronomical calculation, classical Jyotiṣa sources, and transparent research.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
