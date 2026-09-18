@@ -11,6 +11,21 @@ import { GRAHA_PROPERTIES, NATURAL_FRIENDSHIPS, RASHIS } from './constants';
 import { normalizeDegrees } from '../astronomy/julian';
 
 /**
+ * Calculates Natural Friendship (Naisargika Maitrī) between two planets.
+ */
+export function calculateNaturalFriendship(
+  planet1: PlanetId,
+  planet2: PlanetId
+): 'Mitra' | 'Sama' | 'Shatru' {
+  if (planet1 === planet2) return 'Mitra';
+  const rel = NATURAL_FRIENDSHIPS[planet1];
+  if (!rel) return 'Sama';
+  if (rel.friends.includes(planet2)) return 'Mitra';
+  if (rel.enemies.includes(planet2)) return 'Shatru';
+  return 'Sama';
+}
+
+/**
  * Calculates whether a planet is combust (Astangata) based on angular distance from Sun.
  */
 export function checkCombustion(

@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { RashiNumber } from '../../lib/jyotisha/types';
-import { ChartPlanetItem, RASHI_DATA, getHouseForRashi } from './chartLayoutUtils';
+import { ChartPlanetItem, RASHI_DATA, getHouseForRashi, GRAHA_COLOR_MAP } from './chartLayoutUtils';
 
 interface SouthIndianSVGProps {
   lagnaRashi: RashiNumber;
@@ -18,6 +18,8 @@ interface SouthIndianSVGProps {
   onHouseClick?: (houseNum: number) => void;
   showDegrees?: boolean;
   svgRef?: React.Ref<SVGSVGElement>;
+  centerTitle?: string;
+  centerSubtitle?: string;
 }
 
 export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
@@ -28,6 +30,8 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
   onHouseClick,
   showDegrees = false,
   svgRef,
+  centerTitle,
+  centerSubtitle,
 }) => {
   // South Indian box coordinates (4x4 matrix, 150px per cell):
   // 12 (Pisces): (0,0), 1 (Aries): (1,0), 2 (Taurus): (2,0), 3 (Gemini): (3,0)
@@ -136,47 +140,47 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
 
       {/* Base Canvas */}
       <rect
-        x="3"
-        y="3"
-        width="594"
-        height="594"
-        fill="#FCFBF8"
-        stroke="#94836B"
-        strokeWidth="3"
-        rx="4"
+        x="2"
+        y="2"
+        width="596"
+        height="596"
+        fill="#FFFFFF"
+        stroke="#0F172A"
+        strokeWidth="2.5"
+        rx="6"
       />
 
-      {/* Center 2x2 Box (300x300) with classical Medallion */}
-      <rect x="150" y="150" width="300" height="300" fill="#FAF6EE" stroke="#B3A188" strokeWidth="1.6" />
-      <circle cx="300" cy="300" r="110" fill="#F4EDE0" stroke="#D1C4AF" strokeWidth="1.2" strokeDasharray="4 2" />
+      {/* Center 2x2 Box (300x300) with modern clean summary card */}
+      <rect x="150" y="150" width="300" height="300" fill="#F8FAFC" stroke="#334155" strokeWidth="1.8" />
+      <circle cx="300" cy="300" r="110" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 3" />
 
-      <text x="300" y="270" textAnchor="middle" fill="#3E3427" className="text-[17px] font-serif font-bold">
-        Rāśi Cakra
+      <text x="300" y="268" textAnchor="middle" dominantBaseline="central" fill="#0F172A" className="text-[17px] font-serif font-bold">
+        {centerTitle || 'Rāśi Cakra'}
       </text>
-      <text x="300" y="295" textAnchor="middle" fill="#756754" className="text-[11.5px] font-sans font-medium">
-        South Indian Format (Fixed Rāśi)
+      <text x="300" y="292" textAnchor="middle" dominantBaseline="central" fill="#475569" className="text-[12px] font-sans font-medium">
+        {centerSubtitle || 'South Indian Format (Fixed Rāśi)'}
       </text>
-      <text x="300" y="325" textAnchor="middle" fill="#8C2D19" className="text-[11px] font-mono font-semibold">
+      <text x="300" y="320" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" className="text-[12px] font-mono font-bold">
         Lagna: {RASHI_DATA[lagnaRashi].sanskrit} ({RASHI_DATA[lagnaRashi].english})
       </text>
       {lagnaDegreeStr && (
-        <text x="300" y="342" textAnchor="middle" fill="#9C8B76" className="text-[10px] font-mono">
+        <text x="300" y="340" textAnchor="middle" dominantBaseline="central" fill="#64748B" className="text-[11px] font-mono font-medium">
           {lagnaDegreeStr}
         </text>
       )}
 
-      {/* Grid Lines */}
+      {/* Grid Lines - High-Contrast Slate */}
       {/* Horizontal grid lines */}
-      <line x1="0" y1="150" x2="600" y2="150" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="0" y1="450" x2="600" y2="450" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="0" y1="300" x2="150" y2="300" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="450" y1="300" x2="600" y2="300" stroke="#B3A188" strokeWidth="1.6" />
+      <line x1="0" y1="150" x2="600" y2="150" stroke="#334155" strokeWidth="1.8" />
+      <line x1="0" y1="450" x2="600" y2="450" stroke="#334155" strokeWidth="1.8" />
+      <line x1="0" y1="300" x2="150" y2="300" stroke="#334155" strokeWidth="1.8" />
+      <line x1="450" y1="300" x2="600" y2="300" stroke="#334155" strokeWidth="1.8" />
 
       {/* Vertical grid lines */}
-      <line x1="150" y1="0" x2="150" y2="600" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="450" y1="0" x2="450" y2="600" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="300" y1="0" x2="300" y2="150" stroke="#B3A188" strokeWidth="1.6" />
-      <line x1="300" y1="450" x2="300" y2="600" stroke="#B3A188" strokeWidth="1.6" />
+      <line x1="150" y1="0" x2="150" y2="600" stroke="#334155" strokeWidth="1.8" />
+      <line x1="450" y1="0" x2="450" y2="600" stroke="#334155" strokeWidth="1.8" />
+      <line x1="300" y1="0" x2="300" y2="150" stroke="#334155" strokeWidth="1.8" />
+      <line x1="300" y1="450" x2="300" y2="600" stroke="#334155" strokeWidth="1.8" />
 
       {/* 12 Outer Rashi Cells */}
       {([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as RashiNumber[]).map((rashiNum) => {
@@ -188,7 +192,7 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
         const isSelected = highlightHouse === houseNum;
         const occupants = planetsByRashi[rashiNum] || [];
         const positions = getPlanetCellPositions(bx, by, occupants.length);
-        const fontSizeClass = occupants.length >= 6 ? 'text-[10px]' : occupants.length >= 4 ? 'text-[11px]' : 'text-[12px]';
+        const planetFontSize = occupants.length >= 7 ? 12 : occupants.length >= 5 ? 13.5 : occupants.length >= 3 ? 15 : occupants.length === 2 ? 16 : 18;
 
         return (
           <g
@@ -198,7 +202,7 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
           >
             {/* Cell Highlight background on hover or selection */}
             {isSelected && (
-              <rect x={bx + 2} y={by + 2} width={146} height={146} fill="#EDE4D1" />
+              <rect x={bx + 2} y={by + 2} width={146} height={146} fill="#EFF6FF" />
             )}
 
             {/* Lagna Diagonal Cross Slash in South Indian Tradition */}
@@ -209,10 +213,10 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                   y1={by + 2}
                   x2={bx + 148}
                   y2={by + 148}
-                  stroke="#8C2D19"
-                  strokeWidth="1.6"
-                  strokeDasharray="4 2"
-                  opacity={0.7}
+                  stroke="#DC2626"
+                  strokeWidth="2.2"
+                  strokeDasharray="5 3"
+                  opacity={0.85}
                 />
               </g>
             )}
@@ -223,10 +227,14 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
               <text
                 x={bx + 10}
                 y={by + 18}
-                fill="#6B5C49"
-                className="text-[11px] font-serif font-bold"
+                dominantBaseline="central"
+                fill="#334155"
+                className="text-[12px] font-serif font-bold"
               >
-                {RASHI_DATA[rashiNum].sanskrit} <tspan className="text-[10px] font-sans font-normal text-[#8A7963]">({rashiNum})</tspan>
+                {RASHI_DATA[rashiNum].sanskrit}{' '}
+                <tspan className="text-[11px] font-sans font-semibold text-slate-500">
+                  (#{rashiNum})
+                </tspan>
               </text>
 
               {/* Right: House Number & Lagna Badge */}
@@ -234,16 +242,19 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                 x={bx + 140}
                 y={by + 18}
                 textAnchor="end"
-                className={`text-[10px] font-mono font-bold ${
-                  isLagna ? 'fill-[#8C2D19]' : 'fill-[#9C8B76]'
+                dominantBaseline="central"
+                className={`text-[11px] font-mono font-bold ${
+                  isLagna ? 'fill-[#DC2626]' : 'fill-[#64748B]'
                 }`}
               >
-                {isLagna ? 'ASC / H1' : `H${houseNum}`}
+                {isLagna ? 'ASC • H1' : `H${houseNum}`}
               </text>
 
-              {/* Render Occupant Planets */}
+              {/* Render Occupant Planets - High-Contrast & Bold */}
               {occupants.map((p, idx) => {
                 const pos = positions[idx] || { x: bx + 75, y: by + 86 };
+                const colorSpec = GRAHA_COLOR_MAP[p.id];
+                const planetFill = p.isRetro ? '#DC2626' : colorSpec?.text || (p.isComb ? '#D97706' : '#0F172A');
 
                 return (
                   <g key={p.id}>
@@ -251,22 +262,30 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                       x={pos.x}
                       y={pos.y}
                       textAnchor="middle"
-                      dominantBaseline="middle"
-                      className={`${fontSizeClass} font-sans font-bold ${
-                        p.isRetro ? 'fill-[#8B0000]' : p.isComb ? 'fill-[#B45309]' : 'fill-[#1C1814]'
-                      }`}
+                      dominantBaseline="central"
+                      fontFamily="system-ui, -apple-system, sans-serif"
+                      fontSize={planetFontSize}
+                      fontWeight="800"
+                      fill={planetFill}
+                      stroke="#FFFFFF"
+                      strokeWidth={3.5}
+                      strokeLinejoin="round"
+                      paintOrder="stroke fill"
                     >
                       {p.label}
                       {p.isRetro && (
-                        <tspan className="text-[9px] font-bold fill-[#8B0000]"> (R)</tspan>
+                        <tspan fill="#DC2626" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                          {' '}(R)
+                        </tspan>
                       )}
                       {p.isComb && (
-                        <tspan className="text-[9px] font-bold fill-[#B45309]"> (C)</tspan>
+                        <tspan fill="#D97706" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                          {' '}(C)
+                        </tspan>
                       )}
                       {showDegrees && p.degreeStr && (
-                        <tspan className="text-[8.5px] font-mono font-normal fill-[#786E61]">
-                          {' '}
-                          {p.degreeStr.split(' ')[0]}
+                        <tspan fill="#475569" fontWeight="600" fontSize={Math.max(9.5, planetFontSize - 3.5)}>
+                          {' '}{p.degreeStr.split(' ')[0]}
                         </tspan>
                       )}
                     </text>

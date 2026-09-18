@@ -1,9 +1,9 @@
 import React from 'react';
-import { GanakaLoadingDial } from '@/components/ui/GanakaLoadingDial';
+import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
 
 export default function PanchangaLoading() {
   return (
-    <GanakaLoadingDial
+    <CelestialArmillaryLoading
       fullScreen
       title="Gaṇaka Calendrical Engine"
       subtitle="Calculating Precision Drik Pañcāṅga & Solar Ephemeris..."

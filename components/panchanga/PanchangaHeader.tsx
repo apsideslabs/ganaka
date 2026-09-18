@@ -17,6 +17,7 @@ import {
   AyanamshaType,
 } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
+import { savePlatformSettings } from '@/lib/settings/settings-storage';
 import {
   MapPin,
   Calendar,
@@ -66,12 +67,53 @@ export function PanchangaHeader({
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState<boolean>(false);
   const [showCoordinateDrawer, setShowCoordinateDrawer] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [isSavedDefault, setIsSavedDefault] = useState<boolean>(false);
 
   // Filtered Cities for Search
   const filteredCities = useMemo(() => {
     if (!citySearchQuery.trim()) return CITIES_DATABASE.slice(0, 18);
     return searchLocations(citySearchQuery).slice(0, 25);
   }, [citySearchQuery]);
+
+  const handleSaveAsDefaultLocation = () => {
+    setIsSavedDefault(true);
+    savePlatformSettings({
+      defaultLocation: {
+        name: selectedCity.name,
+        country: selectedCity.country || 'India',
+        stateOrRegion: selectedCity.stateOrRegion,
+        latitude: selectedCity.latitude,
+        longitude: selectedCity.longitude,
+        timezoneOffsetHours: selectedCity.timezoneOffsetHours,
+        timezoneName: selectedCity.timezoneName || 'IST',
+        isCustom: false,
+      },
+      defaultCityName: selectedCity.name,
+    });
+    setTimeout(() => setIsSavedDefault(false), 2000);
+  };
+
+  const handleSaveCustomAsDefault = () => {
+    const lat = parseFloat(customLat);
+    const lng = parseFloat(customLng);
+    const tz = parseFloat(customTz);
+    if (!isNaN(lat) && !isNaN(lng) && !isNaN(tz)) {
+      setIsSavedDefault(true);
+      savePlatformSettings({
+        defaultLocation: {
+          name: selectedCity.name || 'Custom Location',
+          country: selectedCity.country || 'Custom',
+          latitude: lat,
+          longitude: lng,
+          timezoneOffsetHours: tz,
+          timezoneName: `UTC${tz >= 0 ? `+${tz}` : tz}`,
+          isCustom: true,
+        },
+        defaultCityName: selectedCity.name || 'Custom Location',
+      });
+      setTimeout(() => setIsSavedDefault(false), 2000);
+    }
+  };
 
   const handleSelectCity = (city: CityLocation) => {
     onCityChange(city);
@@ -136,14 +178,26 @@ export function PanchangaHeader({
               <MapPin className="w-3.5 h-3.5 text-[#8C2D19]" />
               <span>2. Select Location (स्थानम्)</span>
             </label>
-            <button
-              type="button"
-              onClick={() => setShowCoordinateDrawer((prev) => !prev)}
-              className="text-[11px] font-mono text-[#8C2D19] hover:underline cursor-pointer flex items-center gap-1 font-medium"
-            >
-              <SlidersHorizontal size={12} />
-              <span>{showCoordinateDrawer ? 'Hide Coordinates' : 'Custom Lat / Long'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSaveAsDefaultLocation}
+                disabled={isSavedDefault}
+                className="text-[11px] font-mono text-emerald-800 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-all font-medium bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200"
+                title="Save this location as the global Platform Default"
+              >
+                <Check className="w-3 h-3 text-emerald-600" />
+                <span>{isSavedDefault ? 'Saved as Default!' : 'Set as Default'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCoordinateDrawer((prev) => !prev)}
+                className="text-[11px] font-mono text-[#8C2D19] hover:underline cursor-pointer flex items-center gap-1 font-medium"
+              >
+                <SlidersHorizontal size={12} />
+                <span>{showCoordinateDrawer ? 'Hide Coordinates' : 'Custom Lat / Long'}</span>
+              </button>
+            </div>
           </div>
 
           {/* City Button with Dropdown Trigger */}
@@ -274,6 +328,17 @@ export function PanchangaHeader({
                 </option>
               ))}
             </select>
+          </div>
+          <div className="sm:col-span-4 flex justify-end pt-1">
+            <button
+              type="button"
+              onClick={handleSaveCustomAsDefault}
+              disabled={isSavedDefault}
+              className="px-3 py-1.5 bg-slate-900 hover:bg-[#8C2D19] text-white rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Check size={13} className="text-emerald-400" />
+              <span>{isSavedDefault ? 'Saved as Platform Default!' : 'Save These Coordinates as Default'}</span>
+            </button>
           </div>
         </div>
       )}

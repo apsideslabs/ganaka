@@ -35,6 +35,11 @@ export const metadata: Metadata = {
     description:
       'A modern platform being built around astronomical calculation, traditional Jyotiṣa methods, and traceable classical sources.',
   },
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 export default function RootLayout({

@@ -848,3 +848,31 @@ export const VIMSHOTTARI_SEQUENCE: Array<{ lord: PlanetId; years: number; name: 
   { lord: 'saturn', years: 19, name: 'Saturn (Śani)' },
   { lord: 'mercury', years: 17, name: 'Mercury (Budha)' },
 ];
+
+export const GRAHA_NAMES: Record<PlanetId, { english: string; sanskrit: string; devanagari: string }> = {
+  sun: { english: 'Sun', sanskrit: 'Sūrya', devanagari: 'सूर्य' },
+  moon: { english: 'Moon', sanskrit: 'Candra', devanagari: 'चन्द्र' },
+  mars: { english: 'Mars', sanskrit: 'Maṅgala', devanagari: 'मङ्गल' },
+  mercury: { english: 'Mercury', sanskrit: 'Budha', devanagari: 'बुध' },
+  jupiter: { english: 'Jupiter', sanskrit: 'Guru', devanagari: 'गुरु' },
+  venus: { english: 'Venus', sanskrit: 'Śukra', devanagari: 'शुक्र' },
+  saturn: { english: 'Saturn', sanskrit: 'Śani', devanagari: 'शनि' },
+  rahu: { english: 'Rahu', sanskrit: 'Rāhu', devanagari: 'राहु' },
+  ketu: { english: 'Ketu', sanskrit: 'Ketu', devanagari: 'केतु' },
+  true_rahu: { english: 'True Rahu', sanskrit: 'Sphuṭa Rāhu', devanagari: 'स्फुट राहु' },
+  true_ketu: { english: 'True Ketu', sanskrit: 'Sphuṭa Ketu', devanagari: 'स्फुट केतु' },
+};
+
+export const GRAHA_MATURATION_AGES: Record<PlanetId, number> = {
+  sun: 22,
+  moon: 24,
+  mars: 28,
+  mercury: 32,
+  jupiter: 16,
+  venus: 25,
+  saturn: 36,
+  rahu: 42,
+  ketu: 48,
+  true_rahu: 42,
+  true_ketu: 48,
+};

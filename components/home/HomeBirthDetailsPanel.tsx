@@ -20,7 +20,13 @@ import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
 import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
-import { getPlatformSettings, subscribeToSettings } from '@/lib/settings/settings-storage';
+import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import {
+  getPlatformSettings,
+  savePlatformSettings,
+  saveWorkspaceSettings,
+  subscribeToSettings,
+} from '@/lib/settings/settings-storage';
 import { DEFAULT_PLATFORM_SETTINGS, PlatformSettings } from '@/lib/settings/types';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -35,24 +41,6 @@ export function HomeBirthDetailsPanel() {
 
   // Platform settings - initialize with static defaults to ensure SSR/CSR hydration match
   const [platformSettings, setPlatformSettings] = useState<PlatformSettings>(DEFAULT_PLATFORM_SETTINGS);
-
-  useEffect(() => {
-    // Read local storage settings safely on client mount without triggering SSR hydration mismatch
-    const timer = setTimeout(() => {
-      setPlatformSettings(getPlatformSettings());
-    }, 0);
-
-    const unsubscribe = subscribeToSettings((scope) => {
-      if (scope === 'platform') {
-        setPlatformSettings(getPlatformSettings());
-      }
-    });
-
-    return () => {
-      clearTimeout(timer);
-      unsubscribe();
-    };
-  }, []);
 
   // Core Form States
   const [chartName, setChartName] = useState<string>('');
@@ -74,8 +62,46 @@ export function HomeBirthDetailsPanel() {
   const [customLng, setCustomLng] = useState<number>(75.7885);
   const [customTz, setCustomTz] = useState<number>(5.5);
 
-  const [ayanamshaType, setAyanamshaType] = useState<AyanamshaType>(() => platformSettings.defaultAyanamsha || 'lahiri');
+  const [ayanamshaType, setAyanamshaType] = useState<AyanamshaType>('lahiri');
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>('equal_whole');
+
+  useEffect(() => {
+    // Read local storage settings safely on client mount without triggering SSR hydration mismatch
+    const applyFresh = (fresh: PlatformSettings, isInitial = false) => {
+      setPlatformSettings(fresh);
+      if (fresh.defaultAyanamsha && fresh.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
+        setAyanamshaType(fresh.defaultAyanamsha);
+      }
+      if (isInitial && fresh.defaultLocation && typeof fresh.defaultLocation.latitude === 'number') {
+        const city: CityLocation = {
+          name: fresh.defaultLocation.name,
+          country: fresh.defaultLocation.country || 'India',
+          stateOrRegion: fresh.defaultLocation.stateOrRegion,
+          latitude: fresh.defaultLocation.latitude,
+          longitude: fresh.defaultLocation.longitude,
+          timezoneOffsetHours: fresh.defaultLocation.timezoneOffsetHours,
+          timezoneName: fresh.defaultLocation.timezoneName || 'IST',
+        };
+        setSelectedCity(city);
+        setLocationQuery(city.name);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      applyFresh(getPlatformSettings(), true);
+    }, 0);
+
+    const unsubscribe = subscribeToSettings((scope) => {
+      if (scope === 'platform' || scope === 'workspace') {
+        applyFresh(getPlatformSettings(), false);
+      }
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
+  }, []);
 
   // Filtered Locations
   const locationResults = useMemo(() => {
@@ -203,18 +229,18 @@ export function HomeBirthDetailsPanel() {
   return (
     <div
       id="home-birth-details-panel"
-      className="w-full max-w-4xl mx-auto bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs shadow-3d-console relative z-20 overflow-hidden"
+      className="w-full max-w-4xl mx-auto bg-white border border-stone-200/90 rounded-2xl shadow-xl shadow-stone-900/5 relative z-20 overflow-hidden"
     >
       {/* Header with Quick Fill and Settings Button */}
-      <div className="bg-gradient-to-r from-[#ECE7DC] via-[#F4F0E7] to-[#ECE7DC] px-5 sm:px-8 py-4 border-b border-[#DCD5C6] flex items-center justify-between flex-wrap gap-2">
+      <div className="bg-stone-50/90 px-6 sm:px-8 py-4.5 border-b border-stone-200/80 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#8B2F0B] ring-4 ring-[#8B2F0B]/10" />
-            <h2 className="text-base sm:text-lg font-serif font-bold text-[#171614] tracking-tight">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#8C2D19] ring-4 ring-[#8C2D19]/15" />
+            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900 tracking-tight">
               {t.birthPanel.title}
             </h2>
           </div>
-          <p className="text-xs text-[#5C5850] mt-0.5 font-mono">
+          <p className="text-xs text-stone-500 mt-1 font-sans">
             {t.birthPanel.subtitle}
           </p>
         </div>
@@ -226,12 +252,12 @@ export function HomeBirthDetailsPanel() {
             onClick={handleQuickFillGochar}
             id="home-quick-fill-gochar-btn"
             title="Populate with current time and transits"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-white hover:bg-amber-50 text-[#8B2F0B] border border-[#DCD5C6] rounded-xs shadow-xs transition-all active:scale-[0.97] cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-white hover:bg-stone-50 text-[#8C2D19] border border-stone-200 hover:border-[#8C2D19]/40 rounded-lg shadow-xs transition-all btn-press-tactile cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500/50"
           >
             {isQuickFilling ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8B2F0B]" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#8C2D19]" />
             ) : (
-              <Sparkles className="w-3.5 h-3.5 text-[#8B2F0B]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#8C2D19]" />
             )}
             <span>{t.birthPanel.quickFillGochar}</span>
           </button>
@@ -242,23 +268,23 @@ export function HomeBirthDetailsPanel() {
             onClick={() => setShowSettings(!showSettings)}
             id="home-settings-gear-btn"
             title="Advanced Settings (Ayanāṃśa, Custom Coordinates, House Systems)"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-[#FCFAF6] hover:bg-[#FFFFFF] text-[#171614] border border-[#DCD5C6] rounded-xs shadow-xs transition-all cursor-pointer active:scale-[0.97]"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider bg-white hover:bg-stone-50 text-stone-700 hover:text-stone-900 border border-stone-200 hover:border-stone-300 rounded-lg shadow-xs transition-all cursor-pointer btn-press-tactile focus-visible:ring-2 focus-visible:ring-blue-500/50"
           >
-            <Settings className="w-3.5 h-3.5 text-[#8B2F0B]" />
+            <Settings className="w-3.5 h-3.5 text-stone-500" />
             <span>Config</span>
           </button>
         </div>
       </div>
 
       {/* Main Form with Gaṇaka Custom Controls */}
-      <form onSubmit={handleCalculateChart} className="p-5 sm:p-8 space-y-6">
+      <form onSubmit={handleCalculateChart} className="p-6 sm:p-8 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 items-start">
           {/* 1. Native's Name (Optional) */}
           <div className="lg:col-span-6 space-y-1.5">
-            <label className="text-xs font-mono uppercase tracking-wider font-semibold text-[#171614] flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-[#8B2F0B]" />
+            <label className="text-xs font-mono uppercase tracking-wider font-semibold text-stone-700 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-[#8C2D19]" />
               <span>{t.birthPanel.chartNameLabel}</span>
-              <span className="text-[11px] font-normal text-[#847E72] lowercase">(optional)</span>
+              <span className="text-[11px] font-normal text-stone-400 lowercase">(optional)</span>
             </label>
             <input
               type="text"
@@ -266,15 +292,15 @@ export function HomeBirthDetailsPanel() {
               value={chartName}
               onChange={(e) => setChartName(e.target.value)}
               placeholder={t.birthPanel.chartNamePlaceholder}
-              className="w-full px-3.5 py-2.5 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-sm text-[#171614] placeholder-[#847E72] focus:outline-none focus:border-[#8B2F0B] focus:bg-white transition-colors"
+              className="w-full px-4 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#8C2D19] focus:bg-white focus:ring-2 focus:ring-[#8C2D19]/15 transition-all"
             />
           </div>
 
           {/* 2. Location (City search) - Required */}
           <div className="lg:col-span-6 space-y-1.5 relative">
             <div className="flex items-center justify-between flex-wrap gap-1">
-              <label className="text-xs font-mono uppercase tracking-wider font-semibold text-[#171614] flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#8B2F0B]" />
+              <label className="text-xs font-mono uppercase tracking-wider font-semibold text-stone-700 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#8C2D19]" />
                 <span>{t.birthPanel.birthplaceLabel}</span>
               </label>
 
@@ -285,7 +311,7 @@ export function HomeBirthDetailsPanel() {
                 onClick={handleApplyDefaultLocation}
                 suppressHydrationWarning
                 title={`Quickly apply default location: ${defaultLocName}`}
-                className="text-[10px] font-mono text-blue-700 hover:text-blue-900 bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/60 px-2 py-0.5 rounded-xs transition-all active:scale-[0.97] cursor-pointer flex items-center gap-1"
+                className="text-[11px] font-mono text-stone-600 hover:text-[#8C2D19] bg-stone-100 hover:bg-stone-200/80 border border-stone-200/90 px-2.5 py-0.5 rounded-md transition-all active:scale-[0.97] cursor-pointer flex items-center gap-1"
               >
                 <span suppressHydrationWarning>{usedDefaultLocSuccess ? '✓ Applied' : `Use: ${defaultLocName.split(' (')[0]}`}</span>
               </button>
@@ -309,9 +335,9 @@ export function HomeBirthDetailsPanel() {
                   }
                 }}
                 placeholder={t.birthPanel.birthplacePlaceholder}
-                className="w-full px-3.5 py-2.5 pl-9 pr-8 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-sm text-[#171614] placeholder-[#847E72] focus:outline-none focus:border-[#8B2F0B] focus:bg-white transition-colors"
+                className="w-full px-4 py-2.5 pl-10 pr-9 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#8C2D19] focus:bg-white focus:ring-2 focus:ring-[#8C2D19]/15 transition-all"
               />
-              <Search className="w-4 h-4 text-[#8B2F0B] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               {locationQuery && !isCustomCoordinates && (
                 <button
                   type="button"
@@ -319,7 +345,7 @@ export function HomeBirthDetailsPanel() {
                     setLocationQuery('');
                     setSelectedCity(null);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#847E72] hover:text-[#8B2F0B] cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#8C2D19] cursor-pointer p-1"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -328,7 +354,7 @@ export function HomeBirthDetailsPanel() {
 
             {/* City Suggestions Dropdown */}
             {showLocationDropdown && !isCustomCoordinates && locationResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs shadow-md z-50 max-h-60 overflow-y-auto divide-y divide-[#ECE7DC]">
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-stone-200 rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto divide-y divide-stone-100">
                 {locationResults.map((loc, idx) => (
                   <button
                     key={idx}
@@ -338,14 +364,14 @@ export function HomeBirthDetailsPanel() {
                       setLocationQuery(`${loc.name}${loc.stateOrRegion ? `, ${loc.stateOrRegion}` : ''}`);
                       setShowLocationDropdown(false);
                     }}
-                    className="w-full text-left px-4 py-2.5 hover:bg-[#ECE7DC] text-xs flex items-center justify-between transition-colors cursor-pointer active:bg-blue-50"
+                    className="w-full text-left px-4 py-2.5 hover:bg-stone-50 text-xs flex items-center justify-between transition-colors cursor-pointer"
                   >
                     <div>
-                      <span className="font-semibold text-[#171614]">{loc.name}</span>
-                      {loc.stateOrRegion && <span className="text-[#5C5850] ml-1.5">({loc.stateOrRegion})</span>}
-                      {loc.country && <span className="text-[#847E72] ml-1.5">• {loc.country}</span>}
+                      <span className="font-semibold text-stone-900">{loc.name}</span>
+                      {loc.stateOrRegion && <span className="text-stone-500 ml-1.5">({loc.stateOrRegion})</span>}
+                      {loc.country && <span className="text-stone-400 ml-1.5">• {loc.country}</span>}
                     </div>
-                    <span className="font-mono text-[11px] text-[#5C5850]">
+                    <span className="font-mono text-[11px] text-stone-500">
                       {loc.latitude.toFixed(2)}°, {loc.longitude.toFixed(2)}°
                     </span>
                   </button>
@@ -383,17 +409,17 @@ export function HomeBirthDetailsPanel() {
         {showSettings && (
           <div
             id="home-advanced-settings-drawer"
-            className="p-5 bg-[#ECE7DC] border border-[#DCD5C6] rounded-xs space-y-4 text-xs animate-in fade-in duration-150"
+            className="p-5 bg-stone-50 border border-stone-200 rounded-xl space-y-4 text-xs animate-in fade-in duration-150"
           >
-            <div className="flex items-center justify-between pb-2.5 border-b border-[#DCD5C6]">
-              <div className="flex items-center gap-2 font-mono uppercase tracking-wider font-bold text-[#8B2F0B] text-xs">
+            <div className="flex items-center justify-between pb-2.5 border-b border-stone-200">
+              <div className="flex items-center gap-2 font-mono uppercase tracking-wider font-bold text-[#8C2D19] text-xs">
                 <Sliders className="w-4 h-4" />
                 <span>{t.birthPanel.settingsTitle}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowSettings(false)}
-                className="p-1 text-[#5C5850] hover:text-[#171614] rounded-xs cursor-pointer active:scale-95"
+                className="p-1 text-stone-500 hover:text-stone-900 rounded-md cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -402,13 +428,18 @@ export function HomeBirthDetailsPanel() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Ayanamsha System */}
               <div className="space-y-1.5">
-                <label className="font-mono uppercase tracking-wider font-semibold text-[#171614] block text-[11px]">
+                <label className="font-mono uppercase tracking-wider font-semibold text-stone-800 block text-[11px]">
                   {t.birthPanel.ayanamshaSystem}
                 </label>
                 <select
                   value={ayanamshaType}
-                  onChange={(e) => setAyanamshaType(e.target.value as AyanamshaType)}
-                  className="w-full p-2 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs text-xs text-[#171614] focus:border-[#8B2F0B]"
+                  onChange={(e) => {
+                    const nextAyan = e.target.value as AyanamshaType;
+                    setAyanamshaType(nextAyan);
+                    savePlatformSettings({ defaultAyanamsha: nextAyan });
+                    saveWorkspaceSettings({ ayanamsha: nextAyan });
+                  }}
+                  className="w-full p-2.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900 focus:border-[#8C2D19] focus:ring-2 focus:ring-[#8C2D19]/15"
                 >
                   {Object.entries(AYANAMSHA_DEFINITIONS).map(([key, item]) => (
                     <option key={key} value={key}>
@@ -416,42 +447,42 @@ export function HomeBirthDetailsPanel() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-[#5C5850]">
+                <p className="text-[10px] text-stone-500">
                   Default configured in Platform Settings.
                 </p>
               </div>
 
               {/* House Division System */}
               <div className="space-y-1.5">
-                <label className="font-mono uppercase tracking-wider font-semibold text-[#171614] block text-[11px]">
+                <label className="font-mono uppercase tracking-wider font-semibold text-stone-800 block text-[11px]">
                   {t.birthPanel.houseSystemLabel}
                 </label>
                 <select
                   value={houseSystem}
                   onChange={(e) => setHouseSystem(e.target.value as any)}
-                  className="w-full p-2 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs text-xs text-[#171614] focus:border-[#8B2F0B]"
+                  className="w-full p-2.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900 focus:border-[#8C2D19] focus:ring-2 focus:ring-[#8C2D19]/15"
                 >
                   <option value="equal_whole">Rāśi = Bhāva (Whole Sign / Parāśara Standard)</option>
                   <option value="sripati">Śrīpati (Porphyry Cusps &amp; Sandhis)</option>
                   <option value="placidus">Placidus (Semi-Arc Cusps)</option>
                 </select>
-                <p className="text-[10px] text-[#5C5850]">
+                <p className="text-[10px] text-stone-500">
                   Controls Bhāva Chalit cusp calculations.
                 </p>
               </div>
 
               {/* Custom Coordinates Toggle */}
               <div className="space-y-1.5">
-                <label className="font-mono uppercase tracking-wider font-semibold text-[#171614] block text-[11px] flex items-center justify-between">
+                <label className="font-mono uppercase tracking-wider font-semibold text-stone-800 block text-[11px] flex items-center justify-between">
                   <span>{t.birthPanel.customCoordsToggle}</span>
                   <input
                     type="checkbox"
                     checked={isCustomCoordinates}
                     onChange={(e) => setIsCustomCoordinates(e.target.checked)}
-                    className="accent-[#8B2F0B] cursor-pointer"
+                    className="accent-[#8C2D19] cursor-pointer"
                   />
                 </label>
-                <p className="text-[10px] text-[#5C5850]">
+                <p className="text-[10px] text-stone-500">
                   Enable manual latitude, longitude, and UTC offset input.
                 </p>
               </div>
@@ -459,45 +490,45 @@ export function HomeBirthDetailsPanel() {
 
             {/* Custom Coordinates Inputs when enabled */}
             {isCustomCoordinates && (
-              <div className="p-3.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs grid grid-cols-1 sm:grid-cols-4 gap-3 animate-in fade-in">
+              <div className="p-3.5 bg-white border border-stone-200 rounded-lg grid grid-cols-1 sm:grid-cols-4 gap-3 animate-in fade-in">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-[#5C5850]">Location Name</label>
+                  <label className="text-[10px] font-mono uppercase text-stone-500">Location Name</label>
                   <input
                     type="text"
                     value={customCityName}
                     onChange={(e) => setCustomCityName(e.target.value)}
                     placeholder="e.g. Vrindavan, India"
-                    className="w-full p-2 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-xs"
+                    className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-[#5C5850]">{t.birthPanel.latLabel}</label>
+                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.latLabel}</label>
                   <input
                     type="number"
                     step="0.0001"
                     value={customLat}
                     onChange={(e) => setCustomLat(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-xs font-mono"
+                    className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-900"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-[#5C5850]">{t.birthPanel.lngLabel}</label>
+                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.lngLabel}</label>
                   <input
                     type="number"
                     step="0.0001"
                     value={customLng}
                     onChange={(e) => setCustomLng(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-xs font-mono"
+                    className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-900"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-[#5C5850]">{t.birthPanel.tzLabel}</label>
+                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.tzLabel}</label>
                   <input
                     type="number"
                     step="0.5"
                     value={customTz}
                     onChange={(e) => setCustomTz(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs text-xs font-mono"
+                    className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-900"
                   />
                 </div>
               </div>
@@ -507,53 +538,63 @@ export function HomeBirthDetailsPanel() {
 
         {/* Validation Status Indicator if incomplete */}
         {!isFormValid && (
-          <div className="flex items-center gap-2 p-3 bg-[#ECE7DC] border border-[#DCD5C6] rounded-xs text-xs text-[#5C5850]">
-            <AlertCircle className="w-4 h-4 text-[#8B2F0B] shrink-0" />
+          <div className="flex items-center gap-2 p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600">
+            <AlertCircle className="w-4 h-4 text-[#8C2D19] shrink-0" />
             <div className="flex items-center gap-2 flex-wrap font-mono">
-              <span className="font-semibold text-[#171614]">{t.birthPanel.requiredNotice}</span>
-              <span className={`px-2 py-0.5 rounded-xs text-[11px] ${isLocationValid ? 'bg-[#D6E8D6] text-[#1B5E20]' : 'bg-[#F2DDD9] text-[#7A2D12]'}`}>
-                {isLocationValid ? `✓ ${t.birthPanel.birthplaceField}` : `✗ ${t.birthPanel.birthplaceField}`}
+              <span className="font-semibold text-stone-800">{t.birthPanel.requiredNotice}</span>
+              <span className={`px-2.5 py-0.5 rounded-md text-[11px] ${isLocationValid ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-amber-50 text-amber-900 border border-amber-200/60'}`}>
+                {isLocationValid ? `✓ ${t.birthPanel.birthplaceField}` : `• ${t.birthPanel.birthplaceField}`}
               </span>
-              <span className={`px-2 py-0.5 rounded-xs text-[11px] ${isDobValid ? 'bg-[#D6E8D6] text-[#1B5E20]' : 'bg-[#F2DDD9] text-[#7A2D12]'}`}>
-                {isDobValid ? `✓ ${t.birthPanel.dobField}` : `✗ ${t.birthPanel.dobField}`}
+              <span className={`px-2.5 py-0.5 rounded-md text-[11px] ${isDobValid ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-amber-50 text-amber-900 border border-amber-200/60'}`}>
+                {isDobValid ? `✓ ${t.birthPanel.dobField}` : `• ${t.birthPanel.dobField}`}
               </span>
-              <span className={`px-2 py-0.5 rounded-xs text-[11px] ${isTobValid ? 'bg-[#D6E8D6] text-[#1B5E20]' : 'bg-[#F2DDD9] text-[#7A2D12]'}`}>
-                {isTobValid ? `✓ ${t.birthPanel.tobField}` : `✗ ${t.birthPanel.tobField}`}
+              <span className={`px-2.5 py-0.5 rounded-md text-[11px] ${isTobValid ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-amber-50 text-amber-900 border border-amber-200/60'}`}>
+                {isTobValid ? `✓ ${t.birthPanel.tobField}` : `• ${t.birthPanel.tobField}`}
               </span>
             </div>
           </div>
         )}
 
-        {/* Submit Action Button with visible loading spinner and press animation */}
+        {/* Submit Action Button with natural tactile press and subtle glow */}
         <div className="pt-1">
           <button
             type="submit"
             disabled={!isFormValid || isCalculating}
             id="home-calculate-chart-submit-btn"
-            className={`w-full py-3.5 px-6 rounded-xs font-mono uppercase tracking-wider text-xs font-bold transition-all duration-150 flex items-center justify-center gap-2 select-none active:scale-[0.98] ${
+            className={`w-full py-3.5 px-6 rounded-xl font-mono uppercase tracking-wider text-xs font-bold transition-all duration-150 flex items-center justify-center gap-2 select-none btn-press-tactile ${
               isCalculating
-                ? 'bg-[#8B2F0B] text-white opacity-95 cursor-wait shadow-inner ring-2 ring-[#8B2F0B]/30'
+                ? 'bg-[#8C2D19] text-white opacity-95 cursor-wait shadow-inner ring-1 ring-amber-500/30'
                 : isFormValid
-                ? 'bg-[#171614] hover:bg-[#8B2F0B] active:bg-[#722608] text-[#FCFAF6] shadow-xs cursor-pointer'
-                : 'bg-[#DCD5C6] text-[#847E72] cursor-not-allowed border border-[#DCD5C6]'
+                ? 'bg-[#8C2D19] hover:bg-[#742312] active:bg-[#5C1B0E] text-white shadow-sm shadow-[#8C2D19]/15 hover:shadow-md cursor-pointer'
+                : 'bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-200'
             }`}
           >
-            {isCalculating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>{t.birthPanel.calculatingBtn}</span>
-              </>
-            ) : isFormValid ? (
-              <>
-                <span>{t.birthPanel.calculateBtn}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            ) : (
-              <span>{t.birthPanel.fillRequiredBtn}</span>
-            )}
+            <div className="flex items-center justify-center gap-2">
+              {isCalculating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>{t.birthPanel.calculatingBtn}</span>
+                </>
+              ) : isFormValid ? (
+                <>
+                  <span>{t.birthPanel.calculateBtn}</span>
+                  <ArrowRight className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5" />
+                </>
+              ) : (
+                <span>{t.birthPanel.fillRequiredBtn}</span>
+              )}
+            </div>
           </button>
         </div>
       </form>
+
+      {/* Clean Solar System Astronomical Loading Overlay */}
+      {isCalculating && (
+        <CelestialArmillaryLoading
+          isOverlay
+          title="Calculating Ephemeris & Kundalī..."
+        />
+      )}
     </div>
   );
 }

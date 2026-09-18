@@ -1,0 +1,44 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="ganakaBaseGrad" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#9B331D"/>
+      <stop offset="50%" stopColor="#852915"/>
+      <stop offset="100%" stopColor="#63190B"/>
+    </linearGradient>
+
+    <!-- Golden Highlight Gradient -->
+    <linearGradient id="ganakaGoldGrad" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#F9E2AF"/>
+      <stop offset="100%" stopColor="#D4A359"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Squircle Container -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#ganakaBaseGrad)" stroke="#531408" stroke-width="1.5"/>
+
+  <!-- Inner Hairline Border -->
+  <rect x="4.5" y="4.5" width="55" height="55" rx="13.5" fill="none" stroke="#FFF7ED" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- Outer Celestial Reference Ring -->
+  <circle cx="32" cy="32" r="21" stroke="#FFF7ED" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="2 3"/>
+
+  <!-- Orbital Ring 1: Solar Ecliptic (Rotated -30 deg) -->
+  <ellipse cx="32" cy="32" rx="20" ry="9.5" transform="rotate(-30 32 32)" stroke="url(#ganakaGoldGrad)" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Orbital Ring 2: Equatorial / Horizon Arc (Rotated +30 deg) -->
+  <ellipse cx="32" cy="32" rx="20" ry="9.5" transform="rotate(30 32 32)" stroke="#FFF7ED" stroke-opacity="0.55" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Vedic Kundali Ascendant Diamond (Lagna Kendra) -->
+  <polygon points="32,14 50,32 32,50 14,32" fill="#752210" fill-opacity="0.55" stroke="#FFF7ED" stroke-width="1.8" stroke-linejoin="round"/>
+
+  <!-- Four Cardinal Kendra Pointers (Dikpalas) -->
+  <polygon points="32,9 34.5,14 32,16.5 29.5,14" fill="url(#ganakaGoldGrad)"/>
+  <polygon points="32,55 34.5,50 32,47.5 29.5,50" fill="url(#ganakaGoldGrad)"/>
+  <polygon points="9,32 14,34.5 16.5,32 14,29.5" fill="url(#ganakaGoldGrad)"/>
+  <polygon points="55,32 50,34.5 47.5,32 50,29.5" fill="url(#ganakaGoldGrad)"/>
+
+  <!-- Central Cosmic Observer (Bindu) -->
+  <circle cx="32" cy="32" r="6" fill="#58160A" stroke="url(#ganakaGoldGrad)" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="2.8" fill="#FFF7ED"/>
+</svg>

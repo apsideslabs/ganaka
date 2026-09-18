@@ -4,6 +4,7 @@ export interface TranslationDictionary {
   nav: {
     home: string;
     panchanga: string;
+    matching: string;
     about: string;
     research: string;
     documentation: string;
@@ -159,6 +160,7 @@ export const TRANSLATIONS: Record<PlatformLanguage, TranslationDictionary> = {
     nav: {
       home: 'Home',
       panchanga: 'Pañcāṅga',
+      matching: 'Kuṭa Milan',
       about: 'About',
       research: 'Research',
       documentation: 'Documentation',
@@ -347,6 +349,7 @@ export const TRANSLATIONS: Record<PlatformLanguage, TranslationDictionary> = {
     nav: {
       home: 'गृहपृष्ठ',
       panchanga: 'पंचांग',
+      matching: 'कूट मिलान',
       about: 'परिचय',
       research: 'शोध',
       documentation: 'दस्तावेज़',
@@ -535,6 +538,7 @@ export const TRANSLATIONS: Record<PlatformLanguage, TranslationDictionary> = {
     nav: {
       home: 'मुख्यपृष्ठम्',
       panchanga: 'पञ्चाङ्गम्',
+      matching: 'कूटमिलानम्',
       about: 'परिचयः',
       research: 'अनुसन्धानम्',
       documentation: 'प्रलेखनम्',
@@ -723,6 +727,7 @@ export const TRANSLATIONS: Record<PlatformLanguage, TranslationDictionary> = {
     nav: {
       home: 'মুখ্য পৃষ্ঠা',
       panchanga: 'পঞ্চাঙ্গ',
+      matching: 'কূট মিলন',
       about: 'পৰিচয়',
       research: 'গৱেষণা',
       documentation: 'নথিপত্ৰ',

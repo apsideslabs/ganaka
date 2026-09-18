@@ -35,9 +35,16 @@ import { PanchangaChoghadiya } from './PanchangaChoghadiya';
 import { PanchangaMuhurtaMatrix } from './PanchangaMuhurtaMatrix';
 import { MuhurtaFinderPanel } from '@/components/muhurta/MuhurtaFinderPanel';
 import { PanchangaSettingsDialog } from '@/components/settings/PanchangaSettingsDialog';
+import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
 import { RASHIS } from '@/lib/jyotisha/constants';
 import { RashiNumber } from '@/lib/jyotisha/types';
-import { getPlatformSettings, subscribeToSettings } from '@/lib/settings/settings-storage';
+import {
+  getPlatformSettings,
+  savePlatformSettings,
+  savePanchangaSettings,
+  saveWorkspaceSettings,
+  subscribeToSettings,
+} from '@/lib/settings/settings-storage';
 import { DEFAULT_PLATFORM_SETTINGS, PlatformSettings } from '@/lib/settings/types';
 
 import {
@@ -220,36 +227,40 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
   const [showControlDeck, setShowControlDeck] = useState<boolean>(false);
   const [showPanchangaSettings, setShowPanchangaSettings] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [navigatingToWorkspace, setNavigatingToWorkspace] = useState<boolean>(false);
 
   // Subscribe to platform settings updates so changes in settings modal are real and live!
   useEffect(() => {
+    const applyFresh = (fresh: PlatformSettings) => {
+      setPlatformSettings(fresh);
+      if (fresh.defaultLocation && typeof fresh.defaultLocation.latitude === 'number') {
+        const newCity: CityLocation = {
+          name: fresh.defaultLocation.name,
+          country: fresh.defaultLocation.country || 'India',
+          stateOrRegion: fresh.defaultLocation.stateOrRegion,
+          latitude: fresh.defaultLocation.latitude,
+          longitude: fresh.defaultLocation.longitude,
+          timezoneOffsetHours: fresh.defaultLocation.timezoneOffsetHours,
+          timezoneName: fresh.defaultLocation.timezoneName || 'IST',
+        };
+        setSelectedCity(newCity);
+        setCustomLat(newCity.latitude.toString());
+        setCustomLng(newCity.longitude.toString());
+        setCustomTz(newCity.timezoneOffsetHours.toString());
+      }
+      if (fresh.defaultAyanamsha && fresh.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
+        setAyanamshaType(fresh.defaultAyanamsha);
+      }
+    };
+
+    // Apply stored settings immediately on client mount
     const timer = setTimeout(() => {
-      const initial = getPlatformSettings();
-      setPlatformSettings(initial);
+      applyFresh(getPlatformSettings());
     }, 0);
 
     const unsubscribe = subscribeToSettings((scope) => {
-      if (scope === 'platform') {
-        const fresh = getPlatformSettings();
-        setPlatformSettings(fresh);
-        if (fresh.defaultLocation) {
-          const newCity: CityLocation = {
-            name: fresh.defaultLocation.name,
-            country: fresh.defaultLocation.country || 'India',
-            stateOrRegion: fresh.defaultLocation.stateOrRegion,
-            latitude: fresh.defaultLocation.latitude,
-            longitude: fresh.defaultLocation.longitude,
-            timezoneOffsetHours: fresh.defaultLocation.timezoneOffsetHours,
-            timezoneName: fresh.defaultLocation.timezoneName || 'IST',
-          };
-          setSelectedCity(newCity);
-          setCustomLat(newCity.latitude.toString());
-          setCustomLng(newCity.longitude.toString());
-          setCustomTz(newCity.timezoneOffsetHours.toString());
-        }
-        if (fresh.defaultAyanamsha) {
-          setAyanamshaType(fresh.defaultAyanamsha);
-        }
+      if (scope === 'platform' || scope === 'panchanga' || scope === 'workspace') {
+        applyFresh(getPlatformSettings());
       }
     });
 
@@ -258,6 +269,13 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
       unsubscribe();
     };
   }, []);
+
+  const handleAyanamshaChange = (newAyan: AyanamshaType) => {
+    setAyanamshaType(newAyan);
+    savePlatformSettings({ defaultAyanamsha: newAyan });
+    savePanchangaSettings({ ayanamsha: newAyan });
+    saveWorkspaceSettings({ ayanamsha: newAyan });
+  };
 
   // Quick Day Stepper
   const shiftDays = (deltaDays: number) => {
@@ -496,7 +514,8 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
             <Link
               href="/workspace"
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-mono uppercase font-bold text-white bg-slate-900 hover:bg-[#8C2D19] rounded-xl transition-all shadow-2xs select-none"
+              onClick={() => setNavigatingToWorkspace(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-mono uppercase font-bold text-white bg-slate-900 hover:bg-[#8C2D19] rounded-xl transition-all shadow-2xs select-none btn-press-tactile"
             >
               <span>Kuṇḍalī Workspace</span>
               <ArrowRight className="w-3 h-3" />
@@ -516,7 +535,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(-30)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Previous Month (-30 Days)"
               >
                 -30d
@@ -524,7 +543,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(-7)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Previous Week (-7 Days)"
               >
                 -7d
@@ -532,7 +551,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(-1)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Previous Day (-1 Day)"
               >
                 -1d
@@ -540,7 +559,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={goToToday}
-                className="px-3 py-1 bg-amber-50 border border-amber-200 text-[#8C2D19] rounded-md hover:bg-amber-100 cursor-pointer shadow-2xs font-bold transition-colors"
+                className="px-3 py-1 bg-amber-50 border border-amber-200 text-[#8C2D19] rounded-md hover:bg-amber-100 cursor-pointer shadow-2xs font-bold transition-colors btn-press-tactile"
                 title="Jump to Today"
               >
                 Today
@@ -548,7 +567,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(1)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Next Day (+1 Day)"
               >
                 +1d
@@ -556,7 +575,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(7)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Next Week (+7 Days)"
               >
                 +7d
@@ -564,7 +583,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               <button
                 type="button"
                 onClick={() => shiftDays(30)}
-                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors"
+                className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 text-slate-800 cursor-pointer shadow-2xs font-semibold transition-colors btn-press-tactile"
                 title="Next Month (+30 Days)"
               >
                 +30d
@@ -608,7 +627,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               customTz={customTz}
               onTzChange={setCustomTz}
               ayanamshaType={ayanamshaType}
-              onAyanamshaChange={setAyanamshaType}
+              onAyanamshaChange={handleAyanamshaChange}
               ayanamshaFormatted={ayanamshaFormatted}
               jd={jd}
             />
@@ -908,6 +927,14 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
           setActiveTab(newSettings.defaultTab);
         }}
       />
+
+      {/* Clean Solar System Astronomical Loading Overlay */}
+      {navigatingToWorkspace && (
+        <CelestialArmillaryLoading
+          isOverlay
+          title="Loading Kuṇḍalī Workspace..."
+        />
+      )}
     </div>
   );
 }

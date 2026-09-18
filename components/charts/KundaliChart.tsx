@@ -73,7 +73,11 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
           id,
           label: PLANET_SHORT_LABELS[id] || pId.slice(0, 2),
           fullName: PLANET_FULL_NAMES[id] || pId,
-          degreeStr: pData.degreeStr,
+          degreeStr:
+            pData.degreeStr ||
+            (typeof (pData as any).degreeInRashi === 'number'
+              ? `${(pData as any).degreeInRashi.toFixed(1)}°`
+              : undefined),
           isRetro: !!pData.isRetrograde,
           isComb: !!pData.isCombust,
           rashiNumber: pData.rashiNumber,
@@ -129,24 +133,24 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center bg-[#FAF7F0] border border-[#D8CEBA] rounded-xl p-4 shadow-xs w-full max-w-lg select-none">
+    <div className="flex flex-col items-center bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs w-full max-w-xl select-none">
       {/* Chart Top Header & Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full mb-3 pb-2.5 border-b border-[#E6DEC8] gap-2.5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full mb-3 pb-3 border-b border-slate-100 gap-2.5">
         <div>
-          <h4 className="text-sm font-serif font-bold text-[#171614] tracking-tight">{title}</h4>
-          {subtitle && <p className="text-xs text-[#5C5850]">{subtitle}</p>}
+          <h4 className="text-sm sm:text-base font-serif font-bold text-slate-900 tracking-tight">{title}</h4>
+          {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
         </div>
 
         <div className="flex items-center flex-wrap gap-1.5 self-end sm:self-auto">
           {/* Style Selector Tabs */}
-          <div className="flex items-center bg-[#EDE8DC] p-0.5 rounded-lg border border-[#D8CEBA]">
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 text-xs">
             <button
               type="button"
               onClick={() => setChartStyle('north')}
-              className={`px-2 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`px-2.5 py-1 font-semibold rounded-md transition-all cursor-pointer ${
                 chartStyle === 'north'
-                  ? 'bg-[#7A2D12] text-[#FAF7F0] shadow-2xs font-semibold'
-                  : 'text-[#5C5850] hover:text-[#171614]'
+                  ? 'bg-[#8C2D19] text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
               title="North Indian Diamond Chart"
             >
@@ -155,10 +159,10 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
             <button
               type="button"
               onClick={() => setChartStyle('south')}
-              className={`px-2 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`px-2.5 py-1 font-semibold rounded-md transition-all cursor-pointer ${
                 chartStyle === 'south'
-                  ? 'bg-[#7A2D12] text-[#FAF7F0] shadow-2xs font-semibold'
-                  : 'text-[#5C5850] hover:text-[#171614]'
+                  ? 'bg-[#8C2D19] text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
               title="South Indian Fixed-Rashi Box Chart"
             >
@@ -167,10 +171,10 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
             <button
               type="button"
               onClick={() => setChartStyle('east')}
-              className={`px-2 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`px-2.5 py-1 font-semibold rounded-md transition-all cursor-pointer ${
                 chartStyle === 'east'
-                  ? 'bg-[#7A2D12] text-[#FAF7F0] shadow-2xs font-semibold'
-                  : 'text-[#5C5850] hover:text-[#171614]'
+                  ? 'bg-[#8C2D19] text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
               title="East Indian (Bengali/Mithila) Chart"
             >
@@ -182,10 +186,10 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
           <button
             type="button"
             onClick={() => setShowDegrees(!showDegrees)}
-            className={`px-2 py-1 text-xs font-medium rounded-md border transition-all cursor-pointer ${
+            className={`px-2.5 py-1 text-xs font-mono font-medium rounded-lg border transition-colors cursor-pointer ${
               showDegrees
-                ? 'bg-[#E2D5C3] border-[#BBAE99] text-[#171614] font-semibold'
-                : 'bg-[#EDE8DC] border-[#D8CEBA] text-[#5C5850] hover:text-[#171614]'
+                ? 'bg-amber-100 text-amber-900 border-amber-300 font-semibold'
+                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
             }`}
             title="Toggle Planetary Degrees"
           >
@@ -196,8 +200,8 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
           <button
             type="button"
             onClick={handleExportSvg}
-            className="p-1 text-[#5C5850] hover:text-[#171614] bg-[#EDE8DC] hover:bg-[#E2D5C3] border border-[#D8CEBA] rounded-md transition-colors cursor-pointer"
-            title="Download Vector SVG"
+            className="p-1.5 text-slate-600 hover:text-slate-950 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+            title="Download Crisp Vector SVG"
           >
             <Download className="w-3.5 h-3.5" />
           </button>
@@ -206,8 +210,8 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
           <button
             type="button"
             onClick={handleExportPng}
-            className="p-1 text-[#5C5850] hover:text-[#171614] bg-[#EDE8DC] hover:bg-[#E2D5C3] border border-[#D8CEBA] rounded-md transition-colors cursor-pointer"
-            title="Download 1200px PNG"
+            className="p-1.5 text-slate-600 hover:text-slate-950 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+            title="Download High-Resolution PNG (1200px)"
           >
             <FileImage className="w-3.5 h-3.5" />
           </button>
@@ -215,7 +219,7 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
       </div>
 
       {/* SVG Canvas Container */}
-      <div className="relative w-full aspect-square max-w-[460px] flex items-center justify-center">
+      <div className="relative w-full aspect-square max-w-[500px] flex items-center justify-center">
         {chartStyle === 'north' && (
           <NorthIndianSVG
             svgRef={svgRef}
@@ -252,17 +256,17 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
       </div>
 
       {/* Footer Legend & Status */}
-      <div className="mt-3 flex items-center justify-between w-full text-[11px] text-[#5C5850] px-1 font-mono">
+      <div className="mt-3.5 flex items-center justify-between w-full text-xs text-slate-500 px-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1 text-[#7A2D12] font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7A2D12]" /> Lagna
+          <span className="inline-flex items-center gap-1.5 text-rose-700 font-bold">
+            <span className="w-2 h-2 rounded-full bg-rose-600" /> Lagna
           </span>
-          <span className="text-[#A39882]">•</span>
-          <span className="text-[#8B0000] font-semibold">(R) Retro</span>
-          <span className="text-[#A39882]">•</span>
-          <span className="text-[#B45309] font-semibold">(C) Combust</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-red-600 font-bold">(R) Retro</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-amber-600 font-bold">(C) Combust</span>
         </div>
-        <span className="text-[10px] text-[#7A7060] hidden sm:inline">
+        <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
           {chartStyle === 'north' ? 'Diamond / Kendra' : chartStyle === 'south' ? 'Fixed 12 Rāśi' : 'Bengali / Mithila'}
         </span>
       </div>

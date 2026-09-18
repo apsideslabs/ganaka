@@ -4,7 +4,7 @@
  */
 
 import { PlanetId } from '../astronomy/ephemeris';
-import { VargaId, VargaChart, RashiNumber } from './types';
+import { VargaId, StandardVargaId, VargaChart, RashiNumber } from './types';
 import { RASHIS } from './constants';
 
 export interface PlanetVimshopakaScore {
@@ -20,7 +20,7 @@ export interface PlanetVimshopakaScore {
 // Classical Parāśari weight factors for Ṣoḍaśavarga (summing to 20):
 // D1 (3.5), D2 (1.0), D3 (1.0), D4 (0.5), D7 (0.5), D9 (3.0), D10 (0.5), D12 (0.5),
 // D16 (2.0), D20 (0.5), D24 (0.5), D27 (0.5), D30 (1.0), D40 (0.5), D45 (0.5), D60 (4.0)
-const SHODASHAVARGA_WEIGHTS: Record<VargaId, number> = {
+const SHODASHAVARGA_WEIGHTS: Record<StandardVargaId, number> = {
   D1: 3.5,
   D2: 1.0,
   D3: 1.0,

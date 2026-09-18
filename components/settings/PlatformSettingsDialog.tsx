@@ -60,6 +60,31 @@ export function PlatformSettingsDialog({
   const [customTz, setCustomTz] = useState<number>(5.5);
   const [customTzName, setCustomTzName] = useState('IST');
 
+  // Filtered cities list
+  const filteredCities = useMemo(() => {
+    if (!citySearchQuery.trim()) {
+      return [];
+    }
+    return searchLocations(citySearchQuery).slice(0, 8);
+  }, [citySearchQuery]);
+
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        const fresh = getPlatformSettings();
+        setSettings(fresh);
+        if (fresh.defaultLocation?.isCustom) {
+          setCustomName(fresh.defaultLocation.name);
+          setCustomLat(fresh.defaultLocation.latitude);
+          setCustomLng(fresh.defaultLocation.longitude);
+          setCustomTz(fresh.defaultLocation.timezoneOffsetHours);
+          setCustomTzName(fresh.defaultLocation.timezoneName || 'UTC');
+        }
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
   useEffect(() => {
     return subscribeToSettings((scope) => {
       if (scope === 'platform') {
@@ -68,6 +93,27 @@ export function PlatformSettingsDialog({
       }
     });
   }, []);
+
+  const handleDone = () => {
+    if (isCustomLocation && customName.trim()) {
+      const loc: DefaultLocationSetting = {
+        name: customName.trim(),
+        country: 'Custom',
+        latitude: customLat,
+        longitude: customLng,
+        timezoneOffsetHours: customTz,
+        timezoneName: customTzName || 'UTC',
+        isCustom: true,
+      };
+      savePlatformSettings({
+        defaultLocation: loc,
+        defaultCityName: loc.name,
+      });
+    } else if (citySearchQuery.trim() && filteredCities.length > 0) {
+      handleSelectCity(filteredCities[0]);
+    }
+    onOpenChange(false);
+  };
 
   const updateSetting = <K extends keyof PlatformSettings>(key: K, value: PlatformSettings[K]) => {
     const updated = savePlatformSettings({ [key]: value });
@@ -130,14 +176,6 @@ export function PlatformSettingsDialog({
       setTimeout(() => setSavedSuccess(false), 1800);
     }, 450);
   };
-
-  // Filtered cities list
-  const filteredCities = useMemo(() => {
-    if (!citySearchQuery.trim()) {
-      return [];
-    }
-    return searchLocations(citySearchQuery).slice(0, 8);
-  }, [citySearchQuery]);
 
   // Vedic Astronomical Pilgrimage & Regional Anchors
   const prominentAnchors = useMemo(() => {
@@ -422,6 +460,12 @@ export function PlatformSettingsDialog({
                       id="platform-location-search-input"
                       value={citySearchQuery}
                       onChange={(e) => setCitySearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && filteredCities.length > 0) {
+                          e.preventDefault();
+                          handleSelectCity(filteredCities[0]);
+                        }
+                      }}
                       placeholder="Type city name (e.g. Guwahati, Varanasi, Ujjain, London, New York...)"
                       className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-mono focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
                     />
@@ -971,15 +1015,14 @@ export function PlatformSettingsDialog({
               <span>{t.settingsModal.resetBtn}</span>
             </button>
 
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                id="platform-settings-apply-btn"
-                className="px-5 py-2 text-xs font-mono uppercase font-bold text-white bg-slate-900 hover:bg-blue-700 rounded-xl transition-all shadow-xs active:scale-[0.97] cursor-pointer"
-              >
-                {t.settingsModal.doneBtn}
-              </button>
-            </Dialog.Close>
+            <button
+              type="button"
+              id="platform-settings-apply-btn"
+              onClick={handleDone}
+              className="px-5 py-2 text-xs font-mono uppercase font-bold text-white bg-slate-900 hover:bg-blue-700 rounded-xl transition-all shadow-xs active:scale-[0.97] cursor-pointer"
+            >
+              {t.settingsModal.doneBtn}
+            </button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

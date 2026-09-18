@@ -28,8 +28,11 @@ export interface PlatformSettings {
   themeTone: 'classic_parchment' | 'pure_white' | 'slate_astronomy';
 }
 
+export type VargaSetMode = 'standard' | 'extended';
+
 export interface WorkspaceSettings {
   chartStyle: 'north' | 'south' | 'east';
+  ayanamsha: AyanamshaType;
   nodeMode: 'mean' | 'true';
   houseSystem: 'equal_whole' | 'sripati' | 'placidus';
   showDegreesInCells: boolean;
@@ -40,6 +43,8 @@ export interface WorkspaceSettings {
   dualViewMode: boolean;
   dualSecondaryVarga: VargaId;
   aspectLines: boolean;
+  vargaSetMode: VargaSetMode;
+  enabledExtendedVargas: VargaId[];
 }
 
 export interface PanchangaSettings {
@@ -79,6 +84,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   chartStyle: 'north',
+  ayanamsha: 'lahiri',
   nodeMode: 'mean',
   houseSystem: 'equal_whole',
   showDegreesInCells: true,
@@ -89,6 +95,8 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   dualViewMode: false,
   dualSecondaryVarga: 'D9',
   aspectLines: false,
+  vargaSetMode: 'standard',
+  enabledExtendedVargas: ['D5', 'D6', 'D8', 'D11', 'D81', 'D108', 'D144'],
 };
 
 export const DEFAULT_PANCHANGA_SETTINGS: PanchangaSettings = {

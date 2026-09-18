@@ -15,6 +15,7 @@ import {
   getVargaPlacement,
   getCharaKarakaPlanet,
   calculateArudhaSign,
+  getHouseSAVBindus,
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
@@ -27,6 +28,7 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
   const seventhOccupants = getHouseOccupants(chart, 7);
   const venus = chart.planets.venus;
   const venusShadbala = getShadbalaRatio(chart, 'venus');
+  const seventhSAV = getHouseSAVBindus(chart, 7);
 
   // Upapada Lagna (UL = Arūḍha of 12th house)
   const ulRashiNum = calculateArudhaSign(chart, 12);
@@ -87,6 +89,16 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
         ? 'Classical placement of Mars requiring maturity and balanced communication.'
         : 'Clear of Mars-induced relational friction.',
       kujaDoshaActive ? 'limiting' : 'favorable'
+    ),
+    makeFact(
+      'fact_seventh_sav',
+      'Aṣṭakavarga',
+      '7th House SAV Bindus (Kalatra Bhāva)',
+      `${seventhSAV} Bindus (Baseline: 28)`,
+      seventhSAV >= 28
+        ? 'Auspicious bindu accumulation reinforcing relational durability, mutual respect, and marital harmony.'
+        : 'Demands deliberate communicative patience and mutual compromise.',
+      seventhSAV >= 28 ? 'favorable' : 'limiting'
     ),
   ];
 
@@ -154,6 +166,8 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
   const limitingFactors: string[] = [];
 
   supportingFactors.push(`7th Lord (${seventhLord.name}) positioned in House ${seventhLordPlanet?.house}.`);
+  if (seventhSAV >= 28) supportingFactors.push(`7th House fortified with ${seventhSAV} SAV bindus, shielding marital bond against superficial conflicts.`);
+  if (seventhSAV < 28) limitingFactors.push(`7th House SAV bindus (${seventhSAV}) are below baseline 28, indicating relational expectations require flexible communication.`);
   if (venusShadbala >= 1.0) supportingFactors.push(`Venus has strong Śaḍbala ratio (${venusShadbala.toFixed(2)}x).`);
   supportingFactors.push(`Upapada Lagna situated in ${ulRashiName}.`);
 

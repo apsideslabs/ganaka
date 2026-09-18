@@ -74,6 +74,44 @@ export function savePlatformSettings(settings: Partial<PlatformSettings>): Platf
     const current = getPlatformSettings();
     const updated = { ...current, ...settings };
     localStorage.setItem(STORAGE_KEYS.PLATFORM, JSON.stringify(updated));
+
+    // Keep workspace, panchanga, and chart params ayanamsha in lockstep if defaultAyanamsha changed
+    if (settings.defaultAyanamsha) {
+      try {
+        const wsRaw = localStorage.getItem(STORAGE_KEYS.WORKSPACE);
+        const wsParsed = wsRaw ? JSON.parse(wsRaw) : {};
+        wsParsed.ayanamsha = settings.defaultAyanamsha;
+        localStorage.setItem(STORAGE_KEYS.WORKSPACE, JSON.stringify(wsParsed));
+
+        const panRaw = localStorage.getItem(STORAGE_KEYS.PANCHANGA);
+        const panParsed = panRaw ? JSON.parse(panRaw) : {};
+        panParsed.ayanamsha = settings.defaultAyanamsha;
+        localStorage.setItem(STORAGE_KEYS.PANCHANGA, JSON.stringify(panParsed));
+
+        const chartRaw = localStorage.getItem('ganaka_chart_params');
+        const chartParsed = chartRaw ? JSON.parse(chartRaw) : {};
+        chartParsed.ayanamsha = settings.defaultAyanamsha;
+        localStorage.setItem('ganaka_chart_params', JSON.stringify(chartParsed));
+      } catch {}
+      notifySettingsUpdated('workspace');
+      notifySettingsUpdated('panchanga');
+    }
+
+    // Keep chart params location in sync if defaultLocation changed
+    if (settings.defaultLocation && typeof settings.defaultLocation.latitude === 'number') {
+      try {
+        const chartRaw = localStorage.getItem('ganaka_chart_params');
+        const chartParsed = chartRaw ? JSON.parse(chartRaw) : {};
+        chartParsed.cityName = settings.defaultLocation.name;
+        chartParsed.latitude = settings.defaultLocation.latitude;
+        chartParsed.longitude = settings.defaultLocation.longitude;
+        chartParsed.timezone = settings.defaultLocation.timezoneOffsetHours;
+        localStorage.setItem('ganaka_chart_params', JSON.stringify(chartParsed));
+      } catch {}
+      notifySettingsUpdated('workspace');
+      notifySettingsUpdated('panchanga');
+    }
+
     notifySettingsUpdated('platform');
     return updated;
   } catch (err) {
@@ -87,6 +125,8 @@ export function resetPlatformSettings(): PlatformSettings {
   try {
     localStorage.removeItem(STORAGE_KEYS.PLATFORM);
     notifySettingsUpdated('platform');
+    notifySettingsUpdated('workspace');
+    notifySettingsUpdated('panchanga');
     return DEFAULT_PLATFORM_SETTINGS;
   } catch (err) {
     console.error('Failed to reset platform settings', err);
@@ -99,8 +139,13 @@ export function getWorkspaceSettings(): WorkspaceSettings {
   if (typeof window === 'undefined') return DEFAULT_WORKSPACE_SETTINGS;
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.WORKSPACE);
-    if (!stored) return DEFAULT_WORKSPACE_SETTINGS;
-    return { ...DEFAULT_WORKSPACE_SETTINGS, ...JSON.parse(stored) };
+    const platAyan = getPlatformSettings().defaultAyanamsha;
+    if (!stored) {
+      return { ...DEFAULT_WORKSPACE_SETTINGS, ayanamsha: platAyan || DEFAULT_WORKSPACE_SETTINGS.ayanamsha };
+    }
+    const parsed = JSON.parse(stored);
+    const ayanamsha = parsed.ayanamsha || platAyan || DEFAULT_WORKSPACE_SETTINGS.ayanamsha;
+    return { ...DEFAULT_WORKSPACE_SETTINGS, ...parsed, ayanamsha };
   } catch (err) {
     console.warn('Failed to parse workspace settings from localStorage', err);
     return DEFAULT_WORKSPACE_SETTINGS;
@@ -113,6 +158,29 @@ export function saveWorkspaceSettings(settings: Partial<WorkspaceSettings>): Wor
     const current = getWorkspaceSettings();
     const updated = { ...current, ...settings };
     localStorage.setItem(STORAGE_KEYS.WORKSPACE, JSON.stringify(updated));
+
+    // Keep platform defaultAyanamsha, panchanga, and chart params in lockstep
+    if (settings.ayanamsha) {
+      try {
+        const platRaw = localStorage.getItem(STORAGE_KEYS.PLATFORM);
+        const platParsed = platRaw ? JSON.parse(platRaw) : {};
+        platParsed.defaultAyanamsha = settings.ayanamsha;
+        localStorage.setItem(STORAGE_KEYS.PLATFORM, JSON.stringify(platParsed));
+
+        const panRaw = localStorage.getItem(STORAGE_KEYS.PANCHANGA);
+        const panParsed = panRaw ? JSON.parse(panRaw) : {};
+        panParsed.ayanamsha = settings.ayanamsha;
+        localStorage.setItem(STORAGE_KEYS.PANCHANGA, JSON.stringify(panParsed));
+
+        const chartRaw = localStorage.getItem('ganaka_chart_params');
+        const chartParsed = chartRaw ? JSON.parse(chartRaw) : {};
+        chartParsed.ayanamsha = settings.ayanamsha;
+        localStorage.setItem('ganaka_chart_params', JSON.stringify(chartParsed));
+      } catch {}
+      notifySettingsUpdated('platform');
+      notifySettingsUpdated('panchanga');
+    }
+
     notifySettingsUpdated('workspace');
     return updated;
   } catch (err) {
@@ -138,8 +206,11 @@ export function getPanchangaSettings(): PanchangaSettings {
   if (typeof window === 'undefined') return DEFAULT_PANCHANGA_SETTINGS;
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.PANCHANGA);
-    if (!stored) return DEFAULT_PANCHANGA_SETTINGS;
-    return { ...DEFAULT_PANCHANGA_SETTINGS, ...JSON.parse(stored) };
+    const platAyan = getPlatformSettings().defaultAyanamsha;
+    if (!stored) return { ...DEFAULT_PANCHANGA_SETTINGS, ayanamsha: platAyan || DEFAULT_PANCHANGA_SETTINGS.ayanamsha };
+    const parsed = JSON.parse(stored);
+    const ayanamsha = parsed.ayanamsha || platAyan || DEFAULT_PANCHANGA_SETTINGS.ayanamsha;
+    return { ...DEFAULT_PANCHANGA_SETTINGS, ...parsed, ayanamsha };
   } catch (err) {
     console.warn('Failed to parse panchanga settings from localStorage', err);
     return DEFAULT_PANCHANGA_SETTINGS;
@@ -152,6 +223,29 @@ export function savePanchangaSettings(settings: Partial<PanchangaSettings>): Pan
     const current = getPanchangaSettings();
     const updated = { ...current, ...settings };
     localStorage.setItem(STORAGE_KEYS.PANCHANGA, JSON.stringify(updated));
+
+    // Keep platform and workspace ayanamsha in lockstep if changed
+    if (settings.ayanamsha) {
+      try {
+        const platRaw = localStorage.getItem(STORAGE_KEYS.PLATFORM);
+        const platParsed = platRaw ? JSON.parse(platRaw) : {};
+        platParsed.defaultAyanamsha = settings.ayanamsha;
+        localStorage.setItem(STORAGE_KEYS.PLATFORM, JSON.stringify(platParsed));
+
+        const wsRaw = localStorage.getItem(STORAGE_KEYS.WORKSPACE);
+        const wsParsed = wsRaw ? JSON.parse(wsRaw) : {};
+        wsParsed.ayanamsha = settings.ayanamsha;
+        localStorage.setItem(STORAGE_KEYS.WORKSPACE, JSON.stringify(wsParsed));
+
+        const chartRaw = localStorage.getItem('ganaka_chart_params');
+        const chartParsed = chartRaw ? JSON.parse(chartRaw) : {};
+        chartParsed.ayanamsha = settings.ayanamsha;
+        localStorage.setItem('ganaka_chart_params', JSON.stringify(chartParsed));
+      } catch {}
+      notifySettingsUpdated('platform');
+      notifySettingsUpdated('workspace');
+    }
+
     notifySettingsUpdated('panchanga');
     return updated;
   } catch (err) {

@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { PanchangaClient } from '@/components/panchanga/PanchangaClient';
-import { GanakaLoadingDial } from '@/components/ui/GanakaLoadingDial';
+import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
 
 export const metadata: Metadata = {
   title: 'Drik Pañcāṅga & Calendrical Almanac — Gaṇaka',
@@ -19,10 +19,9 @@ export default function PanchangaPage() {
     <div className="w-full flex-1 flex flex-col bg-[#FDFCF8]">
       <Suspense
         fallback={
-          <GanakaLoadingDial
+          <CelestialArmillaryLoading
             fullScreen
             title="Gaṇaka Calendrical Engine"
-            subtitle="Calculating Precision Drik Pañcāṅga & Solar Ephemeris..."
           />
         }
       >

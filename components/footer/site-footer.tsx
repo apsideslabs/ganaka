@@ -55,6 +55,14 @@ export function SiteFooter() {
                     {t.nav.panchanga}
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/matching"
+                    className="text-[#5C5850] hover:text-[#8B2F0B] transition-colors duration-150"
+                  >
+                    {t.nav.matching}
+                  </Link>
+                </li>
               </ul>
             </div>
 

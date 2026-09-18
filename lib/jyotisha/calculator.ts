@@ -158,13 +158,21 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   const vargasData = calculateAllVargas(lagna.siderealLongitude, planetaryPositionsForHouses);
 
   // 9. Viṃśottarī Daśā (120-year tree)
-  const vimshottari = calculateVimshottariDasha(rawPlanets.moon.siderealLongitude, {
-    year,
-    month,
-    day,
-    hour,
-    minute,
-  });
+  const vimshottari = calculateVimshottariDasha(
+    rawPlanets.moon.siderealLongitude,
+    {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second: second || 0,
+    },
+    {
+      lagnaLongitude: lagna.siderealLongitude,
+      timezoneOffsetHours,
+    }
+  );
 
   // 10. Aṣṭakavarga
   const rashiMap: Record<PlanetId, RashiNumber> = {} as any;

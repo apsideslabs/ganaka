@@ -7,20 +7,24 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { SITE_CONFIG } from '@/lib/site-config';
 import { GanakaLogo } from '@/components/logo/ganaka-logo';
 import { HamburgerIcon, CloseIcon, ArrowRightIcon } from '@/components/ui/icons';
-import { Settings, Globe } from 'lucide-react';
+import { Settings, Globe, Loader2 } from 'lucide-react';
 import { PlatformSettingsDialog } from '@/components/settings/PlatformSettingsDialog';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
 
 export function SiteHeader() {
   const pathname = usePathname();
   const { t, language } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [navigatingWorkspace, setNavigatingWorkspace] = useState(false);
+  const [navigatingPanchanga, setNavigatingPanchanga] = useState(false);
 
   // Dynamic translated nav items
   const navItems = [
     { label: t.nav.home, href: '/' },
     { label: t.nav.panchanga, href: '/panchanga' },
+    { label: t.nav.matching, href: '/matching' },
     { label: t.nav.about, href: '/about' },
     { label: t.nav.research, href: '/research' },
     { label: t.nav.documentation, href: '/documentation' },
@@ -103,10 +107,11 @@ export function SiteHeader() {
           <Link
             href="/workspace"
             id="desktop-header-workspace-cta"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold tracking-wide uppercase font-mono text-[#FCFAF6] bg-[#171614] hover:bg-[#8B2F0B] active:bg-[#722608] active:scale-[0.97] transition-all duration-150 rounded-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8B2F0B] select-none"
+            onClick={() => setNavigatingWorkspace(true)}
+            className="group hidden sm:inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold tracking-wide uppercase font-mono text-[#FCFAF6] bg-[#171614] hover:bg-[#8C2D19] active:bg-[#722608] btn-press-tactile transition-all duration-150 rounded-xl shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/50 select-none cursor-pointer"
           >
-            <span>{t.nav.enterWorkspace}</span>
-            <ArrowRightIcon size={12} className="opacity-80" />
+            <span className="relative z-10">{t.nav.enterWorkspace}</span>
+            <ArrowRightIcon size={12} className="relative z-10 opacity-80 group-hover:translate-x-0.5 transition-transform" />
           </Link>
 
           {/* Mobile Menu Trigger using Radix Dialog */}
@@ -193,8 +198,11 @@ export function SiteHeader() {
                     <div className="pt-4 mt-4 border-t border-[#DCD5C6] space-y-2.5">
                       <Link
                         href="/panchanga"
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center justify-between w-full px-5 py-3.5 text-xs font-bold uppercase tracking-wider font-mono text-white bg-[#8B2F0B] hover:bg-[#722608] active:scale-[0.98] rounded-xs transition-all shadow-xs"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setNavigatingPanchanga(true);
+                        }}
+                        className="flex items-center justify-between w-full px-5 py-3.5 text-xs font-bold uppercase tracking-wider font-mono text-white bg-[#8C2D19] hover:bg-[#722608] btn-press-tactile rounded-xl transition-all shadow-xs"
                       >
                         <div className="flex flex-col text-left">
                           <span className="text-sm font-serif font-bold text-white tracking-wide flex items-center gap-1.5">
@@ -210,8 +218,11 @@ export function SiteHeader() {
 
                       <Link
                         href="/workspace"
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center justify-between w-full px-5 py-3 text-xs font-semibold uppercase tracking-wide font-mono text-[#FCFAF6] bg-[#171614] hover:bg-[#8B2F0B] active:scale-[0.98] rounded-xs transition-all"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          setNavigatingWorkspace(true);
+                        }}
+                        className="flex items-center justify-between w-full px-5 py-3 text-xs font-semibold uppercase tracking-wide font-mono text-[#FCFAF6] bg-[#171614] hover:bg-[#8C2D19] btn-press-tactile rounded-xl transition-all"
                       >
                         <span>{t.nav.enterWorkspace}</span>
                         <ArrowRightIcon size={14} />
@@ -239,6 +250,20 @@ export function SiteHeader() {
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
       />
+
+      {/* Navigation Loading Overlays */}
+      {navigatingWorkspace && (
+        <CelestialArmillaryLoading
+          isOverlay
+          title="Loading Kuṇḍalī Workspace..."
+        />
+      )}
+      {navigatingPanchanga && (
+        <CelestialArmillaryLoading
+          isOverlay
+          title="Loading Drik Pañcāṅga..."
+        />
+      )}
     </header>
   );
 }

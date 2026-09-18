@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { RashiNumber } from '../../lib/jyotisha/types';
-import { ChartPlanetItem, RASHI_DATA, getHouseForRashi } from './chartLayoutUtils';
+import { ChartPlanetItem, RASHI_DATA, getHouseForRashi, GRAHA_COLOR_MAP } from './chartLayoutUtils';
 
 interface EastIndianSVGProps {
   lagnaRashi: RashiNumber;
@@ -18,6 +18,8 @@ interface EastIndianSVGProps {
   onHouseClick?: (houseNum: number) => void;
   showDegrees?: boolean;
   svgRef?: React.Ref<SVGSVGElement>;
+  centerTitle?: string;
+  centerSubtitle?: string;
 }
 
 export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
@@ -28,6 +30,8 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
   onHouseClick,
   showDegrees = false,
   svgRef,
+  centerTitle,
+  centerSubtitle,
 }) => {
   // 12 Chambers Polygon & Geometry in 600x600 viewBox
   // 4 Cardinal Squares (200x200):
@@ -313,49 +317,45 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
 
       {/* Base Canvas */}
       <rect
-        x="3"
-        y="3"
-        width="594"
-        height="594"
-        fill="#FCFBF8"
-        stroke="#94836B"
-        strokeWidth="3"
-        rx="4"
+        x="2"
+        y="2"
+        width="596"
+        height="596"
+        fill="#FFFFFF"
+        stroke="#0F172A"
+        strokeWidth="2.5"
+        rx="6"
       />
 
-      {/* 3x3 Grid Matrix Primary Lines */}
+      {/* 3x3 Grid Matrix Primary Lines - Crisp Dark Slate */}
       {/* Horizontals */}
-      <line x1="0" y1="200" x2="600" y2="200" stroke="#B3A188" strokeWidth="1.8" />
-      <line x1="0" y1="400" x2="600" y2="400" stroke="#B3A188" strokeWidth="1.8" />
+      <line x1="0" y1="200" x2="600" y2="200" stroke="#334155" strokeWidth="1.8" />
+      <line x1="0" y1="400" x2="600" y2="400" stroke="#334155" strokeWidth="1.8" />
       {/* Verticals */}
-      <line x1="200" y1="0" x2="200" y2="600" stroke="#B3A188" strokeWidth="1.8" />
-      <line x1="400" y1="0" x2="400" y2="600" stroke="#B3A188" strokeWidth="1.8" />
+      <line x1="200" y1="0" x2="200" y2="600" stroke="#334155" strokeWidth="1.8" />
+      <line x1="400" y1="0" x2="400" y2="600" stroke="#334155" strokeWidth="1.8" />
 
       {/* Corner Square Diagonals (Classical Bengali / Mithila Division) */}
-      {/* Top-Left: (0,0) to (200,200) */}
-      <line x1="0" y1="0" x2="200" y2="200" stroke="#B3A188" strokeWidth="1.8" />
-      {/* Bottom-Left: (200,400) to (0,600) */}
-      <line x1="200" y1="400" x2="0" y2="600" stroke="#B3A188" strokeWidth="1.8" />
-      {/* Bottom-Right: (400,400) to (600,600) */}
-      <line x1="400" y1="400" x2="600" y2="600" stroke="#B3A188" strokeWidth="1.8" />
-      {/* Top-Right: (400,200) to (600,0) */}
-      <line x1="400" y1="200" x2="600" y2="0" stroke="#B3A188" strokeWidth="1.8" />
+      <line x1="0" y1="0" x2="200" y2="200" stroke="#334155" strokeWidth="1.8" />
+      <line x1="200" y1="400" x2="0" y2="600" stroke="#334155" strokeWidth="1.8" />
+      <line x1="400" y1="400" x2="600" y2="600" stroke="#334155" strokeWidth="1.8" />
+      <line x1="400" y1="200" x2="600" y2="0" stroke="#334155" strokeWidth="1.8" />
 
       {/* Center 200x200 Chamber with Bengali Classical Title */}
-      <rect x="200" y="200" width="200" height="200" fill="#FAF6EE" stroke="#B3A188" strokeWidth="1.6" />
-      <circle cx="300" cy="300" r="75" fill="#F4EDE0" stroke="#D1C4AF" strokeWidth="1.2" strokeDasharray="3 2" />
+      <rect x="200" y="200" width="200" height="200" fill="#F8FAFC" stroke="#334155" strokeWidth="1.8" />
+      <circle cx="300" cy="300" r="75" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 3" />
 
-      <text x="300" y="278" textAnchor="middle" fill="#3E3427" className="text-[15px] font-serif font-bold">
-        পূর্ব ভারতীয় চক্র
+      <text x="300" y="278" textAnchor="middle" dominantBaseline="central" fill="#0F172A" className="text-[16px] font-serif font-bold">
+        {centerTitle || 'পূর্ব ভারতীয় চক্র'}
       </text>
-      <text x="300" y="298" textAnchor="middle" fill="#756754" className="text-[11px] font-sans font-medium">
-        East Indian (Bengali/Mithila)
+      <text x="300" y="298" textAnchor="middle" dominantBaseline="central" fill="#475569" className="text-[11.5px] font-sans font-medium">
+        {centerSubtitle || 'East Indian (Bengali/Mithila)'}
       </text>
-      <text x="300" y="322" textAnchor="middle" fill="#8C2D19" className="text-[10.5px] font-mono font-semibold">
+      <text x="300" y="322" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" className="text-[11.5px] font-mono font-bold">
         লগ্ন: {RASHI_DATA[lagnaRashi].bengali} ({RASHI_DATA[lagnaRashi].sanskrit})
       </text>
       {lagnaDegreeStr && (
-        <text x="300" y="338" textAnchor="middle" fill="#9C8B76" className="text-[9.5px] font-mono">
+        <text x="300" y="338" textAnchor="middle" dominantBaseline="central" fill="#64748B" className="text-[10px] font-mono font-medium">
           {lagnaDegreeStr}
         </text>
       )}
@@ -368,7 +368,7 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
         const header = chamberHeaderPositions[rashiNum];
         const occupants = planetsByRashi[rashiNum] || [];
         const positions = getChamberPlanetPositions(rashiNum, occupants.length);
-        const fontSizeClass = occupants.length >= 6 ? 'text-[10px]' : occupants.length >= 4 ? 'text-[11px]' : 'text-[12px]';
+        const planetFontSize = occupants.length >= 7 ? 12 : occupants.length >= 5 ? 13.5 : occupants.length >= 3 ? 15 : occupants.length === 2 ? 16 : 18;
 
         return (
           <g
@@ -379,10 +379,10 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
             {/* Interactive Chamber Hover Fill */}
             <polygon
               points={chamberPolygons[rashiNum]}
-              fill={isSelected ? '#EDE4D1' : isLagna ? '#FFF8F5' : '#FCFBF8'}
-              className="hover:fill-[#F2EBDB] transition-colors"
-              stroke="#B3A188"
-              strokeWidth="1.2"
+              fill={isSelected ? '#EFF6FF' : isLagna ? '#FEF2F2' : '#FFFFFF'}
+              className="hover:fill-[#F1F5F9] transition-colors"
+              stroke="#334155"
+              strokeWidth="1.5"
             />
 
             {/* Chamber Contents with Strict Clip Path */}
@@ -392,21 +392,24 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                 x={header.x}
                 y={header.y}
                 textAnchor={header.anchor}
-                fill="#6B5C49"
-                className="text-[11px] font-serif font-bold"
+                dominantBaseline="central"
+                fill="#334155"
+                className="text-[11.5px] font-serif font-bold"
               >
                 {RASHI_DATA[rashiNum].bengali} • {RASHI_DATA[rashiNum].sanskrit}
-                <tspan className="text-[9.5px] font-mono font-medium text-[#9C8B76]"> ({rashiNum})</tspan>
+                <tspan className="text-[10px] font-mono font-medium text-slate-500"> (#{rashiNum})</tspan>
                 {isLagna ? (
-                  <tspan className="text-[10px] font-sans font-bold fill-[#8C2D19]"> [লগ্ন/H1]</tspan>
+                  <tspan className="text-[10.5px] font-sans font-extrabold fill-[#DC2626]"> [লগ্ন/H1]</tspan>
                 ) : (
-                  <tspan className="text-[9px] font-mono fill-[#B5A996]"> [H{houseNum}]</tspan>
+                  <tspan className="text-[10px] font-mono font-semibold fill-[#64748B]"> [H{houseNum}]</tspan>
                 )}
               </text>
 
-              {/* Render Occupant Planets */}
+              {/* Render Occupant Planets - High Contrast & Bold */}
               {occupants.map((p, idx) => {
                 const pos = positions[idx] || { x: 300, y: 300 };
+                const colorSpec = GRAHA_COLOR_MAP[p.id];
+                const planetFill = p.isRetro ? '#DC2626' : colorSpec?.text || (p.isComb ? '#D97706' : '#0F172A');
 
                 return (
                   <g key={p.id}>
@@ -414,22 +417,30 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                       x={pos.x}
                       y={pos.y}
                       textAnchor="middle"
-                      dominantBaseline="middle"
-                      className={`${fontSizeClass} font-sans font-bold ${
-                        p.isRetro ? 'fill-[#8B0000]' : p.isComb ? 'fill-[#B45309]' : 'fill-[#1C1814]'
-                      }`}
+                      dominantBaseline="central"
+                      fontFamily="system-ui, -apple-system, sans-serif"
+                      fontSize={planetFontSize}
+                      fontWeight="800"
+                      fill={planetFill}
+                      stroke="#FFFFFF"
+                      strokeWidth={3.5}
+                      strokeLinejoin="round"
+                      paintOrder="stroke fill"
                     >
                       {p.label}
                       {p.isRetro && (
-                        <tspan className="text-[9px] font-bold fill-[#8B0000]"> (R)</tspan>
+                        <tspan fill="#DC2626" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                          {' '}(R)
+                        </tspan>
                       )}
                       {p.isComb && (
-                        <tspan className="text-[9px] font-bold fill-[#B45309]"> (C)</tspan>
+                        <tspan fill="#D97706" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                          {' '}(C)
+                        </tspan>
                       )}
                       {showDegrees && p.degreeStr && (
-                        <tspan className="text-[8.5px] font-mono font-normal fill-[#786E61]">
-                          {' '}
-                          {p.degreeStr.split(' ')[0]}
+                        <tspan fill="#475569" fontWeight="600" fontSize={Math.max(9.5, planetFontSize - 3.5)}>
+                          {' '}{p.degreeStr.split(' ')[0]}
                         </tspan>
                       )}
                     </text>

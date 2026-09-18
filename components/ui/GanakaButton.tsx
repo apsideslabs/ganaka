@@ -42,6 +42,7 @@ export const GanakaButton: React.FC<GanakaButtonProps> = ({
   'aria-label': ariaLabel,
 }) => {
   const [isRotating, setIsRotating] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
   const [asyncLoading, setAsyncLoading] = useState(false);
 
   const isActuallyLoading = loading || asyncLoading;
@@ -49,11 +50,15 @@ export const GanakaButton: React.FC<GanakaButtonProps> = ({
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     if (disabled || isActuallyLoading) return;
 
-    // Trigger smooth rotating logo micro-animation
+    // Trigger smooth rotating logo micro-animation and running border beam
     setIsRotating(true);
+    setIsClicked(true);
     setTimeout(() => {
       setIsRotating(false);
-    }, 750);
+    }, 800);
+    setTimeout(() => {
+      setIsClicked(false);
+    }, 850);
 
     if (onClick) {
       try {
@@ -71,26 +76,26 @@ export const GanakaButton: React.FC<GanakaButtonProps> = ({
   const getVariantStyles = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-[#8B2500] hover:bg-[#701E00] active:bg-[#591800] text-white border border-[#8B2500] shadow-xs';
+        return 'bg-[#8C2D19] hover:bg-[#782614] active:bg-[#601D0F] text-white border border-[#8C2D19] shadow-sm shadow-[#8C2D19]/20';
       case 'dark':
-        return 'bg-[#1A1A1A] hover:bg-[#8B2500] active:bg-[#111111] text-white border border-[#1A1A1A] shadow-xs';
+        return 'bg-stone-900 hover:bg-[#8C2D19] active:bg-black text-white border border-stone-800 shadow-sm';
       case 'secondary':
-        return 'bg-[#FAF8F5] hover:bg-[#F2ECE0] active:bg-[#EAE0D0] text-[#2A241A] border border-[#DCD3C4] shadow-2xs';
+        return 'bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-900 border border-stone-200 shadow-2xs';
       case 'outline':
-        return 'bg-white hover:bg-[#FAF8F5] active:bg-[#F2ECE0] text-[#2A241A] border border-[#DCD3C4] hover:border-[#8B2500] hover:text-[#8B2500]';
+        return 'bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-800 border border-stone-200 hover:border-[#8C2D19]/40 hover:text-[#8C2D19]';
       case 'preset':
-        return 'bg-[#FAF8F5] hover:bg-[#F5EBE1] active:bg-[#ECD9CE] text-[#4A3E2C] hover:text-[#8B2500] border border-[#E5DEC8] hover:border-[#8B2500]';
+        return 'bg-stone-50 hover:bg-[#8C2D19]/5 active:bg-[#8C2D19]/10 text-stone-700 hover:text-[#8C2D19] border border-stone-200 hover:border-[#8C2D19]/40';
       case 'ghost':
-        return 'bg-transparent hover:bg-[#FAF8F5] active:bg-[#F0ECE1] text-[#4A3E2C] hover:text-[#1A1A1A] border border-transparent';
+        return 'bg-transparent hover:bg-stone-100 active:bg-stone-200 text-stone-700 hover:text-stone-900 border border-transparent';
       default:
-        return 'bg-[#8B2500] text-white';
+        return 'bg-[#8C2D19] text-white';
     }
   };
 
   const getSizeStyles = () => {
     switch (size) {
       case 'sm':
-        return 'px-2.5 py-1.5 text-xs rounded-lg gap-1.5';
+        return 'px-3 py-1.5 text-xs rounded-lg gap-1.5';
       case 'lg':
         return 'px-6 py-3.5 text-sm sm:text-base rounded-xl gap-2.5 font-bold';
       case 'md':
@@ -99,39 +104,44 @@ export const GanakaButton: React.FC<GanakaButtonProps> = ({
     }
   };
 
-  const symbolSize = size === 'sm' ? 14 : size === 'lg' ? 20 : 16;
+  const symbolSize = size === 'sm' ? 15 : size === 'lg' ? 20 : 17;
 
   const content = (
     <>
       {/* Rotating Logo on Click / Loading */}
       <span
-        className={`inline-flex items-center justify-center shrink-0 transition-transform duration-500 ease-out ${
-          isActuallyLoading ? 'animate-spin' : isRotating ? 'rotate-360 scale-110' : 'rotate-0 scale-100'
+        className={`relative z-10 inline-flex items-center justify-center shrink-0 ${
+          isActuallyLoading
+            ? 'animate-spin'
+            : isRotating
+            ? 'animate-logo-spin'
+            : 'transition-transform duration-200 group-hover:scale-105'
         }`}
       >
         <GanakaSymbol
           size={symbolSize}
+          variant="monochrome"
           className={
             variant === 'primary' || variant === 'dark'
               ? 'text-white'
-              : 'text-[#8B2500]'
+              : 'text-[#8C2D19]'
           }
         />
       </span>
 
-      {iconPosition === 'left' && icon && !isRotating && !isActuallyLoading && (
-        <span className="shrink-0">{icon}</span>
+      {iconPosition === 'left' && icon && !isActuallyLoading && (
+        <span className="relative z-10 shrink-0 transition-transform duration-150 group-hover:-translate-x-0.5">{icon}</span>
       )}
 
-      {children && <span className="truncate">{children}</span>}
+      {children && <span className="relative z-10 truncate">{children}</span>}
 
       {iconPosition === 'right' && icon && (
-        <span className="shrink-0">{icon}</span>
+        <span className="relative z-10 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5">{icon}</span>
       )}
     </>
   );
 
-  const baseClasses = `group inline-flex items-center justify-center font-serif tracking-wide transition-all active:scale-[0.97] select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B2500] focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed ${getVariantStyles()} ${getSizeStyles()} ${className}`;
+  const baseClasses = `group relative overflow-hidden inline-flex items-center justify-center font-serif tracking-wide btn-press-tactile select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${getVariantStyles()} ${getSizeStyles()} ${className}`;
 
   if (href && !disabled) {
     if (href.startsWith('#')) {

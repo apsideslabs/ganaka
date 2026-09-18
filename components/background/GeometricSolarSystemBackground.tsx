@@ -16,12 +16,11 @@ export function GeometricSolarSystemBackground() {
       aria-hidden="true"
     >
       {/* Warm Ambient Vignette & Depth Gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(196,154,69,0.09),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(139,47,11,0.04),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(23,22,20,0.03),transparent_40%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,134,11,0.06),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(140,45,25,0.03),transparent_50%)]" />
 
       {/* Armillary Mathematical Coordinate Projections */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-35">
+      <div className="absolute inset-0 flex items-center justify-center opacity-15">
         <svg
           viewBox="0 0 1200 1200"
           className="w-[700px] h-[700px] sm:w-[950px] sm:h-[950px] md:w-[1200px] md:h-[1200px] shrink-0 text-[#171614] stroke-current animate-celestial-drift"

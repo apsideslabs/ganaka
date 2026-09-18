@@ -47,6 +47,15 @@ export function PanchangaSettingsDialog({
   const [savedNotice, setSavedNotice] = useState(false);
 
   useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        setSettings(getPanchangaSettings());
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  useEffect(() => {
     return subscribeToSettings((scope) => {
       if (scope === 'panchanga') {
         setSettings(getPanchangaSettings());

@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { RashiNumber } from '../../lib/jyotisha/types';
-import { ChartPlanetItem, RASHI_DATA } from './chartLayoutUtils';
+import { ChartPlanetItem, RASHI_DATA, GRAHA_COLOR_MAP } from './chartLayoutUtils';
 
 interface NorthIndianSVGProps {
   lagnaRashi: RashiNumber;
@@ -359,17 +359,17 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
 
       {/* Background Frame */}
       <rect
-        x="3"
-        y="3"
-        width="594"
-        height="594"
-        fill="#FCFBF8"
-        stroke="#94836B"
-        strokeWidth="3"
-        rx="4"
+        x="2"
+        y="2"
+        width="596"
+        height="596"
+        fill="#FFFFFF"
+        stroke="#0F172A"
+        strokeWidth="2.5"
+        rx="6"
       />
 
-      {/* House Polygons & Fill Treatments */}
+      {/* House Polygons & Fill Treatments (Crisp Slate-50 for Kendra houses, Pure White for others) */}
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => {
         const isKendra = [1, 4, 7, 10].includes(h);
         const isSelected = highlightHouse === h;
@@ -382,23 +382,24 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
           >
             <polygon
               points={housePolygons[h]}
-              fill={isSelected ? '#EDE4D1' : isKendra ? '#FAF6EE' : '#FCFBF8'}
-              stroke="#B3A188"
-              strokeWidth="1.6"
-              className="hover:fill-[#F2EBDB]"
+              fill={isSelected ? '#EFF6FF' : isKendra ? '#F8FAFC' : '#FFFFFF'}
+              stroke="#334155"
+              strokeWidth="1.8"
+              className="hover:fill-[#F1F5F9]"
             />
           </g>
         );
       })}
 
-      {/* Classical Structural Geometric Lines (Diagonal & Diamond cross) */}
-      <line x1="0" y1="0" x2="600" y2="600" stroke="#8A775E" strokeWidth="2.2" />
-      <line x1="600" y1="0" x2="0" y2="600" stroke="#8A775E" strokeWidth="2.2" />
+      {/* Classical Structural Geometric Lines (Diagonal & Diamond cross) - High Contrast Dark Slate */}
+      <line x1="0" y1="0" x2="600" y2="600" stroke="#334155" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <line x1="600" y1="0" x2="0" y2="600" stroke="#334155" strokeWidth="2" vectorEffect="non-scaling-stroke" />
       <polygon
         points="300,0 600,300 300,600 0,300"
         fill="none"
-        stroke="#8A775E"
-        strokeWidth="2.2"
+        stroke="#334155"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
       />
 
       {/* House Signs, Badges, and Planets (Strictly Clipped) */}
@@ -408,61 +409,78 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
         const labelPos = houseLabelPositions[h];
         const occupants = planetsByHouse[h] || [];
         const positions = getPlanetPositions(h, occupants.length);
-        const fontSizeClass = occupants.length >= 6 ? 'text-[10px]' : occupants.length >= 4 ? 'text-[11px]' : 'text-[12px]';
+        const planetFontSize = occupants.length >= 7 ? 12 : occupants.length >= 5 ? 13.5 : occupants.length >= 3 ? 15 : occupants.length === 2 ? 16 : 18;
 
         return (
           <g key={`content-${h}`} clipPath={`url(#clip-ni-h-${h})`}>
-            {/* Rashi Number in classical serif */}
+            {/* Rashi Number in classical serif with white contrast halo */}
             <text
               x={signPos.x}
               y={signPos.y}
               textAnchor="middle"
-              dominantBaseline="middle"
-              className="text-[13px] font-serif font-bold fill-[#8A7963]"
+              dominantBaseline="central"
+              fontFamily="Georgia, Cambria, serif"
+              fontSize={16}
+              fontWeight="700"
+              fill="#334155"
+              stroke="#FFFFFF"
+              strokeWidth={3}
+              paintOrder="stroke fill"
             >
               {rashi}
             </text>
 
-            {/* Subtle House Tag ("H1" .. "H12") */}
+            {/* House Tag ("H1" .. "H12") */}
             <text
               x={labelPos.x}
               y={labelPos.y}
               textAnchor="middle"
-              dominantBaseline="middle"
-              className="text-[9px] font-mono font-medium fill-[#B5A996]"
+              dominantBaseline="central"
+              fontFamily="ui-monospace, monospace"
+              fontSize={11}
+              fontWeight="700"
+              fill="#64748B"
+              stroke="#FFFFFF"
+              strokeWidth={2}
+              paintOrder="stroke fill"
             >
               {`H${h}`}
             </text>
 
-            {/* Lagna Tag in House 1 */}
+            {/* Lagna Tag in House 1 - High Visibility Ruby Badge */}
             {h === 1 && (
               <g>
                 <rect
                   x={190}
-                  y={40}
+                  y={34}
                   width={220}
-                  height={24}
-                  rx={12}
-                  fill="#FFF8F5"
-                  stroke="#E2BCB0"
-                  strokeWidth="1.2"
+                  height={28}
+                  rx={14}
+                  fill="#FEF2F2"
+                  stroke="#DC2626"
+                  strokeWidth={1.8}
                   filter="url(#badge-shadow)"
                 />
                 <text
                   x={300}
-                  y={52}
+                  y={48}
                   textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="text-[11.5px] font-sans font-bold fill-[#8C2D19] tracking-wide"
+                  dominantBaseline="central"
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                  fontSize={12.5}
+                  fontWeight="800"
+                  fill="#991B1B"
                 >
                   Lagna (Asc) {lagnaDegreeStr ? `• ${lagnaDegreeStr.split(' ')[0]}` : ''}
                 </text>
               </g>
             )}
 
-            {/* Render Planets */}
+            {/* Render Planets - High Contrast, Bold, Sized for Ultra-Readability */}
             {occupants.map((p, idx) => {
               const pos = positions[idx] || { x: 300, y: 300 };
+              const colorSpec = GRAHA_COLOR_MAP[p.id];
+              const planetFill = p.isRetro ? '#DC2626' : colorSpec?.text || (p.isComb ? '#D97706' : '#0F172A');
 
               return (
                 <g key={p.id}>
@@ -470,22 +488,30 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
                     x={pos.x}
                     y={pos.y}
                     textAnchor="middle"
-                    dominantBaseline="middle"
-                    className={`${fontSizeClass} font-sans font-bold ${
-                      p.isRetro ? 'fill-[#8B0000]' : p.isComb ? 'fill-[#B45309]' : 'fill-[#1C1814]'
-                    }`}
+                    dominantBaseline="central"
+                    fontFamily="system-ui, -apple-system, sans-serif"
+                    fontSize={planetFontSize}
+                    fontWeight="800"
+                    fill={planetFill}
+                    stroke="#FFFFFF"
+                    strokeWidth={3.5}
+                    strokeLinejoin="round"
+                    paintOrder="stroke fill"
                   >
                     {p.label}
                     {p.isRetro && (
-                      <tspan className="text-[9px] font-bold fill-[#8B0000]"> (R)</tspan>
+                      <tspan fill="#DC2626" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                        {' '}(R)
+                      </tspan>
                     )}
                     {p.isComb && (
-                      <tspan className="text-[9px] font-bold fill-[#B45309]"> (C)</tspan>
+                      <tspan fill="#D97706" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
+                        {' '}(C)
+                      </tspan>
                     )}
                     {showDegrees && p.degreeStr && (
-                      <tspan className="text-[8.5px] font-mono font-normal fill-[#786E61]">
-                        {' '}
-                        {p.degreeStr.split(' ')[0]}
+                      <tspan fill="#475569" fontWeight="600" fontSize={Math.max(9.5, planetFontSize - 3.5)}>
+                        {' '}{p.degreeStr.split(' ')[0]}
                       </tspan>
                     )}
                   </text>

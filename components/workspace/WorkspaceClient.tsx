@@ -19,6 +19,7 @@ import { SphutasPanel } from './SphutasPanel';
 import { JanmaPanchangaPanel } from './JanmaPanchangaPanel';
 
 import { VimshottariPanel } from './VimshottariPanel';
+import { ExtendedDashaPanel } from './ExtendedDashaPanel';
 import { AshtakavargaPanel } from './AshtakavargaPanel';
 import { ShadbalaPanel } from './ShadbalaPanel';
 import { YogasPanel } from './YogasPanel';
@@ -33,11 +34,18 @@ import { BhavaChalitPanel } from './BhavaChalitPanel';
 import { MuhurtaPanel } from './MuhurtaPanel';
 import { AvakahadaPanel } from './AvakahadaPanel';
 import { IndicationsPanel } from './IndicationsPanel';
+import { MatchingBridgePanel } from './MatchingBridgePanel';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
 import { GanakaClockPicker } from '../ui/GanakaClockPicker';
 import { WorkspaceSettingsDialog } from '../settings/WorkspaceSettingsDialog';
-import { getPlatformSettings, subscribeToSettings } from '@/lib/settings/settings-storage';
+import {
+  getPlatformSettings,
+  getWorkspaceSettings,
+  savePlatformSettings,
+  saveWorkspaceSettings,
+  subscribeToSettings,
+} from '@/lib/settings/settings-storage';
 import {
   Calendar,
   Clock,
@@ -72,6 +80,7 @@ import {
   Zap,
   Flower2,
   Search,
+  Users,
 } from 'lucide-react';
 
 interface PresetEvent {
@@ -178,6 +187,7 @@ export type WorkspaceTab =
   | 'bhavas'
   | 'aspects'
   | 'vimshottari'
+  | 'extended_dashas'
   | 'jaimini'
   | 'shadbala'
   | 'ashtakavarga'
@@ -219,6 +229,7 @@ const NAV_DOMAINS: NavDomain[] = [
       { id: 'avakahada', name: 'Avakahada Cakra (अवकहड़ा चक्र)', shortName: 'Avakahada Cakra', icon: Sparkles, badge: 'Birth Matrix' },
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
       { id: 'navamsha', name: 'Navāṃśa (D-9) Reference & Grahas', shortName: 'Navāṃśa Table', icon: Table, badge: 'Canonical D9' },
+      { id: 'matching_bridge', name: 'Vivāha Kūṭa Matching Profile', shortName: 'Kuṭa Profile', icon: Users, badge: 'Matching' },
     ],
   },
   {
@@ -248,9 +259,10 @@ const NAV_DOMAINS: NavDomain[] = [
     name: 'Viṃśottarī & Daśās',
     shortName: 'Daśās',
     icon: Clock,
-    description: '120-Year Viṃśottarī 4-level cycle (Mahā, Antar, Pratyantar, & Sūkṣma)',
+    description: 'Viṃśottarī 6-level hierarchy & Extended systems (Aṣṭottarī, Yoginī, Kālacakra, Jaiminī)',
     subTabs: [
-      { id: 'vimshottari', name: 'Viṃśottarī Daśā (4 Levels)', shortName: 'Viṃśottarī (4-Level)', icon: Clock, badge: '4 Levels' },
+      { id: 'vimshottari', name: 'Viṃśottarī Daśā (6-Level Hierarchy)', shortName: 'Viṃśottarī (6 Levels)', icon: Clock, badge: '120y' },
+      { id: 'extended_dashas', name: 'Extended Daśās (7 Systems)', shortName: 'Extended Daśās', icon: Layers, badge: '7 Systems' },
     ],
   },
   {
@@ -353,6 +365,14 @@ const VARGA_LABELS: Record<VargaId, string> = {
   D40: 'D-40 (Khavedāṃśa / Auspiciousness)',
   D45: 'D-45 (Akṣavedāṃśa / Character)',
   D60: 'D-60 (Ṣaṣṭyāṃśa / Past Karma)',
+  // Supported Traditional Extended Vargas
+  D5: 'D-5 (Pañcāṃśa / Spiritual & Fame)',
+  D6: 'D-6 (Ṣaṣṭhāṃśa / Kauluka / Health & Rogas)',
+  D8: 'D-8 (Aṣṭāṃśa / Longevity & Occult)',
+  D11: 'D-11 (Rudrāṃśa / Force & Victory)',
+  D81: 'D-81 (Ekāśītāṃśa / Navanavāṃśa)',
+  D108: 'D-108 (Aṣṭottaraśatāṃśa / Nakshatra Pada)',
+  D144: 'D-144 (Dvādaśadvādaśāṃśa / Deep Lineage)',
 };
 
 function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
@@ -403,7 +423,22 @@ function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
       ? stored.second
       : 0;
 
+  const wsSettings = getWorkspaceSettings();
+  const platSettings = getPlatformSettings();
+
   let city: CityLocation = CITIES_DATABASE[0];
+  if (platSettings.defaultLocation && typeof platSettings.defaultLocation.latitude === 'number') {
+    city = {
+      name: platSettings.defaultLocation.name,
+      country: platSettings.defaultLocation.country || 'India',
+      stateOrRegion: platSettings.defaultLocation.stateOrRegion,
+      latitude: platSettings.defaultLocation.latitude,
+      longitude: platSettings.defaultLocation.longitude,
+      timezoneOffsetHours: platSettings.defaultLocation.timezoneOffsetHours,
+      timezoneName: platSettings.defaultLocation.timezoneName || 'IST',
+    };
+  }
+
   if (qLat && qLng && qTz) {
     const lat = parseFloat(qLat);
     const lng = parseFloat(qLng);
@@ -430,10 +465,12 @@ function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
     };
   }
 
-  let ayan: AyanamshaType = 'lahiri';
+  const activeSettingAyan = wsSettings.ayanamsha || platSettings.defaultAyanamsha;
+
+  let ayan: AyanamshaType = activeSettingAyan && activeSettingAyan in AYANAMSHA_DEFINITIONS ? activeSettingAyan : 'lahiri';
   if (qAyan && qAyan in AYANAMSHA_DEFINITIONS) {
     ayan = qAyan as AyanamshaType;
-  } else if (stored?.ayanamsha && (stored.ayanamsha as string) in AYANAMSHA_DEFINITIONS) {
+  } else if (!activeSettingAyan && stored?.ayanamsha && (stored.ayanamsha as string) in AYANAMSHA_DEFINITIONS) {
     ayan = stored.ayanamsha as AyanamshaType;
   }
 
@@ -480,19 +517,52 @@ export const WorkspaceClient: React.FC = () => {
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
+  const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
   const [isApplyingTime, setIsApplyingTime] = useState<boolean>(false);
   const [isApplyingLocation, setIsApplyingLocation] = useState<boolean>(false);
+  const [isSavedDefaultLocation, setIsSavedDefaultLocation] = useState<boolean>(false);
 
-  // Synchronize with Platform Settings in real-time
+  // Synchronize with Workspace & Platform Settings in real-time
   useEffect(() => {
-    const unsub = subscribeToSettings(() => {
-      const settings = getPlatformSettings();
-      if (settings?.defaultAyanamsha) {
-        setAyanamshaType(settings.defaultAyanamsha);
+    const unsub = subscribeToSettings((scope) => {
+      if (scope === 'workspace') {
+        const currentWs = getWorkspaceSettings();
+        if (currentWs.ayanamsha && currentWs.ayanamsha in AYANAMSHA_DEFINITIONS) {
+          setAyanamshaType(currentWs.ayanamsha);
+        }
+      } else if (scope === 'platform') {
+        const currentPlat = getPlatformSettings();
+        if (currentPlat?.defaultAyanamsha && currentPlat.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
+          setAyanamshaType(currentPlat.defaultAyanamsha);
+        }
       }
     });
     return unsub;
   }, []);
+
+  // Save current workspace chart params to localStorage for seamless persistence
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const params = {
+          name: chartTitle,
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second,
+          cityName: selectedCity.name,
+          latitude: selectedCity.latitude,
+          longitude: selectedCity.longitude,
+          timezone: selectedCity.timezoneOffsetHours,
+          ayanamsha: ayanamshaType,
+          houseSystem,
+        };
+        localStorage.setItem('ganaka_chart_params', JSON.stringify(params));
+      } catch {}
+    }
+  }, [chartTitle, year, month, day, hour, minute, second, selectedCity, ayanamshaType, houseSystem]);
 
   const handleApplyDefaultLocation = () => {
     setIsApplyingLocation(true);
@@ -512,6 +582,26 @@ export const WorkspaceClient: React.FC = () => {
     setTimeout(() => {
       setIsApplyingLocation(false);
     }, 500);
+  };
+
+  const handleSaveAsDefaultLocation = () => {
+    setIsSavedDefaultLocation(true);
+    savePlatformSettings({
+      defaultLocation: {
+        name: selectedCity.name,
+        country: selectedCity.country || 'India',
+        stateOrRegion: selectedCity.stateOrRegion,
+        latitude: selectedCity.latitude,
+        longitude: selectedCity.longitude,
+        timezoneOffsetHours: selectedCity.timezoneOffsetHours,
+        timezoneName: selectedCity.timezoneName || 'IST',
+        isCustom: false,
+      },
+      defaultCityName: selectedCity.name,
+    });
+    setTimeout(() => {
+      setIsSavedDefaultLocation(false);
+    }, 1800);
   };
 
   // Saved Profiles Storage
@@ -657,7 +747,7 @@ export const WorkspaceClient: React.FC = () => {
       timezoneName: `UTC${profile.timezone >= 0 ? `+${profile.timezone}` : profile.timezone}`,
     });
     setLocationQuery(profile.cityName);
-    setAyanamshaType(profile.ayanamsha);
+    // Retain the user's active Ayanāṃśa setting across all charts as requested
     setHouseSystem(profile.houseSystem);
     setShowSavedProfilesDrawer(false);
   };
@@ -996,6 +1086,16 @@ ${Object.values(chartData.planets)
                       <MapPin className={`w-3 h-3 ${isApplyingLocation ? 'animate-bounce' : ''}`} />
                       <span>{isApplyingLocation ? 'Applied!' : 'Use Default Location'}</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveAsDefaultLocation}
+                      disabled={isSavedDefaultLocation}
+                      className="text-[11px] font-mono text-emerald-800 hover:underline cursor-pointer flex items-center gap-1 active:scale-95 transition-all font-medium bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200"
+                      title="Save this location as the global Platform Default"
+                    >
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      <span>{isSavedDefaultLocation ? 'Saved as Default!' : 'Set as Default'}</span>
+                    </button>
                     <span className="text-[10px] text-slate-500 font-mono">
                       {selectedCity.latitude.toFixed(2)}°, {selectedCity.longitude.toFixed(2)}°
                     </span>
@@ -1048,7 +1148,12 @@ ${Object.values(chartData.planets)
                 <label className="text-slate-700 font-semibold block">Ayanāṃśa Standard</label>
                 <select
                   value={ayanamshaType}
-                  onChange={(e) => setAyanamshaType(e.target.value as AyanamshaType)}
+                  onChange={(e) => {
+                    const nextAyan = e.target.value as AyanamshaType;
+                    setAyanamshaType(nextAyan);
+                    saveWorkspaceSettings({ ayanamsha: nextAyan });
+                    savePlatformSettings({ defaultAyanamsha: nextAyan });
+                  }}
                   className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:border-[#8C2D19] focus:outline-none shadow-2xs"
                 >
                   {Object.entries(AYANAMSHA_DEFINITIONS).map(([k, def]) => (
@@ -1566,6 +1671,11 @@ ${Object.values(chartData.planets)
             vargas={chartData.vargas}
             vargottamaPlanets={chartData.vargottamaPlanets}
             onNavigateToNavamsha={() => setActiveTab('navamsha')}
+            onNavigateToAshtakavarga={(vId) => {
+              setAshtakavargaVargaId(vId);
+              setActiveTab('ashtakavarga');
+            }}
+            onOpenSettings={() => setShowWorkspaceSettings(true)}
           />
         )}
 
@@ -1574,6 +1684,10 @@ ${Object.values(chartData.planets)
             chart={chartData}
             onNavigateToVargaChart={() => setActiveTab('vargas')}
           />
+        )}
+
+        {activeTab === 'matching_bridge' && (
+          <MatchingBridgePanel chart={chartData} />
         )}
 
         {/* Category 2: Planetary Sphuta & Spheres */}
@@ -1597,7 +1711,19 @@ ${Object.values(chartData.planets)
         )}
 
         {/* Category 4: Dasha & Timing */}
-        {activeTab === 'vimshottari' && <VimshottariPanel chart={chartData} />}
+        {activeTab === 'vimshottari' && (
+          <VimshottariPanel
+            chart={chartData}
+            onOpenExtendedDashas={() => setActiveTab('extended_dashas')}
+          />
+        )}
+
+        {activeTab === 'extended_dashas' && (
+          <ExtendedDashaPanel
+            chart={chartData}
+            onBackToVimshottari={() => setActiveTab('vimshottari')}
+          />
+        )}
 
         {activeTab === 'jaimini' && (
           <JaiminiSpecialPanel
@@ -1620,6 +1746,9 @@ ${Object.values(chartData.planets)
           <AshtakavargaPanel
             ashtakavarga={chartData.ashtakavarga}
             lagnaRashi={chartData.lagna.rashiNumber}
+            vargas={chartData.vargas}
+            selectedVargaId={ashtakavargaVargaId}
+            onSelectVarga={setAshtakavargaVargaId}
           />
         )}
 
@@ -1680,6 +1809,9 @@ ${Object.values(chartData.planets)
           setHouseSystem(newSettings.houseSystem);
           setDualViewMode(newSettings.dualViewMode);
           setDualSecondaryVarga(newSettings.dualSecondaryVarga);
+          if (newSettings.ayanamsha) {
+            setAyanamshaType(newSettings.ayanamsha);
+          }
         }}
       />
     </div>

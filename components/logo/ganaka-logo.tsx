@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 interface LogoProps {
@@ -6,99 +8,200 @@ interface LogoProps {
   showSubtitle?: boolean;
   className?: string;
   isLink?: boolean;
+  variant?: 'seal' | 'monochrome';
 }
 
 export function GanakaSymbol({
-  size = 28,
+  size = 32,
   className = '',
+  variant = 'seal',
+  animate = false,
 }: {
   size?: number;
   className?: string;
+  variant?: 'seal' | 'monochrome';
+  animate?: boolean;
 }) {
+  const animClass = animate ? 'animate-logo-spin' : '';
+
+  if (variant === 'monochrome') {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 44 44"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Gaṇaka celestial emblem"
+        className={`inline-block shrink-0 ${animClass} ${className}`}
+      >
+        {/* Outer Celestial Reference Ring */}
+        <circle
+          cx="22"
+          cy="22"
+          r="18"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeDasharray="2 2.5"
+          strokeOpacity="0.4"
+        />
+
+        {/* Primary Ecliptic Orbit */}
+        <ellipse
+          cx="22"
+          cy="22"
+          rx="15"
+          ry="7.5"
+          transform="rotate(-30 22 22)"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+
+        {/* Secondary Horizon Orbit */}
+        <ellipse
+          cx="22"
+          cy="22"
+          rx="15"
+          ry="7.5"
+          transform="rotate(30 22 22)"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeOpacity="0.6"
+          strokeLinecap="round"
+        />
+
+        {/* Central Kundali Kendra Diamond */}
+        <polygon
+          points="22,10 34,22 22,34 10,22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+
+        {/* Cardinal Points */}
+        <polygon points="22,6 24,10 22,12 20,10" fill="currentColor" />
+        <polygon points="22,38 24,34 22,32 20,34" fill="currentColor" />
+        <polygon points="6,22 10,24 12,22 10,20" fill="currentColor" />
+        <polygon points="38,22 34,24 32,22 34,20" fill="currentColor" />
+
+        {/* Central Bindu Core */}
+        <circle cx="22" cy="22" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        <circle cx="22" cy="22" r="1.8" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  // Full-color 'seal' vector logo
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 40 40"
+      viewBox="0 0 44 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="Gaṇaka celestial calculation emblem"
-      className={`inline-block shrink-0 ${className}`}
+      aria-label="Gaṇaka celestial emblem"
+      className={`inline-block shrink-0 transition-transform duration-200 group-hover:scale-105 ${animClass} ${className}`}
     >
-      {/* Outer calibration ring */}
-      <circle
-        cx="20"
-        cy="20"
-        r="17"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeDasharray="0.5 3.5"
-        strokeLinecap="round"
-        className="text-[#8B2F0B]"
+      <defs>
+        <linearGradient id="ganakaSealGrad" x1="2" y1="2" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#9E341E" />
+          <stop offset="50%" stopColor="#872915" />
+          <stop offset="100%" stopColor="#63190B" />
+        </linearGradient>
+
+        <linearGradient id="ganakaGoldRing" x1="12" y1="12" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FDE6B8" />
+          <stop offset="100%" stopColor="#D4A152" />
+        </linearGradient>
+
+        <filter id="ganakaGlow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="#471106" floodOpacity="0.3" />
+        </filter>
+      </defs>
+
+      {/* Base Squircle Container */}
+      <rect
+        x="1.5"
+        y="1.5"
+        width="41"
+        height="41"
+        rx="11"
+        fill="url(#ganakaSealGrad)"
+        stroke="#521407"
+        strokeWidth="1"
+        filter="url(#ganakaGlow)"
       />
-      {/* Primary boundary circle */}
-      <circle
-        cx="20"
-        cy="20"
-        r="14"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        className="text-[#171614]"
-      />
-      {/* Precision orthogonal axes */}
-      <line
-        x1="20"
-        y1="3"
-        x2="20"
-        y2="37"
-        stroke="currentColor"
+
+      {/* Inner Subtle Hairline Highlight */}
+      <rect
+        x="3"
+        y="3"
+        width="38"
+        height="38"
+        rx="9.5"
+        fill="none"
+        stroke="#FFF8F0"
+        strokeOpacity="0.18"
         strokeWidth="0.8"
-        strokeDasharray="2 2"
-        className="text-[#A8A194]"
       />
-      <line
-        x1="3"
-        y1="20"
-        x2="37"
-        y2="20"
-        stroke="currentColor"
+
+      {/* Celestial Coordinate Perimeter Ring */}
+      <circle
+        cx="22"
+        cy="22"
+        r="15"
+        stroke="#FFF8F0"
+        strokeOpacity="0.2"
         strokeWidth="0.8"
-        strokeDasharray="2 2"
-        className="text-[#A8A194]"
+        strokeDasharray="1.5 2.5"
       />
-      {/* Inclined orbital arc / celestial coordinate intersection */}
+
+      {/* Planetary Orbit 1: Solar Ecliptic (Golden) */}
       <ellipse
-        cx="20"
-        cy="20"
-        rx="13"
-        ry="6.5"
-        transform="rotate(-28 20 20)"
-        stroke="currentColor"
-        strokeWidth="1"
-        className="text-[#5C5850]"
+        cx="22"
+        cy="22"
+        rx="14"
+        ry="6.8"
+        transform="rotate(-30 22 22)"
+        stroke="url(#ganakaGoldRing)"
+        strokeWidth="1.4"
+        strokeLinecap="round"
       />
-      {/* Concentric inner calibration node */}
-      <circle
-        cx="20"
-        cy="20"
-        r="3"
-        fill="#F4F0E7"
-        stroke="currentColor"
-        strokeWidth="1"
-        className="text-[#171614]"
+
+      {/* Planetary Orbit 2: Horizon / Equator */}
+      <ellipse
+        cx="22"
+        cy="22"
+        rx="14"
+        ry="6.8"
+        transform="rotate(30 22 22)"
+        stroke="#FFF8F0"
+        strokeOpacity="0.55"
+        strokeWidth="1.1"
+        strokeLinecap="round"
       />
-      {/* Central focal node in accent copper */}
-      <circle
-        cx="20"
-        cy="20"
-        r="1.2"
-        fill="#8B2F0B"
+
+      {/* Classical Kundali Ascendant Diamond (Lagna Bhāva) */}
+      <polygon
+        points="22,9.5 34.5,22 22,34.5 9.5,22"
+        fill="#772312"
+        fillOpacity="0.55"
+        stroke="#FFF8F0"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
       />
-      {/* Quadrant measurement ticks */}
-      <line x1="20" y1="4" x2="20" y2="7" stroke="#8B2F0B" strokeWidth="1.2" />
-      <line x1="36" y1="20" x2="33" y2="20" stroke="#8B2F0B" strokeWidth="1.2" />
-      <line x1="20" y1="36" x2="20" y2="33" stroke="#8B2F0B" strokeWidth="1.2" />
-      <line x1="4" y1="20" x2="7" y2="20" stroke="#8B2F0B" strokeWidth="1.2" />
+
+      {/* Cardinal Kendra Markers (Dikpalas) */}
+      <polygon points="22,6.5 23.8,9.5 22,11.2 20.2,9.5" fill="url(#ganakaGoldRing)" />
+      <polygon points="22,37.5 23.8,34.5 22,32.8 20.2,34.5" fill="url(#ganakaGoldRing)" />
+      <polygon points="6.5,22 9.5,23.8 11.2,22 9.5,20.2" fill="url(#ganakaGoldRing)" />
+      <polygon points="37.5,22 34.5,23.8 32.8,22 34.5,20.2" fill="url(#ganakaGoldRing)" />
+
+      {/* Central Cosmic Observer (Bindu) */}
+      <circle cx="22" cy="22" r="4.2" fill="#58160A" stroke="url(#ganakaGoldRing)" strokeWidth="1.1" />
+      <circle cx="22" cy="22" r="1.9" fill="#FFFBF5" />
     </svg>
   );
 }
@@ -108,32 +211,46 @@ export function GanakaLogo({
   showSubtitle = true,
   className = '',
   isLink = true,
+  variant = 'seal',
 }: LogoProps) {
-  const symbolSize = size === 'sm' ? 22 : size === 'lg' ? 36 : 28;
+  const [isClicked, setIsClicked] = useState(false);
+  const symbolSize = size === 'sm' ? 26 : size === 'lg' ? 42 : 34;
+
+  const handleLogoClick = () => {
+    setIsClicked(true);
+    setTimeout(() => {
+      setIsClicked(false);
+    }, 800);
+  };
 
   const content = (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
-      <GanakaSymbol size={symbolSize} />
+    <div className={`flex items-center gap-3 select-none btn-press-tactile ${className}`} onClick={handleLogoClick}>
+      <div className="relative">
+        <GanakaSymbol size={symbolSize} variant={variant} animate={isClicked} />
+        {isClicked && (
+          <span className="pointer-events-none absolute -inset-1 rounded-full animate-subtle-glow z-0" />
+        )}
+      </div>
       <div className="flex flex-col justify-center">
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-center gap-1.5">
           <span
-            className={`font-semibold tracking-tight text-[#171614] font-sans ${
+            className={`font-serif font-bold tracking-tight text-stone-900 group-hover:text-[#8C2D19] transition-colors leading-none ${
               size === 'sm'
-                ? 'text-base leading-tight'
+                ? 'text-base'
                 : size === 'lg'
-                ? 'text-2xl leading-tight tracking-normal'
-                : 'text-lg leading-tight'
+                ? 'text-2xl'
+                : 'text-lg'
             }`}
           >
             Gaṇaka
           </span>
-          <span className="text-[10px] uppercase font-mono tracking-widest text-[#8B2F0B] font-semibold hidden sm:inline-block">
+          <span className="text-[10px] font-serif font-semibold text-[#8C2D19] bg-[#8C2D19]/8 border border-[#8C2D19]/15 px-1.5 py-0.5 rounded leading-none hidden sm:inline-block">
             गणक
           </span>
         </div>
         {showSubtitle && (
           <span
-            className={`text-[#5C5850] font-normal tracking-normal ${
+            className={`text-stone-500 font-sans tracking-tight leading-tight mt-0.5 ${
               size === 'sm'
                 ? 'text-[10px]'
                 : size === 'lg'
@@ -141,7 +258,7 @@ export function GanakaLogo({
                 : 'text-[11px]'
             }`}
           >
-            Jyotiṣa Calculation & Research
+            Classical Jyotiṣa &amp; Ephemeris
           </span>
         )}
       </div>
@@ -157,10 +274,11 @@ export function GanakaLogo({
       href="/"
       prefetch={false}
       id="ganaka-brand-header-link"
-      className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B2F0B] focus-visible:ring-offset-2 rounded-sm"
-      aria-label="Gaṇaka — Jyotiṣa Calculation & Research Homepage"
+      className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8C2D19] focus-visible:ring-offset-2 rounded-lg"
+      aria-label="Gaṇaka — Classical Jyotiṣa & Ephemeris Homepage"
     >
       {content}
     </Link>
   );
 }
+

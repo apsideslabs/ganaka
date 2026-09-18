@@ -276,7 +276,7 @@ export interface PanchangaResult {
   };
 }
 
-export type VargaId =
+export type StandardVargaId =
   | 'D1'
   | 'D2'
   | 'D3'
@@ -294,6 +294,32 @@ export type VargaId =
   | 'D45'
   | 'D60';
 
+export type ExtendedVargaId =
+  | 'D5'
+  | 'D6'
+  | 'D8'
+  | 'D11'
+  | 'D81'
+  | 'D108'
+  | 'D144';
+
+export type VargaId = StandardVargaId | ExtendedVargaId;
+
+export interface VargaHouse {
+  houseNumber: number; // 1 to 12
+  rashiNumber: RashiNumber; // 1 to 12
+  rashiName: string;
+  rashiSanskrit: string;
+  lord: PlanetId;
+  lordName: string;
+  lordPlacement?: {
+    rashiNumber: RashiNumber;
+    rashiName: string;
+    house: number;
+  };
+  occupants: PlanetId[];
+}
+
 export interface VargaChart {
   id: VargaId;
   name: string;
@@ -310,6 +336,9 @@ export interface VargaChart {
       house: number;
     }
   >;
+  houses?: Record<number, VargaHouse>;
+  houseToRashi?: Record<number, RashiNumber>;
+  rashiToHouse?: Record<RashiNumber, number>;
 }
 
 export interface DashaPeriod {
@@ -319,6 +348,12 @@ export interface DashaPeriod {
   endDate: string;
   durationYears: number;
   subPeriods?: DashaPeriod[]; // Antardashas or Pratyantardashas
+  isPreNatal?: boolean;
+  isBirthActive?: boolean;
+  elapsedBeforeBirthYears?: number;
+  fullAstronomicalStartDate?: string;
+  fullAstronomicalEndDate?: string;
+  level?: number;
 }
 
 export interface AshtakavargaTable {
@@ -463,8 +498,12 @@ export interface JyotishaChart {
       lord: PlanetId;
       yearsRemaining: number;
       percentRemaining: number;
+      [key: string]: any;
     };
+    activeAtBirth?: any;
     tree: DashaPeriod[];
+    fullAstronomicalTree?: DashaPeriod[];
+    optionsUsed?: any;
   };
   ashtakavarga: AshtakavargaResult;
   shadbala: Record<PlanetId, ShadbalaComponent>;

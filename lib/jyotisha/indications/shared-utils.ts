@@ -129,14 +129,92 @@ export function getShadbalaRatio(chart: JyotishaChart, planetId: PlanetId): numb
 }
 
 /**
- * Get Ashtakavarga SAV bindus for a house (1-12)
+ * Classical BPHS Dynamic House-to-Sign SAV Mapping Result
+ */
+export interface DynamicHouseSAVResult {
+  // 1-indexed house number (1..12) -> SAV bindus
+  houseSAV: Record<number, number>;
+  // 1-indexed house number (1..12) -> occupying Rāśi number (1..12)
+  signByHouse: Record<number, number>;
+  // Strongest house by SAV bindus
+  strongestHouse: { houseNum: number; rashiNum: number; bindus: number };
+  // Weakest house by SAV bindus
+  weakestHouse: { houseNum: number; rashiNum: number; bindus: number };
+  // House structural totals
+  kendraTotal: number; // Houses 1, 4, 7, 10
+  trikonaTotal: number; // Houses 1, 5, 9
+  dusthanaTotal: number; // Houses 6, 8, 12
+  upachayaTotal: number; // Houses 3, 6, 10, 11
+  labhaVyayaBalance: number; // H11 - H12
+}
+
+/**
+ * Dynamic House-to-Sign SAV Mapping Engine (Prediction Layer)
+ * 
+ * Per BPHS & classical Parāśari doctrine:
+ * The Sarvāṣṭakavarga (SAV) matrix is strictly rāśi-based (Aries=1 through Pisces=12).
+ * The Prediction Layer must dynamically map sign-based SAV → house-based SAV according to Janma Lagna:
+ * signIndex = ((ascendantSignIndex + houseNumber - 2) % 12) + 1
+ * houseSAV[houseNumber] = signSAV[signIndex]
+ */
+export function getDynamicHouseSAV(chart: JyotishaChart): DynamicHouseSAVResult {
+  const ascendantSignIndex = getLagnaRashiNumber(chart);
+  const houseSAV: Record<number, number> = {};
+  const signByHouse: Record<number, number> = {};
+  const rawSAV = chart.ashtakavarga?.sav?.bindusByRashi;
+
+  for (let houseNumber = 1; houseNumber <= 12; houseNumber++) {
+    const signIndex = (((ascendantSignIndex + houseNumber - 2) % 12) + 1);
+    signByHouse[houseNumber] = signIndex;
+    houseSAV[houseNumber] = rawSAV ? (rawSAV[signIndex - 1] ?? 28) : 28;
+  }
+
+  let strongest = { houseNum: 1, rashiNum: signByHouse[1], bindus: houseSAV[1] };
+  let weakest = { houseNum: 1, rashiNum: signByHouse[1], bindus: houseSAV[1] };
+
+  for (let h = 1; h <= 12; h++) {
+    const pts = houseSAV[h];
+    if (pts > strongest.bindus) {
+      strongest = { houseNum: h, rashiNum: signByHouse[h], bindus: pts };
+    }
+    if (pts < weakest.bindus) {
+      weakest = { houseNum: h, rashiNum: signByHouse[h], bindus: pts };
+    }
+  }
+
+  return {
+    houseSAV,
+    signByHouse,
+    strongestHouse: strongest,
+    weakestHouse: weakest,
+    kendraTotal: houseSAV[1] + houseSAV[4] + houseSAV[7] + houseSAV[10],
+    trikonaTotal: houseSAV[1] + houseSAV[5] + houseSAV[9],
+    dusthanaTotal: houseSAV[6] + houseSAV[8] + houseSAV[12],
+    upachayaTotal: houseSAV[3] + houseSAV[6] + houseSAV[10] + houseSAV[11],
+    labhaVyayaBalance: houseSAV[11] - houseSAV[12],
+  };
+}
+
+/**
+ * Sarvāṣṭakavarga (SAV) Architectural Doctrine:
+ * D1 Sarvāṣṭakavarga (SAV) is strictly a D1/Rāśi dataset (337 bindus across Aries..Pisces).
+ * It is dynamically converted from sign-based SAV to house-based SAV ONLY according to the
+ * D1 Janma Lagna (Natal Ascendant).
+ * CRITICAL MANDATE: D1 SAV must NEVER be converted into a divisional-chart SAV by using another
+ * Varga's Lagna (such as D9 Navāṃśa Lagna or D10 Daśāṃśa Lagna).
+ */
+
+/**
+ * Get Ashtakavarga SAV bindus for a house (1-12) via dynamic Lagna mapping:
+ * signIndex = ((ascendantSignIndex + houseNumber - 2) % 12) + 1
+ * houseSAV[houseNumber] = signSAV[signIndex]
+ * Uses strictly D1 Janma Lagna.
  */
 export function getHouseSAVBindus(chart: JyotishaChart, houseNum: number): number {
   if (!chart.ashtakavarga?.sav?.bindusByRashi) return 28;
-  const lagnaRashiNum = getLagnaRashiNumber(chart);
-  const houseRashiNum = (((lagnaRashiNum - 1) + (houseNum - 1)) % 12) + 1;
-  const index = houseRashiNum - 1;
-  return chart.ashtakavarga.sav.bindusByRashi[index] ?? 28;
+  const ascendantSignIndex = getLagnaRashiNumber(chart);
+  const signIndex = (((ascendantSignIndex + houseNum - 2) % 12) + 1);
+  return chart.ashtakavarga.sav.bindusByRashi[signIndex - 1] ?? 28;
 }
 
 /**
@@ -155,6 +233,61 @@ export function getVargaPlacement(
     rashiName: RASHI_NAMES[p.rashiNumber] || `Rāśi ${p.rashiNumber}`,
     house: p.house,
   };
+}
+
+/**
+ * Get independent House ↔ Rāśi mapping for a specific Divisional Chart (Varga).
+ * Rule: Every divisional chart must maintain its own independent House ↔ Rāśi mapping based on
+ * that Varga's Ascendant. Never reuse D1 house mapping for D9, D10, D7, D12, etc.
+ */
+export function getVargaHouseRashi(chart: JyotishaChart, vargaId: VargaId, houseNum: number): RashiNumber | null {
+  const vargaChart = chart.vargas?.[vargaId];
+  if (!vargaChart) return null;
+  return ((((vargaChart.lagnaRashi - 1) + (houseNum - 1)) % 12) + 1) as RashiNumber;
+}
+
+/**
+ * Get the independent House Lord (Bhāveśa) for a specific house in a Divisional Chart.
+ * Calculated strictly from that Varga's own Ascendant and resulting sign ruler.
+ */
+export function getVargaHouseLord(chart: JyotishaChart, vargaId: VargaId, houseNum: number): {
+  id: PlanetId;
+  name: string;
+  rashiNumber: RashiNumber;
+  placementInVarga?: { rashiNumber: RashiNumber; house: number };
+} | null {
+  const vargaChart = chart.vargas?.[vargaId];
+  if (!vargaChart) return null;
+  const houseRashi = ((((vargaChart.lagnaRashi - 1) + (houseNum - 1)) % 12) + 1) as RashiNumber;
+  const lordId = RASHI_LORDS[houseRashi];
+  const lordPlacement = vargaChart.planets?.[lordId];
+  return {
+    id: lordId,
+    name: GRAHA_SANSKRIT_NAMES[lordId] || lordId,
+    rashiNumber: houseRashi,
+    placementInVarga: lordPlacement
+      ? {
+          rashiNumber: lordPlacement.rashiNumber,
+          house: lordPlacement.house,
+        }
+      : undefined,
+  };
+}
+
+/**
+ * Get all planets occupying a specific house in a Divisional Chart (Varga)
+ * based strictly on that Varga's Ascendant.
+ */
+export function getVargaHouseOccupants(chart: JyotishaChart, vargaId: VargaId, houseNum: number): PlanetId[] {
+  const vargaChart = chart.vargas?.[vargaId];
+  if (!vargaChart || !vargaChart.planets) return [];
+  const occupants: PlanetId[] = [];
+  for (const [pId, pData] of Object.entries(vargaChart.planets)) {
+    if (pData.house === houseNum) {
+      occupants.push(pId as PlanetId);
+    }
+  }
+  return occupants;
 }
 
 /**

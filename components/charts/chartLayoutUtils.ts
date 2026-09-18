@@ -46,6 +46,26 @@ export const PLANET_FULL_NAMES: Record<PlanetId, string> = {
   true_ketu: 'True Ketu',
 };
 
+export interface GrahaColorSpec {
+  text: string;
+  bg: string;
+  border: string;
+}
+
+export const GRAHA_COLOR_MAP: Record<PlanetId, GrahaColorSpec> = {
+  sun: { text: '#C2410C', bg: '#FFF7ED', border: '#FDBA74' },
+  moon: { text: '#0369A1', bg: '#F0F9FF', border: '#BAE6FD' },
+  mars: { text: '#B91C1C', bg: '#FEF2F2', border: '#FECACA' },
+  mercury: { text: '#047857', bg: '#ECFDF5', border: '#A7F3D0' },
+  jupiter: { text: '#B45309', bg: '#FFFBEB', border: '#FDE68A' },
+  venus: { text: '#6D28D9', bg: '#F5F3FF', border: '#DDD6FE' },
+  saturn: { text: '#1E3A8A', bg: '#EFF6FF', border: '#BFDBFE' },
+  rahu: { text: '#4C1D95', bg: '#FAF5FF', border: '#E9D5FF' },
+  ketu: { text: '#78350F', bg: '#FEF3C7', border: '#FDE68A' },
+  true_rahu: { text: '#4C1D95', bg: '#FAF5FF', border: '#E9D5FF' },
+  true_ketu: { text: '#78350F', bg: '#FEF3C7', border: '#FDE68A' },
+};
+
 export interface RashiMeta {
   number: RashiNumber;
   sanskrit: string;
