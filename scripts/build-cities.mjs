@@ -6,13 +6,19 @@
  * and requires attribution, which is written to public/data/CITY-NOTICE.txt.
  *
  * Inputs (tab-separated, from https://download.geonames.org/export/dump/):
- *   cities5000.txt, cities1000.txt, admin1CodesASCII.txt, countryInfo.txt, timeZones.txt
+ *   cities5000.txt, cities1000.txt, cities500.txt,
+ *   admin1CodesASCII.txt, countryInfo.txt, timeZones.txt
  *
  * Output: public/data/cities.json
  *
- * Selection: every place in cities5000 (population > 5000 or an administrative
- * seat), plus every Indian place in cities1000 so villages are searchable.
+ * Selection (tiered):
+ *   - every place in cities5000 worldwide
+ *   - every Indian place in cities1000
+ *   - every Indian place in cities500            <- Tier 2, the villages
  * Deduplicated by geonameid, sorted by population descending.
+ *
+ * Alternate names are included for places above 100k population so that
+ * "Bangalore" finds Bengaluru and "Bombay" finds Mumbai.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,6 +27,9 @@ const GN = process.env.GN_DIR || '/tmp/gn';
 const OUT_DIR = path.resolve('public/data');
 const OUT = path.join(OUT_DIR, 'cities.json');
 const NOTICE = path.join(OUT_DIR, 'CITY-NOTICE.txt');
+
+const ALT_POP_THRESHOLD = 100000;
+const MAX_ALTS = 3;
 
 const read = (f) => {
   const p = path.join(GN, f);
@@ -66,6 +75,23 @@ function parseTimeZones(txt) {
   return m;
 }
 
+function cleanAlts(alternates, name, ascii) {
+  if (!alternates) return '';
+  const seen = new Set([name.toLowerCase(), ascii.toLowerCase()]);
+  const out = [];
+  for (const raw of alternates.split(',')) {
+    const a = raw.trim();
+    if (!a || a.length < 3 || a.length > 28) continue;
+    if (!/^[\x20-\x7E]+$/.test(a)) continue; // ascii only
+    const k = a.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(a);
+    if (out.length >= MAX_ALTS) break;
+  }
+  return out.join('|');
+}
+
 function parseCities(txt, admin1, countries, onlyCountry) {
   const out = [];
   if (!txt) return out;
@@ -78,6 +104,7 @@ function parseCities(txt, admin1, countries, onlyCountry) {
     const lat = parseFloat(c[4]);
     const lon = parseFloat(c[5]);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    const pop = parseInt(c[14], 10) || 0;
     out.push({
       id: c[0],
       name: c[1],
@@ -86,7 +113,8 @@ function parseCities(txt, admin1, countries, onlyCountry) {
       lat: Math.round(lat * 10000) / 10000,
       lon: Math.round(lon * 10000) / 10000,
       tz: c[17] || '',
-      pop: parseInt(c[14], 10) || 0,
+      pop,
+      alt: pop >= ALT_POP_THRESHOLD ? cleanAlts(c[3], c[1], c[2]) : '',
     });
   }
   return out;
@@ -97,15 +125,18 @@ const countries = parseCountries(read('countryInfo.txt'));
 const tzOffsets = parseTimeZones(read('timeZones.txt'));
 
 const big = parseCities(read('cities5000.txt'), admin1, countries, null);
-const india = parseCities(read('cities1000.txt'), admin1, countries, 'IN');
+const mid = parseCities(read('cities1000.txt'), admin1, countries, 'IN');
+const small = parseCities(read('cities500.txt'), admin1, countries, 'IN');
 
 if (big.length === 0) {
   console.warn('[cities] no input data found; leaving existing index untouched');
   process.exit(0);
 }
 
+// Layer the tiers: smaller files add villages, larger files win on conflict.
 const byId = new Map();
-for (const r of india) byId.set(r.id, r);
+for (const r of small) byId.set(r.id, r);
+for (const r of mid) byId.set(r.id, r);
 for (const r of big) byId.set(r.id, r);
 
 const rows = [...byId.values()].sort((a, b) => b.pop - a.pop);
@@ -128,29 +159,32 @@ const cities = rows.map((r) => [
   r.tz ? tzIndex.get(r.tz) : -1,
   r.tz && tzOffsets.has(r.tz) ? tzOffsets.get(r.tz) : 0,
   r.pop,
+  r.alt,
 ]);
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
-fs.writeFileSync(OUT, JSON.stringify({ v: 1, tz: tzList, cities }));
+fs.writeFileSync(OUT, JSON.stringify({ v: 2, tz: tzList, cities }));
 fs.writeFileSync(
   NOTICE,
   [
     'Place data in this directory is derived from GeoNames.',
     '',
     'Source: GeoNames (https://www.geonames.org/), files cities5000.zip, cities1000.zip,',
-    'admin1CodesASCII.txt, countryInfo.txt and timeZones.txt, downloaded from',
-    'https://download.geonames.org/export/dump/',
+    'cities500.zip, admin1CodesASCII.txt, countryInfo.txt and timeZones.txt, downloaded',
+    'from https://download.geonames.org/export/dump/',
     '',
     'License: Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)',
     '',
     'Changes: filtered to populated places, selected fields, resolved administrative',
-    'region and country names, converted to a compact JSON index. GeoNames does not',
-    'endorse this project. Data is provided as is, without warranty of accuracy,',
-    'timeliness or completeness.',
+    'region and country names, added alternate names for large places, converted to a',
+    'compact JSON index. GeoNames does not endorse this project. Data is provided as is,',
+    'without warranty of accuracy, timeliness or completeness.',
     '',
   ].join('\n')
 );
 
+const indiaCount = cities.filter((c) => c[2] === 'India').length;
+const withAlt = cities.filter((c) => c[8]).length;
 const mb = (fs.statSync(OUT).size / 1024 / 1024).toFixed(2);
-console.log(`[cities] wrote ${cities.length} places (${mb} MB) to ${OUT}`);
+console.log(`[cities] ${cities.length} places (${indiaCount} India, ${withAlt} with alternate names) in ${mb} MB`);
 console.log(`[cities] timezones: ${tzList.length}`);
