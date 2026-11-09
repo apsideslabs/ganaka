@@ -66,6 +66,8 @@ export interface ShadbalaContext {
   hour?: number;
   minute?: number;
   timezoneOffsetHours?: number;
+  /** Ayanamsa in degrees, needed for Ayana Bala. */
+  ayanamsha?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -287,12 +289,10 @@ export function calculateShadbala(
   // Horā Bala: the planetary hour, counted from sunrise in the Chaldean order.
   const horaLord: string | null = (() => {
     if (!hasTimes) return null;
-    const base = isDayBirth ? sunrise! : sunset! - 0.5;
     const start = isDayBirth ? sunrise! : sunset!;
     const hours = Math.floor((jd! - start) * 24);
     if (hours < 0) return null;
     const startIdx = HORA_ORDER.indexOf(WEEKDAY_LORDS[weekdayIndex(Math.floor(start))]);
-    void base;
     return HORA_ORDER[(startIdx + hours) % 7];
   })();
 
@@ -385,9 +385,11 @@ export function calculateShadbala(
     const horaBala = horaLord === pId ? 60 : 0;
 
     // 3.6 Ayana Bala: from the planet's declination, BPHS 27.30-27.33.
-    const ayanamsha = typeof ctx.jd === 'number' ? 0 : 0;
-    void ayanamsha;
-    const ayana = ayanaBala(pId, lon, ctxAyanamsha(ctx));
+    const ayana = ayanaBala(
+      pId,
+      lon,
+      typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0
+    );
 
     // 3.7 Varṣa and Māsa bala are not implemented: they need the weekday on
     //     which the solar year and solar month began, which requires a

@@ -190,7 +190,19 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       isRetrograde: pObj.isRetrograde,
     };
   }
-  const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongitude, isDayBirth);
+  const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongitude, isDayBirth, {
+    jd,
+    sunriseJD: sunTimes.sunriseJD,
+    sunsetJD: sunTimes.sunsetJD,
+    solarNoonJD: sunTimes.solarNoonJD,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    timezoneOffsetHours,
+    ayanamsha,
+  });
 
   // 12. Classical Yogas
   const yogaInput: any = {};
