@@ -14,7 +14,7 @@ import { useCitySearch } from '../../hooks/use-city-search';
 import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
-import { downloadChartPdf } from '../../lib/report/generate-chart-pdf';
+import { buildChartPdf, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
@@ -510,6 +510,9 @@ export const WorkspaceClient: React.FC = () => {
   const [showSavedProfilesDrawer, setShowSavedProfilesDrawer] = useState<boolean>(false);
   const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
 
+  // PDF report preview (blob URL + suggested filename)
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; name: string } | null>(null);
+
   // Professional View Settings
   const [showWorkspaceSettings, setShowWorkspaceSettings] = useState<boolean>(false);
   const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
@@ -934,12 +937,14 @@ ${Object.values(chartData.planets)
               variant="outline"
               onClick={() => {
                 try {
-                  downloadChartPdf(chartData, chartTitle || undefined);
+                  const doc = buildChartPdf(chartData, chartTitle || undefined);
+                  const url = doc.output('bloburl') as unknown as string;
+                  setPdfPreview({ url, name: chartPdfFilename(chartData, chartTitle || undefined) });
                 } catch (err) {
                   console.error('[report] PDF generation failed', err);
                 }
               }}
-              title="Download the full chart report as a PDF"
+              title="Preview the full chart report as a PDF"
               icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
             />
           </div>
@@ -1855,6 +1860,54 @@ ${Object.values(chartData.planets)
           }
         }}
       />
+
+      {/* PDF report preview - the document is built in memory and shown in an
+          iframe, so the reader can page through it before committing to a
+          download. Nothing is saved until they press Download. */}
+      {pdfPreview && (
+        <div
+          className="fixed inset-0 z-[120] bg-stone-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setPdfPreview(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chart report preview"
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[92vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-stone-200 bg-[#FCFAF6]">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#8C2D19] font-bold">
+                  Report Preview
+                </div>
+                <div className="text-xs text-stone-600 truncate">{pdfPreview.name}</div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={pdfPreview.url}
+                  download={pdfPreview.name}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#73240f] transition-colors"
+                >
+                  Download PDF
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPdfPreview(null)}
+                  className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <iframe
+              src={pdfPreview.url}
+              title="Chart report PDF preview"
+              className="flex-1 w-full bg-stone-100"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
