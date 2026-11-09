@@ -29,15 +29,14 @@ jobs:
       - name: Apply source fixes
         run: |
           python3 - <<'PY'
-          import pathlib, sys
+          import pathlib
 
-          changed = []
-          missing = []
+          changed, missing = [], []
 
           def patch(path, pairs):
               p = pathlib.Path(path)
               if not p.exists():
-                  missing.append(f'{path} (file not found)')
+                  missing.append(f'{path} (not found)')
                   return
               s = p.read_text()
               orig = s
@@ -50,7 +49,7 @@ jobs:
                   p.write_text(s)
                   changed.append(path)
 
-          # 1. Matching page: ISO strings passed where Date was expected (fixed earlier).
+          # --- Matching page date bug (already fixed upstream; idempotent) ---
           mp = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
           if mp.exists() and 'isoToDate' not in mp.read_text():
               helpers = '''
@@ -70,42 +69,46 @@ jobs:
               s = mp.read_text()
               s = s.replace('export function MatchingWorkspaceClient',
                             helpers + '\nexport function MatchingWorkspaceClient', 1)
-              s = s.replace(
-                  '<GanakaDatePicker value={groomDate} onChange={setGroomDate} />',
-                  '<GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />')
-              s = s.replace(
-                  '<GanakaDatePicker value={brideDate} onChange={setBrideDate} />',
-                  '<GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />')
+              s = s.replace('<GanakaDatePicker value={groomDate} onChange={setGroomDate} />',
+                            '<GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />')
+              s = s.replace('<GanakaDatePicker value={brideDate} onChange={setBrideDate} />',
+                            '<GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />')
               mp.write_text(s)
               changed.append(str(mp))
 
-          # 2. Stale location count in the database header comment.
+          # --- Wire the full city index into searchLocations ---
           patch('lib/astronomy/coordinates.ts', [
-              (' * 220+ Verified Indian Cities, Pilgrimage Hubs, State Capitals & World Observatories',
-               ' * 769 rows (760 unique) verified locations: Indian cities, pilgrimage hubs,\n * state capitals & world observatories.'),
-              # 3. Dead search branch: stateOrRegion is never populated in the data,
-              #    so filtering on it silently matched nothing.
-              ('      (c.stateOrRegion && c.stateOrRegion.toLowerCase().includes(q)) ||\n',
-               ''),
+              ('export const FAMOUS_HISTORICAL_CHARTS = [',
+               "import { searchIndexedCities } from './city-index';\n\nexport const FAMOUS_HISTORICAL_CHARTS = ["),
+              ("""  const q = query.toLowerCase().trim();
+            return CITIES_DATABASE.filter(
+              (c) =>
+                c.name.toLowerCase().includes(q) ||
+                c.country.toLowerCase().includes(q)
+            );""".replace('  ', '', 0),
+               """  const q = query.toLowerCase().trim();
+            const indexed = searchIndexedCities(q, 40);
+            if (indexed.length > 0) return indexed;
+            return CITIES_DATABASE.filter(
+              (c) =>
+                c.name.toLowerCase().includes(q) ||
+                c.country.toLowerCase().includes(q)
+            );"""),
+              (' * 400+ Verified Indian cities, Assam towns & pilgrimage tirthas, state capitals, and world reference hubs.',
+               ' * A curated set of Indian cities, Assam towns & pilgrimage tirthas, plus world\n * hubs. Backed at runtime by a full GeoNames-derived index (city-index.ts).'),
           ])
 
-          # 4. Search placeholder on the panchanga page.
-          patch('components/panchanga/PanchangaHeader.tsx', [
-              ('Search 220+ verified Indian cities, tirthas & global locations...',
-               'Search 760 verified cities, tīrthas & global locations...'),
-          ])
+          # --- Keep generated data out of version control ---
+          gi = pathlib.Path('.gitignore')
+          if gi.exists():
+              t = gi.read_text()
+              if 'public/data/' not in t:
+                  gi.write_text(t.rstrip() + '\npublic/data/\n')
+                  changed.append('.gitignore')
 
-          # 5. Header comment in the workspace client.
-          patch('components/workspace/WorkspaceClient.tsx', [
-              (' * 220+ verified Indian cities/tirthas, high-precision classical mechanics, dual chart views,',
-               ' * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,'),
-          ])
-
-          print('changed files:', changed or 'none')
+          print('changed:', changed or 'none')
           for m in missing:
-              print(f'::warning::not found -> {m}')
-          if not changed:
-              print('nothing to change')
+              print(f'::warning::pattern not found -> {m}')
           PY
 
       - name: Commit source fixes
@@ -116,9 +119,29 @@ jobs:
             echo "no source changes needed"
           else
             git add -A
-            git commit -m "fix: correct stale location count and remove dead state search"
+            git commit -m "feat(search): wire the GeoNames city index into searchLocations"
             git push
           fi
+
+      - name: Download GeoNames dumps
+        run: |
+          mkdir -p /tmp/gn && cd /tmp/gn
+          base=https://download.geonames.org/export/dump
+          for f in cities5000.zip cities1000.zip; do
+            curl -sSL --retry 3 --max-time 180 -o $f $base/$f
+          done
+          for f in admin1CodesASCII.txt countryInfo.txt timeZones.txt; do
+            curl -sSL --retry 3 --max-time 60 -o $f $base/$f
+          done
+          unzip -oq cities5000.zip
+          unzip -oq cities1000.zip
+          ls -lh
+
+      - name: Build city index
+        run: |
+          GN_DIR=/tmp/gn node scripts/build-cities.mjs
+          node -e "const f=require('./public/data/cities.json');console.log('places:',f.cities.length,'timezones:',f.tz.length);console.log('::notice::city index built with '+f.cities.length+' places')"
+          du -h public/data/cities.json
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -148,6 +171,11 @@ jobs:
             exit $code
           fi
           tail -20 build.log
+
+      - name: Verify the index shipped
+        run: |
+          ls -lh out/data/ || true
+          node -e "const f=require('./out/data/cities.json');console.log('::notice::deployed index has '+f.cities.length+' places')"
 
       - name: Disable Jekyll
         run: |
