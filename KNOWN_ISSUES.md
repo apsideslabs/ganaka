@@ -81,11 +81,21 @@ They have been replaced by actual implementations:
 | **Varṣa Bala / Māsa Bala** | 27.26–27.27 | **still zero** — these need the weekday on which the solar year and solar month began, which requires a saṅkrānti search the ephemeris module does not expose |
 | **Yuddha Bala** | 27.37 | **still zero** — planetary war; applies only within one degree and is omitted rather than guessed |
 
-Ceṣṭā Bala for the five non-luminaries uses a motion-state classification
-(retrograde 60, stationary 45, fast direct 30, slow direct 15) rather than the
-classical seeghrocha method, because the mean-longitude elements it needs are not
-exposed by the ephemeris module. This is the largest remaining approximation in
-śaḍbala.
+Ceṣṭā Bala now uses the classical seeghrocha method of BPHS 27.24-25 for Mars
+through Saturn: the cheṣṭā kendra is the seeghrocha minus the mean of the
+planet's mean and true longitudes, folded to 180° and divided by 3. Mars,
+Jupiter and Saturn take the mean Sun as their seeghrocha; Mercury and Venus take
+their own heliocentric mean longitude as the seeghrocha and the mean Sun as
+their mean position. Mean longitudes come from the JPL approximate elements,
+and the sidereal true longitude is converted to tropical before use.
+
+The formula reproduces all five of B. V. Raman's printed cheṣṭā balas
+(Graha and Bhava Balas, ch. VI) to within 0.18 virūpa, the residual being his
+rounding to arcminutes. The deploy re-runs that comparison and fails if any
+value drifts more than 0.25 virūpa.
+
+The Sun's cheṣṭā bala is its Ayana Bala and the Moon's is its Paksha Bala, as
+BPHS 27.18 requires.
 
 Because Varṣa, Māsa and Yuddha are absent, totals still read slightly low, so
 comparisons against `requiredRupas` remain conservative.
