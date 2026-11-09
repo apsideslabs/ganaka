@@ -39,9 +39,17 @@ let inflight: Promise<void> | null = null;
 /** letter -> true once its shard has been merged in (or failed). */
 const shards = new Map<string, Promise<void>>();
 
+/**
+ * For each IANA timezone, how many indexed places fall in each country. Used to
+ * turn the device timezone into a likely country without any network call or
+ * permission prompt.
+ */
+const TZ_COUNTRY_COUNTS = new Map<string, Map<string, number>>();
+
 function append(file: IndexFile) {
   for (const r of file.cities) {
     const [name, state, country, lat, lon, tzIdx, offset, , alt] = r;
+    const tzName = tzIdx >= 0 ? file.tz[tzIdx] : 'UTC';
     records.push({
       name,
       stateOrRegion: state || undefined,
@@ -49,11 +57,37 @@ function append(file: IndexFile) {
       latitude: lat,
       longitude: lon,
       timezoneOffsetHours: offset,
-      timezoneName: tzIdx >= 0 ? file.tz[tzIdx] : 'UTC',
+      timezoneName: tzName,
     });
     const base = `${name} ${state || ''} ${country}`.toLowerCase();
     keys.push(alt ? `${base} ${alt.replace(/\|/g, ' ')}` : base);
+
+    let byCountry = TZ_COUNTRY_COUNTS.get(tzName);
+    if (!byCountry) {
+      byCountry = new Map();
+      TZ_COUNTRY_COUNTS.set(tzName, byCountry);
+    }
+    byCountry.set(country, (byCountry.get(country) || 0) + 1);
   }
+}
+
+/**
+ * The country a timezone mostly covers, e.g. "Asia/Kolkata" -> "India".
+ * Returns null until the index has loaded, or for an unknown zone.
+ */
+export function countryForTimezone(tz: string | null | undefined): string | null {
+  if (!tz) return null;
+  const byCountry = TZ_COUNTRY_COUNTS.get(tz);
+  if (!byCountry) return null;
+  let best: string | null = null;
+  let bestCount = -1;
+  for (const [country, count] of byCountry) {
+    if (count > bestCount) {
+      bestCount = count;
+      best = country;
+    }
+  }
+  return best;
 }
 
 /** Fetch the main town index. Safe to call repeatedly. */
