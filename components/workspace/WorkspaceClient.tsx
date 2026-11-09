@@ -14,6 +14,7 @@ import { useCitySearch } from '../../hooks/use-city-search';
 import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
+import { downloadChartPdf } from '../../lib/report/generate-chart-pdf';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
@@ -931,8 +932,14 @@ ${Object.values(chartData.planets)
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => window.print()}
-              title="Print / Save PDF of current workspace view"
+              onClick={() => {
+                try {
+                  downloadChartPdf(chartData, chartTitle || undefined);
+                } catch (err) {
+                  console.error('[report] PDF generation failed', err);
+                }
+              }}
+              title="Download the full chart report as a PDF"
               icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
             />
           </div>
