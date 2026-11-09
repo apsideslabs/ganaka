@@ -3,7 +3,7 @@
 /**
  * Gaṇaka — Core Calculation Workspace Client
  * Professional astronomical Jyotiṣa calculation workstation with structured 9-domain navigation,
- * 220+ verified Indian cities/tirthas, high-precision classical mechanics, dual chart views,
+ * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,
  * birth-time rectification steppers, and horoscope profile persistence.
  */
 

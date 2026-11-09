@@ -231,7 +231,7 @@ export function PanchangaHeader({
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search 220+ verified Indian cities, tirthas & global locations..."
+                    placeholder="Search 760 verified cities, tīrthas & global locations..."
                     value={citySearchQuery}
                     onChange={(e) => setCitySearchQuery(e.target.value)}
                     className="w-full pl-8 pr-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#8C2D19]"

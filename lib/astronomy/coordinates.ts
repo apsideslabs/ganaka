@@ -95,7 +95,8 @@ export const FAMOUS_HISTORICAL_CHARTS = [
 ];
 
 /**
- * 220+ Verified Indian Cities, Pilgrimage Hubs, State Capitals & World Observatories
+ * 769 rows (760 unique) verified locations: Indian cities, pilgrimage hubs,
+ * state capitals & world observatories.
  */
 export const CITIES_DATABASE: LocationInfo[] = [
   // --- Vedic & Astrological Prime Hubs ---
@@ -912,7 +913,6 @@ export function searchLocations(query: string): LocationInfo[] {
   return CITIES_DATABASE.filter(
     (c) =>
       c.name.toLowerCase().includes(q) ||
-      (c.stateOrRegion && c.stateOrRegion.toLowerCase().includes(q)) ||
       c.country.toLowerCase().includes(q)
   );
 }
