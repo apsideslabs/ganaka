@@ -12,6 +12,7 @@ import {
   searchLocations,
   formatDMS,
 } from '@/lib/astronomy/coordinates';
+import { formatPlaceRegion } from '@/lib/format-place';
 import { useCitySearch } from '@/hooks/use-city-search';
 import {
   AYANAMSHA_DEFINITIONS,
@@ -256,7 +257,7 @@ export function PanchangaHeader({
                             {isCurrent && <Check size={12} className="text-[#8C2D19]" />}
                           </div>
                           <span className="text-[10px] text-slate-500 font-mono block">
-                            {city.stateOrRegion ? `${city.stateOrRegion}, ` : ''}{city.country} • UTC{city.timezoneOffsetHours >= 0 ? '+' : ''}{city.timezoneOffsetHours}
+                            {formatPlaceRegion(city)}
                           </span>
                         </div>
                         <span className="text-[10px] font-mono text-slate-400">
