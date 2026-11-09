@@ -1,85 +1,104 @@
 # Known issues
 
-Status as of the VSOP87 and shadbala corrections. Everything below was measured,
-not assumed; the method is stated so it can be reproduced.
+Everything below was measured against an independent reference, not assumed.
+The method is stated so each claim can be reproduced.
 
-## 1. Planetary positions: Venus fixed, the rest still approximate
+## 1. Ephemeris accuracy
 
-The ephemeris in `lib/astronomy/ephemeris.ts` computes planets from two-body
-Keplerian orbits with linear secular elements. That ignores planetary
-perturbations, and it is the largest source of error in the engine.
+The engine originally computed every body from a two-body Kepler orbit with
+linear secular elements, which ignores planetary perturbations, and the Moon from
+a 17-term series. That has been replaced:
 
-Measured against PyEphem, which agrees with the Swiss Ephemeris and with
-Jagannatha Hora to within ~30 arcseconds:
+* **Mercury, Venus, Mars, Jupiter, Saturn** — VSOP87 (Bretagnon & Francou 1988),
+truncated so the heliocentric longitude stays within 0.15" of the full series
+over 1900–2100.
+* **Moon** — ELP2000-82B truncated as tabulated by Meeus, *Astronomical
+Algorithms* ch. 47: 60 longitude/distance terms, 60 latitude terms, the
+eccentricity factor E, and the A1/A2/A3 additive terms.
+* **Sun** — unchanged; it was already the most accurate body.
 
-| Planet | Method | Max error |
+Measured against PyEphem (which agrees with the Swiss Ephemeris and with
+Jagannatha Hora to ~30"), worst case over five instants spanning 1950–2050:
+
+| Body | Before | After |
 |---|---|---|
-| Sun | Keplerian | 9" |
-| Moon | Keplerian | 152" |
-| Mercury | Keplerian | 864" |
-| **Venus** | **VSOP87 (truncated)** | **7"** |
-| Mars | Keplerian | 1028" |
-| Jupiter | Keplerian | 1111" |
-| Saturn | Keplerian | 1437" |
+| Sun | 9" | 9" |
+| Moon | 128" | **77"** |
+| Mercury | 1436" | **35"** |
+| Venus | 2923" | **46"** |
+| Mars | 2478" | **23"** |
+| Jupiter | 2815" | **27"** |
+| Saturn | 3078" | **19"** |
 
-Venus was the worst planet at 2923" (0.81 deg). It now uses VSOP87 — the
-standard analytical theory of planetary motion — generated into
-`lib/astronomy/vsop87-venus.ts` by `scripts/gen-vsop87-venus.py` and verified on
-every build by `scripts/check-venus.py` against PyEphem. Truncation keeps it
-within 0.15" of the full 671-term series over 1900-2100; the measured error
-against PyEphem is 2-7".
+The Lahiri ayanāṁśa for 2009-03-03 comes out at 23.987178° against Jagannatha
+Hora's 23.985195° — 7.1", which validates the ayanāṁśa base and the solar
+theory together.
 
-The remaining planets are unchanged and still carry the errors above. The same
-VSOP87 approach applies to each of them.
+`scripts/check-ephemeris.py` re-runs this comparison on every build and fails
+if any body exceeds 120". It bundles the real TypeScript with esbuild, so it
+tests the code that actually ships.
 
-Consequences of the remaining errors:
+### What remains
 
-* A Moon error of ~150" shifts **every Vimśottarī date by about 11 days**,
-  because the dasha divides the nakshatra proportionally. This is still true.
-* A Jupiter or Saturn error of 0.3-0.4 deg can move a planet across a navamsa
-  boundary and change the D-9.
-* Every downstream module — vargas, dashas, shadbala, ashtakavarga, yogas —
-  inherits the error of the planets it uses.
+* Positions are **geometric** — no light-time correction, no annual aberration,
+no nutation. For sidereal astrology this is the usual convention, but it differs
+from an apparent-place ephemeris by up to ~20".
+* **Rahu/Ketu** use a mean-node formula, not the true node. The mean node is
+accurate to ~0.1" against its own definition; the true node oscillates ±1.7°
+around it. Both are offered, so this is a choice rather than an error, but the
+default should be understood.
+* **Uranus, Neptune, Pluto** are still on Kepler orbits and are not covered by
+the accuracy check.
 
-## 2. Shadbala is incomplete, but no longer fabricated
+## 2. Ṣaḍbala is incomplete
 
-`lib/shadbala/shadbala.ts` previously contained `Math.random()` in Drg Bala,
-which made total strength, ratio and rank different on every page load. That is
-removed. Drg Bala is now computed from Parashari whole-sign drishti (BPHS ch.
-26) and is deterministic; the build fails if `Math.random` reappears in `lib/`.
+`Math.random()` was removed from Dṛg Bala — it previously made total strength,
+ratio and rank different on every page load. Dṛg Bala is now computed from
+Parāśari whole-sign dṛṣṭi (BPHS ch. 26) and the build fails if `Math.random`
+reappears anywhere in `lib/`.
 
-Two components remain unimplemented and now contribute exactly zero rather than
-a fabricated constant:
+Still unimplemented, and now contributing exactly zero rather than a fabricated
+constant:
 
-* **Saptavargaja Bala** (BPHS 27.6-27.19) — the seven-fold varga dignity, the
-  largest single term in Sthana Bala.
-* **Kala Bala sub-components** — Tribhaga, Varsha, Masa, Dina and Hora bala
-  (BPHS 27.24-27.33).
+* **Saptavargaja Bala** (BPHS 27.6–27.19) — the largest single term in Sthāna Bala.
+* **Kāla Bala sub-components** — Tribhāga, Varṣa, Māsa, Dina and Horā bala
+  (BPHS 27.24–27.33).
 
-Sthana Bala now includes a real Drekkana Bala (BPHS 27.20). Because the missing
-terms are positive, **total shadbala reads lower than a complete implementation
-would**; the `requiredRupas` comparison is therefore conservative.
+Sthāna Bala now includes a real Drekkāṇa Bala (BPHS 27.20). Because the missing
+terms are positive, **total ṣaḍbala reads lower than a complete implementation
+would**; comparisons against `requiredRupas` are therefore conservative.
 
-## 3. Ashtakavarga tables are correct
+## 3. Verified correct
 
-All 64 benefic-place rules were diffed against PyJHora's `ashtaka_varga_dict`
-and four differed. Checked against BPHS ch. 66, Saravali, Phaladeepika ch. 23,
-B. V. Raman and M. S. Mehta: **Ganaka is right and PyJHora is wrong** on all
-four — the Moon's row from the Moon, from Mars and from Jupiter, and Venus's
-row from Mars. Each difference is an equal-length swap, so every per-planet
-total and the 337 sarvashtakavarga total are unaffected; only the per-sign
-distribution reveals it.
+Checked formula by formula against the texts:
 
-## 4. No automated test suite
+* **Vimśottarī** — 120-year cycle, Ketu-first order, antardaśā (M×A)/120 and
+  pratyantardaśā (AD×P)/120.
+* **D1, D2, D3, D9, D30, D60** — match BPHS ch. 6, including the five unequal
+  Triṃśāṃśa divisions on odd and even signs.
+* **Aṣṭakavarga** — all 64 benefic-place rules diffed against PyJHora and
+  arbitrated by BPHS ch. 66, Saravali, Phaladeepika ch. 23, B. V. Raman and
+  M. S. Mehta. Ganaka is right; PyJHora is wrong on four rows (Moon from Moon,
+  Moon from Mars, Moon from Jupiter, Venus from Mars). Each difference is an
+  equal-length swap, so the 337 total is unaffected and only the per-sign
+  distribution reveals it.
+* **Tithi** — (Moon − Sun)/12, 30 tithis.
+* **Aṣṭakūṭa Varṇa** — 1 point when groom's varṇa ≥ bride's.
 
-There is no test runner and no `npm test` script. `lib/jyotisha/kuta/test-kuta.ts`
-is a single hand-rolled self-test. The only automated checks are the two
-assertions the deploy workflow makes: no `Math.random` in `lib/`, and the Venus
-ephemeris within 30" of PyEphem.
+## 4. Not yet verified
 
-**Fix:** add a fixture-based harness comparing every module against known-good
-output for several charts, as PyJHora does with its ~6,800 tests.
+Muhūrta (21 mahādoṣa rules), Jaimini kārakas and arūḍhas, the 121 yoga rules,
+the prediction layer, and transit calculations have not been checked against
+reference output. Reading them is not proof.
 
-## 5. No licence
+## 5. No automated test suite beyond the ephemeris
+
+The only automated guards are the ephemeris comparison, the ayanāṁśa check and
+the `Math.random` assertion. There is no fixture-based harness over the
+jyotiṣa modules, which is what PyJHora has (54 test files, ~9,200 lines).
+
+**Fix:** add fixtures comparing every module against known-good charts.
+
+## 6. No licence
 
 No licence file is present. Until one is added, default copyright applies.
