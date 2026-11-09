@@ -12,7 +12,7 @@ import {
   searchLocations,
   formatDMS,
 } from '@/lib/astronomy/coordinates';
-import { formatPlaceRegion } from '@/lib/format-place';
+import { formatPlace, formatPlaceRegion } from '@/lib/format-place';
 import { useCitySearch } from '@/hooks/use-city-search';
 import {
   AYANAMSHA_DEFINITIONS,
@@ -210,13 +210,8 @@ export function PanchangaHeader({
               <div className="flex items-center gap-2 overflow-hidden text-left">
                 <MapPin className="w-4 h-4 text-[#8C2D19] shrink-0" />
                 <span className="truncate font-serif font-bold text-slate-900">
-                  {selectedCity.name}
+                  {formatPlace(selectedCity)}
                 </span>
-                {selectedCity.stateOrRegion && (
-                  <span className="text-xs text-slate-500 font-sans truncate hidden sm:inline">
-                    ({formatPlaceRegion(selectedCity)})
-                  </span>
-                )}
               </div>
               <span className="text-xs text-slate-500 font-mono shrink-0 ml-2">
                 {formatDMS(selectedCity.latitude, true)}, {formatDMS(selectedCity.longitude, false)}
