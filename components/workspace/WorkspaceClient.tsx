@@ -7,7 +7,7 @@
  * birth-time rectification steppers, and horoscope profile persistence.
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';
 import { useCitySearch } from '../../hooks/use-city-search';
@@ -523,6 +523,37 @@ export const WorkspaceClient: React.FC = () => {
   const [isApplyingLocation, setIsApplyingLocation] = useState<boolean>(false);
   const [isSavedDefaultLocation, setIsSavedDefaultLocation] = useState<boolean>(false);
 
+  // The location chosen in Platform Settings is the default for chart
+  // calculation. Applied on mount and whenever the platform scope changes, so
+  // selecting a place in Settings carries through to this page without the user
+  // having to pick it again here.
+  const applyDefaultLocation = useCallback(
+    (loc?: Partial<CityLocation> | null) => {
+      if (!loc || typeof loc.latitude !== 'number' || typeof loc.longitude !== 'number') {
+        return;
+      }
+      setSelectedCity((prev) => {
+        if (prev.name === loc.name && prev.latitude === loc.latitude) return prev;
+        return {
+          name: loc.name || prev.name,
+          country: loc.country || 'India',
+          stateOrRegion: loc.stateOrRegion,
+          latitude: loc.latitude as number,
+          longitude: loc.longitude as number,
+          timezoneOffsetHours:
+            typeof loc.timezoneOffsetHours === 'number' ? loc.timezoneOffsetHours : 5.5,
+          timezoneName: loc.timezoneName || 'IST',
+        } as CityLocation;
+      });
+      setLocationQuery(loc.name || '');
+    },
+    []
+  );
+
+  useEffect(() => {
+    applyDefaultLocation(getPlatformSettings()?.defaultLocation);
+  }, [applyDefaultLocation]);
+
   // Synchronize with Workspace & Platform Settings in real-time
   useEffect(() => {
     const unsub = subscribeToSettings((scope) => {
@@ -536,6 +567,7 @@ export const WorkspaceClient: React.FC = () => {
         if (currentPlat?.defaultAyanamsha && currentPlat.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
           setAyanamshaType(currentPlat.defaultAyanamsha);
         }
+        applyDefaultLocation(currentPlat?.defaultLocation);
       }
     });
     return unsub;
