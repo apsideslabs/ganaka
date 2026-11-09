@@ -99,8 +99,28 @@ jobs:
           }
           const kem = (c.yogas || []).find((y:any) => y.id === 'kemadruma');
           console.log('kemadruma present:', !!kem, kem ? `(${kem.strengthRating})` : '');
+          // Cesta bala must reproduce B. V. Raman's worked example
+          // (Graha and Bhava Balas, ch. VI, arts. 99-107).
+          const { chestaBalaFromKendra } = require('./lib/shadbala/shadbala');
+          const raman: [string, number, number, number, number][] = [
+            ['Mars', 266.34, 229 + 49/60, 181.23, 22.23],
+            ['Mercury', 181.23, 180 + 33/60, 174.49, 2.30],
+            ['Jupiter', 66.91, 83 + 35/60, 181.23, 35.26],
+            ['Venus', 181.23, 170 + 4/60, 158.35, 5.95],
+            ['Saturn', 111.23, 124 + 51/60, 181.23, 21.14],
+          ];
+          let worst = 0;
+          for (const [n, mean, tru, seegh, ref] of raman) {
+            const got = chestaBalaFromKendra(seegh, mean, tru);
+            worst = Math.max(worst, Math.abs(got - ref));
+            console.log(`chesta ${n.padEnd(8)} ${got.toFixed(2)} vs Raman ${ref.toFixed(2)}`);
+          }
+          if (worst > 0.25) {
+            console.log(`::error::cesta bala deviates ${worst.toFixed(2)} virupa from Raman`);
+            bad++;
+          }
           if (bad > 0) process.exit(1);
-          console.log('::notice::shadbala, jaimini and yoga checks passed');
+          console.log('::notice::shadbala, jaimini, yoga and cesta checks passed');
           EOF
           npx --yes esbuild _sb.ts --bundle --platform=node --format=cjs --outfile=/tmp/sb.cjs --log-level=error
           node /tmp/sb.cjs
