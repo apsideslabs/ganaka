@@ -363,11 +363,26 @@ export function VargasPanel({
               <span className="font-bold">Independent Varga Ascendant: </span>
               <span>House 1 = </span>
               <span className="font-serif font-bold text-[#8C2D19]">
-                {RASHIS[activeVarga.lagnaRashi]?.sanskritName} ({RASHIS[activeVarga.lagnaRashi]?.name} • #{activeVarga.lagnaRashi})
+                {RASHIS[activeVarga.lagnaRashi]?.sanskritName} ({RASHIS[activeVarga.lagnaRashi]?.name}
+                {' '}
+                {(() => {
+                  const d = activeVarga.lagnaDegreeInRashi ?? 0;
+                  const deg = Math.floor(d);
+                  const min = Math.floor((d - deg) * 60);
+                  const sec = Math.round((((d - deg) * 60) - min) * 60);
+                  return `${deg}°${String(min).padStart(2, '0')}′${String(sec).padStart(2, '0')}″`;
+                })()}
+                {' '}• #{activeVarga.lagnaRashi})
               </span>
             </div>
-            <div className="text-[11px] text-amber-800 font-medium">
-              Strict isolation: Never reuses D1 house mapping.
+            <div className="text-[11px] text-amber-800 font-medium text-right">
+              <div>Strict isolation: never reuses the D1 house mapping.</div>
+              {selectedVargaId === 'D60' && (
+                <div className="mt-0.5">
+                  D60 divides each sign into 60 parts of 0°30′ — the ascendant
+                  crosses a boundary about every 2 minutes of birth time.
+                </div>
+              )}
             </div>
           </div>
 
