@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
 import { useCitySearch } from '@/hooks/use-city-search';
+import { formatPlace, formatPlaceRegion } from '@/lib/format-place';
 import { getPreferredCountry, setPreferredCountry, deviceTimezone } from '@/lib/astronomy/geo-bias';
 import { availableCountries, countryForTimezone } from '@/lib/astronomy/city-index';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
@@ -398,15 +399,16 @@ export function HomeBirthDetailsPanel() {
                     type="button"
                     onClick={() => {
                       setSelectedCity(loc);
-                      setLocationQuery(`${loc.name}${loc.stateOrRegion ? `, ${loc.stateOrRegion}` : ''}`);
+                      setLocationQuery(formatPlace(loc));
                       setShowLocationDropdown(false);
                     }}
                     className="w-full text-left px-4 py-2.5 hover:bg-stone-50 text-xs flex items-center justify-between transition-colors cursor-pointer"
                   >
                     <div>
                       <span className="font-semibold text-stone-900">{loc.name}</span>
-                      {loc.stateOrRegion && <span className="text-stone-500 ml-1.5">({loc.stateOrRegion})</span>}
-                      {loc.country && <span className="text-stone-400 ml-1.5">• {loc.country}</span>}
+                      {formatPlaceRegion(loc) && (
+                        <span className="text-stone-500 ml-1.5">— {formatPlaceRegion(loc)}</span>
+                      )}
                     </div>
                     <span className="font-mono text-[11px] text-stone-500">
                       {loc.latitude.toFixed(2)}°, {loc.longitude.toFixed(2)}°
