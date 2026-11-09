@@ -56,15 +56,15 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
   const houseLabelPositions: Record<number, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
     1: { x: 300, y: 46, anchor: 'middle' },
     2: { x: 150, y: 16, anchor: 'middle' },
-    3: { x: 20, y: 116, anchor: 'start' },
+    3: { x: 14, y: 60, anchor: 'start' },
     4: { x: 24, y: 300, anchor: 'start' },
-    5: { x: 20, y: 484, anchor: 'start' },
+    5: { x: 14, y: 540, anchor: 'start' },
     6: { x: 150, y: 584, anchor: 'middle' },
     7: { x: 300, y: 570, anchor: 'middle' },
     8: { x: 450, y: 584, anchor: 'middle' },
-    9: { x: 580, y: 484, anchor: 'end' },
+    9: { x: 586, y: 540, anchor: 'end' },
     10: { x: 576, y: 300, anchor: 'end' },
-    11: { x: 580, y: 116, anchor: 'end' },
+    11: { x: 586, y: 60, anchor: 'end' },
     12: { x: 450, y: 16, anchor: 'middle' },
   };
 
@@ -436,13 +436,13 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
             >
               {/* dy nudges the small tag down so it sits on the visual centre
                   of the much larger sign number beside it */}
-              <tspan dy="4" fontWeight="600" fontSize={8.5} letterSpacing="0.6" fill="#B3A897">{`H${h}`}</tspan>
-              <tspan dy="4" fontWeight="600" fontSize={8.5} fill="#D8D0C2">{' · '}</tspan>
+              <tspan dy="3" fontWeight="700" fontSize={11} letterSpacing="0.5" fill="#8A8175">{`H${h}`}</tspan>
+              <tspan dy="3" fontWeight="600" fontSize={11} fill="#CFC6B8">{' · '}</tspan>
               <tspan
                 fontWeight="700"
-                fontSize={17}
+                fontSize={16}
                 fontFamily="Georgia, Cambria, serif"
-                fill="#8C2D19"
+                fill="#334155"
               >{rashi}</tspan>
             </text>
 
