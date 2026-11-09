@@ -1,3 +1,5 @@
+import { planetHeliocentric } from './vsop87-planets';
+import { MOON_LR_TERMS, MOON_B_TERMS } from './moon-terms';
 import { venusHeliocentric } from './vsop87-venus';
 /**
  * Gaṇaka — High-Precision Astronomical Ephemeris Engine
@@ -207,58 +209,55 @@ function calculateSunSpeed(T: number): number {
  * High-precision Lunar Coordinates (Brown's Lunar Theory ELP-2000).
  */
 function calculateMoon(T: number): { lon: number; lat: number; dist: number } {
-  // Fundamental arguments
-  const Lprime = normalizeDegrees(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0);
-  const D = normalizeDegrees(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + (T * T * T) / 545868.0) * DEG2RAD;
-  const M = normalizeDegrees(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000.0) * DEG2RAD;
-  const Mprime = normalizeDegrees(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + (T * T * T) / 69699.0) * DEG2RAD;
-  const F = normalizeDegrees(93.272095 + 483202.0175233 * T - 0.0036539 * T * T - (T * T * T) / 3526000.0) * DEG2RAD;
+  // ELP2000-82B truncated, as tabulated by Meeus in Astronomical Algorithms
+  // ch. 47: 60 longitude/distance terms and 60 latitude terms, the
+  // eccentricity factor E, and the A1/A2/A3 additive corrections.
+  //
+  // The previous implementation kept only 17 longitude terms and 8 latitude
+  // terms and omitted E and the additive terms entirely, which left the Moon
+  // 128" out - enough to shift every Vimsottari date by about nine days on a
+  // 20-year mahadasha.
+  const Lp = normalizeDegrees(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + Math.pow(T, 3) / 538841 - Math.pow(T, 4) / 65194000);
+  const D  = normalizeDegrees(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T + Math.pow(T, 3) / 545868 - Math.pow(T, 4) / 113065000);
+  const M  = normalizeDegrees(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + Math.pow(T, 3) / 24490000);
+  const Mp = normalizeDegrees(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T + Math.pow(T, 3) / 69699 - Math.pow(T, 4) / 14712000);
+  const F  = normalizeDegrees(93.2720950 + 483202.0175233 * T - 0.0036539 * T * T - Math.pow(T, 3) / 3526000 + Math.pow(T, 4) / 863310000);
+  const A1 = 119.75 + 131.849 * T;
+  const A2 = 53.09 + 479264.290 * T;
+  const A3 = 313.45 + 481266.484 * T;
+  const E = 1 - 0.002516 * T - 0.0000074 * T * T;
+  const D2R = Math.PI / 180;
 
-  // Major periodic terms in longitude
-  const lTerms =
-    6.288774 * Math.sin(Mprime) +
-    1.274027 * Math.sin(2 * D - Mprime) +
-    0.658314 * Math.sin(2 * D) +
-    0.213618 * Math.sin(2 * Mprime) -
-    0.185116 * Math.sin(M) -
-    0.114332 * Math.sin(2 * F) +
-    0.058793 * Math.sin(2 * D - 2 * Mprime) +
-    0.057066 * Math.sin(2 * D - M - Mprime) +
-    0.053322 * Math.sin(2 * D + Mprime) +
-    0.045758 * Math.sin(2 * D - M) -
-    0.040923 * Math.sin(M - Mprime) -
-    0.03472 * Math.sin(D) -
-    0.030383 * Math.sin(M + Mprime) +
-    0.015327 * Math.sin(2 * D - 2 * F) -
-    0.012528 * Math.sin(2 * F + Mprime) +
-    0.01098 * Math.sin(2 * F - Mprime) +
-    0.010675 * Math.sin(4 * D - Mprime);
+  let sumL = 0;
+  let sumR = 0;
+  let sumB = 0;
+  for (let i = 0; i < MOON_LR_TERMS.length; i++) {
+    const t = MOON_LR_TERMS[i];
+    const arg = (t[0] * D + t[1] * M + t[2] * Mp + t[3] * F) * D2R;
+    const ecc = t[1] === 0 ? 1 : Math.pow(E, Math.abs(t[1]));
+    sumL += t[4] * ecc * Math.sin(arg);
+    sumR += t[5] * ecc * Math.cos(arg);
+  }
+  for (let i = 0; i < MOON_B_TERMS.length; i++) {
+    const t = MOON_B_TERMS[i];
+    const arg = (t[0] * D + t[1] * M + t[2] * Mp + t[3] * F) * D2R;
+    const ecc = t[1] === 0 ? 1 : Math.pow(E, Math.abs(t[1]));
+    sumB += t[4] * ecc * Math.sin(arg);
+  }
 
-  const lon = normalizeDegrees(Lprime + lTerms);
+  sumL += 3958 * Math.sin(A1 * D2R) + 1962 * Math.sin((Lp - F) * D2R) + 318 * Math.sin(A2 * D2R);
+  sumB +=
+    -2235 * Math.sin(Lp * D2R) +
+    382 * Math.sin(A3 * D2R) +
+    175 * Math.sin((A1 - F) * D2R) +
+    175 * Math.sin((A1 + F) * D2R) +
+    127 * Math.sin((Lp - Mp) * D2R) -
+    115 * Math.sin((Lp + Mp) * D2R);
 
-  // Periodic terms in latitude
-  const latTerms =
-    5.128122 * Math.sin(F) +
-    0.280602 * Math.sin(Mprime + F) +
-    0.277693 * Math.sin(Mprime - F) +
-    0.173237 * Math.sin(2 * D - F) +
-    0.055413 * Math.sin(2 * D - Mprime + F) +
-    0.046271 * Math.sin(2 * D - Mprime - F) +
-    0.032573 * Math.sin(2 * D + F) +
-    0.017198 * Math.sin(2 * Mprime + F);
-
-  const lat = latTerms;
-
-  // Earth-Moon distance in Earth radii, convert to AU (1 Earth radius ≈ 4.2635e-5 AU)
-  const distKm =
-    385000.56 -
-    20905.355 * Math.cos(Mprime) -
-    3699.111 * Math.cos(2 * D - Mprime) -
-    2955.968 * Math.cos(2 * D) -
-    569.925 * Math.cos(2 * Mprime);
-  const distAU = distKm / 149597870.7;
-
-  return { lon, lat, dist: distAU };
+  const lon = normalizeDegrees(Lp + sumL / 1000000);
+  const lat = sumB / 1000000;
+  const distKm = 385000.56 + sumR / 1000;
+  return { lon, lat, dist: distKm / 149597870.7 };
 }
 
 function calculateMoonSpeed(T: number): number {
@@ -338,27 +337,13 @@ function helioToGeocentric(
 }
 
 function calculateMercury(T: number): { lon: number; lat: number; dist: number } {
-  const a = 0.38709893 + 0.00000066 * T;
-  const e = 0.20563069 + 0.00002527 * T;
-  const I = (7.00487 - 0.005947 * T) * DEG2RAD;
-  const L = normalizeDegrees(252.25084 + 149472.67411 * T);
-  const w = normalizeDegrees(77.45645 + 1.556477 * T);
-  const node = normalizeDegrees(48.33167 - 0.125342 * T);
-
-  const M = normalizeDegrees(L - w) * DEG2RAD;
-  const E = solveKepler(M, e);
-  const v = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-  const r = a * (1 - e * Math.cos(E));
-
-  const u = v + (w - node) * DEG2RAD;
-  const x_orb = r * (Math.cos(node * DEG2RAD) * Math.cos(u) - Math.sin(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const y_orb = r * (Math.sin(node * DEG2RAD) * Math.cos(u) + Math.cos(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const z_orb = r * Math.sin(u) * Math.sin(I);
-
-  const L_helio = normalizeDegrees(Math.atan2(y_orb, x_orb) * RAD2DEG);
-  const B_helio = Math.asin(z_orb / r) * RAD2DEG;
-
-  return helioToGeocentric(L_helio, B_helio, r, T);
+  // VSOP87 heliocentric coordinates (Bretagnon & Francou 1988), truncated so
+  // the longitude stays within 0.15" of the full series over 1900-2100.
+  // The previous two-body Kepler orbit ignored planetary perturbations, which
+  // left this planet up to 0.86 degrees out. T is centuries; VSOP87 uses
+  // millennia.
+  const { longitude, latitude, distance } = planetHeliocentric('mercury', T / 10);
+  return helioToGeocentric(longitude, latitude, distance, T);
 }
 
 function calculateVenus(T: number): { lon: number; lat: number; dist: number } {
@@ -377,80 +362,35 @@ function calculateVenus(T: number): { lon: number; lat: number; dist: number } {
 }
 
 function calculateMars(T: number): { lon: number; lat: number; dist: number } {
-  const a = 1.52366231 - 0.00007221 * T;
-  const e = 0.09341233 + 0.00011902 * T;
-  const I = (1.85061 - 0.000675 * T) * DEG2RAD;
-  const L = normalizeDegrees(355.45332 + 19140.30268 * T);
-  const w = normalizeDegrees(336.04084 + 1.841044 * T);
-  const node = normalizeDegrees(49.5574 + 0.772579 * T);
-
-  const M = normalizeDegrees(L - w) * DEG2RAD;
-  const E = solveKepler(M, e);
-  const v = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-  const r = a * (1 - e * Math.cos(E));
-
-  const u = v + (w - node) * DEG2RAD;
-  const x_orb = r * (Math.cos(node * DEG2RAD) * Math.cos(u) - Math.sin(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const y_orb = r * (Math.sin(node * DEG2RAD) * Math.cos(u) + Math.cos(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const z_orb = r * Math.sin(u) * Math.sin(I);
-
-  const L_helio = normalizeDegrees(Math.atan2(y_orb, x_orb) * RAD2DEG);
-  const B_helio = Math.asin(z_orb / r) * RAD2DEG;
-
-  return helioToGeocentric(L_helio, B_helio, r, T);
+  // VSOP87 heliocentric coordinates (Bretagnon & Francou 1988), truncated so
+  // the longitude stays within 0.15" of the full series over 1900-2100.
+  // The previous two-body Kepler orbit ignored planetary perturbations, which
+  // left this planet up to 0.86 degrees out. T is centuries; VSOP87 uses
+  // millennia.
+  const { longitude, latitude, distance } = planetHeliocentric('mars', T / 10);
+  return helioToGeocentric(longitude, latitude, distance, T);
 }
 
 function calculateJupiter(T: number): { lon: number; lat: number; dist: number } {
-  const a = 5.20336301 + 0.00060737 * T;
-  const e = 0.04839266 - 0.0001288 * T;
-  const I = (1.3053 - 0.001537 * T) * DEG2RAD;
-  const L = normalizeDegrees(34.40438 + 3034.74612 * T);
-  const w = normalizeDegrees(14.75385 + 1.613868 * T);
-  const node = normalizeDegrees(100.55615 + 1.211728 * T);
-
-  const M = normalizeDegrees(L - w) * DEG2RAD;
-  const E = solveKepler(M, e);
-  const v = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-  const r = a * (1 - e * Math.cos(E));
-
-  const u = v + (w - node) * DEG2RAD;
-  const x_orb = r * (Math.cos(node * DEG2RAD) * Math.cos(u) - Math.sin(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const y_orb = r * (Math.sin(node * DEG2RAD) * Math.cos(u) + Math.cos(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const z_orb = r * Math.sin(u) * Math.sin(I);
-
-  const L_helio = normalizeDegrees(Math.atan2(y_orb, x_orb) * RAD2DEG);
-  const B_helio = Math.asin(z_orb / r) * RAD2DEG;
-
-  return helioToGeocentric(L_helio, B_helio, r, T);
+  // VSOP87 heliocentric coordinates (Bretagnon & Francou 1988), truncated so
+  // the longitude stays within 0.15" of the full series over 1900-2100.
+  // The previous two-body Kepler orbit ignored planetary perturbations, which
+  // left this planet up to 0.86 degrees out. T is centuries; VSOP87 uses
+  // millennia.
+  const { longitude, latitude, distance } = planetHeliocentric('jupiter', T / 10);
+  return helioToGeocentric(longitude, latitude, distance, T);
 }
 
 function calculateSaturn(T: number): { lon: number; lat: number; dist: number } {
-  const a = 9.53707032 - 0.0030153 * T;
-  const e = 0.0541506 + 0.00036762 * T;
-  const I = (2.48446 + 0.001085 * T) * DEG2RAD;
-  const L = normalizeDegrees(49.94424 + 1222.49362 * T);
-  const w = normalizeDegrees(92.43194 - 1.95879 * T);
-  const node = normalizeDegrees(113.71504 - 0.288677 * T);
-
-  const M = normalizeDegrees(L - w) * DEG2RAD;
-  const E = solveKepler(M, e);
-  const v = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
-  const r = a * (1 - e * Math.cos(E));
-
-  const u = v + (w - node) * DEG2RAD;
-  const x_orb = r * (Math.cos(node * DEG2RAD) * Math.cos(u) - Math.sin(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const y_orb = r * (Math.sin(node * DEG2RAD) * Math.cos(u) + Math.cos(node * DEG2RAD) * Math.sin(u) * Math.cos(I));
-  const z_orb = r * Math.sin(u) * Math.sin(I);
-
-  const L_helio = normalizeDegrees(Math.atan2(y_orb, x_orb) * RAD2DEG);
-  const B_helio = Math.asin(z_orb / r) * RAD2DEG;
-
-  return helioToGeocentric(L_helio, B_helio, r, T);
+  // VSOP87 heliocentric coordinates (Bretagnon & Francou 1988), truncated so
+  // the longitude stays within 0.15" of the full series over 1900-2100.
+  // The previous two-body Kepler orbit ignored planetary perturbations, which
+  // left this planet up to 0.86 degrees out. T is centuries; VSOP87 uses
+  // millennia.
+  const { longitude, latitude, distance } = planetHeliocentric('saturn', T / 10);
+  return helioToGeocentric(longitude, latitude, distance, T);
 }
 
-/**
- * Coordinate Transformation: Ecliptic (lon, lat) to Equatorial (RA, Dec).
- */
 export function eclipticToEquatorial(
   lonDeg: number,
   latDeg: number,
