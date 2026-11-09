@@ -84,3 +84,40 @@ export function requestDevicePosition(
     );
   });
 }
+
+const PREFERRED_COUNTRY_KEY = 'ganaka.searchCountry';
+/** Fired whenever the manual country preference changes. */
+export const SEARCH_COUNTRY_EVENT = 'ganaka:search-country';
+
+/**
+ * The country the user chose in Config, or null for "auto" (use the device
+ * timezone). Stored locally; never sent anywhere.
+ */
+export function getPreferredCountry(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = window.localStorage.getItem(PREFERRED_COUNTRY_KEY);
+    return v && v.length > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Set the manual country. Pass null to fall back to timezone detection. */
+export function setPreferredCountry(country: string | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (country && country.length > 0) {
+      window.localStorage.setItem(PREFERRED_COUNTRY_KEY, country);
+    } else {
+      window.localStorage.removeItem(PREFERRED_COUNTRY_KEY);
+    }
+  } catch {
+    /* storage may be blocked; the in-memory event still updates the UI */
+  }
+  try {
+    window.dispatchEvent(new CustomEvent(SEARCH_COUNTRY_EVENT));
+  } catch {
+    /* no CustomEvent support; nothing else to do */
+  }
+}
