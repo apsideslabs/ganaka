@@ -34,7 +34,9 @@ jobs:
         run: pip install --quiet pymeeus==0.5.12 ephem
 
       - name: Apply source fixes
-        run: python3 scripts/fix-sources.py
+        run: |
+          python3 scripts/fix-sources.py
+          python3 scripts/fix-shadbala.py
 
       - name: Generate planetary and lunar tables
         run: |
@@ -54,6 +56,35 @@ jobs:
 
       - name: Verify the whole ephemeris
         run: python3 scripts/check-ephemeris.py
+
+      - name: Sanity-check shadbala
+        run: |
+          cat > _sb.ts <<'EOF'
+          import { calculateFullJyotishaChart } from './lib/jyotisha/calculator';
+          const c: any = calculateFullJyotishaChart({
+            year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0,
+            latitude: 26.637102, longitude: 91.19171, timezoneOffsetHours: 5.5,
+            locationName: 'Baghmara, Assam',
+          });
+          const sb = c.shadbala;
+          let bad = 0;
+          for (const p of ['sun','moon','mars','mercury','jupiter','venus','saturn']) {
+            const r = sb[p];
+            const ok = Number.isFinite(r.totalVirupas) && r.totalVirupas > 100 && r.totalVirupas < 1000;
+            if (!ok) { console.log(`::error::shadbala out of range for ${p}: ${r.totalVirupas}`); bad++; }
+            console.log(`${p.padEnd(8)} sthana ${r.sthanaBala.toFixed(1).padStart(6)} kala ${r.kalaBala.toFixed(1).padStart(6)} chesta ${r.chestaBala.toFixed(1).padStart(5)} drig ${r.drigBala.toFixed(1).padStart(6)} => ${r.totalVirupas.toFixed(1)} virupa rank ${r.rank}`);
+          }
+          // Jupiter is debilitated in Capricorn for this chart and the Moon is
+          // exalted in Taurus, so the Moon must out-rank Jupiter.
+          if (!(sb.moon.totalVirupas > sb.jupiter.totalVirupas)) {
+            console.log('::error::exalted Moon should out-rank debilitated Jupiter');
+            bad++;
+          }
+          if (bad > 0) process.exit(1);
+          EOF
+          npx --yes esbuild _sb.ts --bundle --platform=node --format=cjs --outfile=/tmp/sb.cjs --log-level=error
+          node /tmp/sb.cjs
+          rm -f _sb.ts
 
       - name: Download GeoNames dumps
         run: |
