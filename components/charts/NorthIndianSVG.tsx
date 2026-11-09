@@ -45,22 +45,6 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
     12: '300,0 600,0 450,150', // Top-Right Triangle
   };
 
-  // Sign number position (placed near an inner corner to maximize open room for planets)
-  const signNumberPositions: Record<number, { x: number; y: number }> = {
-    1: { x: 300, y: 250 },
-    2: { x: 150, y: 130 },
-    3: { x: 120, y: 150 },
-    4: { x: 250, y: 300 },
-    5: { x: 120, y: 450 },
-    6: { x: 150, y: 470 },
-    7: { x: 300, y: 350 },
-    8: { x: 450, y: 470 },
-    9: { x: 480, y: 450 },
-    10: { x: 350, y: 300 },
-    11: { x: 480, y: 150 },
-    12: { x: 450, y: 130 },
-  };
-
   /**
    * House tag ("H1" .. "H12") position.
    *
@@ -70,16 +54,16 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
    * on the border, which is what made the chart look noisy).
    */
   const houseLabelPositions: Record<number, { x: number; y: number }> = {
-    1: { x: 300, y: 16 },
+    1: { x: 300, y: 24 },
     2: { x: 150, y: 16 },
     3: { x: 16, y: 150 },
-    4: { x: 16, y: 300 },
+    4: { x: 24, y: 300 },
     5: { x: 16, y: 450 },
     6: { x: 150, y: 584 },
-    7: { x: 300, y: 584 },
+    7: { x: 300, y: 576 },
     8: { x: 450, y: 584 },
     9: { x: 584, y: 450 },
-    10: { x: 584, y: 300 },
+    10: { x: 576, y: 300 },
     11: { x: 584, y: 150 },
     12: { x: 450, y: 16 },
   };
@@ -412,7 +396,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
       {/* House Signs, Badges, and Planets (Strictly Clipped) */}
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => {
         const rashi = (((lagnaRashi - 1 + (h - 1)) % 12) + 1) as RashiNumber;
-        const signPos = signNumberPositions[h];
+        // sign number now renders inside the house tag
         const labelPos = houseLabelPositions[h];
         const occupants = planetsByHouse[h] || [];
         const positions = getPlanetPositions(h, occupants.length);
@@ -420,39 +404,24 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
 
         return (
           <g key={`content-${h}`} clipPath={`url(#clip-ni-h-${h})`}>
-            {/* Rashi Number in classical serif with white contrast halo */}
-            <text
-              x={signPos.x}
-              y={signPos.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontFamily="Georgia, Cambria, serif"
-              fontSize={14}
-              fontWeight="600"
-              fill="#64748B"
-              stroke="#FFFFFF"
-              strokeWidth={2.5}
-              paintOrder="stroke fill"
-            >
-              {rashi}
-            </text>
-
-            {/* House Tag ("H1" .. "H12") */}
+            {/* House tag + rashi number, one tidy label per cell on the
+                perimeter ring. Keeping them together stops the sign numbers
+                clustering at the shared diamond vertices, which is what made
+                the chart look scattered. */}
             <text
               x={labelPos.x}
               y={labelPos.y}
               textAnchor="middle"
               dominantBaseline="central"
               fontFamily="ui-monospace, monospace"
-              fontSize={9}
-              fontWeight="600"
-              letterSpacing="0.4"
-              fill="#94A3B8"
+              fontSize={10}
               stroke="#FFFFFF"
-              strokeWidth={2}
+              strokeWidth={2.5}
               paintOrder="stroke fill"
             >
-              {`H${h}`}
+              <tspan fontWeight="600" letterSpacing="0.4" fill="#94A3B8">{`H${h}`}</tspan>
+              <tspan fontWeight="600" fill="#CBD5E1">{' · '}</tspan>
+              <tspan fontWeight="700" fontSize={12} fill="#475569">{rashi}</tspan>
             </text>
 
             {/* Lagna Tag in House 1 - High Visibility Ruby Badge */}
