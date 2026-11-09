@@ -38,6 +38,7 @@ jobs:
           python3 scripts/fix-sources.py
           python3 scripts/fix-shadbala.py
           python3 scripts/fix-yogas.py
+          python3 scripts/fix-search.py
 
       - name: Generate planetary and lunar tables
         run: |
@@ -185,6 +186,26 @@ jobs:
             exit 1
           fi
           echo "no Math.random in lib/"
+
+      - name: Assert the village tier is reachable
+        run: |
+          n=$(grep -rho "useCitySearch(" components/ | wc -l)
+          echo "useCitySearch call sites: $n"
+          if [ "$n" -lt 6 ]; then
+            echo "::error::expected at least 6 city search boxes on useCitySearch, found $n"
+            exit 1
+          fi
+          if grep -rn "useMemo(() => searchLocations" components/ ; then
+            echo "::error::a search box still uses the synchronous path"
+            exit 1
+          fi
+          shards=$(ls out/data/in/*.json 2>/dev/null | wc -l)
+          echo "village shards shipped: $shards"
+          if [ "$shards" -lt 26 ]; then
+            echo "::error::village shards missing from the build output"
+            exit 1
+          fi
+          echo "::notice::search reaches the village tier ($shards shards)"
 
       - name: Disable Jekyll
         run: |
