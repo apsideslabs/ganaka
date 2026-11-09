@@ -181,6 +181,7 @@ jobs:
         env:
           NEXT_EXPORT: '1'
           NEXT_PUBLIC_BASE_PATH: '/ganaka'
+          NEXT_PUBLIC_BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}
           NODE_OPTIONS: '--max-old-space-size=6144'
           NEXT_TELEMETRY_DISABLED: '1'
         run: |
