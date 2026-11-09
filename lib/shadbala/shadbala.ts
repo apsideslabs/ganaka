@@ -304,6 +304,12 @@ export function calculateShadbala(
   const sunset = ctx.sunsetJD;
   const hasTimes = typeof jd === 'number' && typeof sunrise === 'number' && typeof sunset === 'number';
 
+  // Weekdays must be taken in local civil time, not UT: a 02:00 IST birth is
+  // still the previous UT day, which would award Dina, Hora, Varsa and Masa
+  // bala to the wrong lord.
+  const tzDays = (typeof ctx.timezoneOffsetHours === 'number' ? ctx.timezoneOffsetHours : 0) / 24;
+  const localWeekdayIndex = (j: number) => weekdayIndex(j + tzDays);
+
   // Tribhāga Bala: day divided into three, Mercury/Sun/Moon in order; night
   // divided into three, Moon/Venus/Mars.
   const tribhagaLord: string | null = (() => {
@@ -326,12 +332,12 @@ export function calculateShadbala(
     const start = isDayBirth ? sunrise! : sunset!;
     const hours = Math.floor((jd! - start) * 24);
     if (hours < 0) return null;
-    const startIdx = HORA_ORDER.indexOf(WEEKDAY_LORDS[weekdayIndex(Math.floor(start))]);
+    const startIdx = HORA_ORDER.indexOf(WEEKDAY_LORDS[localWeekdayIndex(Math.floor(start))]);
     return HORA_ORDER[(startIdx + hours) % 7];
   })();
 
   // Dina Bala: the weekday lord of the birth day.
-  const dinaLord = typeof jd === 'number' ? WEEKDAY_LORDS[weekdayIndex(jd)] : null;
+  const dinaLord = typeof jd === 'number' ? WEEKDAY_LORDS[localWeekdayIndex(jd)] : null;
 
   for (const pId of GRAHAS) {
     const pos = planetaryPositions[pId];
@@ -425,11 +431,20 @@ export function calculateShadbala(
       typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0
     );
 
-    // 3.7 Varṣa and Māsa bala are not implemented: they need the weekday on
-    //     which the solar year and solar month began, which requires a
-    //     saṅkrānti search the ephemeris module does not expose. They are 0.
-    const varshaBala = 0;
-    const masaBala = 0;
+    // 3.7 Varṣa Bala (15 virūpas) and Māsa Bala (30 virūpas), BPHS 27.26-27,
+    //     go to the lord of the weekday on which the solar year and the solar
+    //     month began. The caller passes the exact ingress instants, found by
+    //     bisection on the Sun's sidereal longitude.
+    let varshaBala = 0;
+    let masaBala = 0;
+    if (typeof ctx.masaIngressJD === 'number' &&
+        WEEKDAY_LORDS[localWeekdayIndex(ctx.masaIngressJD)] === pId) {
+      masaBala = 30;
+    }
+    if (typeof ctx.varshaIngressJD === 'number' &&
+        WEEKDAY_LORDS[localWeekdayIndex(ctx.varshaIngressJD)] === pId) {
+      varshaBala = 15;
+    }
 
     const kalaBala =
       natonnataBala + pakshaBala + tribhagaBala + dinaBala + horaBala + ayana + varshaBala + masaBala;

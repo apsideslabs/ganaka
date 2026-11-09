@@ -6,7 +6,7 @@
 
 import { calculateJulianDay, toDMS } from '../astronomy/julian';
 import { calculateAyanamsha, formatAyanamsha, AyanamshaType } from '../astronomy/ayanamsha';
-import { calculateAllPlanets, calculateSolarTimes, PlanetId } from '../astronomy/ephemeris';
+import { calculateAllPlanets, calculateSolarTimes, getSunDetailsAtJD, PlanetId } from '../astronomy/ephemeris';
 import { calculateAscendant, calculateMidheaven, calculateHouses } from './houses';
 import { calculateDignity, checkCombustion, calculateAspects } from './dignity';
 import { calculatePanchanga } from './panchanga';
@@ -72,6 +72,33 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   const rawPlanets = calculateAllPlanets(jd, ayanamshaType, customAyanamshaValue);
   const sunTimes = calculateSolarTimes(jd, latitude, longitude, timezoneOffsetHours);
   const isDayBirth = jd >= sunTimes.sunriseJD && jd <= sunTimes.sunsetJD;
+
+  // Solar ingress instants for Varsa and Masa bala (BPHS 27.26-27). Found by
+  // bisection on the Sun's sidereal longitude rather than by linear
+  // extrapolation: the Sun's speed ranges from 0.953 to 1.019 deg/day, so a
+  // straight-line estimate over ~320 days can be several days out and land on
+  // the wrong weekday.
+  const sunSiderealAt = (j: number): number => {
+    const s2 = getSunDetailsAtJD(j);
+    const ay = calculateAyanamsha(j, ayanamshaType, customAyanamshaValue);
+    return (((s2.appLon - ay) % 360) + 360) % 360;
+  };
+  const lastIngressJD = (target: number): number => {
+    const f = (j: number) => (((sunSiderealAt(j) - target) % 360) + 360) % 360;
+    const approx = jd - f(jd);
+    let lo = approx - 12;
+    let hi = approx + 12;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      if (f(mid) > 180) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const varshaIngressJD = lastIngressJD(0);
+  const masaIngressJD = lastIngressJD(
+    Math.floor(rawPlanets.sun.siderealLongitude / 30) * 30
+  );
 
   // 4. Ascendant (Lagna) & Midheaven (MC)
   const lagna = calculateAscendant(jd, latitude, longitude, ayanamshaType, customAyanamshaValue);
@@ -202,6 +229,8 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     minute,
     timezoneOffsetHours,
     ayanamsha,
+    varshaIngressJD,
+    masaIngressJD,
   });
 
   // 12. Classical Yogas
