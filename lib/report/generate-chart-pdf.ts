@@ -127,66 +127,85 @@ function drawDiamond(
   x0: number,
   y0: number,
   size: number,
-  title: string
+  title: string,
+  note?: string
 ) {
   const s = size;
+  const mid = s / 2;
+
+  // ---- card ----
+  doc.setFillColor('#FDFBF6');
+  doc.setDrawColor('#E4DCCC');
+  doc.setLineWidth(0.3);
+  doc.rect(x0 - 2.5, y0 - 9, s + 5, s + 13.5, 'FD');
+
+  // ---- structure. Every segment is its own doc.line(): doc.lines() appends to
+  // whatever path is still open, which is what threw giant stray strokes across
+  // the page in the first version. ----
   doc.setDrawColor('#4A4238');
-  doc.setLineWidth(0.35);
-  doc.rect(x0, y0, s, s);
+  doc.setLineWidth(0.45);
+  doc.rect(x0, y0, s, s, 'S');
+  doc.setLineWidth(0.28);
   doc.line(x0, y0, x0 + s, y0 + s);
   doc.line(x0 + s, y0, x0, y0 + s);
-  doc.setLineWidth(0.45);
-  doc.lines(
-    [[s / 2, s / 2], [s / 2, -s / 2], [-s / 2, -s / 2], [-s / 2, s / 2]],
-    x0 + s / 2, y0, [1, 1], 'S', false
-  );
+  doc.line(x0 + mid, y0, x0 + s, y0 + mid);
+  doc.line(x0 + s, y0 + mid, x0 + mid, y0 + s);
+  doc.line(x0 + mid, y0 + s, x0, y0 + mid);
+  doc.line(x0, y0 + mid, x0 + mid, y0);
 
-  // unit positions: sign label near the outer edge, planets at the cell centre
+  // ---- labels ----
+  // Sign number sits just inside the outer edge of its own cell; planets stack
+  // at the cell centre, so the two never share a spot.
   const signAt: Array<[number, number]> = [
-    [0.5, 0.11], [0.25, 0.05], [0.05, 0.25], [0.11, 0.5], [0.05, 0.75], [0.25, 0.95],
-    [0.5, 0.89], [0.75, 0.95], [0.95, 0.75], [0.89, 0.5], [0.95, 0.25], [0.75, 0.05],
+    [0.5, 0.13], [0.25, 0.06], [0.06, 0.25], [0.13, 0.5], [0.06, 0.75], [0.25, 0.94],
+    [0.5, 0.87], [0.75, 0.94], [0.94, 0.75], [0.87, 0.5], [0.94, 0.25], [0.75, 0.06],
   ];
   const centreAt: Array<[number, number]> = [
-    [0.5, 0.25], [0.25, 0.13], [0.13, 0.25], [0.25, 0.5], [0.13, 0.75], [0.25, 0.87],
-    [0.5, 0.75], [0.75, 0.87], [0.87, 0.75], [0.75, 0.5], [0.87, 0.25], [0.75, 0.13],
+    [0.5, 0.31], [0.25, 0.16], [0.16, 0.25], [0.31, 0.5], [0.16, 0.75], [0.25, 0.84],
+    [0.5, 0.69], [0.75, 0.84], [0.84, 0.75], [0.69, 0.5], [0.84, 0.25], [0.75, 0.16],
   ];
 
   const byHouse: Record<number, string[]> = {};
-  for (const [id, p] of Object.entries<any>(varga.planets || {})) {
+  for (const [id, pl] of Object.entries<any>(varga.planets || {})) {
     const short = GRAHA_SHORT[id] || id.slice(0, 2);
-    (byHouse[p.house] ||= []).push(short);
+    (byHouse[pl.house] ||= []).push(short);
   }
 
+  const big = s > 70;
   for (let h = 1; h <= 12; h++) {
     const rashi = ((varga.lagnaRashi - 1 + h - 1) % 12) + 1;
     const [sx, sy] = signAt[h - 1];
     doc.setFont('times', 'bold');
-    doc.setFontSize(size > 70 ? 7 : 5.6);
+    doc.setFontSize(big ? 8.5 : 6.4);
     doc.setTextColor(ACCENT);
     doc.text(String(rashi), x0 + sx * s, y0 + sy * s, { align: 'center' });
 
     const list = byHouse[h] || [];
     if (!list.length) continue;
     const [cx, cy] = centreAt[h - 1];
+    const fs = list.length > 4 ? (big ? 6 : 4.6) : list.length > 2 ? (big ? 7 : 5.4) : big ? 8.2 : 6.2;
     doc.setFont('helvetica', 'bold');
-    const fs = list.length > 4 ? 5 : list.length > 2 ? 6 : 7;
     doc.setFontSize(fs);
     doc.setTextColor(INK);
-    const step = fs * 0.42;
+    const step = fs * 0.40;
     const startY = y0 + cy * s - ((list.length - 1) * step) / 2;
-    list.forEach((p, i) => {
-      doc.text(p, x0 + cx * s, startY + i * step, { align: 'center' });
+    list.forEach((pl, i) => {
+      doc.text(pl, x0 + cx * s, startY + i * step, { align: 'center' });
     });
   }
 
+  // ---- title ----
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(size > 70 ? 7.5 : 6);
+  doc.setFontSize(big ? 7.4 : 5.8);
   doc.setTextColor(INK);
-  doc.text(A(title), x0, y0 - 2.2);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(5.6);
-  doc.setTextColor(MUTED);
-  doc.text(`Lagna: ${RASHI[varga.lagnaRashi - 1]}`, x0 + s, y0 - 2.2, { align: 'right' });
+  doc.text(A(title), x0 - 2.5, y0 - 5.4);
+  if (note) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(big ? 6 : 5.2);
+    doc.setTextColor(MUTED);
+    // right-aligned at the card's inner edge, so it can never spill past it
+    doc.text(A(note), x0 + s - 1, y0 - 5.4, { align: 'right' });
+  }
 }
 
 export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF {
@@ -273,7 +292,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
   // ---------------- D1 chart + bhava table ----------------
   need(ctx, 100, ctx.title);
   sectionTitle(ctx, 'Lagna Kundali (D-1)');
-  drawDiamond(doc, chart.vargas.D1, M, ctx.y + 4, 78, 'D-1 Rasi');
+  drawDiamond(doc, chart.vargas.D1, M + 3, ctx.y + 6, 76, 'D-1 Rasi', `Lagna ${RASHI[chart.vargas.D1.lagnaRashi - 1]}`);
   const bhavaX = M + 88;
   autoTable(doc, {
     startY: ctx.y + 2,
@@ -295,14 +314,14 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     newPage(ctx, 'Divisional Charts');
     const chunk = vargaList.slice(i, i + perPage);
     sectionTitle(ctx, `Divisional Charts (${i + 1}-${i + chunk.length} of ${vargaList.length})`);
-    const box = 78;
-    const gapX = (CW - box * 2) / 1;
+    const box = 74;
+    const gap = (CW - box * 2) / 3;
     chunk.forEach((v, k) => {
       const col = k % 2;
       const row = Math.floor(k / 2);
-      const x = M + col * (box + gapX);
-      const y = ctx.y + row * (box + 14) + 5;
-      drawDiamond(doc, v, x, y, box, A(v.name || v.id));
+      const x = M + gap / 2 + col * (box + gap);
+      const y = ctx.y + row * (box + 16) + 6;
+      drawDiamond(doc, v, x, y, box, A(v.name || v.id), `Lagna ${RASHI[v.lagnaRashi - 1]}`);
     });
   }
 
@@ -541,12 +560,17 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
   return doc;
 }
 
-/** Builds the report and hands it to the browser as a download. */
-export function downloadChartPdf(chart: JyotishaChart, personName?: string) {
-  const doc = buildChartPdf(chart, personName);
+/** Suggested filename for the report. */
+export function chartPdfFilename(chart: JyotishaChart, personName?: string): string {
   const safe = A(personName || chart.meta.birthDetails.locationName || 'chart')
     .replace(/[^A-Za-z0-9]+/g, '-')
     .replace(/^-|-$/g, '') || 'chart';
   const d = chart.meta.birthDetails;
-  doc.save(`${safe}-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.pdf`);
+  return `${safe}-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.pdf`;
+}
+
+/** Builds the report and hands it to the browser as a download. */
+export function downloadChartPdf(chart: JyotishaChart, personName?: string) {
+  const doc = buildChartPdf(chart, personName);
+  doc.save(chartPdfFilename(chart, personName));
 }
