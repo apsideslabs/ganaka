@@ -214,7 +214,7 @@ export function PanchangaHeader({
                 </span>
                 {selectedCity.stateOrRegion && (
                   <span className="text-xs text-slate-500 font-sans truncate hidden sm:inline">
-                    ({selectedCity.stateOrRegion}, {selectedCity.country})
+                    ({formatPlaceRegion(selectedCity)})
                   </span>
                 )}
               </div>
