@@ -34,7 +34,6 @@ jobs:
           changed, missing = [], []
 
           def patch(path, pairs):
-              """Idempotent: if old text is gone but new text is present, fine."""
               p = pathlib.Path(path)
               if not p.exists():
                   missing.append(f'{path} (not found)')
@@ -106,7 +105,6 @@ jobs:
               if n_before != 1:
                   co.write_text(s)
                   changed.append('lib/astronomy/coordinates.ts (import normalised)')
-                  print(f'import occurrences before: {n_before}, now: 1')
 
           gi = pathlib.Path('.gitignore')
           if gi.exists():
@@ -124,27 +122,38 @@ jobs:
         run: |
           mkdir -p /tmp/gn && cd /tmp/gn
           base=https://download.geonames.org/export/dump
-          for f in cities5000 cities1000 cities500; do
-            curl -sSL --retry 3 --max-time 300 -o $f.zip $base/$f.zip
+          for f in cities5000 cities1000 cities500 IN; do
+            echo "fetching $f.zip"
+            curl -sSL --retry 3 --max-time 400 -o $f.zip $base/$f.zip
             unzip -oq $f.zip
           done
           for f in admin1CodesASCII.txt countryInfo.txt timeZones.txt; do
             curl -sSL --retry 3 --max-time 90 -o $f $base/$f
           done
-          ls -lh *.txt
+          ls -lh *.txt | head -10
 
-      - name: Build city index
+      - name: Build place index
         run: GN_DIR=/tmp/gn node scripts/build-cities.mjs
 
       - name: Record index stats
         run: |
           node -e "
           const fs=require('fs');
+          const path=require('path');
           const f=require('./public/data/cities.json');
           const bytes=fs.statSync('public/data/cities.json').size;
           const india=f.cities.filter(c=>c[2]==='India').length;
-          const alts=f.cities.filter(c=>c[8]).length;
-          const stats={version:f.v,places:f.cities.length,indiaPlaces:india,withAlternateNames:alts,timezones:f.tz.length,bytes,generated:new Date().toISOString(),source:'GeoNames cities5000 + India cities1000/cities500 (CC BY 4.0)'};
+          const dir='public/data/in';
+          let shards=0,villages=0,shardBytes=0;
+          if (fs.existsSync(dir)) {
+            for (const n of fs.readdirSync(dir)) {
+              shards++;
+              const p=path.join(dir,n);
+              shardBytes+=fs.statSync(p).size;
+              villages+=JSON.parse(fs.readFileSync(p,'utf8')).cities.length;
+            }
+          }
+          const stats={version:f.v,towns:f.cities.length,indiaTowns:india,villageShards:shards,indiaVillages:villages,townBytes:bytes,shardBytes,timezones:f.tz.length,generated:new Date().toISOString(),source:'GeoNames cities5000 + India IN.zip (CC BY 4.0)'};
           fs.writeFileSync('CITY-INDEX.json', JSON.stringify(stats,null,2)+'\n');
           console.log(stats);
           "
@@ -157,7 +166,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore(search): refresh city index stats"
+            git commit -m "chore(search): refresh place index stats"
             git push
           fi
 
@@ -187,10 +196,11 @@ jobs:
           fi
           tail -20 build.log
 
-      - name: Verify the index shipped
+      - name: Verify what shipped
         run: |
-          ls -lh out/data/ || true
-          node -e "const f=require('./out/data/cities.json');console.log('deployed index places:',f.cities.length,'version',f.v)"
+          ls -lh out/data/ | head -5
+          ls out/data/in 2>/dev/null | wc -l | xargs echo 'shard files:'
+          du -sh out/data
 
       - name: Disable Jekyll
         run: |
