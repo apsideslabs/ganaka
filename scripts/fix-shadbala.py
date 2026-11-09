@@ -62,7 +62,7 @@ if s != orig:
     S.write_text(s)
 
 # 5. Pass the chart context at the single call site.
-c = C.read_text()
+c_text = C.read_text()
 OLD = '  const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongitude, isDayBirth);'
 NEW = """  const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongitude, isDayBirth, {
     jd,
@@ -77,8 +77,8 @@ NEW = """  const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongi
     timezoneOffsetHours,
     ayanamsha,
   });"""
-if OLD in c:
-    c.write_text(c.replace(OLD, NEW))
+if OLD in c_text:
+    C.write_text(c_text.replace(OLD, NEW))
     changed.append('calculator call site')
 
 print('changed:', changed or 'none')
