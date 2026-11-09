@@ -285,7 +285,12 @@ export function chestaBalaFromKendra(
 export function calculateShadbala(
   planetaryPositions: Record<
     PlanetId,
-    { siderealLongitude: number; speedDegPerDay: number; isRetrograde: boolean }
+    {
+      siderealLongitude: number;
+      speedDegPerDay: number;
+      isRetrograde: boolean;
+      latitude?: number;
+    }
   >,
   lagnaLongitude: number,
   isDayBirth: boolean,
@@ -529,6 +534,52 @@ export function calculateShadbala(
       ratio: parseFloat((totalRupas / reqRupas).toFixed(2)),
       rank: 0,
     };
+  }
+
+  // ---- 7. YUDDHA BALA (planetary war) ---------------------------------
+  // BPHS 27.20 and ch. 81 v. 9. Only the five star grahas fight; the Sun, the
+  // Moon and the nodes never do. Two of them within one degree of longitude are
+  // at war. Venus always wins, whether north or south; among the rest the
+  // planet farther north in latitude wins. The victor gains the difference of
+  // the two shadbalas and the vanquished loses it, so the adjustments sum to
+  // zero. Where three are within a degree each pair is its own war and a
+  // planet's adjustment is the sum over its pairs.
+  const WAR_GRAHAS: PlanetId[] = ['mars', 'mercury', 'jupiter', 'venus', 'saturn'];
+  const yuddhaAdjustment: Partial<Record<PlanetId, number>> = {};
+  const latitudeOf = (g: PlanetId): number => {
+    const lat = planetaryPositions[g]?.latitude;
+    return typeof lat === 'number' ? lat : 0;
+  };
+  for (let i = 0; i < WAR_GRAHAS.length; i++) {
+    for (let j = i + 1; j < WAR_GRAHAS.length; j++) {
+      const a = WAR_GRAHAS[i];
+      const b = WAR_GRAHAS[j];
+      const la = normalizeDegrees(planetaryPositions[a].siderealLongitude);
+      const lb = normalizeDegrees(planetaryPositions[b].siderealLongitude);
+      let gap = Math.abs(la - lb);
+      if (gap > 180) gap = 360 - gap;
+      if (gap > 1.0) continue;
+      const winner: PlanetId =
+        a === 'venus' || b === 'venus'
+          ? 'venus'
+          : latitudeOf(a) >= latitudeOf(b)
+          ? a
+          : b;
+      const loser: PlanetId = winner === a ? b : a;
+      const diff =
+        (result[winner]?.totalVirupas || 0) - (result[loser]?.totalVirupas || 0);
+      yuddhaAdjustment[winner] = (yuddhaAdjustment[winner] || 0) + diff;
+      yuddhaAdjustment[loser] = (yuddhaAdjustment[loser] || 0) - diff;
+    }
+  }
+  for (const g of WAR_GRAHAS) {
+    const adj = yuddhaAdjustment[g];
+    const r = result[g];
+    if (!adj || !r) continue;
+    r.totalVirupas = parseFloat((r.totalVirupas + adj).toFixed(1));
+    r.totalRupas = parseFloat((r.totalVirupas / 60).toFixed(2));
+    r.ratio = parseFloat((r.totalRupas / r.requiredRupas).toFixed(2));
+    (r as ShadbalaComponent & { yuddhaBala?: number }).yuddhaBala = parseFloat(adj.toFixed(1));
   }
 
   const sorted = Object.entries(result).sort(

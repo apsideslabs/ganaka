@@ -215,6 +215,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       siderealLongitude: pObj.siderealLongitude,
       speedDegPerDay: pObj.speed,
       isRetrograde: pObj.isRetrograde,
+      latitude: pObj.latitude,
     };
   }
   const shadbala = calculateShadbala(shadbalaInput, lagna.siderealLongitude, isDayBirth, {
