@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   MapPin,
@@ -55,6 +55,10 @@ export function HomeBirthDetailsPanel() {
   const [locationQuery, setLocationQuery] = useState<string>('');
   const [showLocationDropdown, setShowLocationDropdown] = useState<boolean>(false);
 
+  // Tracks the last default location applied, so a settings change is picked
+  // up but a user-typed city is not overwritten.
+  const appliedLocationKey = useRef<string | null>(null);
+
   // Search region preference (which country's places rank first)
   const [searchCountry, setSearchCountry] = useState<string>(() => getPreferredCountry() || '');
   const [countryOptions, setCountryOptions] = useState<string[]>([]);
@@ -97,15 +101,28 @@ export function HomeBirthDetailsPanel() {
       if (fresh.defaultAyanamsha && fresh.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
         setAyanamshaType(fresh.defaultAyanamsha);
       }
-      if (isInitial && fresh.defaultLocation && typeof fresh.defaultLocation.latitude === 'number') {
+      // Apply the Platform Settings location on first load, and again whenever
+      // it actually changes - so picking a place in Settings updates this form
+      // without overwriting a city the user has already typed here.
+      const defaultLoc = fresh.defaultLocation;
+      const locKey =
+        defaultLoc && typeof defaultLoc.latitude === 'number'
+          ? `${defaultLoc.name}|${defaultLoc.latitude}|${defaultLoc.longitude}`
+          : null;
+      if (
+        locKey &&
+        defaultLoc &&
+        (isInitial || appliedLocationKey.current !== locKey)
+      ) {
+        appliedLocationKey.current = locKey;
         const city: CityLocation = {
-          name: fresh.defaultLocation.name,
-          country: fresh.defaultLocation.country || 'India',
-          stateOrRegion: fresh.defaultLocation.stateOrRegion,
-          latitude: fresh.defaultLocation.latitude,
-          longitude: fresh.defaultLocation.longitude,
-          timezoneOffsetHours: fresh.defaultLocation.timezoneOffsetHours,
-          timezoneName: fresh.defaultLocation.timezoneName || 'IST',
+          name: defaultLoc.name,
+          country: defaultLoc.country || 'India',
+          stateOrRegion: defaultLoc.stateOrRegion,
+          latitude: defaultLoc.latitude,
+          longitude: defaultLoc.longitude,
+          timezoneOffsetHours: defaultLoc.timezoneOffsetHours,
+          timezoneName: defaultLoc.timezoneName || 'IST',
         };
         setSelectedCity(city);
         setLocationQuery(city.name);
