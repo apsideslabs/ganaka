@@ -56,6 +56,14 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      # PDF.js needs its worker served as a static file; the preview loads it
+      # from <basePath>/pdf.worker.min.js
+      - name: Stage the PDF.js worker
+        run: |
+          mkdir -p public
+          cp node_modules/pdfjs-dist/build/pdf.worker.min.js public/pdf.worker.min.js
+          ls -l public/pdf.worker.min.js
+
       - name: Verify the whole ephemeris
         run: python3 scripts/check-ephemeris.py
 
