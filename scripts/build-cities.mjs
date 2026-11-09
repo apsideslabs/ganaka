@@ -99,7 +99,11 @@ function rowFrom(c, admin1, countries, { withAlt }) {
     id: c[0],
     name,
     ascii,
-    state: admin1.get(c[10]) || '',
+    // admin1CodesASCII keys are "IN.03" (country code + '.' + admin1 code), not
+    // the bare admin1 code, so the lookup needs both parts. Without this every
+    // place came out with an empty state, which made same-named places such as
+    // the two Jalahs in Assam indistinguishable in search.
+    state: admin1.get(`${c[8]}.${c[10]}`) || '',
     country: countries.get(c[8]) || c[8],
     lat: Math.round(lat * 10000) / 10000,
     lon: Math.round(lon * 10000) / 10000,
