@@ -31,13 +31,29 @@ jobs:
           python3 - <<'PY'
           import pathlib, sys
 
-          p = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
-          s = p.read_text()
-          if 'isoToDate' in s:
-              print('already patched')
-              sys.exit(0)
+          changed = []
+          missing = []
 
-          helpers = '''
+          def patch(path, pairs):
+              p = pathlib.Path(path)
+              if not p.exists():
+                  missing.append(f'{path} (file not found)')
+                  return
+              s = p.read_text()
+              orig = s
+              for old, new in pairs:
+                  if old in s:
+                      s = s.replace(old, new)
+                  else:
+                      missing.append(f'{path}: {old[:70]!r}')
+              if s != orig:
+                  p.write_text(s)
+                  changed.append(path)
+
+          # 1. Matching page: ISO strings passed where Date was expected (fixed earlier).
+          mp = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
+          if mp.exists() and 'isoToDate' not in mp.read_text():
+              helpers = '''
           function isoToDate(iso: string): Date | null {
             if (!iso) return null;
             const [y, m, d] = iso.split('-').map(Number);
@@ -51,17 +67,45 @@ jobs:
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
           }
           '''
+              s = mp.read_text()
+              s = s.replace('export function MatchingWorkspaceClient',
+                            helpers + '\nexport function MatchingWorkspaceClient', 1)
+              s = s.replace(
+                  '<GanakaDatePicker value={groomDate} onChange={setGroomDate} />',
+                  '<GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />')
+              s = s.replace(
+                  '<GanakaDatePicker value={brideDate} onChange={setBrideDate} />',
+                  '<GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />')
+              mp.write_text(s)
+              changed.append(str(mp))
 
-          s = s.replace('export function MatchingWorkspaceClient',
-                        helpers + '\nexport function MatchingWorkspaceClient', 1)
-          s = s.replace(
-              '<GanakaDatePicker value={groomDate} onChange={setGroomDate} />',
-              '<GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />')
-          s = s.replace(
-              '<GanakaDatePicker value={brideDate} onChange={setBrideDate} />',
-              '<GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />')
-          p.write_text(s)
-          print('patched MatchingWorkspaceClient')
+          # 2. Stale location count in the database header comment.
+          patch('lib/astronomy/coordinates.ts', [
+              (' * 220+ Verified Indian Cities, Pilgrimage Hubs, State Capitals & World Observatories',
+               ' * 769 rows (760 unique) verified locations: Indian cities, pilgrimage hubs,\n * state capitals & world observatories.'),
+              # 3. Dead search branch: stateOrRegion is never populated in the data,
+              #    so filtering on it silently matched nothing.
+              ('      (c.stateOrRegion && c.stateOrRegion.toLowerCase().includes(q)) ||\n',
+               ''),
+          ])
+
+          # 4. Search placeholder on the panchanga page.
+          patch('components/panchanga/PanchangaHeader.tsx', [
+              ('Search 220+ verified Indian cities, tirthas & global locations...',
+               'Search 760 verified cities, tīrthas & global locations...'),
+          ])
+
+          # 5. Header comment in the workspace client.
+          patch('components/workspace/WorkspaceClient.tsx', [
+              (' * 220+ verified Indian cities/tirthas, high-precision classical mechanics, dual chart views,',
+               ' * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,'),
+          ])
+
+          print('changed files:', changed or 'none')
+          for m in missing:
+              print(f'::warning::not found -> {m}')
+          if not changed:
+              print('nothing to change')
           PY
 
       - name: Commit source fixes
@@ -72,13 +116,7 @@ jobs:
             echo "no source changes needed"
           else
             git add -A
-            git commit -m "fix(matching): coerce ISO date strings to Date for GanakaDatePicker
-
-            MatchingWorkspaceClient held groom/bride dates as ISO strings but passed
-            them straight into GanakaDatePicker, which calls value.getFullYear().
-            That threw TypeError on render (prerender and client alike), and the
-            onChange handed a Date back into a string state, so groomDate.split()
-            would fail on selection. Convert in both directions."
+            git commit -m "fix: correct stale location count and remove dead state search"
             git push
           fi
 
@@ -115,7 +153,6 @@ jobs:
         run: |
           touch out/.nojekyll
           du -sh out
-          ls out | head -20
 
       - uses: actions/configure-pages@v5
 
