@@ -30,7 +30,7 @@
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "pdfjs-dist": "3.11.174",
-    "@react-pdf/renderer": "^3.4.4"
+    "@react-pdf/renderer": "^4.9.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.11",
