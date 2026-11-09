@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
+import { formatPlace } from '@/lib/format-place';
 
 interface PanchangaLagnaViewProps {
   date: Date;
@@ -85,7 +86,7 @@ export function PanchangaLagnaView({
             Daily Lagna Transitions (24-Hour Diurnal Cycle)
           </h2>
           <p className="text-xs font-serif text-slate-500 mt-0.5">
-            {formattedDate} • {selectedCity.name} (Sunrise: {sunriseStr} | Sunset: {sunsetStr})
+            {formattedDate} • {formatPlace(selectedCity)} (Sunrise: {sunriseStr} | Sunset: {sunsetStr})
           </p>
         </div>
 
