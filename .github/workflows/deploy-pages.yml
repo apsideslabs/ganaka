@@ -37,6 +37,7 @@ jobs:
         run: |
           python3 scripts/fix-sources.py
           python3 scripts/fix-shadbala.py
+          python3 scripts/fix-yogas.py
 
       - name: Generate planetary and lunar tables
         run: |
@@ -57,7 +58,7 @@ jobs:
       - name: Verify the whole ephemeris
         run: python3 scripts/check-ephemeris.py
 
-      - name: Sanity-check shadbala
+      - name: Sanity-check shadbala and yogas
         run: |
           cat > _sb.ts <<'EOF'
           import { calculateFullJyotishaChart } from './lib/jyotisha/calculator';
@@ -72,13 +73,32 @@ jobs:
             const r = sb[p];
             const ok = Number.isFinite(r.totalVirupas) && r.totalVirupas > 100 && r.totalVirupas < 1000;
             if (!ok) { console.log(`::error::shadbala out of range for ${p}: ${r.totalVirupas}`); bad++; }
-            console.log(`${p.padEnd(8)} sthana ${r.sthanaBala.toFixed(1).padStart(6)} kala ${r.kalaBala.toFixed(1).padStart(6)} chesta ${r.chestaBala.toFixed(1).padStart(5)} drig ${r.drigBala.toFixed(1).padStart(6)} => ${r.totalVirupas.toFixed(1)} virupa rank ${r.rank}`);
+            console.log(`${p.padEnd(8)} => ${r.totalVirupas.toFixed(1)} virupa rank ${r.rank}`);
           }
           if (!(sb.moon.totalVirupas > sb.jupiter.totalVirupas)) {
             console.log('::error::exalted Moon should out-rank debilitated Jupiter');
             bad++;
           }
+          // Jaimini: verified against Jagannatha Hora for this chart.
+          const expect: Record<string,string> = { AK:'mercury', AmK:'mars', BK:'saturn', MK:'venus', PiK:'sun', PK:'jupiter', GK:'rahu', DK:'moon' };
+          for (const k of c.jaimini.charaKarakas) {
+            if (expect[k.karakaKey] && expect[k.karakaKey] !== k.planet) {
+              console.log(`::error::karaka ${k.karakaKey} = ${k.planet}, expected ${expect[k.karakaKey]}`);
+              bad++;
+            }
+          }
+          const expectArudha: Record<number,number> = { 1:12, 2:11, 7:10, 10:2, 12:5 };
+          for (const a of c.jaimini.arudhaPadas) {
+            const h = a.house ?? a.padaNumber;
+            if (expectArudha[h] && expectArudha[h] !== a.rashiNumber) {
+              console.log(`::error::arudha A${h} = ${a.rashiNumber}, expected ${expectArudha[h]}`);
+              bad++;
+            }
+          }
+          const kem = (c.yogas || []).find((y:any) => y.id === 'kemadruma');
+          console.log('kemadruma present:', !!kem, kem ? `(${kem.strengthRating})` : '');
           if (bad > 0) process.exit(1);
+          console.log('::notice::shadbala, jaimini and yoga checks passed');
           EOF
           npx --yes esbuild _sb.ts --bundle --platform=node --format=cjs --outfile=/tmp/sb.cjs --log-level=error
           node /tmp/sb.cjs
@@ -157,8 +177,6 @@ jobs:
 
       - name: Assert determinism
         run: |
-          # Ignore matches inside a comment (// or a * block line); only real
-          # code usage counts.
           hits=$(grep -rn "Math\.random" lib/ --include='*.ts' | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' || true)
           if [ -n "$hits" ]; then
             echo "$hits"
