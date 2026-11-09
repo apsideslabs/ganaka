@@ -134,7 +134,7 @@ jobs:
             curl -sSL --retry 3 --max-time 400 -o $f.zip $base/$f.zip
             unzip -oq $f.zip
           done
-          for f in admin1CodesASCII.txt countryInfo.txt timeZones.txt; do
+          for f in admin1CodesASCII.txt admin2Codes.txt countryInfo.txt timeZones.txt; do
             curl -sSL --retry 3 --max-time 90 -o $f $base/$f
           done
 
