@@ -15,6 +15,7 @@ import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-pl
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
 import { buildChartPdf, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
+import { PdfPreview } from './PdfPreview';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
@@ -1900,11 +1901,7 @@ ${Object.values(chartData.planets)
                 </button>
               </div>
             </div>
-            <iframe
-              src={pdfPreview.url}
-              title="Chart report PDF preview"
-              className="flex-1 w-full bg-stone-100"
-            />
+            <PdfPreview url={pdfPreview.url} />
           </div>
         </div>
       )}
