@@ -14,7 +14,7 @@ import { useCitySearch } from '../../hooks/use-city-search';
 import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
-import { buildChartPdf, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
+import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
 import { PdfPreview } from './PdfPreview';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
@@ -936,10 +936,10 @@ ${Object.values(chartData.planets)
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  const doc = buildChartPdf(chartData, chartTitle || undefined);
-                  const url = doc.output('bloburl') as unknown as string;
+                  const blob = await buildReportBlob(chartData, chartTitle || undefined);
+                  const url = URL.createObjectURL(blob);
                   setPdfPreview({ url, name: chartPdfFilename(chartData, chartTitle || undefined) });
                 } catch (err) {
                   console.error('[report] PDF generation failed', err);
