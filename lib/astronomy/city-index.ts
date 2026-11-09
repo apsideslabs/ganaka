@@ -1,15 +1,15 @@
 /**
- * Lazy loader and search over the GeoNames-derived city index, plus an
- * optional remote fallback for places too small to bundle.
+ * Lazy place search over a three-tier index, all served as static files.
  *
- * Three tiers, cheapest first:
  *   1. CITIES_DATABASE in coordinates.ts — a few hundred curated places,
  *      available synchronously, used until anything else loads.
- *   2. public/data/cities.json — ~70k places built at deploy time by
- *      scripts/build-cities.mjs, fetched once in the background.
- *   3. The Cloudflare Worker in worker/ — full populated-places table in D1,
- *      covering villages that the cities extracts omit. Only used when
- *      NEXT_PUBLIC_PLACE_API is set.
+ *   2. public/data/cities.json — ~70k towns worldwide, fetched once in the
+ *      background.
+ *   3. public/data/in/<letter>.json — every populated place in India, sharded
+ *      by initial letter, fetched only when a query needs that letter. This is
+ *      how villages appear without any server.
+ *
+ * No API, no key, no backend. Everything is a file on the same static host.
  *
  * Data: GeoNames, CC BY 4.0. See public/data/CITY-NOTICE.txt.
  */
@@ -21,37 +21,28 @@ import type { LocationInfo } from './coordinates';
  */
 type Row = [string, string, string, number, number, number, number, number, string?];
 
-interface CityIndexFile {
+interface IndexFile {
   v: number;
   tz: string[];
   cities: Row[];
 }
 
-interface RemoteResult {
-  name: string;
-  stateOrRegion?: string;
-  country: string;
-  latitude: number;
-  longitude: number;
-  timezoneName?: string;
-  population?: number;
-}
-
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
 const INDEX_URL = `${BASE_PATH}/data/cities.json`;
-const PLACE_API = (process.env.NEXT_PUBLIC_PLACE_API || '').replace(/\/$/, '');
+const SHARD_URL = (letter: string) => `${BASE_PATH}/data/in/${letter}.json`;
 
-let records: LocationInfo[] | null = null;
-let keys: string[] | null = null;
+let records: LocationInfo[] = [];
+let keys: string[] = [];
+let indexLoaded = false;
 let inflight: Promise<void> | null = null;
 
-const remoteCache = new Map<string, LocationInfo[]>();
+/** letter -> true once its shard has been merged in (or failed). */
+const shards = new Map<string, Promise<void>>();
 
-function toLocationInfo(file: CityIndexFile): LocationInfo[] {
-  const out: LocationInfo[] = [];
+function append(file: IndexFile) {
   for (const r of file.cities) {
-    const [name, state, country, lat, lon, tzIdx, offset] = r;
-    out.push({
+    const [name, state, country, lat, lon, tzIdx, offset, , alt] = r;
+    records.push({
       name,
       stateOrRegion: state || undefined,
       country,
@@ -60,11 +51,12 @@ function toLocationInfo(file: CityIndexFile): LocationInfo[] {
       timezoneOffsetHours: offset,
       timezoneName: tzIdx >= 0 ? file.tz[tzIdx] : 'UTC',
     });
+    const base = `${name} ${state || ''} ${country}`.toLowerCase();
+    keys.push(alt ? `${base} ${alt.replace(/\|/g, ' ')}` : base);
   }
-  return out;
 }
 
-/** Fetch and parse the bundled index. Safe to call repeatedly. */
+/** Fetch the main town index. Safe to call repeatedly. */
 export function loadCityIndex(): Promise<void> {
   if (inflight) return inflight;
   inflight = (async () => {
@@ -74,18 +66,8 @@ export function loadCityIndex(): Promise<void> {
         console.warn(`[city-index] ${INDEX_URL} returned ${res.status}`);
         return;
       }
-      const file = (await res.json()) as CityIndexFile;
-      if (!file || !Array.isArray(file.cities)) return;
-
-      const loaded = toLocationInfo(file);
-      const searchKeys: string[] = new Array(file.cities.length);
-      for (let i = 0; i < file.cities.length; i++) {
-        const [name, state, country, , , , , , alt] = file.cities[i];
-        const base = `${name} ${state || ''} ${country}`.toLowerCase();
-        searchKeys[i] = alt ? `${base} ${alt.replace(/\|/g, ' ')}` : base;
-      }
-      records = loaded;
-      keys = searchKeys;
+      append((await res.json()) as IndexFile);
+      indexLoaded = true;
     } catch (err) {
       console.warn('[city-index] load failed', err);
     }
@@ -93,28 +75,51 @@ export function loadCityIndex(): Promise<void> {
   return inflight;
 }
 
-/** True once the bundled index is in memory. */
+/**
+ * Fetch and merge the village shard for one initial letter. Idempotent, and
+ * safe to fire without awaiting: the next keystroke will see the new rows.
+ */
+export function ensureShard(letter: string): Promise<void> {
+  const l = letter.toLowerCase();
+  if (!/^[a-z_]$/.test(l)) return Promise.resolve();
+  const existing = shards.get(l);
+  if (existing) return existing;
+
+  const p = (async () => {
+    try {
+      const res = await fetch(SHARD_URL(l), { cache: 'force-cache' });
+      if (!res.ok) return;
+      append((await res.json()) as IndexFile);
+    } catch (err) {
+      console.warn(`[city-index] shard ${l} failed`, err);
+    }
+  })();
+  shards.set(l, p);
+  return p;
+}
+
+/** True once the main town index is in memory. */
 export function cityIndexReady(): boolean {
-  return records !== null;
+  return indexLoaded;
 }
 
-/** How many places are bundled-loaded (0 until the fetch resolves). */
+/** How many places are currently in memory. */
 export function cityIndexSize(): number {
-  return records ? records.length : 0;
+  return records.length;
 }
 
-/** Is a remote place API configured for this build? */
-export function hasRemotePlaceApi(): boolean {
-  return PLACE_API.length > 0;
+/** Which village shards have been requested so far. */
+export function loadedShards(): string[] {
+  return [...shards.keys()].sort();
 }
 
-function match(recordsList: LocationInfo[], searchKeys: string[], query: string, limit: number) {
+function match(query: string, limit: number): LocationInfo[] {
   const q = query.toLowerCase().trim();
   if (!q) return [];
   const prefix: number[] = [];
   const contains: number[] = [];
-  for (let i = 0; i < searchKeys.length; i++) {
-    const k = searchKeys[i];
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
     if (k.startsWith(q)) {
       prefix.push(i);
       if (prefix.length >= limit) break;
@@ -122,62 +127,37 @@ function match(recordsList: LocationInfo[], searchKeys: string[], query: string,
       contains.push(i);
     }
   }
-  return prefix.concat(contains).slice(0, limit).map((i) => recordsList[i]);
+  return prefix.concat(contains).slice(0, limit).map((i) => records[i]);
 }
 
 /**
- * Search the bundled index. Synchronous by design: callers already expect
- * searchLocations() to return immediately. Returns [] while the index is
- * still loading, which makes the caller fall back to CITIES_DATABASE.
+ * Search the in-memory index. Synchronous by design: callers already expect
+ * searchLocations() to return immediately.
+ *
+ * If the query is short on results, the village shard for its first letter is
+ * requested in the background. Results appear on the next keystroke, which is
+ * the same render cycle the user is already producing.
  */
 export function searchIndexedCities(query: string, limit = 40): LocationInfo[] {
-  if (!records || !keys) {
-    void loadCityIndex();
-    return [];
-  }
-  return match(records, keys, query, limit);
+  if (!indexLoaded) void loadCityIndex();
+  const q = query.trim();
+  if (!q) return [];
+
+  const hits = match(q, limit);
+  if (hits.length < limit) void ensureShard(q.charAt(0));
+  return hits;
 }
 
 /**
- * Async search across all tiers, including the remote Worker.
- *
- * Search boxes need to await this to use it (the current synchronous
- * searchLocations cannot). Results are cached per query so repeated
- * keystrokes and backspacing cost nothing.
+ * Await the best possible result for a query, including its village shard.
+ * Search boxes that can hold async state should prefer this.
  */
 export async function searchCitiesAsync(query: string, limit = 20): Promise<LocationInfo[]> {
   const q = query.trim();
   if (q.length < 2) return [];
-
-  const local = searchIndexedCities(q, limit);
-  if (local.length > 0) return local;
-
-  if (!PLACE_API) return [];
-
-  const cacheKey = `${q.toLowerCase()}|${limit}`;
-  const cached = remoteCache.get(cacheKey);
-  if (cached) return cached;
-
-  try {
-    const url = `${PLACE_API}/search?q=${encodeURIComponent(q)}&limit=${limit}`;
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) return [];
-    const body = (await res.json()) as { results?: RemoteResult[] };
-    const mapped: LocationInfo[] = (body.results || []).map((r) => ({
-      name: r.name,
-      stateOrRegion: r.stateOrRegion,
-      country: r.country,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      timezoneOffsetHours: 0,
-      timezoneName: r.timezoneName || 'UTC',
-    }));
-    remoteCache.set(cacheKey, mapped);
-    return mapped;
-  } catch (err) {
-    console.warn('[city-index] remote search failed', err);
-    return [];
-  }
+  await loadCityIndex();
+  await ensureShard(q.charAt(0));
+  return match(q, limit);
 }
 
 /**
@@ -215,7 +195,6 @@ export function offsetForZone(
   }
 }
 
-// Start loading as soon as this module is used in the browser.
 if (typeof window !== 'undefined') {
   void loadCityIndex();
 }
