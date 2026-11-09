@@ -45,6 +45,7 @@ import {
   ArrowUpRight,
   Filter,
 } from 'lucide-react';
+import { formatPlace } from '@/lib/format-place';
 
 interface MuhurtaFinderPanelProps {
   currentDate: Date;
@@ -248,7 +249,7 @@ export function MuhurtaFinderPanel({
 
           <div className="flex items-center gap-2 text-xs font-mono text-[#0F172A] bg-[#F8FAFC] px-3.5 py-2 rounded-md border border-[#E2E8F0] self-start sm:self-center shadow-2xs">
             <Compass className="w-4 h-4 text-[#1D4ED8]" />
-            <span>Anchor: <strong>{selectedCity.name}</strong> ({ayanamshaType.toUpperCase()})</span>
+            <span>Anchor: <strong>{formatPlace(selectedCity)}</strong> ({ayanamshaType.toUpperCase()})</span>
           </div>
         </div>
 
@@ -444,7 +445,7 @@ export function MuhurtaFinderPanel({
               {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} –{' '}
               {endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </strong>{' '}
-            in <strong>{selectedCity.name}</strong> ({ayanamshaType.toUpperCase()} Ayanāṃśa)
+            in <strong>{formatPlace(selectedCity)}</strong> ({ayanamshaType.toUpperCase()} Ayanāṃśa)
           </div>
 
           <button
