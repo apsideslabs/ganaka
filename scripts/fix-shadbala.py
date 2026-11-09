@@ -19,38 +19,44 @@ orig = s
 if 'ayanamsha?: number;' not in s:
     s = s.replace(
         '  timezoneOffsetHours?: number;\n}',
-        '  timezoneOffsetHours?: number;\n  /** Ayanāṁśa in degrees, needed for Ayana Bala. */\n  ayanamsha?: number;\n}',
+        '  timezoneOffsetHours?: number;\n  /** Ayanamsa in degrees, needed for Ayana Bala. */\n  ayanamsha?: number;\n}',
         1,
     )
     changed.append('ShadbalaContext.ayanamsha')
 
 # 2. Replace the placeholder ayanamsa lookup with the real value.
-DEAD = """    const ayanamsha = typeof ctx.jd === 'number' ? 0 : 0;
-    void ayanamsha;
-    const ayana = ayanaBala(pId, lon, ctxAyanamsha(ctx));"""
-LIVE = """    const ayana = ayanaBala(
-      pId,
-      lon,
-      typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0
-    );"""
+DEAD = (
+    "    const ayanamsha = typeof ctx.jd === 'number' ? 0 : 0;\n"
+    "    void ayanamsha;\n"
+    "    const ayana = ayanaBala(pId, lon, ctxAyanamsha(ctx));"
+)
+LIVE = (
+    "    const ayana = ayanaBala(\n"
+    "      pId,\n"
+    "      lon,\n"
+    "      typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0\n"
+    "    );"
+)
 if DEAD in s:
     s = s.replace(DEAD, LIVE)
     changed.append('ayana bala ayanamsa')
 
 # 3. Drop the now-unused helper.
-HELPER = """
-/** Ayanāṁśa supplied alongside the context, defaulting to Lahiri. */
-function ctxAyanamsha(ctx: ShadbalaContext): number {
-  return typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0;
-}
-"""
+HELPER = (
+    "\n/** Ayanamsa supplied alongside the context, defaulting to Lahiri. */\n"
+    "function ctxAyanamsha(ctx: ShadbalaContext): number {\n"
+    "  return typeof ctx.ayanamsha === 'number' ? ctx.ayanamsha : 0;\n"
+    "}\n"
+)
 if HELPER in s:
     s = s.replace(HELPER, '')
     changed.append('remove ctxAyanamsha')
 
 # 4. Remove the leftover dead locals in the hora block.
-s = s.replace("    const base = isDayBirth ? sunrise! : sunset! - 0.5;\n", '')
- s = s.replace('    void base;\n', '')
+for junk in ('    const base = isDayBirth ? sunrise! : sunset! - 0.5;\n', '    void base;\n'):
+    if junk in s:
+        s = s.replace(junk, '')
+        changed.append('hora cleanup')
 
 if s != orig:
     S.write_text(s)
