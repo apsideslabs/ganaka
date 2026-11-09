@@ -97,6 +97,21 @@ value drifts more than 0.25 virūpa.
 The Sun's cheṣṭā bala is its Ayana Bala and the Moon's is its Paksha Bala, as
 BPHS 27.18 requires.
 
+Varṣa Bala (15 virūpas) and Māsa Bala (30 virūpas), BPHS 27.26-27, are now
+awarded to the lord of the weekday on which the solar year and solar month
+began. The ingress instants are found by bisection on the Sun's sidereal
+longitude, not by linear extrapolation: the Sun's speed varies from 0.953 to
+1.019 deg/day, so a straight-line estimate over ~320 days can be several days
+out and land on the wrong weekday.
+
+Weekdays for Dina, Horā, Varṣa and Māsa bala are now taken in **local civil
+time**. They previously used the Julian-day weekday, which is UT-based, so a
+02:00 IST birth was being scored as the previous day.
+
+The only ṣaḍbala component still absent is **Yuddha Bala** (planetary war,
+BPHS 27.37). It applies only when two planets are within one degree and is
+omitted rather than approximated.
+
 Because Varṣa, Māsa and Yuddha are absent, totals still read slightly low, so
 comparisons against `requiredRupas` remain conservative.
 
