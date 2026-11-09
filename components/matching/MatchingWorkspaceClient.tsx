@@ -39,6 +39,20 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
+
+function isoToDate(iso: string): Date | null {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d, 12, 0, 0);
+}
+
+function dateToIso(date: Date | null): string {
+  if (!date) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export function MatchingWorkspaceClient() {
   const [tradition, setTradition] = useState<MatchingTradition>('ashtakuta');
   const [activeTab, setActiveTab] = useState<'kutas' | 'deeper' | 'sources'>('kutas');
@@ -196,7 +210,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Date
                 </label>
-                <GanakaDatePicker value={groomDate} onChange={setGroomDate} />
+                <GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />
               </div>
 
               <div>
@@ -271,7 +285,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Date
                 </label>
-                <GanakaDatePicker value={brideDate} onChange={setBrideDate} />
+                <GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />
               </div>
 
               <div>
