@@ -29,11 +29,13 @@ jobs:
       - name: Apply source fixes
         run: |
           python3 - <<'PY'
-          import pathlib
+          import pathlib, re, sys
 
           changed, missing = [], []
 
           def patch(path, pairs):
+              """Idempotent replacement: if the old text is gone but the new text
+              is present, it was already applied and that is not a problem."""
               p = pathlib.Path(path)
               if not p.exists():
                   missing.append(f'{path} (not found)')
@@ -43,12 +45,13 @@ jobs:
               for old, new in pairs:
                   if old in s:
                       s = s.replace(old, new)
-                  else:
+                  elif new not in s:
                       missing.append(f'{path}: {old[:70]!r}')
               if s != orig:
                   p.write_text(s)
                   changed.append(path)
 
+          # --- Matching page date bug (already fixed; harmless if re-run) ---
           mp = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
           if mp.exists() and 'isoToDate' not in mp.read_text():
               helpers = '''
@@ -75,9 +78,8 @@ jobs:
               mp.write_text(s)
               changed.append(str(mp))
 
+          # --- searchLocations consults the full index ---
           patch('lib/astronomy/coordinates.ts', [
-              ('export const FAMOUS_HISTORICAL_CHARTS = [',
-               "import { searchIndexedCities } from './city-index';\n\nexport const FAMOUS_HISTORICAL_CHARTS = ["),
               ("""  const q = query.toLowerCase().trim();
             return CITIES_DATABASE.filter(
               (c) =>
@@ -92,10 +94,25 @@ jobs:
                 c.name.toLowerCase().includes(q) ||
                 c.country.toLowerCase().includes(q)
             );"""),
-              (' * 400+ Verified Indian cities, Assam towns & pilgrimage tirthas, state capitals, and world reference hubs.',
-               ' * A curated set of Indian cities, Assam towns & pilgrimage tirthas, plus world\n * hubs. Backed at runtime by a full GeoNames-derived index (city-index.ts).'),
           ])
 
+          # --- Normalise the import: exactly one, at the top of the module ---
+          co = pathlib.Path('lib/astronomy/coordinates.ts')
+          if co.exists():
+              s = co.read_text()
+              imp = "import { searchIndexedCities } from './city-index';"
+              n_before = s.count(imp)
+              s = re.sub(r"import \{ searchIndexedCities \} from '\./city-index';\s*", '', s)
+              s = imp + '\n' + s
+              if s.count(imp) != 1:
+                  print('::error::failed to normalise city-index import')
+                  sys.exit(1)
+              if n_before != 1:
+                  co.write_text(s)
+                  changed.append('lib/astronomy/coordinates.ts (import normalised)')
+                  print(f'import occurrences before: {n_before}, now: 1')
+
+          # --- Keep generated data out of version control ---
           gi = pathlib.Path('.gitignore')
           if gi.exists():
               t = gi.read_text()
@@ -145,11 +162,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore(search): wire GeoNames index and record its stats
-
-            searchLocations() now consults the full GeoNames-derived index and falls
-            back to the curated CITIES_DATABASE until it loads. CITY-INDEX.json records
-            how many places were built and from which source."
+            git commit -m "chore(search): wire GeoNames index and record its stats"
             git push
           fi
 
@@ -172,7 +185,7 @@ jobs:
           if [ $code -ne 0 ]; then
             echo "Build exited with $code"
             tail -40 build.log
-            tail -60 build.log | grep -vE '^\s*$' | tail -12 | while IFS= read -r l; do
+            tail -80 build.log | grep -vE '^\s*$' | tail -14 | while IFS= read -r l; do
               echo "::error::${l:0:900}"
             done
             exit $code
