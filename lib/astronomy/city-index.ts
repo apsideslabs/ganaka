@@ -75,6 +75,17 @@ function append(file: IndexFile) {
  * The country a timezone mostly covers, e.g. "Asia/Kolkata" -> "India".
  * Returns null until the index has loaded, or for an unknown zone.
  */
+/**
+ * Every country present in the loaded index, sorted. Empty until it loads.
+ */
+export function availableCountries(): string[] {
+  const seen = new Set<string>();
+  for (const byCountry of TZ_COUNTRY_COUNTS.values()) {
+    for (const country of byCountry.keys()) seen.add(country);
+  }
+  return [...seen].sort();
+}
+
 export function countryForTimezone(tz: string | null | undefined): string | null {
   if (!tz) return null;
   const byCountry = TZ_COUNTRY_COUNTS.get(tz);
