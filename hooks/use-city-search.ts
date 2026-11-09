@@ -9,9 +9,9 @@
  * loaded so far, so a component calling it directly inside useMemo never shows
  * the villages - the data ships, but the UI never reaches it.
  *
- * This hook returns the synchronous result immediately, so the curated list and
- * any already-loaded index appear with no flicker, then upgrades to the full
- * asynchronous result - which may fetch a village shard - a moment later.
+ * Results are ranked for the device's part of the world: a country chosen in
+ * Config wins, otherwise the device timezone is used. Country matches come
+ * first, then distance, then the natural order.
  */
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -19,8 +19,18 @@ import {
   searchLocations,
   type LocationInfo,
 } from '@/lib/astronomy/coordinates';
-import { searchCitiesAsync, countryForTimezone, cityIndexReady } from '@/lib/astronomy/city-index';
-import { deviceTimezone, haversineKm, type GeoBias } from '@/lib/astronomy/geo-bias';
+import {
+  searchCitiesAsync,
+  countryForTimezone,
+  cityIndexReady,
+} from '@/lib/astronomy/city-index';
+import {
+  deviceTimezone,
+  getPreferredCountry,
+  haversineKm,
+  SEARCH_COUNTRY_EVENT,
+  type GeoBias,
+} from '@/lib/astronomy/geo-bias';
 
 const DEBOUNCE_MS = 120;
 
@@ -45,7 +55,6 @@ export function applyBias(list: LocationInfo[], bias: GeoBias | null): LocationI
   return scored.map((s) => s.place);
 }
 
-
 /**
  * @param query the raw search string from the input
  * @param limit how many results to show
@@ -67,29 +76,26 @@ export function useCitySearch(
   const [results, setResults] = useState<LocationInfo[]>(compute);
   const [bias, setBias] = useState<GeoBias | null>(null);
 
-  // Resolve the device's likely country from its timezone. This needs no
-  // permission and no network call; it simply reads Intl. The index has to be
-  // loaded before the timezone can be mapped, so this waits for it.
-  useEffect(() => {
-    let cancelled = false;
-    const resolve = () => {
-      if (cancelled) return;
-      const country = countryForTimezone(deviceTimezone());
-      if (country) setBias({ country, lat: null, lon: null });
-    };
-    if (cityIndexReady()) {
-      resolve();
-    } else {
-      const timer = setTimeout(resolve, 1500);
-      return () => {
-        cancelled = true;
-        clearTimeout(timer);
-      };
-    }
-    return () => {
-      cancelled = true;
-    };
+  // Resolve the ranking bias. A country chosen in Config wins; otherwise the
+  // device timezone is used, which needs no permission and no network call.
+  // Re-runs whenever the preference changes.
+  const resolveBias = useCallback(() => {
+    const preferred = getPreferredCountry();
+    const country = preferred || countryForTimezone(deviceTimezone());
+    setBias(country ? { country, lat: null, lon: null } : null);
   }, []);
+
+  useEffect(() => {
+    resolveBias();
+    // The index has to be loaded before a timezone can be mapped to a country.
+    const timers = [setTimeout(resolveBias, 1500), setTimeout(resolveBias, 4000)];
+    const onChange = () => resolveBias();
+    window.addEventListener(SEARCH_COUNTRY_EVENT, onChange);
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener(SEARCH_COUNTRY_EVENT, onChange);
+    };
+  }, [resolveBias]);
 
   useEffect(() => {
     // Immediate synchronous pass: curated places plus whatever index is loaded.
