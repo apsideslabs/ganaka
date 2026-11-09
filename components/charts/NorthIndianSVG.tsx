@@ -53,20 +53,28 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
    * scattering (the kendras used to sit near the centre while the triangles sat
    * on the border, which is what made the chart look noisy).
    */
-  const houseLabelPositions: Record<number, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
+  const houseLabelPositions: Record<
+    number,
+    { x: number; y: number; anchor: 'start' | 'middle' | 'end'; stack?: boolean }
+  > = {
     1: { x: 300, y: 46, anchor: 'middle' },
     2: { x: 150, y: 26, anchor: 'middle' },
-    3: { x: 20, y: 60, anchor: 'start' },
+    // The four side triangles are too narrow for an inline "H3 · 11" - a 49px
+    // label crosses the hypotenuse and gets clipped by the house clip-path,
+    // which made the number vanish. Stacked, the footprint is ~18px wide and
+    // fits inside the triangle with room to spare.
+    3: { x: 18, y: 54, anchor: 'start', stack: true },
     4: { x: 24, y: 300, anchor: 'start' },
-    5: { x: 20, y: 540, anchor: 'start' },
+    5: { x: 18, y: 526, anchor: 'start', stack: true },
     6: { x: 150, y: 566, anchor: 'middle' },
     7: { x: 300, y: 564, anchor: 'middle' },
     8: { x: 450, y: 566, anchor: 'middle' },
-    9: { x: 580, y: 540, anchor: 'end' },
+    9: { x: 582, y: 526, anchor: 'end', stack: true },
     10: { x: 576, y: 300, anchor: 'end' },
-    11: { x: 580, y: 60, anchor: 'end' },
+    11: { x: 582, y: 54, anchor: 'end', stack: true },
     12: { x: 450, y: 26, anchor: 'middle' },
   };
+
 
   /**
    * Adaptive Non-Colliding Layout Engine for North Indian houses.
@@ -419,32 +427,60 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
 
         return (
           <g key={`content-${h}`} clipPath={`url(#clip-ni-h-${h})`}>
-            {/* House tag + rashi number, one tidy label per cell on the
-                perimeter ring. Keeping them together stops the sign numbers
-                clustering at the shared diamond vertices, which is what made
-                the chart look scattered. */}
-            <text
-              x={labelPos.x}
-              y={labelPos.y}
-              textAnchor={labelPos.anchor}
-              dominantBaseline="central"
-              fontFamily="ui-monospace, monospace"
-              fontSize={10}
-              stroke="#FEFCF7"
-              strokeWidth={3}
-              paintOrder="stroke fill"
-            >
-              {/* dy nudges the small tag down so it sits on the visual centre
-                  of the much larger sign number beside it */}
-              <tspan dy="3" fontWeight="700" fontSize={11} letterSpacing="0.5" fill="#8A8175">{`H${h}`}</tspan>
-              <tspan dy="3" fontWeight="600" fontSize={11} fill="#CFC6B8">{' · '}</tspan>
-              <tspan
-                fontWeight="700"
-                fontSize={16}
-                fontFamily="Georgia, Cambria, serif"
-                fill="#334155"
-              >{rashi}</tspan>
-            </text>
+            {/* House tag + rashi number. Inline in the wide cells, stacked in
+                the four narrow side triangles so nothing is clipped. */}
+            {labelPos.stack ? (
+              <>
+                <text
+                  x={labelPos.x}
+                  y={labelPos.y}
+                  textAnchor={labelPos.anchor}
+                  dominantBaseline="central"
+                  fontFamily="ui-monospace, monospace"
+                  fontSize={10}
+                  fontWeight="700"
+                  letterSpacing="0.5"
+                  fill="#8A8175"
+                  stroke="#FEFCF7"
+                  strokeWidth={3}
+                  paintOrder="stroke fill"
+                >{`H${h}`}</text>
+                <text
+                  x={labelPos.x}
+                  y={labelPos.y + 21}
+                  textAnchor={labelPos.anchor}
+                  dominantBaseline="central"
+                  fontFamily="Georgia, Cambria, serif"
+                  fontSize={16}
+                  fontWeight="700"
+                  fill="#334155"
+                  stroke="#FEFCF7"
+                  strokeWidth={3}
+                  paintOrder="stroke fill"
+                >{rashi}</text>
+              </>
+            ) : (
+              <text
+                x={labelPos.x}
+                y={labelPos.y}
+                textAnchor={labelPos.anchor}
+                dominantBaseline="central"
+                fontFamily="ui-monospace, monospace"
+                fontSize={10}
+                stroke="#FEFCF7"
+                strokeWidth={3}
+                paintOrder="stroke fill"
+              >
+                <tspan dy="3" fontWeight="700" fontSize={11} letterSpacing="0.5" fill="#8A8175">{`H${h}`}</tspan>
+                <tspan dy="3" fontWeight="600" fontSize={11} fill="#CFC6B8">{' · '}</tspan>
+                <tspan
+                  fontWeight="700"
+                  fontSize={16}
+                  fontFamily="Georgia, Cambria, serif"
+                  fill="#334155"
+                >{rashi}</tspan>
+              </text>
+            )}
 
             {/* Lagna Tag in House 1 - High Visibility Ruby Badge */}
             {h === 1 && (
