@@ -805,7 +805,7 @@ export const WorkspaceClient: React.FC = () => {
 Title: ${chartTitle}
 Date of Birth: ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}
 Time of Birth: ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} (UTC${selectedCity.timezoneOffsetHours >= 0 ? `+${selectedCity.timezoneOffsetHours}` : selectedCity.timezoneOffsetHours})
-Location: ${selectedCity.name} (${formatDMS(selectedCity.latitude, true)}, ${formatDMS(selectedCity.longitude, false)})
+Location: ${formatPlace(selectedCity)} (${formatDMS(selectedCity.latitude, true)}, ${formatDMS(selectedCity.longitude, false)})
 Ayanāṃśa: ${AYANAMSHA_DEFINITIONS[ayanamshaType]?.name || ayanamshaType} (${chartData.meta.ayanamshaFormatted})
 Julian Day: ${chartData.meta.julianDay}
 
@@ -876,7 +876,7 @@ ${Object.values(chartData.planets)
                 {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}:{String(second).padStart(2, '0')} (UTC{selectedCity.timezoneOffsetHours >= 0 ? `+${selectedCity.timezoneOffsetHours}` : selectedCity.timezoneOffsetHours})
               </span>
               <span className="text-slate-300">•</span>
-              <span className="text-slate-700">{selectedCity.name} ({formatDMS(selectedCity.latitude, true)}, {formatDMS(selectedCity.longitude, false)})</span>
+              <span className="text-slate-700">{formatPlace(selectedCity)} ({formatDMS(selectedCity.latitude, true)}, {formatDMS(selectedCity.longitude, false)})</span>
             </p>
           </div>
 
