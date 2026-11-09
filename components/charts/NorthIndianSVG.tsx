@@ -434,8 +434,10 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
               strokeWidth={3}
               paintOrder="stroke fill"
             >
-              <tspan fontWeight="600" fontSize={8.5} letterSpacing="0.6" fill="#B3A897">{`H${h}`}</tspan>
-              <tspan fontWeight="600" fontSize={8.5} fill="#D8D0C2">{' · '}</tspan>
+              {/* dy nudges the small tag down so it sits on the visual centre
+                  of the much larger sign number beside it */}
+              <tspan dy="4" fontWeight="600" fontSize={8.5} letterSpacing="0.6" fill="#B3A897">{`H${h}`}</tspan>
+              <tspan dy="4" fontWeight="600" fontSize={8.5} fill="#D8D0C2">{' · '}</tspan>
               <tspan
                 fontWeight="700"
                 fontSize={17}
