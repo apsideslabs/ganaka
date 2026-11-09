@@ -1495,7 +1495,7 @@ ${Object.values(chartData.planets)
                       lagnaDegreeStr={chartData.lagna.degreeStr}
                       planets={chartData.planets}
                       title="Lagna Rāśi Kuṇḍalī (D-1)"
-                      subtitle={`${selectedCity.name} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
+                      subtitle={`${formatPlace(selectedCity)} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
                       style={chartStyle}
                     />
                   </div>
@@ -1528,7 +1528,7 @@ ${Object.values(chartData.planets)
                     lagnaDegreeStr={chartData.lagna.degreeStr}
                     planets={chartData.planets}
                     title="Lagna Rāśi Kuṇḍalī (D-1)"
-                    subtitle={`${selectedCity.name} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
+                    subtitle={`${formatPlace(selectedCity)} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
                     style={chartStyle}
                   />
                 </div>
