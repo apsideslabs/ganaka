@@ -43,9 +43,19 @@ const DEBOUNCE_MS = 120;
  */
 export function applyBias(list: LocationInfo[], bias: GeoBias | null): LocationInfo[] {
   if (!bias || (!bias.country && bias.lat === null)) return list;
-  const scored = list.map((place, index) => {
+
+  // Keep only the device's (or the chosen) country when it has any matches, so
+  // foreign places stop cluttering a local search. If the country has no match
+  // at all, fall back to the full list - searching "London" from India must
+  // still find London.
+  let pool = list;
+  if (bias.country) {
+    const local = list.filter((p) => p.country === bias.country);
+    if (local.length > 0) pool = local;
+  }
+
+  const scored = pool.map((place, index) => {
     let score = index; // keep the original ordering as the tie-break
-    if (bias.country && place.country === bias.country) score -= 10000;
     if (bias.lat !== null && bias.lon !== null) {
       score += haversineKm(bias.lat, bias.lon, place.latitude, place.longitude) / 10;
     }
