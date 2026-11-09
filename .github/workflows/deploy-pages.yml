@@ -27,96 +27,7 @@ jobs:
           node-version: 20
 
       - name: Apply source fixes
-        run: |
-          python3 - <<'PY'
-          import pathlib, re, sys
-
-          changed, missing = [], []
-
-          def patch(path, pairs):
-              p = pathlib.Path(path)
-              if not p.exists():
-                  missing.append(f'{path} (not found)')
-                  return
-              s = p.read_text()
-              orig = s
-              for old, new in pairs:
-                  if old in s:
-                      s = s.replace(old, new)
-                  elif new not in s:
-                      missing.append(f'{path}: {old[:70]!r}')
-              if s != orig:
-                  p.write_text(s)
-                  changed.append(path)
-
-          mp = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
-          if mp.exists() and 'isoToDate' not in mp.read_text():
-              helpers = '''
-          function isoToDate(iso: string): Date | null {
-            if (!iso) return null;
-            const [y, m, d] = iso.split('-').map(Number);
-            if (!y || !m || !d) return null;
-            return new Date(y, m - 1, d, 12, 0, 0);
-          }
-
-          function dateToIso(date: Date | null): string {
-            if (!date) return '';
-            const pad = (n: number) => String(n).padStart(2, '0');
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-          }
-          '''
-              s = mp.read_text()
-              s = s.replace('export function MatchingWorkspaceClient',
-                            helpers + '\nexport function MatchingWorkspaceClient', 1)
-              s = s.replace('<GanakaDatePicker value={groomDate} onChange={setGroomDate} />',
-                            '<GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />')
-              s = s.replace('<GanakaDatePicker value={brideDate} onChange={setBrideDate} />',
-                            '<GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />')
-              mp.write_text(s)
-              changed.append(str(mp))
-
-          patch('lib/astronomy/coordinates.ts', [
-              ("""  const q = query.toLowerCase().trim();
-            return CITIES_DATABASE.filter(
-              (c) =>
-                c.name.toLowerCase().includes(q) ||
-                c.country.toLowerCase().includes(q)
-            );""",
-               """  const q = query.toLowerCase().trim();
-            const indexed = searchIndexedCities(q, 40);
-            if (indexed.length > 0) return indexed;
-            return CITIES_DATABASE.filter(
-              (c) =>
-                c.name.toLowerCase().includes(q) ||
-                c.country.toLowerCase().includes(q)
-            );"""),
-          ])
-
-          co = pathlib.Path('lib/astronomy/coordinates.ts')
-          if co.exists():
-              s = co.read_text()
-              imp = "import { searchIndexedCities } from './city-index';"
-              n_before = s.count(imp)
-              s = re.sub(r"import \{ searchIndexedCities \} from '\./city-index';\s*", '', s)
-              s = imp + '\n' + s
-              if s.count(imp) != 1:
-                  print('::error::failed to normalise city-index import')
-                  sys.exit(1)
-              if n_before != 1:
-                  co.write_text(s)
-                  changed.append('lib/astronomy/coordinates.ts (import normalised)')
-
-          gi = pathlib.Path('.gitignore')
-          if gi.exists():
-              t = gi.read_text()
-              if 'public/data/' not in t:
-                  gi.write_text(t.rstrip() + '\npublic/data/\n')
-                  changed.append('.gitignore')
-
-          print('changed:', changed or 'none')
-          for m in missing:
-              print(f'::warning::pattern not found -> {m}')
-          PY
+        run: python3 scripts/fix-sources.py
 
       - name: Download GeoNames dumps
         run: |
@@ -130,7 +41,6 @@ jobs:
           for f in admin1CodesASCII.txt countryInfo.txt timeZones.txt; do
             curl -sSL --retry 3 --max-time 90 -o $f $base/$f
           done
-          ls -lh *.txt | head -10
 
       - name: Build place index
         run: GN_DIR=/tmp/gn node scripts/build-cities.mjs
@@ -141,8 +51,6 @@ jobs:
           const fs=require('fs');
           const path=require('path');
           const f=require('./public/data/cities.json');
-          const bytes=fs.statSync('public/data/cities.json').size;
-          const india=f.cities.filter(c=>c[2]==='India').length;
           const dir='public/data/in';
           let shards=0,villages=0,shardBytes=0;
           if (fs.existsSync(dir)) {
@@ -153,7 +61,7 @@ jobs:
               villages+=JSON.parse(fs.readFileSync(p,'utf8')).cities.length;
             }
           }
-          const stats={version:f.v,towns:f.cities.length,indiaTowns:india,villageShards:shards,indiaVillages:villages,townBytes:bytes,shardBytes,timezones:f.tz.length,generated:new Date().toISOString(),source:'GeoNames cities5000 + India IN.zip (CC BY 4.0)'};
+          const stats={version:f.v,towns:f.cities.length,indiaTowns:f.cities.filter(c=>c[2]==='India').length,villageShards:shards,indiaVillages:villages,townBytes:fs.statSync('public/data/cities.json').size,shardBytes,timezones:f.tz.length,generated:new Date().toISOString(),source:'GeoNames cities5000 + India IN.zip (CC BY 4.0)'};
           fs.writeFileSync('CITY-INDEX.json', JSON.stringify(stats,null,2)+'\n');
           console.log(stats);
           "
@@ -166,7 +74,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore(search): refresh place index stats"
+            git commit -m "chore: apply source corrections and refresh place stats"
             git push
           fi
 
@@ -196,11 +104,13 @@ jobs:
           fi
           tail -20 build.log
 
-      - name: Verify what shipped
+      - name: Verify no nondeterminism remains
         run: |
-          ls -lh out/data/ | head -5
-          ls out/data/in 2>/dev/null | wc -l | xargs echo 'shard files:'
-          du -sh out/data
+          if grep -rn "Math.random" lib/ --include='*.ts' | grep -v '//'; then
+            echo "::error::Math.random still present in lib/"
+            exit 1
+          fi
+          echo "no Math.random in lib/"
 
       - name: Disable Jekyll
         run: |
