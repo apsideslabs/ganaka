@@ -53,19 +53,19 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
    * scattering (the kendras used to sit near the centre while the triangles sat
    * on the border, which is what made the chart look noisy).
    */
-  const houseLabelPositions: Record<number, { x: number; y: number }> = {
-    1: { x: 300, y: 24 },
-    2: { x: 150, y: 16 },
-    3: { x: 16, y: 150 },
-    4: { x: 24, y: 300 },
-    5: { x: 16, y: 450 },
-    6: { x: 150, y: 584 },
-    7: { x: 300, y: 576 },
-    8: { x: 450, y: 584 },
-    9: { x: 584, y: 450 },
-    10: { x: 576, y: 300 },
-    11: { x: 584, y: 150 },
-    12: { x: 450, y: 16 },
+  const houseLabelPositions: Record<number, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
+    1: { x: 300, y: 24, anchor: 'middle' },
+    2: { x: 150, y: 16, anchor: 'middle' },
+    3: { x: 20, y: 150, anchor: 'start' },
+    4: { x: 24, y: 300, anchor: 'start' },
+    5: { x: 20, y: 450, anchor: 'start' },
+    6: { x: 150, y: 584, anchor: 'middle' },
+    7: { x: 300, y: 576, anchor: 'middle' },
+    8: { x: 450, y: 584, anchor: 'middle' },
+    9: { x: 580, y: 450, anchor: 'end' },
+    10: { x: 576, y: 300, anchor: 'end' },
+    11: { x: 580, y: 150, anchor: 'end' },
+    12: { x: 450, y: 16, anchor: 'middle' },
   };
 
   /**
@@ -411,7 +411,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
             <text
               x={labelPos.x}
               y={labelPos.y}
-              textAnchor="middle"
+              textAnchor={labelPos.anchor}
               dominantBaseline="central"
               fontFamily="ui-monospace, monospace"
               fontSize={10}
