@@ -34,8 +34,7 @@ jobs:
           changed, missing = [], []
 
           def patch(path, pairs):
-              """Idempotent replacement: if the old text is gone but the new text
-              is present, it was already applied and that is not a problem."""
+              """Idempotent: if old text is gone but new text is present, fine."""
               p = pathlib.Path(path)
               if not p.exists():
                   missing.append(f'{path} (not found)')
@@ -51,7 +50,6 @@ jobs:
                   p.write_text(s)
                   changed.append(path)
 
-          # --- Matching page date bug (already fixed; harmless if re-run) ---
           mp = pathlib.Path('components/matching/MatchingWorkspaceClient.tsx')
           if mp.exists() and 'isoToDate' not in mp.read_text():
               helpers = '''
@@ -78,7 +76,6 @@ jobs:
               mp.write_text(s)
               changed.append(str(mp))
 
-          # --- searchLocations consults the full index ---
           patch('lib/astronomy/coordinates.ts', [
               ("""  const q = query.toLowerCase().trim();
             return CITIES_DATABASE.filter(
@@ -96,7 +93,6 @@ jobs:
             );"""),
           ])
 
-          # --- Normalise the import: exactly one, at the top of the module ---
           co = pathlib.Path('lib/astronomy/coordinates.ts')
           if co.exists():
               s = co.read_text()
@@ -112,7 +108,6 @@ jobs:
                   changed.append('lib/astronomy/coordinates.ts (import normalised)')
                   print(f'import occurrences before: {n_before}, now: 1')
 
-          # --- Keep generated data out of version control ---
           gi = pathlib.Path('.gitignore')
           if gi.exists():
               t = gi.read_text()
@@ -129,15 +124,14 @@ jobs:
         run: |
           mkdir -p /tmp/gn && cd /tmp/gn
           base=https://download.geonames.org/export/dump
-          for f in cities5000.zip cities1000.zip; do
-            curl -sSL --retry 3 --max-time 240 -o $f $base/$f
+          for f in cities5000 cities1000 cities500; do
+            curl -sSL --retry 3 --max-time 300 -o $f.zip $base/$f.zip
+            unzip -oq $f.zip
           done
           for f in admin1CodesASCII.txt countryInfo.txt timeZones.txt; do
             curl -sSL --retry 3 --max-time 90 -o $f $base/$f
           done
-          unzip -oq cities5000.zip
-          unzip -oq cities1000.zip
-          ls -lh
+          ls -lh *.txt
 
       - name: Build city index
         run: GN_DIR=/tmp/gn node scripts/build-cities.mjs
@@ -149,7 +143,8 @@ jobs:
           const f=require('./public/data/cities.json');
           const bytes=fs.statSync('public/data/cities.json').size;
           const india=f.cities.filter(c=>c[2]==='India').length;
-          const stats={places:f.cities.length,indiaPlaces:india,timezones:f.tz.length,bytes,generated:new Date().toISOString(),source:'GeoNames cities5000 + India cities1000 (CC BY 4.0)'};
+          const alts=f.cities.filter(c=>c[8]).length;
+          const stats={version:f.v,places:f.cities.length,indiaPlaces:india,withAlternateNames:alts,timezones:f.tz.length,bytes,generated:new Date().toISOString(),source:'GeoNames cities5000 + India cities1000/cities500 (CC BY 4.0)'};
           fs.writeFileSync('CITY-INDEX.json', JSON.stringify(stats,null,2)+'\n');
           console.log(stats);
           "
@@ -162,7 +157,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore(search): wire GeoNames index and record its stats"
+            git commit -m "chore(search): refresh city index stats"
             git push
           fi
 
@@ -195,7 +190,7 @@ jobs:
       - name: Verify the index shipped
         run: |
           ls -lh out/data/ || true
-          node -e "const f=require('./out/data/cities.json');console.log('deployed index places:',f.cities.length)"
+          node -e "const f=require('./out/data/cities.json');console.log('deployed index places:',f.cities.length,'version',f.v)"
 
       - name: Disable Jekyll
         run: |
