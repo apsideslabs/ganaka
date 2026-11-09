@@ -232,6 +232,9 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                 className="text-[12px] font-serif font-bold"
               >
                 {RASHI_DATA[rashiNum].sanskrit}
+                <tspan className="text-[14px] font-serif font-bold fill-[#334155]">
+                  {' '}{rashiNum}
+                </tspan>
               </text>
 
               {/* Right: House Number & Lagna Badge */}
@@ -240,8 +243,8 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                 y={by + 18}
                 textAnchor="end"
                 dominantBaseline="central"
-                className={`text-[10.5px] font-mono font-semibold ${
-                  isLagna ? 'fill-[#DC2626]' : 'fill-[#94A3B8]'
+                className={`text-[11px] font-mono font-bold ${
+                  isLagna ? 'fill-[#DC2626]' : 'fill-[#8A8175]'
                 }`}
               >
                 {isLagna ? 'ASC' : `H${houseNum}`}
