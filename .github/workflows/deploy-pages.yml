@@ -36,14 +36,24 @@ jobs:
       - name: Apply source fixes
         run: python3 scripts/fix-sources.py
 
-      - name: Generate VSOP87 tables for Venus
-        run: python3 scripts/gen-vsop87-venus.py
+      - name: Generate planetary and lunar tables
+        run: |
+          python3 scripts/gen-vsop87.py
+          python3 scripts/gen-vsop87-venus.py
 
-      - name: Point Venus at VSOP87
-        run: python3 scripts/fix-venus.py
+      - name: Point the ephemeris at the real theories
+        run: |
+          python3 scripts/fix-venus.py
+          python3 scripts/fix-planets.py
 
-      - name: Verify Venus against PyEphem
+      - name: Verify Venus tables
         run: python3 scripts/check-venus.py
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify the whole ephemeris
+        run: python3 scripts/check-ephemeris.py
 
       - name: Download GeoNames dumps
         run: |
@@ -89,12 +99,9 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore: regenerate VSOP87 tables and place stats"
+            git commit -m "chore: regenerate ephemeris tables and place stats"
             git push
           fi
-
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
 
       - name: Remove server-only API routes
         run: rm -rf app/api
