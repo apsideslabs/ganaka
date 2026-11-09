@@ -368,7 +368,7 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
         const header = chamberHeaderPositions[rashiNum];
         const occupants = planetsByRashi[rashiNum] || [];
         const positions = getChamberPlanetPositions(rashiNum, occupants.length);
-        const planetFontSize = occupants.length >= 7 ? 12 : occupants.length >= 5 ? 13.5 : occupants.length >= 3 ? 15 : occupants.length === 2 ? 16 : 18;
+        const planetFontSize = occupants.length >= 7 ? 11 : occupants.length >= 5 ? 12.5 : occupants.length >= 3 ? 14 : occupants.length === 2 ? 15 : 17;
 
         return (
           <g
@@ -396,12 +396,13 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                 fill="#334155"
                 className="text-[11.5px] font-serif font-bold"
               >
-                {RASHI_DATA[rashiNum].bengali} • {RASHI_DATA[rashiNum].sanskrit}
-                <tspan className="text-[10px] font-mono font-medium text-slate-500"> (#{rashiNum})</tspan>
-                {isLagna ? (
-                  <tspan className="text-[10.5px] font-sans font-extrabold fill-[#DC2626]"> [লগ্ন/H1]</tspan>
-                ) : (
-                  <tspan className="text-[10px] font-mono font-semibold fill-[#64748B]"> [H{houseNum}]</tspan>
+                {RASHI_DATA[rashiNum].bengali}
+                <tspan className="text-[10px] font-sans font-medium fill-[#94A3B8]"> · </tspan>
+                <tspan className="text-[10.5px] font-mono font-semibold fill-[#94A3B8]">
+                  H{houseNum}
+                </tspan>
+                {isLagna && (
+                  <tspan className="text-[10px] font-sans font-extrabold fill-[#DC2626]"> · লগ্ন</tspan>
                 )}
               </text>
 
@@ -420,22 +421,22 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                       dominantBaseline="central"
                       fontFamily="system-ui, -apple-system, sans-serif"
                       fontSize={planetFontSize}
-                      fontWeight="800"
+                      fontWeight="700"
                       fill={planetFill}
                       stroke="#FFFFFF"
-                      strokeWidth={3.5}
+                      strokeWidth={2.5}
                       strokeLinejoin="round"
                       paintOrder="stroke fill"
                     >
                       {p.label}
                       {p.isRetro && (
-                        <tspan fill="#DC2626" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
-                          {' '}(R)
+                        <tspan fill="#DC2626" fontWeight="700" fontSize={Math.max(8, planetFontSize - 5)} dy="-4">
+                          {'R'}
                         </tspan>
                       )}
                       {p.isComb && (
-                        <tspan fill="#D97706" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
-                          {' '}(C)
+                        <tspan fill="#D97706" fontWeight="700" fontSize={Math.max(8, planetFontSize - 5)} dy="-4">
+                          {'C'}
                         </tspan>
                       )}
                       {showDegrees && p.degreeStr && (
