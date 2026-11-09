@@ -32,7 +32,7 @@ const A = (s: unknown): string =>
     .replace(/[\u2010-\u2015]/g, '-')
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201c\u201d]/g, '"')
-    .replace(/[^\x20-\x7E]/g, '');
+    .replace(/[^\x20-\x7E\xB0]/g, '');
 
 const RASHI = [
   'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -48,6 +48,7 @@ interface Ctx {
   y: number;
   page: number;
   title: string;
+  toc: Array<{ title: string; page: number }>;
 }
 
 function header(ctx: Ctx, section: string) {
@@ -67,8 +68,6 @@ function header(ctx: Ctx, section: string) {
   doc.setTextColor(MUTED);
   doc.text(A(section), M + 17, 8);
 
-  doc.setFontSize(7);
-  doc.text(`Page ${ctx.page}`, PAGE.w - M, 8, { align: 'right' });
   ctx.y = 24;
 }
 
@@ -209,15 +208,171 @@ function drawDiamond(
   }
 }
 
+
+/** A nested-diamond motif, used on the cover and as a chapter ornament. */
+function ornament(doc: jsPDF, cx: number, cy: number, r: number, colour = ACCENT) {
+  doc.setDrawColor(colour);
+  doc.setLineWidth(0.5);
+  doc.line(cx, cy - r, cx + r, cy);
+  doc.line(cx + r, cy, cx, cy + r);
+  doc.line(cx, cy + r, cx - r, cy);
+  doc.line(cx - r, cy, cx, cy - r);
+  doc.setLineWidth(0.3);
+  const r2 = r * 0.62;
+  doc.line(cx, cy - r2, cx + r2, cy);
+  doc.line(cx + r2, cy, cx, cy + r2);
+  doc.line(cx, cy + r2, cx - r2, cy);
+  doc.line(cx - r2, cy, cx, cy - r2);
+  const r3 = r * 0.28;
+  doc.line(cx, cy - r3, cx + r3, cy);
+  doc.line(cx + r3, cy, cx, cy + r3);
+  doc.line(cx, cy + r3, cx - r3, cy);
+  doc.line(cx - r3, cy, cx, cy - r3);
+}
+
+function drawCover(doc: jsPDF, chart: JyotishaChart, personName?: string) {
+  const bd = chart.meta.birthDetails;
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+
+  doc.setFillColor('#FDFBF6');
+  doc.rect(0, 0, PAGE.w, PAGE.h, 'F');
+
+  // top band
+  doc.setDrawColor(ACCENT);
+  doc.setLineWidth(1.4);
+  doc.line(M, 28, PAGE.w - M, 28);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(ACCENT);
+  doc.text('G A N A K A', M, 22);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.8);
+  doc.setTextColor(MUTED);
+  doc.text('CLASSICAL JYOTISA ENGINE', PAGE.w - M, 22, { align: 'right' });
+
+  // title block
+  doc.setFont('times', 'bold');
+  doc.setFontSize(40);
+  doc.setTextColor(INK);
+  doc.text('Jyotisa', M, 74);
+  doc.setFontSize(34);
+  doc.text('Birth Chart', M, 96);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(MUTED);
+  doc.text('C O M P L E T E   R E P O R T', M, 108);
+
+  if (personName) {
+    doc.setFont('times', 'italic');
+    doc.setFontSize(17);
+    doc.setTextColor(ACCENT);
+    doc.text(A(personName), M, 124);
+  }
+
+  // birth particulars
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(INK);
+  doc.text(
+    `${pad2(bd.day)}-${pad2(bd.month)}-${bd.year}   ·   ${pad2(bd.hour)}:${pad2(bd.minute)}:${pad2(bd.second)}`,
+    M, 140
+  );
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(INK);
+  doc.text(A(bd.locationName || '-'), M, 148);
+  doc.setFontSize(7.8);
+  doc.setTextColor(MUTED);
+  doc.text(
+    A(`Lat ${Math.abs(bd.latitude).toFixed(4)}${bd.latitude >= 0 ? ' N' : ' S'}   ·   Lon ${Math.abs(bd.longitude).toFixed(4)}${bd.longitude >= 0 ? ' E' : ' W'}   ·   UTC${bd.timezoneOffsetHours >= 0 ? '+' : ''}${bd.timezoneOffsetHours}`),
+    M, 155
+  );
+
+  // ornament, right of the title block
+  ornament(doc, 158, 92, 26);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(ACCENT);
+  doc.text('LAGNA', 158, 126, { align: 'center' });
+  doc.setFont('times', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(INK);
+  doc.text(`${RASHI[chart.lagna.rashiNumber - 1]}`, 158, 132, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(MUTED);
+  doc.text(A(chart.lagna.degreeStr), 158, 137, { align: 'center' });
+
+  // bottom rule + imprint
+  doc.setDrawColor(RULE);
+  doc.setLineWidth(0.4);
+  doc.line(M, 252, PAGE.w - M, 252);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.4);
+  doc.setTextColor(MUTED);
+  doc.text(A(`Ayanamsa ${chart.meta.ayanamshaType} ${chart.meta.ayanamshaFormatted}`), M, 259);
+  doc.text(A(chart.meta.houseSystem.replace('_', ' ')), M, 264);
+  doc.text(A(chart.meta.engineVersion), PAGE.w - M, 259, { align: 'right' });
+  doc.text(new Date().toISOString().slice(0, 10), PAGE.w - M, 264, { align: 'right' });
+}
+
+function drawContents(doc: jsPDF, entries: Array<{ title: string; page: number }>) {
+  doc.setFillColor('#FFFFFF');
+  doc.rect(0, 0, PAGE.w, PAGE.h, 'F');
+  doc.setDrawColor(ACCENT);
+  doc.setLineWidth(1);
+  doc.line(M, 30, PAGE.w - M, 30);
+  doc.setFont('times', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(INK);
+  doc.text('Contents', M, 24);
+
+  let y = 46;
+  entries.forEach((e, i) => {
+    if (y > PAGE.h - 24) return;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.6);
+    doc.setTextColor(ACCENT);
+    doc.text(String(i + 1).padStart(2, '0'), M, y);
+
+    doc.setFont('times', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(INK);
+    doc.text(A(e.title), M + 10, y);
+
+    const titleW = doc.getTextWidth(A(e.title));
+    const numStr = String(e.page);
+    const numW = doc.getTextWidth(numStr);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(MUTED);
+    doc.text(numStr, PAGE.w - M, y, { align: 'right' });
+
+    // dot leader
+    doc.setDrawColor('#D8D0C2');
+    doc.setLineWidth(0.3);
+    const from = M + 10 + titleW + 3;
+    const to = PAGE.w - M - numW - 3;
+    for (let x = from; x < to; x += 3) doc.circle(x, y - 1, 0.25, 'F');
+
+    y += 11;
+  });
+}
+
 export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-  const ctx: Ctx = { doc, y: 24, page: 1, title: 'Chart Report' };
+  const ctx: Ctx = { doc, y: 24, page: 1, title: 'Chart Report', toc: [] };
   const bd = chart.meta.birthDetails;
   const pad = (n: number) => String(n).padStart(2, '0');
 
-  header(ctx, 'Birth Chart Report');
+  drawCover(doc, chart, personName);
+  doc.addPage();
+  ctx.page = 2;
+  header(ctx, 'Birth Data');
+  ctx.toc.push({ title: 'Birth Data & Panchanga', page: ctx.page });
 
-  // ---------------- Page 1: identity + birth data + panchanga ----------------
+  // ---------------- Page 2: identity + birth data + panchanga ----------------
   doc.setFont('times', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(INK);
@@ -274,6 +429,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
 
   if (av) {
     newPage(ctx, 'Avakahada Cakra');
+    ctx.toc.push({ title: 'Avakahada Cakra', page: ctx.page });
     sectionTitle(ctx, 'Avakahada Cakra - Birth Matrix');
 
     kvGrid(ctx, [
@@ -342,6 +498,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
 
   // ---------------- Page 2: planetary positions ----------------
   newPage(ctx, 'Planetary Positions');
+  ctx.toc.push({ title: 'Planetary Positions', page: ctx.page });
   sectionTitle(ctx, 'Graha Positions');
   const planetIds = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
   autoTable(doc, {
@@ -387,24 +544,27 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
 
   // ---------------- Divisional charts ----------------
   const vargaList = Object.values(chart.vargas || {}) as any[];
-  const perPage = 4;
+  const perPage = 2;
   for (let i = 0; i < vargaList.length; i += perPage) {
     newPage(ctx, 'Divisional Charts');
+    if (i === 0) ctx.toc.push({ title: 'Divisional Charts', page: ctx.page });
     const chunk = vargaList.slice(i, i + perPage);
     sectionTitle(ctx, `Divisional Charts (${i + 1}-${i + chunk.length} of ${vargaList.length})`);
-    const box = 74;
-    const gap = (CW - box * 2) / 3;
+    // Two charts per page at 110mm - large enough to read comfortably and to
+    // fill the sheet, instead of four cramped ones floating in white space.
+    const box = 108;
+    const colX = M + (CW - box) / 2;
     chunk.forEach((v, k) => {
-      const col = k % 2;
-      const row = Math.floor(k / 2);
-      const x = M + gap / 2 + col * (box + gap);
-      const y = ctx.y + row * (box + 16) + 6;
+      const row = k;
+      const x = colX;
+      const y = ctx.y + row * (box + 20) + 8;
       drawDiamond(doc, v, x, y, box, A(v.name || v.id), `Lagna ${RASHI[v.lagnaRashi - 1]}`);
     });
   }
 
   // ---------------- Ashtakavarga ----------------
   newPage(ctx, 'Ashtakavarga');
+  ctx.toc.push({ title: 'Ashtakavarga', page: ctx.page });
   sectionTitle(ctx, 'Sarvashtakavarga (SAV)');
   const sav: number[] = (chart.ashtakavarga as any)?.sav?.bindusByRashi || [];
   autoTable(doc, {
@@ -438,6 +598,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
   // ---------------- Vimshottari ----------------
   const tree: any[] = (chart.vimshottari as any)?.tree || [];
   newPage(ctx, 'Vimshottari Dasha');
+  ctx.toc.push({ title: 'Vimshottari Dasha', page: ctx.page });
   sectionTitle(ctx, 'Mahadasha');
   autoTable(doc, {
     startY: ctx.y,
@@ -501,6 +662,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
 
   // ---------------- Shadbala ----------------
   newPage(ctx, 'Shadbala');
+  ctx.toc.push({ title: 'Shadbala', page: ctx.page });
   sectionTitle(ctx, 'Shadbala (virupas)');
   const sb = (chart as any).shadbala || {};
   autoTable(doc, {
@@ -543,6 +705,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
   const evaluated: any[] = (chart as any).doshas?.evaluatedDoshas || [];
   if (evaluated.length) {
     newPage(ctx, 'Doshas');
+    ctx.toc.push({ title: 'Doshas & Arista', page: ctx.page });
     sectionTitle(ctx, 'Doshas & Arista');
     autoTable(doc, {
       startY: ctx.y,
@@ -563,6 +726,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
   const jm: any = (chart as any).jaimini || {};
   if (jm.charaKarakas?.length || jm.arudhaPadas?.length) {
     newPage(ctx, 'Jaimini');
+    ctx.toc.push({ title: 'Jaimini & Sphutas', page: ctx.page });
     if (jm.charaKarakas?.length) {
       sectionTitle(ctx, 'Chara Karakas');
       autoTable(doc, {
@@ -618,9 +782,16 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
   }
 
+  // ---------------- Contents page (inserted at position 2) ----------------
+  doc.insertPage(2);
+  doc.setPage(2);
+  // every recorded page number shifts by one once the contents page is in
+  drawContents(doc, ctx.toc.map((t) => ({ title: t.title, page: t.page + 1 })));
+
   // ---------------- Footers ----------------
   const total = doc.getNumberOfPages();
   for (let i = 1; i <= total; i++) {
+    if (i === 1) continue; // cover carries its own imprint
     doc.setPage(i);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.4);
