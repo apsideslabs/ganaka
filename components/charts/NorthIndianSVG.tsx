@@ -61,20 +61,27 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
     12: { x: 450, y: 130 },
   };
 
-  // House label badge (e.g. "H1") position
+  /**
+   * House tag ("H1" .. "H12") position.
+   *
+   * Every tag sits at the midpoint of its house's outer edge, 16px in - so the
+   * twelve of them form one clean ring around the perimeter instead of
+   * scattering (the kendras used to sit near the centre while the triangles sat
+   * on the border, which is what made the chart look noisy).
+   */
   const houseLabelPositions: Record<number, { x: number; y: number }> = {
-    1: { x: 300, y: 270 },
-    2: { x: 150, y: 18 },
-    3: { x: 18, y: 150 },
-    4: { x: 270, y: 300 },
-    5: { x: 18, y: 450 },
-    6: { x: 150, y: 585 },
-    7: { x: 300, y: 330 },
-    8: { x: 450, y: 585 },
-    9: { x: 582, y: 450 },
-    10: { x: 330, y: 300 },
-    11: { x: 582, y: 150 },
-    12: { x: 450, y: 18 },
+    1: { x: 300, y: 16 },
+    2: { x: 150, y: 16 },
+    3: { x: 16, y: 150 },
+    4: { x: 16, y: 300 },
+    5: { x: 16, y: 450 },
+    6: { x: 150, y: 584 },
+    7: { x: 300, y: 584 },
+    8: { x: 450, y: 584 },
+    9: { x: 584, y: 450 },
+    10: { x: 584, y: 300 },
+    11: { x: 584, y: 150 },
+    12: { x: 450, y: 16 },
   };
 
   /**
@@ -409,7 +416,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
         const labelPos = houseLabelPositions[h];
         const occupants = planetsByHouse[h] || [];
         const positions = getPlanetPositions(h, occupants.length);
-        const planetFontSize = occupants.length >= 7 ? 12 : occupants.length >= 5 ? 13.5 : occupants.length >= 3 ? 15 : occupants.length === 2 ? 16 : 18;
+        const planetFontSize = occupants.length >= 7 ? 11 : occupants.length >= 5 ? 12.5 : occupants.length >= 3 ? 14 : occupants.length === 2 ? 15 : 17;
 
         return (
           <g key={`content-${h}`} clipPath={`url(#clip-ni-h-${h})`}>
@@ -420,11 +427,11 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
               textAnchor="middle"
               dominantBaseline="central"
               fontFamily="Georgia, Cambria, serif"
-              fontSize={16}
-              fontWeight="700"
-              fill="#334155"
+              fontSize={14}
+              fontWeight="600"
+              fill="#64748B"
               stroke="#FFFFFF"
-              strokeWidth={3}
+              strokeWidth={2.5}
               paintOrder="stroke fill"
             >
               {rashi}
@@ -437,9 +444,10 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
               textAnchor="middle"
               dominantBaseline="central"
               fontFamily="ui-monospace, monospace"
-              fontSize={11}
-              fontWeight="700"
-              fill="#64748B"
+              fontSize={9}
+              fontWeight="600"
+              letterSpacing="0.4"
+              fill="#94A3B8"
               stroke="#FFFFFF"
               strokeWidth={2}
               paintOrder="stroke fill"
@@ -449,31 +457,22 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
 
             {/* Lagna Tag in House 1 - High Visibility Ruby Badge */}
             {h === 1 && (
-              <g>
-                <rect
-                  x={190}
-                  y={34}
-                  width={220}
-                  height={28}
-                  rx={14}
-                  fill="#FEF2F2"
-                  stroke="#DC2626"
-                  strokeWidth={1.8}
-                  filter="url(#badge-shadow)"
-                />
-                <text
-                  x={300}
-                  y={48}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fontFamily="system-ui, -apple-system, sans-serif"
-                  fontSize={12.5}
-                  fontWeight="800"
-                  fill="#991B1B"
-                >
-                  Lagna (Asc) {lagnaDegreeStr ? `• ${lagnaDegreeStr.split(' ')[0]}` : ''}
-                </text>
-              </g>
+              <text
+                x={300}
+                y={78}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontFamily="ui-monospace, monospace"
+                fontSize={10}
+                fontWeight="700"
+                letterSpacing="0.6"
+                fill="#B91C1C"
+                stroke="#FFFFFF"
+                strokeWidth={2.5}
+                paintOrder="stroke fill"
+              >
+                {lagnaDegreeStr ? `ASC ${lagnaDegreeStr.split(' ')[0]}` : 'ASC'}
+              </text>
             )}
 
             {/* Render Planets - High Contrast, Bold, Sized for Ultra-Readability */}
@@ -491,22 +490,22 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
                     dominantBaseline="central"
                     fontFamily="system-ui, -apple-system, sans-serif"
                     fontSize={planetFontSize}
-                    fontWeight="800"
+                    fontWeight="700"
                     fill={planetFill}
                     stroke="#FFFFFF"
-                    strokeWidth={3.5}
+                    strokeWidth={2.5}
                     strokeLinejoin="round"
                     paintOrder="stroke fill"
                   >
                     {p.label}
                     {p.isRetro && (
-                      <tspan fill="#DC2626" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
-                        {' '}(R)
+                      <tspan fill="#DC2626" fontWeight="700" fontSize={Math.max(8, planetFontSize - 5)} dy="-4">
+                        {'R'}
                       </tspan>
                     )}
                     {p.isComb && (
-                      <tspan fill="#D97706" fontWeight="900" fontSize={Math.max(10, planetFontSize - 2.5)}>
-                        {' '}(C)
+                      <tspan fill="#D97706" fontWeight="700" fontSize={Math.max(8, planetFontSize - 5)} dy="-4">
+                        {'C'}
                       </tspan>
                     )}
                     {showDegrees && p.degreeStr && (
