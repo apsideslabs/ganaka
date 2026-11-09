@@ -26,15 +26,30 @@ jobs:
         with:
           node-version: 20
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install astronomy tooling
+        run: pip install --quiet pymeeus==0.5.12 ephem
+
       - name: Apply source fixes
         run: python3 scripts/fix-sources.py
+
+      - name: Generate VSOP87 tables for Venus
+        run: python3 scripts/gen-vsop87-venus.py
+
+      - name: Point Venus at VSOP87
+        run: python3 scripts/fix-venus.py
+
+      - name: Verify Venus against PyEphem
+        run: python3 scripts/check-venus.py
 
       - name: Download GeoNames dumps
         run: |
           mkdir -p /tmp/gn && cd /tmp/gn
           base=https://download.geonames.org/export/dump
           for f in cities5000 cities1000 cities500 IN; do
-            echo "fetching $f.zip"
             curl -sSL --retry 3 --max-time 400 -o $f.zip $base/$f.zip
             unzip -oq $f.zip
           done
@@ -66,7 +81,7 @@ jobs:
           console.log(stats);
           "
 
-      - name: Commit source fixes and stats
+      - name: Commit source fixes, tables and stats
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -74,7 +89,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes to commit"
           else
-            git commit -m "chore: apply source corrections and refresh place stats"
+            git commit -m "chore: regenerate VSOP87 tables and place stats"
             git push
           fi
 
@@ -104,7 +119,7 @@ jobs:
           fi
           tail -20 build.log
 
-      - name: Verify no nondeterminism remains
+      - name: Assert determinism
         run: |
           if grep -rn "Math.random" lib/ --include='*.ts' | grep -v '//'; then
             echo "::error::Math.random still present in lib/"
