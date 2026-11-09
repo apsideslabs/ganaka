@@ -28,8 +28,19 @@ interface IndexFile {
 }
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
-const INDEX_URL = `${BASE_PATH}/data/cities.json`;
-const SHARD_URL = (letter: string) => `${BASE_PATH}/data/in/${letter}.json`;
+
+/**
+ * The place data is fetched with force-cache so it is not re-downloaded on
+ * every keystroke, but that also means a browser keeps an old copy after a
+ * deploy - which is how users went on seeing a stale index with empty state
+ * names long after the data had been rebuilt. Stamping each build's id onto the
+ * URL makes every deploy a different URL, so the cache is bypassed exactly once.
+ */
+const BUILD_ID = process.env.NEXT_PUBLIC_BUILD_ID || '';
+const V = BUILD_ID ? `?v=${encodeURIComponent(BUILD_ID)}` : '';
+
+const INDEX_URL = `${BASE_PATH}/data/cities.json${V}`;
+const SHARD_URL = (letter: string) => `${BASE_PATH}/data/in/${letter}.json${V}`;
 
 let records: LocationInfo[] = [];
 let keys: string[] = [];
