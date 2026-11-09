@@ -397,8 +397,10 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                 className="text-[11.5px] font-serif font-bold"
               >
                 {RASHI_DATA[rashiNum].bengali}
-                <tspan className="text-[10px] font-sans font-medium fill-[#94A3B8]"> · </tspan>
-                <tspan className="text-[10.5px] font-mono font-semibold fill-[#94A3B8]">
+                <tspan className="text-[11px] font-sans font-semibold fill-[#CFC6B8]"> · </tspan>
+                <tspan className="text-[14px] font-serif font-bold fill-[#334155]">{rashiNum}</tspan>
+                <tspan className="text-[11px] font-sans font-semibold fill-[#CFC6B8]"> · </tspan>
+                <tspan className="text-[11px] font-mono font-bold fill-[#8A8175]">
                   H{houseNum}
                 </tspan>
                 {isLagna && (
