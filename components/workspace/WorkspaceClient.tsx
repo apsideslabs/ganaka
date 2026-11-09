@@ -546,7 +546,7 @@ export const WorkspaceClient: React.FC = () => {
           timezoneName: loc.timezoneName || 'IST',
         } as CityLocation;
       });
-      setLocationQuery(loc.name || '');
+      setLocationQuery(formatPlace(loc as any));
     },
     []
   );
@@ -612,7 +612,7 @@ export const WorkspaceClient: React.FC = () => {
         timezoneName: loc.timezoneName || 'UTC+5.5',
       };
     setSelectedCity(matchingCity);
-    setLocationQuery(matchingCity.name);
+    setLocationQuery(formatPlace(matchingCity));
     setTimeout(() => {
       setIsApplyingLocation(false);
     }, 500);
