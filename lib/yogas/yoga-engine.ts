@@ -1016,19 +1016,29 @@ export const CLASSICAL_YOGA_REGISTRY: YogaDefinition[] = [
       if (planetsIn2nd.length === 0 && planetsIn12th.length === 0) {
         // Classical cancellation check (Kemadruma-Bhaṅga):
         // If planets are in Kendra from Moon or Lagna, the malefic effect is cancelled (BPHS 37:14)
+        // Kemadruma-Bhanga (BPHS 37.14): a planet in a kendra from the Moon OR
+        // from the Lagna cancels the affliction. Only the Moon branch was
+        // tested before, so a chart relieved solely via the Lagna was reported
+        // as uncancelled.
         const planetsInKendraFromMoon = FIVE_TARA_GRAHAS.filter((p) => {
           const relH = getRelativeHouse(moon.house, ctx.planets[p]?.house);
           return isKendra(relH);
         });
+        const planetsInKendraFromLagna = FIVE_TARA_GRAHAS.filter(
+          (p) => ctx.planets[p] && isKendra(ctx.planets[p].house)
+        );
+        const cancellingPlanets = [
+          ...new Set([...planetsInKendraFromMoon, ...planetsInKendraFromLagna]),
+        ];
 
-        if (planetsInKendraFromMoon.length > 0) {
+        if (cancellingPlanets.length > 0) {
           return {
             isPresent: true,
             conditionsMet: [
               'No planets in 2nd or 12th from Moon',
-              `Cancelled (Kemadruma-Bhaṅga) by presence of ${planetsInKendraFromMoon.join(', ')} in Kendra from Moon`,
+              `Cancelled (Kemadruma-Bhaṅga) by ${cancellingPlanets.join(', ')} in a Kendra from the Moon or Lagna`,
             ],
-            involvedPlanets: ['moon', ...planetsInKendraFromMoon],
+            involvedPlanets: ['moon', ...cancellingPlanets],
             strengthRating: 'Cancelled',
           };
         }
