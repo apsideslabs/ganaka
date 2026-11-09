@@ -107,11 +107,38 @@ patch(
     anchor="import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';",
 )
 
-# --- 6. Home page metadata still advertises the old city count -------------
+# --- 6. Strip location counts from user-facing text ------------------------
+# How many places the database holds is an implementation detail, not something
+# a visitor needs to read. Feature counts ("21 Mahādoṣa", "36-point") stay:
+# those describe what the engine does, not how many rows it happens to have.
 patch(
     'app/page.tsx',
-    [('High-precision astronomical calculation engine, authentic Parāśari & Jaimini mechanics, 220+ verified Indian cities, and auditable classical manuscripts.',
-      'High-precision astronomical calculation engine with VSOP87 ephemerides, authentic Parāśari & Jaimini mechanics, 70,000 towns and 550,000 Indian places, and auditable classical manuscripts.')],
+    [
+        ('High-precision astronomical calculation engine with VSOP87 ephemerides, authentic Parāśari & Jaimini mechanics, 70,000 towns and 550,000 Indian places, and auditable classical manuscripts.',
+         'High-precision astronomical calculation engine with VSOP87 ephemerides, authentic Parāśari & Jaimini mechanics, and auditable classical manuscripts.'),
+        ('High-precision astronomical calculation engine, authentic Parāśari & Jaimini mechanics, 220+ verified Indian cities, and auditable classical manuscripts.',
+         'High-precision astronomical calculation engine with VSOP87 ephemerides, authentic Parāśari & Jaimini mechanics, and auditable classical manuscripts.'),
+    ],
+)
+
+patch(
+    'components/panchanga/PanchangaHeader.tsx',
+    [('placeholder="Search 760 verified cities, tīrthas & global locations..."',
+      'placeholder="Search cities, tīrthas & locations..."')],
+)
+
+patch(
+    'components/workspace/WorkspaceClient.tsx',
+    [('<span>Location (220+ Verified Indian &amp; Global Cities)</span>', '<span>Location</span>'),
+     ('{/* Location Autocomplete (220+ Cities) */}', '{/* Location Autocomplete */}'),
+     (' * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,',
+      ' * High-precision classical mechanics, dual chart views,')],
+)
+
+patch(
+    'components/settings/PlatformSettingsDialog.tsx',
+    [('                    <span className="text-[10px] font-normal text-slate-500">400+ Cities</span>\n', ''),
+     ('{/* City Search Bar across 400+ cities */}', '{/* City Search Bar */}')],
 )
 
 print('changed:', changed or 'none')
