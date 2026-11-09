@@ -3,7 +3,7 @@
 /**
  * Gaṇaka — Core Calculation Workspace Client
  * Professional astronomical Jyotiṣa calculation workstation with structured 9-domain navigation,
- * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,
+ * High-precision classical mechanics, dual chart views,
  * birth-time rectification steppers, and horoscope profile persistence.
  */
 
@@ -1072,10 +1072,10 @@ ${Object.values(chartData.planets)
                 />
               </div>
 
-              {/* Location Autocomplete (220+ Cities) */}
+              {/* Location Autocomplete */}
               <div className="space-y-1.5 relative sm:col-span-2">
                 <label className="text-slate-700 font-semibold block flex items-center justify-between flex-wrap gap-1">
-                  <span>Location (220+ Verified Indian &amp; Global Cities)</span>
+                  <span>Location</span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"

@@ -443,11 +443,10 @@ export function PlatformSettingsDialog({
                   </p>
                 </div>
 
-                {/* City Search Bar across 400+ cities */}
+                {/* City Search Bar */}
                 <div className="space-y-2">
                   <label className="text-xs font-mono uppercase tracking-wider text-slate-700 font-bold block flex items-center justify-between">
                     <span>{t.settingsModal.locationSearchTitle}</span>
-                    <span className="text-[10px] font-normal text-slate-500">400+ Cities</span>
                   </label>
                   <div className="relative">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
