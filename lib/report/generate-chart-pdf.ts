@@ -12,7 +12,7 @@
  */
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { JyotishaChart } from '@/lib/jyotisha/types';
+type JyotishaChart = any;
 
 const PAGE = { w: 210, h: 297 };
 const M = 13;
@@ -436,6 +436,85 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       head: [['Yoga', 'Category']],
       body: yogas.map((y) => [A(y.name), A(y.category || y.type || '-')]),
       styles: { fontSize: 7.4, cellPadding: 1.5, textColor: INK },
+      headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
+      theme: 'grid',
+    });
+    ctx.y = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  // ---------------- Doshas ----------------
+  const evaluated: any[] = (chart as any).doshas?.evaluatedDoshas || [];
+  if (evaluated.length) {
+    newPage(ctx, 'Doshas');
+    sectionTitle(ctx, 'Doshas & Arista');
+    autoTable(doc, {
+      startY: ctx.y,
+      margin: { left: M, right: M },
+      head: [['Dosha', 'Category', 'Status', 'Severity']],
+      body: evaluated.map((d) => [
+        A(d.name), A(d.category), A(d.formationStatus), A(d.severity),
+      ]),
+      styles: { fontSize: 7, cellPadding: 1.3, textColor: INK },
+      headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: '#FCFAF6' },
+      theme: 'grid',
+    });
+    ctx.y = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  // ---------------- Jaimini ----------------
+  const jm: any = (chart as any).jaimini || {};
+  if (jm.charaKarakas?.length || jm.arudhaPadas?.length) {
+    newPage(ctx, 'Jaimini');
+    if (jm.charaKarakas?.length) {
+      sectionTitle(ctx, 'Chara Karakas');
+      autoTable(doc, {
+        startY: ctx.y,
+        margin: { left: M, right: M },
+        head: [['Karaka', 'Graha', 'Degrees']],
+        body: jm.charaKarakas.map((k: any) => [
+          A(`${k.karakaKey} - ${k.karakaName}`), A(k.planetName),
+          typeof k.degrees === 'number' ? k.degrees.toFixed(4) : '-',
+        ]),
+        styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
+        headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
+        theme: 'grid',
+      });
+      ctx.y = (doc as any).lastAutoTable.finalY + 8;
+    }
+    if (jm.arudhaPadas?.length) {
+      sectionTitle(ctx, 'Arudha Padas');
+      autoTable(doc, {
+        startY: ctx.y,
+        margin: { left: M, right: M },
+        head: [['House', 'Pada', 'Rashi']],
+        body: jm.arudhaPadas.map((a: any) => [
+          String(a.house), A(a.name), RASHI[a.rashiNumber - 1] || '-',
+        ]),
+        styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
+        headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
+        theme: 'grid',
+      });
+      ctx.y = (doc as any).lastAutoTable.finalY + 8;
+    }
+  }
+
+  // ---------------- Sphutas & special points ----------------
+  const sp: any = (chart as any).specialPoints || {};
+  const spKeys = ['gulika', 'mandi', 'dhooma', 'vyatipata', 'parivesha', 'indrachapa',
+    'upaketu', 'bhavaLagna', 'horaLagna', 'ghatiLagna', 'shreeLagna', 'induLagna'];
+  const spRows = spKeys
+    .filter((k) => sp[k] && typeof sp[k].rashi === 'number')
+    .map((k) => [k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()),
+      RASHI[sp[k].rashi - 1], sp[k].degreeStr || '-']);
+  if (spRows.length) {
+    sectionTitle(ctx, 'Sphutas & Upagrahas');
+    autoTable(doc, {
+      startY: ctx.y,
+      margin: { left: M, right: M },
+      head: [['Point', 'Rashi', 'Degree']],
+      body: spRows,
+      styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
       theme: 'grid',
     });
