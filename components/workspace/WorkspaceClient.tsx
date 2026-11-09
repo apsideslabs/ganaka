@@ -11,6 +11,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';
 import { useCitySearch } from '../../hooks/use-city-search';
+import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
@@ -1156,7 +1157,7 @@ ${Object.values(chartData.planets)
                         key={idx}
                         onClick={() => {
                           setSelectedCity(loc);
-                          setLocationQuery(loc.name);
+                          setLocationQuery(formatPlace(loc));
                           setShowLocationDropdown(false);
                         }}
                         className="px-4 py-2.5 text-xs hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors"
@@ -1164,11 +1165,11 @@ ${Object.values(chartData.planets)
                         <div>
                           <span className="font-semibold text-slate-900">{loc.name}</span>
                           <span className="text-slate-500 text-[11px] block font-mono">
-                            {loc.stateOrRegion ? `${loc.stateOrRegion}, ` : ''}{loc.country} • Lat: {loc.latitude}°, Lon: {loc.longitude}°
+                            {formatPlaceRegion(loc)} • {loc.latitude.toFixed(2)}°, {loc.longitude.toFixed(2)}°
                           </span>
                         </div>
                         <span className="font-mono text-xs font-semibold text-[#8C2D19]">
-                          UTC{loc.timezoneOffsetHours >= 0 ? `+${loc.timezoneOffsetHours}` : loc.timezoneOffsetHours}
+                          {formatUtcOffset(loc.timezoneOffsetHours)}
                         </span>
                       </div>
                     ))}
