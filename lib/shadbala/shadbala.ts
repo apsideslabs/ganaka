@@ -75,7 +75,20 @@ export function calculateShadbala(
     // 1.3 Drekkana & Ojayugma Bala
     const ojayugmaBala = (pRashi % 2 === 1 && prop.gender === 'Male') || (pRashi % 2 === 0 && prop.gender === 'Female') ? 30.0 : 15.0;
 
-    const sthanaBala = ucchaBala + kendradiBala + ojayugmaBala + 45.0; // sum of positional sub-balas
+    // 1.4 Drekkāṇa Bala (BPHS 27.20): 15 virūpas when the planet occupies a
+    // drekkāṇa of its own gender - male, female, neuter for the 1st, 2nd and
+    // 3rd ten degrees.
+    const drekkanaPart = Math.floor((pos.siderealLongitude % 30) / 10);
+    const drekkanaGender = ['Male', 'Female', 'Neuter'][drekkanaPart];
+    const drekkanaBala = prop.gender === drekkanaGender ? 15.0 : 0.0;
+
+    // 1.5 Saptavargaja Bala (BPHS 27.6-27.19) is not implemented. It
+    // contributes 0 rather than a fabricated constant, so totals read low
+    // rather than plausible-but-invented.
+    const saptavargajaBala = 0.0;
+
+    const sthanaBala =
+      ucchaBala + kendradiBala + ojayugmaBala + drekkanaBala + saptavargajaBala;
 
     // 2. DIG BALA (Directional Strength)
     // Directional ideals:
@@ -111,7 +124,9 @@ export function calculateShadbala(
     const pakshaVirupas = (moonSunDiff / 180.0) * 60.0;
     let pakshaBala = ['jupiter', 'venus', 'moon'].includes(pId) ? pakshaVirupas : 60 - pakshaVirupas;
 
-    const kalaBala = natonnataBala + pakshaBala + 30.0;
+    // NOTE: Tribhāga, Varṣa, Māsa, Dina and Horā bala (BPHS 27.24-27.33) are
+    // not implemented; they are omitted rather than approximated.
+    const kalaBala = natonnataBala + pakshaBala;
 
     // 4. CEṢṬĀ BALA (Motional / Retrograde Strength)
     let chestaBala = 30.0;
@@ -127,8 +142,39 @@ export function calculateShadbala(
     const naisargikaBala = NAISARGIKA_BALA_VIRUPAS[pId] || 20.0;
 
     // 6. DṚG BALA (Aspectual Strength)
-    // Simplified aspectual summation
-    const drigBala = 15.0 + Math.random() * 5.0; // normalized positive aspect balance
+    // Parāśari whole-sign dṛṣṭi, per BPHS ch. 26: every graha aspects the 7th
+    // sign from itself; Mars also aspects the 4th and 8th, Jupiter the 5th and
+    // 9th, Saturn the 3rd and 10th. Each aspect is worth 60 virūpas; benefics
+    // add, malefics subtract, and the balance is divided by 4 as BPHS
+    // prescribes. Fully deterministic - this previously used Math.random(),
+    // which made every strength figure irreproducible.
+    const ASPECT_HOUSES: Record<string, number[]> = {
+      sun: [7],
+      moon: [7],
+      mercury: [7],
+      venus: [7],
+      mars: [4, 7, 8],
+      jupiter: [5, 7, 9],
+      saturn: [3, 7, 10],
+    };
+    // Jupiter and Venus are always benefic; Mercury and the Moon are benefic
+    // when unafflicted, and the Moon additionally only while waxing.
+    const moonWaxing = moonSunDiff <= 180;
+    let drishtiSum = 0;
+    for (const other of grahas) {
+      if (other === pId) continue;
+      const otherRashi = Math.floor(planetaryPositions[other].siderealLongitude / 30) + 1;
+      const houseFromOther = (((pRashi - otherRashi + 12) % 12) + 1);
+      if ((ASPECT_HOUSES[other] || [7]).includes(houseFromOther)) {
+        const benefic =
+          other === 'jupiter' ||
+          other === 'venus' ||
+          other === 'mercury' ||
+          (other === 'moon' && moonWaxing);
+        drishtiSum += benefic ? 60 : -60;
+      }
+    }
+    const drigBala = Math.max(-60, Math.min(60, drishtiSum / 4));
 
     const totalVirupas = sthanaBala + digBala + kalaBala + chestaBala + naisargikaBala + drigBala;
     const totalRupas = totalVirupas / 60.0;
