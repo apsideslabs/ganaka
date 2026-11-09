@@ -440,7 +440,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
                 strokeWidth={2.5}
                 paintOrder="stroke fill"
               >
-                {lagnaDegreeStr ? `ASC ${lagnaDegreeStr.split(' ')[0]}` : 'ASC'}
+                {lagnaDegreeStr ? `ASC ${lagnaDegreeStr.split('°')[0]}°` : 'ASC'}
               </text>
             )}
 
