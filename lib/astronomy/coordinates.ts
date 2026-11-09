@@ -1,6 +1,7 @@
 /**
  * Gaṇaka — Geographical Coordinates & Comprehensive Indian / Global Locations Database
- * 400+ Verified Indian cities, Assam towns & pilgrimage tirthas, state capitals, and world reference hubs.
+ * A curated set of Indian cities, Assam towns & pilgrimage tirthas, plus world
+ * hubs. Backed at runtime by a full GeoNames-derived index (city-index.ts).
  */
 
 export interface LocationInfo {
@@ -15,6 +16,8 @@ export interface LocationInfo {
 }
 
 export type CityLocation = LocationInfo;
+
+import { searchIndexedCities } from './city-index';
 
 export const FAMOUS_HISTORICAL_CHARTS = [
   {
@@ -910,6 +913,8 @@ export const CITIES_DATABASE: LocationInfo[] = [
 export function searchLocations(query: string): LocationInfo[] {
   if (!query || query.trim().length === 0) return CITIES_DATABASE.slice(0, 15);
   const q = query.toLowerCase().trim();
+  const indexed = searchIndexedCities(q, 40);
+  if (indexed.length > 0) return indexed;
   return CITIES_DATABASE.filter(
     (c) =>
       c.name.toLowerCase().includes(q) ||
