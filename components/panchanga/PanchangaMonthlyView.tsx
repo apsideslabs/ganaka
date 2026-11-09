@@ -18,6 +18,7 @@ import {
   ChevronRight,
   FileSpreadsheet,
 } from 'lucide-react';
+import { formatPlace } from '@/lib/format-place';
 
 interface PanchangaMonthlyViewProps {
   selectedDate: Date;
@@ -132,7 +133,7 @@ export function PanchangaMonthlyView({
             Monthly Pañcāṅga — {monthName}
           </h2>
           <p className="text-xs font-serif text-slate-500 mt-0.5">
-            Complete month-level ledger of daily limbs, solar coordinates, and sacred Parvas for {selectedCity.name}
+            Complete month-level ledger of daily limbs, solar coordinates, and sacred Parvas for {formatPlace(selectedCity)}
           </p>
         </div>
 
