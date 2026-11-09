@@ -252,7 +252,7 @@ export function MatchingWorkspaceClient() {
                     >
                       <span className="font-semibold text-stone-800">{c.name}</span>
                       <span className="text-[10px] font-mono text-stone-500">
-                        {formatPlaceRegion({ name: c.name, stateOrRegion: c.state, country: c.country })}
+                        {formatPlaceRegion(c)}
                       </span>
                     </button>
                   ))}
@@ -328,7 +328,7 @@ export function MatchingWorkspaceClient() {
                       className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 flex items-center justify-between"
                     >
                       <span className="font-semibold text-stone-800">{c.name}</span>
-                      <span className="text-[10px] font-mono text-stone-500">{c.state || c.country}</span>
+                      <span className="text-[10px] font-mono text-stone-500">{formatPlaceRegion(c)}</span>
                     </button>
                   ))}
                 </div>
