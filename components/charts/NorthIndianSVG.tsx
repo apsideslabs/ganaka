@@ -55,17 +55,17 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
    */
   const houseLabelPositions: Record<number, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
     1: { x: 300, y: 46, anchor: 'middle' },
-    2: { x: 150, y: 16, anchor: 'middle' },
-    3: { x: 14, y: 60, anchor: 'start' },
+    2: { x: 150, y: 26, anchor: 'middle' },
+    3: { x: 20, y: 60, anchor: 'start' },
     4: { x: 24, y: 300, anchor: 'start' },
-    5: { x: 14, y: 540, anchor: 'start' },
-    6: { x: 150, y: 584, anchor: 'middle' },
+    5: { x: 20, y: 540, anchor: 'start' },
+    6: { x: 150, y: 572, anchor: 'middle' },
     7: { x: 300, y: 570, anchor: 'middle' },
-    8: { x: 450, y: 584, anchor: 'middle' },
-    9: { x: 586, y: 540, anchor: 'end' },
+    8: { x: 450, y: 572, anchor: 'middle' },
+    9: { x: 580, y: 540, anchor: 'end' },
     10: { x: 576, y: 300, anchor: 'end' },
-    11: { x: 586, y: 60, anchor: 'end' },
-    12: { x: 450, y: 16, anchor: 'middle' },
+    11: { x: 580, y: 60, anchor: 'end' },
+    12: { x: 450, y: 26, anchor: 'middle' },
   };
 
   /**
@@ -182,37 +182,37 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
     // --- 2. Top Triangle Houses (2 & 12) ---
     // Wide horizontal base along top (y=0 to y=60). Apex at (150, 150) or (450, 150).
     if (house === 2) {
-      if (count === 1) return [{ x: 150, y: 65 }];
-      if (count === 2) return [{ x: 150, y: 50 }, { x: 150, y: 85 }];
-      if (count === 3) return [{ x: 100, y: 50 }, { x: 150, y: 65 }, { x: 200, y: 50 }];
+      if (count === 1) return [{ x: 150, y: 73 }];
+      if (count === 2) return [{ x: 150, y: 58 }, { x: 150, y: 93 }];
+      if (count === 3) return [{ x: 100, y: 58 }, { x: 150, y: 73 }, { x: 200, y: 58 }];
       if (count === 4) {
         return [
-          { x: 100, y: 45 }, { x: 200, y: 45 },
-          { x: 125, y: 80 }, { x: 175, y: 80 },
+          { x: 100, y: 53 }, { x: 200, y: 53 },
+          { x: 125, y: 88 }, { x: 175, y: 88 },
         ];
       }
       // 5 to 9 planets: row along wide top edge, then middle, then apex
       return [
-        { x: 75, y: 40 }, { x: 150, y: 40 }, { x: 225, y: 40 },
-        { x: 105, y: 70 }, { x: 150, y: 70 }, { x: 195, y: 70 },
-        { x: 125, y: 100 }, { x: 150, y: 100 }, { x: 175, y: 100 },
+        { x: 75, y: 48 }, { x: 150, y: 48 }, { x: 225, y: 48 },
+        { x: 105, y: 78 }, { x: 150, y: 78 }, { x: 195, y: 78 },
+        { x: 125, y: 108 }, { x: 150, y: 108 }, { x: 175, y: 108 },
       ].slice(0, count);
     }
 
     if (house === 12) {
-      if (count === 1) return [{ x: 450, y: 65 }];
-      if (count === 2) return [{ x: 450, y: 50 }, { x: 450, y: 85 }];
-      if (count === 3) return [{ x: 400, y: 50 }, { x: 450, y: 65 }, { x: 500, y: 50 }];
+      if (count === 1) return [{ x: 450, y: 73 }];
+      if (count === 2) return [{ x: 450, y: 58 }, { x: 450, y: 93 }];
+      if (count === 3) return [{ x: 400, y: 58 }, { x: 450, y: 73 }, { x: 500, y: 58 }];
       if (count === 4) {
         return [
-          { x: 400, y: 45 }, { x: 500, y: 45 },
-          { x: 425, y: 80 }, { x: 475, y: 80 },
+          { x: 400, y: 53 }, { x: 500, y: 53 },
+          { x: 425, y: 88 }, { x: 475, y: 88 },
         ];
       }
       return [
-        { x: 375, y: 40 }, { x: 450, y: 40 }, { x: 525, y: 40 },
-        { x: 405, y: 70 }, { x: 450, y: 70 }, { x: 495, y: 70 },
-        { x: 425, y: 100 }, { x: 450, y: 100 }, { x: 475, y: 100 },
+        { x: 375, y: 48 }, { x: 450, y: 48 }, { x: 525, y: 48 },
+        { x: 405, y: 78 }, { x: 450, y: 78 }, { x: 495, y: 78 },
+        { x: 425, y: 108 }, { x: 450, y: 108 }, { x: 475, y: 108 },
       ].slice(0, count);
     }
 
@@ -255,36 +255,36 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
     // --- 4. Bottom Triangle Houses (6 & 8) ---
     // Wide horizontal base along bottom (y=540 to y=600). Apex at (150, 450) or (450, 450).
     if (house === 6) {
-      if (count === 1) return [{ x: 150, y: 535 }];
-      if (count === 2) return [{ x: 150, y: 515 }, { x: 150, y: 550 }];
-      if (count === 3) return [{ x: 100, y: 550 }, { x: 150, y: 535 }, { x: 200, y: 550 }];
+      if (count === 1) return [{ x: 150, y: 529 }];
+      if (count === 2) return [{ x: 150, y: 509 }, { x: 150, y: 544 }];
+      if (count === 3) return [{ x: 100, y: 544 }, { x: 150, y: 529 }, { x: 200, y: 544 }];
       if (count === 4) {
         return [
-          { x: 125, y: 520 }, { x: 175, y: 520 },
-          { x: 100, y: 555 }, { x: 200, y: 555 },
+          { x: 125, y: 514 }, { x: 175, y: 514 },
+          { x: 100, y: 549 }, { x: 200, y: 549 },
         ];
       }
       return [
-        { x: 125, y: 500 }, { x: 150, y: 500 }, { x: 175, y: 500 },
-        { x: 105, y: 530 }, { x: 150, y: 530 }, { x: 195, y: 530 },
-        { x: 75, y: 560 }, { x: 150, y: 560 }, { x: 225, y: 560 },
+        { x: 125, y: 494 }, { x: 150, y: 494 }, { x: 175, y: 494 },
+        { x: 105, y: 524 }, { x: 150, y: 524 }, { x: 195, y: 524 },
+        { x: 75, y: 554 }, { x: 150, y: 554 }, { x: 225, y: 554 },
       ].slice(0, count);
     }
 
     if (house === 8) {
-      if (count === 1) return [{ x: 450, y: 535 }];
-      if (count === 2) return [{ x: 450, y: 515 }, { x: 450, y: 550 }];
-      if (count === 3) return [{ x: 400, y: 550 }, { x: 450, y: 535 }, { x: 500, y: 550 }];
+      if (count === 1) return [{ x: 450, y: 529 }];
+      if (count === 2) return [{ x: 450, y: 509 }, { x: 450, y: 544 }];
+      if (count === 3) return [{ x: 400, y: 544 }, { x: 450, y: 529 }, { x: 500, y: 544 }];
       if (count === 4) {
         return [
-          { x: 425, y: 520 }, { x: 475, y: 520 },
-          { x: 400, y: 555 }, { x: 500, y: 555 },
+          { x: 425, y: 514 }, { x: 475, y: 514 },
+          { x: 400, y: 549 }, { x: 500, y: 549 },
         ];
       }
       return [
-        { x: 425, y: 500 }, { x: 450, y: 500 }, { x: 475, y: 500 },
-        { x: 405, y: 530 }, { x: 450, y: 530 }, { x: 495, y: 530 },
-        { x: 375, y: 560 }, { x: 450, y: 560 }, { x: 525, y: 560 },
+        { x: 425, y: 494 }, { x: 450, y: 494 }, { x: 475, y: 494 },
+        { x: 405, y: 524 }, { x: 450, y: 524 }, { x: 495, y: 524 },
+        { x: 375, y: 554 }, { x: 450, y: 554 }, { x: 525, y: 554 },
       ].slice(0, count);
     }
 
