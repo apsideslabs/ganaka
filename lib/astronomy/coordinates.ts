@@ -1,3 +1,4 @@
+import { searchIndexedCities } from './city-index';
 /**
  * Gaṇaka — Geographical Coordinates & Comprehensive Indian / Global Locations Database
  * A curated set of Indian cities, Assam towns & pilgrimage tirthas, plus world
@@ -16,10 +17,6 @@ export interface LocationInfo {
 }
 
 export type CityLocation = LocationInfo;
-
-import { searchIndexedCities } from './city-index';
-
-import { searchIndexedCities } from './city-index';
 
 export const FAMOUS_HISTORICAL_CHARTS = [
   {
