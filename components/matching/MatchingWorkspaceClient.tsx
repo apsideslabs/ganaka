@@ -18,6 +18,7 @@ import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
 import { MatchingTradition } from '@/lib/jyotisha/kuta/types';
 import { CITIES_DATABASE, searchLocations } from '@/lib/astronomy/coordinates';
 import { useCitySearch } from '@/hooks/use-city-search';
+import { formatPlaceRegion } from '@/lib/format-place';
 import { KutaCard } from './KutaCard';
 import { DeeperMatchingPanel } from './DeeperMatchingPanel';
 import { MatchingDiagram } from './MatchingDiagram';
@@ -250,7 +251,9 @@ export function MatchingWorkspaceClient() {
                       className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 flex items-center justify-between"
                     >
                       <span className="font-semibold text-stone-800">{c.name}</span>
-                      <span className="text-[10px] font-mono text-stone-500">{c.state || c.country}</span>
+                      <span className="text-[10px] font-mono text-stone-500">
+                        {formatPlaceRegion({ name: c.name, stateOrRegion: c.state, country: c.country })}
+                      </span>
                     </button>
                   ))}
                 </div>
