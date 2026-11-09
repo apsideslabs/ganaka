@@ -262,9 +262,13 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
             <span className="w-2 h-2 rounded-full bg-rose-600" /> Lagna
           </span>
           <span className="text-slate-300">•</span>
-          <span className="text-red-600 font-bold">(R) Retro</span>
+          <span className="text-red-600 font-bold">
+            <sup className="text-[9px] font-black">R</sup> Retrograde
+          </span>
           <span className="text-slate-300">•</span>
-          <span className="text-amber-600 font-bold">(C) Combust</span>
+          <span className="text-amber-600 font-bold">
+            <sup className="text-[9px] font-black">C</sup> Combust
+          </span>
         </div>
         <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
           {chartStyle === 'north' ? 'Diamond / Kendra' : chartStyle === 'south' ? 'Fixed 12 Rāśi' : 'Bengali / Mithila'}
