@@ -16,7 +16,7 @@
  *
  * Inputs (all optional except cities5000):
  *   cities5000.txt, cities1000.txt, cities500.txt, IN.txt,
- *   admin1CodesASCII.txt, countryInfo.txt, timeZones.txt
+ *   admin1CodesASCII.txt, admin2Codes.txt, countryInfo.txt, timeZones.txt
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -88,22 +88,29 @@ function cleanAlts(alternates, name, ascii, max = MAX_ALTS) {
   return out.join('|');
 }
 
-function rowFrom(c, admin1, countries, { withAlt }) {
+function rowFrom(c, admin1, admin2, countries, { withAlt }) {
   const lat = parseFloat(c[4]);
   const lon = parseFloat(c[5]);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
   const pop = parseInt(c[14], 10) || 0;
   const name = c[1];
   const ascii = c[2] || name;
+  // GeoNames admin codes are keyed by the full dotted path: admin1 is
+  // "IN.03", admin2 is "IN.03.324". Using the bare code returns nothing, which
+  // is why every place once had a blank state.
+  const stateName = admin1.get(`${c[8]}.${c[10]}`) || '';
+  const districtName = admin2.get(`${c[8]}.${c[10]}.${c[11]}`) || '';
+  // Fold the district in so same-named places can be told apart:
+  // "Baksa, Assam" against "Kamrup, Assam" rather than "Assam" twice.
+  const regionLabel =
+    districtName && stateName && districtName !== stateName
+      ? `${districtName}, ${stateName}`
+      : districtName || stateName;
   return {
     id: c[0],
     name,
     ascii,
-    // admin1CodesASCII keys are "IN.03" (country code + '.' + admin1 code), not
-    // the bare admin1 code, so the lookup needs both parts. Without this every
-    // place came out with an empty state, which made same-named places such as
-    // the two Jalahs in Assam indistinguishable in search.
-    state: admin1.get(`${c[8]}.${c[10]}`) || '',
+    state: regionLabel,
     country: countries.get(c[8]) || c[8],
     lat: Math.round(lat * 10000) / 10000,
     lon: Math.round(lon * 10000) / 10000,
@@ -113,7 +120,7 @@ function rowFrom(c, admin1, countries, { withAlt }) {
   };
 }
 
-function parseCities(txt, admin1, countries, onlyCountry, opts) {
+function parseCities(txt, admin1, admin2, countries, onlyCountry, opts) {
   const out = [];
   if (!txt) return out;
   for (const line of txt.split('\n')) {
@@ -121,14 +128,14 @@ function parseCities(txt, admin1, countries, onlyCountry, opts) {
     const c = line.split('\t');
     if (c.length < 18) continue;
     if (onlyCountry && c[8] !== onlyCountry) continue;
-    const r = rowFrom(c, admin1, countries, opts);
+    const r = rowFrom(c, admin1, admin2, countries, opts);
     if (r) out.push(r);
   }
   return out;
 }
 
 /** India country extract: keep populated places only (feature class P). */
-function parseCountryExtract(txt, admin1, countries) {
+function parseCountryExtract(txt, admin1, admin2, countries) {
   const out = [];
   if (!txt) return out;
   for (const line of txt.split('\n')) {
@@ -136,20 +143,21 @@ function parseCountryExtract(txt, admin1, countries) {
     const c = line.split('\t');
     if (c.length < 18) continue;
     if (c[6] !== 'P') continue;
-    const r = rowFrom(c, admin1, countries, { withAlt: true });
+    const r = rowFrom(c, admin1, admin2, countries, { withAlt: true });
     if (r) out.push(r);
   }
   return out;
 }
 
 const admin1 = parseAdmin1(read('admin1CodesASCII.txt'));
+const admin2 = parseAdmin1(read('admin2Codes.txt'));
 const countries = parseCountries(read('countryInfo.txt'));
 const tzOffsets = parseTimeZones(read('timeZones.txt'));
 
-const big = parseCities(read('cities5000.txt'), admin1, countries, null, { withAlt: true });
-const mid = parseCities(read('cities1000.txt'), admin1, countries, 'IN', { withAlt: true });
-const small = parseCities(read('cities500.txt'), admin1, countries, 'IN', { withAlt: true });
-const indiaFull = parseCountryExtract(read('IN.txt'), admin1, countries);
+const big = parseCities(read('cities5000.txt'), admin1, admin2, countries, null, { withAlt: true });
+const mid = parseCities(read('cities1000.txt'), admin1, admin2, countries, 'IN', { withAlt: true });
+const small = parseCities(read('cities500.txt'), admin1, admin2, countries, 'IN', { withAlt: true });
+const indiaFull = parseCountryExtract(read('IN.txt'), admin1, admin2, countries);
 
 if (big.length === 0) {
   console.warn('[cities] cities5000.txt missing; leaving existing index untouched');
@@ -238,7 +246,7 @@ fs.writeFileSync(
     'Place data in this directory is derived from GeoNames.',
     '',
     'Source: GeoNames (https://www.geonames.org/), files cities5000.zip, cities1000.zip,',
-    'cities500.zip, IN.zip, admin1CodesASCII.txt, countryInfo.txt and timeZones.txt,',
+    'cities500.zip, IN.zip, admin1CodesASCII.txt, admin2Codes.txt, countryInfo.txt and timeZones.txt,',
     'downloaded from https://download.geonames.org/export/dump/',
     '',
     'License: Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)',
