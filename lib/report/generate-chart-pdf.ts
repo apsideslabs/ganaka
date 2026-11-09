@@ -12,6 +12,7 @@
  */
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 type JyotishaChart = any;
 
 const PAGE = { w: 210, h: 297 };
@@ -261,6 +262,83 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     ['Sunset', pn?.sunTimes?.sunset || '-'],
     ['Paksha', pn?.tithi?.paksha || '-'],
   ]);
+
+  // ---------------- Avakahada Cakra ----------------
+  let av: any = null;
+  try {
+    av = calculateAvakahadaChakra(chart);
+  } catch (err) {
+    // Never swallow this quietly: a missing page is worse than a logged error.
+    console.warn('[report] Avakahada Cakra could not be built', err);
+  }
+
+  if (av) {
+    newPage(ctx, 'Avakahada Cakra');
+    sectionTitle(ctx, 'Avakahada Cakra - Birth Matrix');
+
+    kvGrid(ctx, [
+      ['Lagna', `${av.lagna.sanskritName} (${av.lagna.name}) ${av.lagna.degreeFormatted}`],
+      ['Lagna Lord', av.lagna.lordName],
+      ['Rashi (Moon)', `${av.rashi.name} ${av.rashi.degreeInRashi}`],
+      ['Rashi Lord', av.rashi.lordName],
+      ['Sun Sign', `${av.sunSign.name} ${av.sunSign.degreeInRashi}`],
+      ['Nakshatra', `${av.nakshatra.name} pada ${av.nakshatra.pada}`],
+      ['Nakshatra Lord', av.nakshatra.lordName],
+      ['Pada Lord', av.nakshatra.padaLordName],
+      ['Deity', av.nakshatra.deity],
+      ['Namakshara', av.namakshara.iast || av.namakshara.fullDisplay],
+    ]);
+
+    sectionTitle(ctx, 'Classical Classifications');
+    autoTable(doc, {
+      startY: ctx.y,
+      margin: { left: M, right: M },
+      head: [['Attribute', 'Value']],
+      body: [
+        ['Paya', `${A(av.paya.type)} - ${A(av.paya.metal)}`],
+        ['Varna', A(av.varna.type)],
+        ['Vashya', A(av.vashya.type)],
+        ['Yoni', `${A(av.yoni.animal)} (${A(av.yoni.gender)})`],
+        ['Gana', A(av.gana.type)],
+        ['Nadi', A(av.nadi.type)],
+        ['Rajju', A(av.rajju.type)],
+        ['Tattva', A(av.tattva.type)],
+        ['Vihaga', A(av.vihaga.bird)],
+        ['Vedha', A(av.vedha?.pairText || av.vedha?.afflictingNakshatraName || '-')],
+        ['Yunja', A(av.yunja.type)],
+        ['Gotra', A(av.gotra.rishi)],
+        ['Vriksha', A(av.vriksha.treeName)],
+      ],
+      styles: { fontSize: 7.6, cellPadding: 1.6, textColor: INK },
+      headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7.2, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: '#FCFAF6' },
+      columnStyles: { 0: { cellWidth: 45, fontStyle: 'bold' } },
+      theme: 'grid',
+    });
+    ctx.y = (doc as any).lastAutoTable.finalY + 8;
+
+    sectionTitle(ctx, 'Panchanga Limbs at Birth');
+    autoTable(doc, {
+      startY: ctx.y,
+      margin: { left: M, right: M },
+      head: [['Limb', 'Value']],
+      body: [
+        ['Tithi', `${A(av.panchanga.tithi.name)} (${av.panchanga.tithi.number}) - ${A(av.panchanga.tithi.paksha)}`],
+        ['Vara', `${A(av.panchanga.vara.name)} - lord ${A(av.panchanga.vara.lordName)}`],
+        ['Yoga', `${A(av.panchanga.yoga.name)} (${av.panchanga.yoga.number})`],
+        ['Karana', `${A(av.panchanga.karana.name)} (${av.panchanga.karana.number})`],
+        ['Ritu', A(av.panchanga.ritu.name)],
+        ['Masa', `${A(av.panchanga.masa.amanta)} / ${A(av.panchanga.masa.solarMonth)}`],
+        ['Samvatsara', `${A(av.panchanga.samvatsara.name)} (${av.panchanga.samvatsara.number})`],
+      ],
+      styles: { fontSize: 7.6, cellPadding: 1.6, textColor: INK },
+      headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7.2, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: '#FCFAF6' },
+      columnStyles: { 0: { cellWidth: 45, fontStyle: 'bold' } },
+      theme: 'grid',
+    });
+    ctx.y = (doc as any).lastAutoTable.finalY + 8;
+  }
 
   // ---------------- Page 2: planetary positions ----------------
   newPage(ctx, 'Planetary Positions');
