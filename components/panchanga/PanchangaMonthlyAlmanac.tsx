@@ -30,6 +30,7 @@ import {
   Table,
   Eye,
 } from 'lucide-react';
+import { formatPlace } from '@/lib/format-place';
 
 interface PanchangaMonthlyAlmanacProps {
   currentDate: Date;
@@ -249,7 +250,7 @@ export function PanchangaMonthlyAlmanac({
             Monthly Pañcāṅga Almanac — {monthName}
           </h2>
           <p className="text-xs text-slate-500 font-mono">
-            Geographic Ephemeris: <strong className="text-slate-900 font-serif">{selectedCity.name}</strong> (
+            Geographic Ephemeris: <strong className="text-slate-900 font-serif">{formatPlace(selectedCity)}</strong> (
             {selectedCity.latitude.toFixed(2)}°N, {selectedCity.longitude.toFixed(2)}°E) • Ayanāṃśa: {ayanamshaType}
           </p>
         </div>
