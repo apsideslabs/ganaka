@@ -17,6 +17,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
+import { useCitySearch } from '@/hooks/use-city-search';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
 import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
@@ -103,13 +104,8 @@ export function HomeBirthDetailsPanel() {
     };
   }, []);
 
-  // Filtered Locations
-  const locationResults = useMemo(() => {
-    if (!locationQuery || locationQuery.trim().length === 0) {
-      return CITIES_DATABASE.slice(0, 8);
-    }
-    return searchLocations(locationQuery);
-  }, [locationQuery]);
+  // Filtered Locations (curated + full GeoNames index, incl. Indian villages)
+  const locationResults = useCitySearch(locationQuery, 40, 8);
 
   // Use Default Location handler
   const handleApplyDefaultLocation = () => {

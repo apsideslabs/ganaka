@@ -17,6 +17,7 @@ import { calculateKutaMilan } from '@/lib/jyotisha/kuta/kuta-engine';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
 import { MatchingTradition } from '@/lib/jyotisha/kuta/types';
 import { CITIES_DATABASE, searchLocations } from '@/lib/astronomy/coordinates';
+import { useCitySearch } from '@/hooks/use-city-search';
 import { KutaCard } from './KutaCard';
 import { DeeperMatchingPanel } from './DeeperMatchingPanel';
 import { MatchingDiagram } from './MatchingDiagram';
@@ -121,13 +122,9 @@ export function MatchingWorkspaceClient() {
   const [showGroomCityDropdown, setShowGroomCityDropdown] = useState(false);
   const [showBrideCityDropdown, setShowBrideCityDropdown] = useState(false);
 
-  const groomCityResults = useMemo(() => {
-    return searchLocations(groomCitySearch).slice(0, 5);
-  }, [groomCitySearch]);
+  const groomCityResults = useCitySearch(groomCitySearch, 5, 5);
 
-  const brideCityResults = useMemo(() => {
-    return searchLocations(brideCitySearch).slice(0, 5);
-  }, [brideCitySearch]);
+  const brideCityResults = useCitySearch(brideCitySearch, 5, 5);
 
   return (
     <div className="w-full min-h-screen bg-[#FDFCF8] text-[#171614] pb-16">

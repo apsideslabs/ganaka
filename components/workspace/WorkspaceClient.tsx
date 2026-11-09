@@ -10,6 +10,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';
+import { useCitySearch } from '../../hooks/use-city-search';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
@@ -619,8 +620,8 @@ export const WorkspaceClient: React.FC = () => {
     return [];
   });
 
-  // Filtered Locations (Searches 220+ cities)
-  const locationResults = useMemo(() => searchLocations(locationQuery), [locationQuery]);
+  // Filtered Locations (curated + full GeoNames index, incl. Indian villages)
+  const locationResults = useCitySearch(locationQuery, 40, 15);
 
   // Compute Full Jyotisha Chart
   const chartData: JyotishaChart = useMemo(() => {

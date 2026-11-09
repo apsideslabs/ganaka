@@ -32,6 +32,7 @@ import {
 } from '@/lib/settings/settings-storage';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
+import { useCitySearch } from '@/hooks/use-city-search';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface PlatformSettingsDialogProps {
@@ -60,13 +61,8 @@ export function PlatformSettingsDialog({
   const [customTz, setCustomTz] = useState<number>(5.5);
   const [customTzName, setCustomTzName] = useState('IST');
 
-  // Filtered cities list
-  const filteredCities = useMemo(() => {
-    if (!citySearchQuery.trim()) {
-      return [];
-    }
-    return searchLocations(citySearchQuery).slice(0, 8);
-  }, [citySearchQuery]);
+  // Filtered cities list (curated + full GeoNames index)
+  const filteredCities = useCitySearch(citySearchQuery, 8, 0);
 
   useEffect(() => {
     if (open) {

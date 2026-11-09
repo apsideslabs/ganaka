@@ -12,6 +12,7 @@ import {
   searchLocations,
   formatDMS,
 } from '@/lib/astronomy/coordinates';
+import { useCitySearch } from '@/hooks/use-city-search';
 import {
   AYANAMSHA_DEFINITIONS,
   AyanamshaType,
@@ -69,11 +70,8 @@ export function PanchangaHeader({
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isSavedDefault, setIsSavedDefault] = useState<boolean>(false);
 
-  // Filtered Cities for Search
-  const filteredCities = useMemo(() => {
-    if (!citySearchQuery.trim()) return CITIES_DATABASE.slice(0, 18);
-    return searchLocations(citySearchQuery).slice(0, 25);
-  }, [citySearchQuery]);
+  // Filtered Cities for Search (curated + full GeoNames index, incl. villages)
+  const filteredCities = useCitySearch(citySearchQuery, 25, 18);
 
   const handleSaveAsDefaultLocation = () => {
     setIsSavedDefault(true);
