@@ -137,11 +137,11 @@ const MOOLATRIKONA: Record<string, { sign: number; from: number; to: number }> =
 const SAPTAVARGAJA = {
   moolatrikona: 45,
   own: 30,
-  adhimitra: 22.5,
+  adhimitra: 20,
   mitra: 15,
-  sama: 7.5,
-  satru: 3.75,
-  adhisatru: 1.875,
+  sama: 10,
+  satru: 4,
+  adhisatru: 2,
 };
 
 // ---------------------------------------------------------------------------
