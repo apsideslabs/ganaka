@@ -74,8 +74,6 @@ jobs:
             if (!ok) { console.log(`::error::shadbala out of range for ${p}: ${r.totalVirupas}`); bad++; }
             console.log(`${p.padEnd(8)} sthana ${r.sthanaBala.toFixed(1).padStart(6)} kala ${r.kalaBala.toFixed(1).padStart(6)} chesta ${r.chestaBala.toFixed(1).padStart(5)} drig ${r.drigBala.toFixed(1).padStart(6)} => ${r.totalVirupas.toFixed(1)} virupa rank ${r.rank}`);
           }
-          // Jupiter is debilitated in Capricorn for this chart and the Moon is
-          // exalted in Taurus, so the Moon must out-rank Jupiter.
           if (!(sb.moon.totalVirupas > sb.jupiter.totalVirupas)) {
             console.log('::error::exalted Moon should out-rank debilitated Jupiter');
             bad++;
@@ -159,7 +157,11 @@ jobs:
 
       - name: Assert determinism
         run: |
-          if grep -rn "Math.random" lib/ --include='*.ts' | grep -v '//'; then
+          # Ignore matches inside a comment (// or a * block line); only real
+          # code usage counts.
+          hits=$(grep -rn "Math\.random" lib/ --include='*.ts' | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
             echo "::error::Math.random still present in lib/"
             exit 1
           fi
