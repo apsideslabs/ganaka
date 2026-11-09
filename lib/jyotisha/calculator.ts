@@ -243,6 +243,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       house: pObj.house,
       isCombust: pObj.isCombust,
       isRetrograde: pObj.isRetrograde,
+      latitude: pObj.latitude,
     };
   }
   const yogas = detectAllYogas(yogaInput, lagna.rashiNumber);
