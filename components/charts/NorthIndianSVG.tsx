@@ -54,7 +54,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
    * on the border, which is what made the chart look noisy).
    */
   const houseLabelPositions: Record<number, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
-    1: { x: 300, y: 24, anchor: 'middle' },
+    1: { x: 300, y: 46, anchor: 'middle' },
     2: { x: 150, y: 16, anchor: 'middle' },
     3: { x: 20, y: 150, anchor: 'start' },
     4: { x: 24, y: 300, anchor: 'start' },
@@ -80,7 +80,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
     if (house === 1) {
       // Top Kendra: Lagna tag is at top y=55; sign number is at y=250.
       // Usable central diamond zone: x: 230 to 370, y: 100 to 215.
-      if (count === 1) return [{ x: 300, y: 150 }];
+      if (count === 1) return [{ x: 300, y: 160 }];
       if (count === 2) return [{ x: 300, y: 125 }, { x: 300, y: 175 }];
       if (count === 3) return [{ x: 300, y: 110 }, { x: 300, y: 150 }, { x: 300, y: 190 }];
       if (count === 4) {
@@ -342,23 +342,38 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
           </clipPath>
         ))}
 
-        {/* Subtle drop shadow for Lagna badge */}
+        {/* Warm paper ground, so the chart reads as a printed leaf rather
+            than a blank white box */}
+        <linearGradient id="ni-paper" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FEFCF7" />
+          <stop offset="100%" stopColor="#F8F2E6" />
+        </linearGradient>
+        <radialGradient id="ni-vignette" cx="50%" cy="50%" r="72%">
+          <stop offset="55%" stopColor="#8C2D19" stopOpacity="0" />
+          <stop offset="100%" stopColor="#8C2D19" stopOpacity="0.055" />
+        </radialGradient>
+        <filter id="ni-frame-shadow" x="-6%" y="-6%" width="112%" height="112%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#8C2D19" floodOpacity="0.10" />
+        </filter>
         <filter id="badge-shadow" x="-10%" y="-10%" width="120%" height="120%">
           <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.08" />
         </filter>
       </defs>
 
-      {/* Background Frame */}
+      {/* Background Frame - warm paper with a soft ruby vignette */}
       <rect
         x="2"
         y="2"
         width="596"
         height="596"
-        fill="#FFFFFF"
-        stroke="#0F172A"
-        strokeWidth="2.5"
-        rx="6"
+        fill="url(#ni-paper)"
+        stroke="#8C2D19"
+        strokeOpacity="0.38"
+        strokeWidth="2.4"
+        rx="8"
+        filter="url(#ni-frame-shadow)"
       />
+      <rect x="2" y="2" width="596" height="596" fill="url(#ni-vignette)" rx="8" />
 
       {/* House Polygons & Fill Treatments (Crisp Slate-50 for Kendra houses, Pure White for others) */}
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => {
@@ -373,23 +388,23 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
           >
             <polygon
               points={housePolygons[h]}
-              fill={isSelected ? '#EFF6FF' : isKendra ? '#F8FAFC' : '#FFFFFF'}
-              stroke="#334155"
-              strokeWidth="1.8"
-              className="hover:fill-[#F1F5F9]"
+              fill={isSelected ? '#FBEDE7' : isKendra ? '#FAF4E8' : '#FFFDF8'}
+              stroke="#5A5045"
+              strokeWidth="2"
+              className="hover:fill-[#F6EEE0]"
             />
           </g>
         );
       })}
 
       {/* Classical Structural Geometric Lines (Diagonal & Diamond cross) - High Contrast Dark Slate */}
-      <line x1="0" y1="0" x2="600" y2="600" stroke="#334155" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-      <line x1="600" y1="0" x2="0" y2="600" stroke="#334155" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <line x1="0" y1="0" x2="600" y2="600" stroke="#5A5045" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
+      <line x1="600" y1="0" x2="0" y2="600" stroke="#5A5045" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
       <polygon
         points="300,0 600,300 300,600 0,300"
         fill="none"
-        stroke="#334155"
-        strokeWidth="2"
+        stroke="#5A5045"
+        strokeWidth="2.4"
         vectorEffect="non-scaling-stroke"
       />
 
@@ -400,7 +415,7 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
         const labelPos = houseLabelPositions[h];
         const occupants = planetsByHouse[h] || [];
         const positions = getPlanetPositions(h, occupants.length);
-        const planetFontSize = occupants.length >= 7 ? 11 : occupants.length >= 5 ? 12.5 : occupants.length >= 3 ? 14 : occupants.length === 2 ? 15 : 17;
+        const planetFontSize = occupants.length >= 7 ? 12.5 : occupants.length >= 5 ? 14 : occupants.length >= 3 ? 16 : occupants.length === 2 ? 18 : 21;
 
         return (
           <g key={`content-${h}`} clipPath={`url(#clip-ni-h-${h})`}>
@@ -415,20 +430,29 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
               dominantBaseline="central"
               fontFamily="ui-monospace, monospace"
               fontSize={10}
-              stroke="#FFFFFF"
-              strokeWidth={2.5}
+              stroke="#FEFCF7"
+              strokeWidth={3}
               paintOrder="stroke fill"
             >
-              <tspan fontWeight="600" letterSpacing="0.4" fill="#94A3B8">{`H${h}`}</tspan>
-              <tspan fontWeight="600" fill="#CBD5E1">{' · '}</tspan>
-              <tspan fontWeight="700" fontSize={12} fill="#475569">{rashi}</tspan>
+              <tspan fontWeight="600" fontSize={8.5} letterSpacing="0.6" fill="#B3A897">{`H${h}`}</tspan>
+              <tspan fontWeight="600" fontSize={8.5} fill="#D8D0C2">{' · '}</tspan>
+              <tspan
+                fontWeight="700"
+                fontSize={17}
+                fontFamily="Georgia, Cambria, serif"
+                fill="#8C2D19"
+              >{rashi}</tspan>
             </text>
 
             {/* Lagna Tag in House 1 - High Visibility Ruby Badge */}
             {h === 1 && (
+              <polygon points="292,10 308,10 300,22" fill="#8C2D19" stroke="#FEFCF7" strokeWidth="1.2" />
+            )}
+
+            {h === 1 && (
               <text
                 x={300}
-                y={78}
+                y={88}
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontFamily="ui-monospace, monospace"
@@ -459,10 +483,10 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
                     dominantBaseline="central"
                     fontFamily="system-ui, -apple-system, sans-serif"
                     fontSize={planetFontSize}
-                    fontWeight="700"
+                    fontWeight="800"
                     fill={planetFill}
-                    stroke="#FFFFFF"
-                    strokeWidth={2.5}
+                    stroke="#FEFCF7"
+                    strokeWidth={3.2}
                     strokeLinejoin="round"
                     paintOrder="stroke fill"
                   >
