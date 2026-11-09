@@ -1,8 +1,10 @@
 {
-  "places": 70658,
-  "indiaPlaces": 7229,
+  "version": 2,
+  "places": 70741,
+  "indiaPlaces": 7312,
+  "withAlternateNames": 5968,
   "timezones": 371,
-  "bytes": 3952753,
-  "generated": "2026-11-09T03:21:10.271Z",
-  "source": "GeoNames cities5000 + India cities1000 (CC BY 4.0)"
+  "bytes": 4322727,
+  "generated": "2026-11-09T03:27:49.482Z",
+  "source": "GeoNames cities5000 + India cities1000/cities500 (CC BY 4.0)"
 }
