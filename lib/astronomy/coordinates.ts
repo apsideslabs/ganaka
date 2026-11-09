@@ -19,6 +19,8 @@ export type CityLocation = LocationInfo;
 
 import { searchIndexedCities } from './city-index';
 
+import { searchIndexedCities } from './city-index';
+
 export const FAMOUS_HISTORICAL_CHARTS = [
   {
     name: 'Albert Einstein',
