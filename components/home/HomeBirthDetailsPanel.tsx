@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
 import { useCitySearch } from '@/hooks/use-city-search';
+import { getPreferredCountry, setPreferredCountry, deviceTimezone } from '@/lib/astronomy/geo-bias';
+import { availableCountries, countryForTimezone } from '@/lib/astronomy/city-index';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
 import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
@@ -53,8 +55,30 @@ export function HomeBirthDetailsPanel() {
   const [locationQuery, setLocationQuery] = useState<string>('');
   const [showLocationDropdown, setShowLocationDropdown] = useState<boolean>(false);
 
+  // Search region preference (which country's places rank first)
+  const [searchCountry, setSearchCountry] = useState<string>(() => getPreferredCountry() || '');
+  const [countryOptions, setCountryOptions] = useState<string[]>([]);
+  const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
+
   // Settings Modal / Drawer State
   const [showSettings, setShowSettings] = useState<boolean>(false);
+
+  // Populate the region list once the place index has loaded, and record what
+  // the device timezone suggests so "Auto" can say which country it picked.
+  useEffect(() => {
+    const fill = () => {
+      const list = availableCountries();
+      if (list.length > 0) setCountryOptions(list);
+      setDetectedCountry(countryForTimezone(deviceTimezone()));
+    };
+    fill();
+    const t1 = setTimeout(fill, 1500);
+    const t2 = setTimeout(fill, 4000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
 
   // Advanced Configuration (inside Settings modal)
   const [isCustomCoordinates, setIsCustomCoordinates] = useState<boolean>(false);
@@ -421,7 +445,33 @@ export function HomeBirthDetailsPanel() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Search Region — which country's places are listed first */}
+              <div className="space-y-1.5">
+                <label className="font-mono uppercase tracking-wider font-semibold text-stone-800 block text-[11px]">
+                  Search Region
+                </label>
+                <select
+                  value={searchCountry}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setSearchCountry(next);
+                    setPreferredCountry(next === '' ? null : next);
+                  }}
+                  className="w-full p-2.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900 focus:border-[#8C2D19] focus:ring-2 focus:ring-[#8C2D19]/15"
+                >
+                  <option value="">
+                    Auto{detectedCountry ? ` — ${detectedCountry}` : ''}
+                  </option>
+                  {countryOptions.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-stone-500">
+                  Places in this country are listed first when you search.
+                </p>
+              </div>
+
               {/* Ayanamsha System */}
               <div className="space-y-1.5">
                 <label className="font-mono uppercase tracking-wider font-semibold text-stone-800 block text-[11px]">
