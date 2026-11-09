@@ -32,6 +32,7 @@ import {
 } from '@/lib/settings/settings-storage';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
+import { formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { useCitySearch } from '@/hooks/use-city-search';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -436,7 +437,7 @@ export function PlatformSettingsDialog({
                     <span>•</span>
                     <span>Lng: {curLoc.longitude.toFixed(4)}°</span>
                     <span>•</span>
-                    <span>TZ: {curLoc.timezoneOffsetHours >= 0 ? `+${curLoc.timezoneOffsetHours}` : curLoc.timezoneOffsetHours}h ({curLoc.timezoneName || 'IST'})</span>
+                    <span>{formatUtcOffset(curLoc.timezoneOffsetHours)}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 italic">
                     Applied automatically across Pañcāṅga, Birth Horoscopes, and Workspace calculations.
@@ -489,7 +490,7 @@ export function PlatformSettingsDialog({
                               {city.name}
                             </span>
                             <span className="text-[10px] font-mono text-slate-500">
-                              {city.latitude.toFixed(4)}°N, {city.longitude.toFixed(4)}°E • TZ: {city.timezoneOffsetHours}h ({city.timezoneName})
+                              {formatPlaceRegion(city)} • {formatUtcOffset(city.timezoneOffsetHours)}
                             </span>
                           </div>
                           <span className="text-[11px] font-mono text-blue-700 font-bold px-2 py-0.5 rounded bg-blue-50">
