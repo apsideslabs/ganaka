@@ -126,7 +126,7 @@ export function HomeBirthDetailsPanel() {
           timezoneName: defaultLoc.timezoneName || 'IST',
         };
         setSelectedCity(city);
-        setLocationQuery(city.name);
+        setLocationQuery(formatPlace(city));
       }
     };
 
@@ -163,7 +163,7 @@ export function HomeBirthDetailsPanel() {
         timezoneName: loc.timezoneName || 'IST',
       };
       setSelectedCity(city);
-      setLocationQuery(loc.name);
+      setLocationQuery(formatPlace(city));
       setIsCustomCoordinates(false);
       setUsedDefaultLocSuccess(true);
       setTimeout(() => setUsedDefaultLocSuccess(false), 2000);
