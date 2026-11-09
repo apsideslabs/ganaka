@@ -10,25 +10,26 @@ if not P.exists():
     sys.exit(1)
 
 src = P.read_text()
+original = src
 changed = []
 
-SIG = 'function calculate{T}(T: number): {{ lon: number; lat: number; dist: number }} {{'
+# A top-level declaration starts at column 0 and may be `function`, `export
+# function`, `const`, `interface` or `type`. The end of a function body is the
+# next such line - NOT just the next `function`, or an `export function` that
+# follows would be swallowed.
+DECL = re.compile(r'\n(?:export\s+)?(?:async\s+)?(?:function|const|interface|type|class)\s')
 
 
 def replace_function(text, name, body):
-    """Replace a whole top-level function by name, brace-free slicing."""
     start = text.find(f'function {name}(')
     if start < 0:
         return text, False
-    # find the next top-level function after it
-    nxt = text.find('\nfunction ', start + 1)
-    if nxt < 0:
-        nxt = len(text)
-    return text[:start] + body.strip() + '\n' + text[nxt:], True
+    m = DECL.search(text, start + 1)
+    end = m.start() + 1 if m else len(text)
+    return text[:start] + body.strip() + '\n\n' + text[end:], True
 
 
-PLANETS = ['mercury', 'mars', 'jupiter', 'saturn']
-for p in PLANETS:
+for p in ['mercury', 'mars', 'jupiter', 'saturn']:
     fn = f'calculate{p.capitalize()}'
     body = f'''function {fn}(T: number): {{ lon: number; lat: number; dist: number }} {{
   // VSOP87 heliocentric coordinates (Bretagnon & Francou 1988), truncated so
@@ -103,13 +104,22 @@ if ok:
 else:
     print('::warning::calculateMoon not found')
 
-IMPORTS = (
-    "import { planetHeliocentric } from './vsop87-planets';\n"
-    "import { MOON_LR_TERMS, MOON_B_TERMS } from './moon-terms';"
-)
 if 'vsop87-planets' not in src:
-    src = IMPORTS + '\n' + src
+    src = (
+        "import { planetHeliocentric } from './vsop87-planets';\n"
+        "import { MOON_LR_TERMS, MOON_B_TERMS } from './moon-terms';\n" + src
+    )
     changed.append('imports')
 
-P.write_text(src)
+# Guard: the slicer must not have eaten any neighbouring declaration.
+for required in ('eclipticToEquatorial', 'helioToGeocentric', 'normalizeDegrees'):
+    if required not in src:
+        print(f'::error::patch removed a needed symbol: {required}')
+        sys.exit(1)
+
+if src == original:
+    print('already patched, nothing to do')
+else:
+    P.write_text(src)
+
 print('changed:', changed or 'none')
