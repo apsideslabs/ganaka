@@ -19,10 +19,20 @@ const PAGE = { w: 210, h: 297 };
 const M = 13;
 const CW = PAGE.w - M * 2;
 
-const INK = '#1F2937';
-const MUTED = '#6B7280';
-const RULE = '#D6D3CD';
+const INK = '#1B1B1F';
+const MUTED = '#7A7267';
+const RULE = '#E0D8C8';
 const ACCENT = '#8C2D19';
+const PAPER = '#FDFBF6';
+const KENDRA_TINT = '#F7EFDF';
+const HEAD_BAND = '#F5EEE0';
+
+/** Graha colours, so the charts read at a glance instead of as grey text. */
+const GRAHA_INK: Record<string, string> = {
+  sun: '#B45309', moon: '#3F4A5A', mars: '#B91C1C', mercury: '#15803D',
+  jupiter: '#A16207', venus: '#7C3AED', saturn: '#1E3A8A',
+  rahu: '#6B21A8', ketu: '#0F766E',
+};
 
 /** PDF base fonts are WinAnsi, so IAST diacritics must be folded to ASCII. */
 const A = (s: unknown): string =>
@@ -49,26 +59,36 @@ interface Ctx {
   page: number;
   title: string;
   toc: Array<{ title: string; page: number }>;
+  identity?: string;
 }
 
 function header(ctx: Ctx, section: string) {
   const { doc } = ctx;
-  doc.setFillColor('#FBF7EF');
-  doc.rect(0, 0, PAGE.w, 16, 'F');
-  doc.setDrawColor(ACCENT);
-  doc.setLineWidth(0.4);
-  doc.line(0, 16, PAGE.w, 16);
+  doc.setFillColor(PAPER);
+  doc.rect(0, 0, PAGE.w, 18, 'F');
 
   doc.setFont('times', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(9.5);
   doc.setTextColor(ACCENT);
-  doc.text('Ganaka', M, 8);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.2);
-  doc.setTextColor(MUTED);
-  doc.text(A(section), M + 17, 8);
+  doc.text('GANAKA', M, 8);
 
-  ctx.y = 24;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.6);
+  doc.setTextColor(MUTED);
+  if (ctx.identity) doc.text(A(ctx.identity), M, 12.6);
+
+  doc.setFontSize(6.6);
+  doc.setTextColor(MUTED);
+  doc.text(A(section).toUpperCase(), PAGE.w - M, 12.6, { align: 'right' });
+
+  doc.setDrawColor(ACCENT);
+  doc.setLineWidth(0.7);
+  doc.line(M, 15.6, PAGE.w - M, 15.6);
+  doc.setDrawColor(RULE);
+  doc.setLineWidth(0.3);
+  doc.line(M, 17, PAGE.w - M, 17);
+
+  ctx.y = 27;
 }
 
 function newPage(ctx: Ctx, section: string) {
@@ -82,16 +102,18 @@ function need(ctx: Ctx, height: number, section: string) {
 }
 
 function sectionTitle(ctx: Ctx, text: string) {
-  need(ctx, 16, ctx.title);
+  need(ctx, 20, ctx.title);
   const { doc } = ctx;
+  doc.setFillColor(ACCENT);
+  doc.rect(M, ctx.y - 3.4, 1.6, 5.2, 'F');
   doc.setFont('times', 'bold');
-  doc.setFontSize(12);
+  doc.setFontSize(13.5);
   doc.setTextColor(INK);
-  doc.text(A(text), M, ctx.y);
+  doc.text(A(text), M + 5, ctx.y);
   doc.setDrawColor(RULE);
   doc.setLineWidth(0.3);
-  doc.line(M, ctx.y + 1.8, PAGE.w - M, ctx.y + 1.8);
-  ctx.y += 7;
+  doc.line(M, ctx.y + 3, PAGE.w - M, ctx.y + 3);
+  ctx.y += 10;
 }
 
 function kvGrid(
@@ -134,10 +156,16 @@ function drawDiamond(
   const mid = s / 2;
 
   // ---- card ----
-  doc.setFillColor('#FDFBF6');
+  doc.setFillColor('#FFFFFF');
   doc.setDrawColor('#E4DCCC');
   doc.setLineWidth(0.3);
-  doc.rect(x0 - 2.5, y0 - 9, s + 5, s + 13.5, 'FD');
+  doc.rect(x0 - 3, y0 - 9.5, s + 6, s + 14.5, 'FD');
+  doc.setFillColor(PAPER);
+  doc.rect(x0, y0, s, s, 'F');
+
+  // No polygon fills: jsPDF's doc.lines() shares the current path, and filling
+  // through it has twice thrown a giant diamond across the page. Kendras are
+  // emphasised with line weight instead, which cannot misfire.
 
   // ---- structure. Every segment is its own doc.line(): doc.lines() appends to
   // whatever path is still open, which is what threw giant stray strokes across
@@ -145,13 +173,15 @@ function drawDiamond(
   doc.setDrawColor('#4A4238');
   doc.setLineWidth(0.45);
   doc.rect(x0, y0, s, s, 'S');
-  doc.setLineWidth(0.28);
+  doc.setLineWidth(0.22);
   doc.line(x0, y0, x0 + s, y0 + s);
   doc.line(x0 + s, y0, x0, y0 + s);
+  doc.setLineWidth(0.55);
   doc.line(x0 + mid, y0, x0 + s, y0 + mid);
   doc.line(x0 + s, y0 + mid, x0 + mid, y0 + s);
   doc.line(x0 + mid, y0 + s, x0, y0 + mid);
   doc.line(x0, y0 + mid, x0 + mid, y0);
+  doc.setLineWidth(0.22);
 
   // ---- labels ----
   // Sign number sits just inside the outer edge of its own cell; planets stack
@@ -165,10 +195,10 @@ function drawDiamond(
     [0.5, 0.69], [0.75, 0.84], [0.84, 0.75], [0.69, 0.5], [0.84, 0.25], [0.75, 0.16],
   ];
 
-  const byHouse: Record<number, string[]> = {};
+  const byHouse: Record<number, Array<{ id: string; short: string }>> = {};
   for (const [id, pl] of Object.entries<any>(varga.planets || {})) {
     const short = GRAHA_SHORT[id] || id.slice(0, 2);
-    (byHouse[pl.house] ||= []).push(short);
+    (byHouse[pl.house] ||= []).push({ id, short });
   }
 
   const big = s > 70;
@@ -183,14 +213,14 @@ function drawDiamond(
     const list = byHouse[h] || [];
     if (!list.length) continue;
     const [cx, cy] = centreAt[h - 1];
-    const fs = list.length > 4 ? (big ? 6 : 4.6) : list.length > 2 ? (big ? 7 : 5.4) : big ? 8.2 : 6.2;
+    const fs = list.length > 4 ? (big ? 6.4 : 4.8) : list.length > 2 ? (big ? 7.6 : 5.8) : big ? 9 : 6.6;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(fs);
-    doc.setTextColor(INK);
     const step = fs * 0.40;
     const startY = y0 + cy * s - ((list.length - 1) * step) / 2;
     list.forEach((pl, i) => {
-      doc.text(pl, x0 + cx * s, startY + i * step, { align: 'center' });
+      doc.setTextColor(GRAHA_INK[pl.id] || INK);
+      doc.text(pl.short, x0 + cx * s, startY + i * step, { align: 'center' });
     });
   }
 
@@ -362,7 +392,15 @@ function drawContents(doc: jsPDF, entries: Array<{ title: string; page: number }
 
 export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF {
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-  const ctx: Ctx = { doc, y: 24, page: 1, title: 'Chart Report', toc: [] };
+  const bd0 = chart.meta.birthDetails;
+  const pad0 = (n: number) => String(n).padStart(2, '0');
+  const identity = [
+    personName ? A(personName) : null,
+    `${pad0(bd0.day)}-${pad0(bd0.month)}-${bd0.year}`,
+    A(bd0.locationName || ''),
+  ].filter(Boolean).join('  ·  ');
+
+  const ctx: Ctx = { doc, y: 24, page: 1, title: 'Chart Report', toc: [], identity };
   const bd = chart.meta.birthDetails;
   const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -469,7 +507,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7.2, fontStyle: 'bold' },
       alternateRowStyles: { fillColor: '#FCFAF6' },
       columnStyles: { 0: { cellWidth: 45, fontStyle: 'bold' } },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -491,7 +529,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7.2, fontStyle: 'bold' },
       alternateRowStyles: { fillColor: '#FCFAF6' },
       columnStyles: { 0: { cellWidth: 45, fontStyle: 'bold' } },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
   }
@@ -517,10 +555,10 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
         state, A(p.dignity),
       ];
     }),
-    styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 1.8, textColor: INK },
-    headStyles: { fillColor: '#F3EDE2', textColor: INK, fontStyle: 'bold', fontSize: 7.4 },
-    alternateRowStyles: { fillColor: '#FCFAF6' },
-    theme: 'grid',
+    styles: { font: 'helvetica', fontSize: 7.8, cellPadding: 2.4, textColor: INK, lineColor: RULE, lineWidth: 0.15 },
+    headStyles: { fillColor: HEAD_BAND, textColor: INK, fontStyle: 'bold', fontSize: 7.2, lineWidth: 0 },
+    alternateRowStyles: { fillColor: '#FBF8F1' },
+    theme: 'plain',
   });
   ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -538,7 +576,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     ]),
     styles: { fontSize: 6.8, cellPadding: 1.2, textColor: INK },
     headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
-    theme: 'grid',
+    theme: 'plain',
   });
   ctx.y = Math.max(ctx.y + 90, (doc as any).lastAutoTable.finalY + 6);
 
@@ -574,7 +612,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     body: [['Bindus', ...sav.map(String)]],
     styles: { fontSize: 7, cellPadding: 1.6, halign: 'center', textColor: INK },
     headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
-    theme: 'grid',
+    theme: 'plain',
   });
   ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -591,7 +629,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     body: bavRows,
     styles: { fontSize: 7, cellPadding: 1.5, halign: 'center', textColor: INK },
     headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
-    theme: 'grid',
+    theme: 'plain',
   });
   ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -607,7 +645,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     body: tree.map((d) => [A(d.lordName || d.lord), d.startDate, d.endDate, d.durationYears?.toFixed(2) ?? '-']),
     styles: { fontSize: 8, cellPadding: 1.8, textColor: INK },
     headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7.6, fontStyle: 'bold' },
-    theme: 'grid',
+    theme: 'plain',
   });
   ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -628,7 +666,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       body: subs.map((s) => [A(s.lordName || s.lord), s.startDate, s.endDate]),
       styles: { fontSize: 7.2, cellPadding: 1.3, textColor: INK },
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 5;
   });
@@ -654,7 +692,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
         body: subs.map((s) => [A(s.lordName || s.lord), s.startDate, s.endDate]),
         styles: { fontSize: 7, cellPadding: 1.2, textColor: INK },
         headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
-        theme: 'grid',
+        theme: 'plain',
       });
       ctx.y = (doc as any).lastAutoTable.finalY + 5;
     });
@@ -681,7 +719,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
     styles: { fontSize: 7.4, cellPadding: 1.5, halign: 'right', textColor: INK },
     headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold', halign: 'center' },
     columnStyles: { 0: { halign: 'center', fontStyle: 'bold' } },
-    theme: 'grid',
+    theme: 'plain',
   });
   ctx.y = (doc as any).lastAutoTable.finalY + 8;
 
@@ -696,7 +734,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       body: yogas.map((y) => [A(y.name), A(y.category || y.type || '-')]),
       styles: { fontSize: 7.4, cellPadding: 1.5, textColor: INK },
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
   }
@@ -717,7 +755,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       styles: { fontSize: 7, cellPadding: 1.3, textColor: INK },
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 6.8, fontStyle: 'bold' },
       alternateRowStyles: { fillColor: '#FCFAF6' },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
   }
@@ -739,7 +777,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
         ]),
         styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
         headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
-        theme: 'grid',
+        theme: 'plain',
       });
       ctx.y = (doc as any).lastAutoTable.finalY + 8;
     }
@@ -754,7 +792,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
         ]),
         styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
         headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
-        theme: 'grid',
+        theme: 'plain',
       });
       ctx.y = (doc as any).lastAutoTable.finalY + 8;
     }
@@ -777,7 +815,7 @@ export function buildChartPdf(chart: JyotishaChart, personName?: string): jsPDF 
       body: spRows,
       styles: { fontSize: 7.4, cellPadding: 1.4, textColor: INK },
       headStyles: { fillColor: '#F3EDE2', textColor: INK, fontSize: 7, fontStyle: 'bold' },
-      theme: 'grid',
+      theme: 'plain',
     });
     ctx.y = (doc as any).lastAutoTable.finalY + 8;
   }
