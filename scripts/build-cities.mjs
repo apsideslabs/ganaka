@@ -8,12 +8,10 @@
  * Inputs (tab-separated, from https://download.geonames.org/export/dump/):
  *   cities5000.txt, cities1000.txt, admin1CodesASCII.txt, countryInfo.txt, timeZones.txt
  *
- * Output:
- *   public/data/cities.json   compact index consumed by lib/astronomy/city-index.ts
+ * Output: public/data/cities.json
  *
- * Selection:
- *   - every place in cities5000 (population > 5000, or an administrative seat)
- *   - plus every Indian place in cities1000, so villages are searchable
+ * Selection: every place in cities5000 (population > 5000 or an administrative
+ * seat), plus every Indian place in cities1000 so villages are searchable.
  * Deduplicated by geonameid, sorted by population descending.
  */
 import fs from 'node:fs';
@@ -27,13 +25,12 @@ const NOTICE = path.join(OUT_DIR, 'CITY-NOTICE.txt');
 const read = (f) => {
   const p = path.join(GN, f);
   if (!fs.existsSync(p)) {
-    console.warn(`[cities] missing ${p} - skipping index build`);
+    console.warn(`[cities] missing ${p}`);
     return null;
   }
   return fs.readFileSync(p, 'utf8');
 };
 
-// admin1 code -> state name, e.g. "IN.16" -> "Assam"
 function parseAdmin1(txt) {
   const m = new Map();
   if (!txt) return m;
@@ -45,7 +42,6 @@ function parseAdmin1(txt) {
   return m;
 }
 
-// ISO2 -> country name
 function parseCountries(txt) {
   const m = new Map();
   if (!txt) return m;
@@ -57,7 +53,6 @@ function parseCountries(txt) {
   return m;
 }
 
-// timezone id -> standard offset in hours
 function parseTimeZones(txt) {
   const m = new Map();
   if (!txt) return m;
@@ -109,19 +104,16 @@ if (big.length === 0) {
   process.exit(0);
 }
 
-// dedupe by geonameid, prefer the cities5000 record
 const byId = new Map();
 for (const r of india) byId.set(r.id, r);
 for (const r of big) byId.set(r.id, r);
 
 const rows = [...byId.values()].sort((a, b) => b.pop - a.pop);
 
-// compact representation: parallel arrays with a timezone dictionary
-tzIndex = new Map();
+const tzIndex = new Map();
 const tzList = [];
 for (const r of rows) {
-  if (!r.tz) continue;
-  if (!tzIndex.has(r.tz)) {
+  if (r.tz && !tzIndex.has(r.tz)) {
     tzIndex.set(r.tz, tzList.length);
     tzList.push(r.tz);
   }
