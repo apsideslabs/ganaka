@@ -107,6 +107,13 @@ patch(
     anchor="import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';",
 )
 
+# --- 6. Home page metadata still advertises the old city count -------------
+patch(
+    'app/page.tsx',
+    [('High-precision astronomical calculation engine, authentic Parāśari & Jaimini mechanics, 220+ verified Indian cities, and auditable classical manuscripts.',
+      'High-precision astronomical calculation engine with VSOP87 ephemerides, authentic Parāśari & Jaimini mechanics, 70,000 towns and 550,000 Indian places, and auditable classical manuscripts.')],
+)
+
 print('changed:', changed or 'none')
 for m in missing:
     print(f'::warning::not found -> {m}')
