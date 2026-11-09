@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
 } from 'lucide-react';
+import { formatPlace } from '@/lib/format-place';
 
 interface PanchangaCalendarViewProps {
   selectedDate: Date;
@@ -306,7 +307,7 @@ export function PanchangaCalendarView({
             Detailed Pañcāṅga for Selected Date: {selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </h3>
           <span className="text-xs font-mono text-slate-500">
-            Coordinates: {selectedCity.name}
+            Coordinates: {formatPlace(selectedCity)}
           </span>
         </div>
 
