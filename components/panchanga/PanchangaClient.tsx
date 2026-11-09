@@ -13,6 +13,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { CITIES_DATABASE, CityLocation, formatDMS } from '@/lib/astronomy/coordinates';
+import { formatPlace, formatPlaceRegion } from '@/lib/format-place';
 import {
   AYANAMSHA_DEFINITIONS,
   AyanamshaType,
@@ -376,7 +377,7 @@ export function PanchangaClient({ initialTab = 'daily' }: PanchangaClientProps) 
   const copySummary = () => {
     const summaryText = `Gaṇaka Drik Pañcāṅga
 Date: ${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-Location: ${selectedCity.name} (${selectedCity.latitude.toFixed(4)}°N, ${selectedCity.longitude.toFixed(4)}°E)
+Location: ${formatPlace(selectedCity, { country: true })} (${selectedCity.latitude.toFixed(4)}°N, ${selectedCity.longitude.toFixed(4)}°E)
 Ayanāṃśa: ${ayanamshaFormatted} (${AYANAMSHA_DEFINITIONS[ayanamshaType]?.name || ayanamshaType})
 Māsa: ${panchanga.calendar.lunarMonth.amantaName} (${panchanga.tithi.paksha} Pakṣa)
 Saṁvat: ${panchanga.calendar.eras.vikramaSamvat} Vikrama / ${panchanga.calendar.eras.shakaSamvat} Śaka (${panchanga.calendar.eras.samvatsara60.name})
@@ -452,7 +453,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-700">
-                {selectedCity.name} ({formatDMS(selectedCity.latitude, true)},{' '}
+                {formatPlace(selectedCity)} ({formatDMS(selectedCity.latitude, true)},{' '}
                 {formatDMS(selectedCity.longitude, false)})
               </span>
             </p>
