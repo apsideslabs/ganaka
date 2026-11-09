@@ -38,12 +38,28 @@ jobs:
           NEXT_EXPORT: '1'
           NEXT_PUBLIC_BASE_PATH: '/ganaka'
           NODE_OPTIONS: '--max-old-space-size=6144'
-        run: npm run build
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          set +e
+          npm run build > build.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then
+            echo "Build exited with $code"
+            echo "--- last 40 lines ---"
+            tail -40 build.log
+            # Surface the failure through annotations, which are readable via the API.
+            tail -60 build.log | grep -vE '^\s*$' | tail -12 | while IFS= read -r l; do
+              echo "::error::${l:0:900}"
+            done
+            exit $code
+          fi
+          tail -20 build.log
 
       - name: Disable Jekyll
         run: |
           touch out/.nojekyll
-          echo 'apsideslabs.github.io' > out/CNAME.tmp && rm out/CNAME.tmp
+          ls out | head -20
+          du -sh out
 
       - uses: actions/configure-pages@v5
 
