@@ -12,8 +12,12 @@
  */
 import type { LocationInfo } from './coordinates';
 
-/** Compact row: [name, state, country, lat, lon, tzIndex, tzOffsetHours, population] */
-type Row = [string, string, string, number, number, number, number, number];
+/**
+ * Compact row:
+ *   [name, state, country, lat, lon, tzIndex, tzOffsetHours, population, alternates]
+ * alternates is a pipe-separated string, empty when none.
+ */
+type Row = [string, string, string, number, number, number, number, number, string?];
 
 interface CityIndexFile {
   v: number;
@@ -57,11 +61,16 @@ export function loadCityIndex(): Promise<void> {
       }
       const file = (await res.json()) as CityIndexFile;
       if (!file || !Array.isArray(file.cities)) return;
+
       const loaded = toLocationInfo(file);
-      keys = loaded.map((c) =>
-        `${c.name} ${c.stateOrRegion || ''} ${c.country}`.toLowerCase()
-      );
+      const searchKeys: string[] = new Array(file.cities.length);
+      for (let i = 0; i < file.cities.length; i++) {
+        const [name, state, country, , , , , , alt] = file.cities[i];
+        const base = `${name} ${state || ''} ${country}`.toLowerCase();
+        searchKeys[i] = alt ? `${base} ${alt.replace(/\|/g, ' ')}` : base;
+      }
       records = loaded;
+      keys = searchKeys;
     } catch (err) {
       console.warn('[city-index] load failed', err);
     }
@@ -106,6 +115,40 @@ export function searchIndexedCities(query: string, limit = 40): LocationInfo[] {
   }
 
   return prefix.concat(contains).slice(0, limit).map((i) => records![i]);
+}
+
+/**
+ * The UTC offset, in hours, that an IANA zone was actually on at a given
+ * local date. Uses the platform's own tz database via Intl, so no library and
+ * no data file is needed. Returns null if the zone is unknown.
+ *
+ * This is what a chart needs: a July birth in London is UTC+1, not UTC+0.
+ */
+export function offsetForZone(
+  timeZoneName: string | undefined,
+  year: number,
+  month: number,
+  day: number,
+  hour = 12,
+  minute = 0
+): number | null {
+  if (!timeZoneName || !/^[A-Za-z]+\/[A-Za-z_]+/.test(timeZoneName)) return null;
+  try {
+    const dt = new Date(Date.UTC(year, month - 1, day, hour, minute));
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: timeZoneName,
+      timeZoneName: 'longOffset',
+    });
+    const part = fmt.formatToParts(dt).find((p) => p.type === 'timeZoneName');
+    const m = part && /GMT([+-])(\d{1,2})(?::?(\d{2}))?/.exec(part.value);
+    if (!m) return part && part.value === 'GMT' ? 0 : null;
+    const sign = m[1] === '-' ? -1 : 1;
+    const h = parseInt(m[2], 10);
+    const mins = m[3] ? parseInt(m[3], 10) : 0;
+    return sign * (h + mins / 60);
+  } catch {
+    return null;
+  }
 }
 
 // Start loading as soon as this module is used in the browser, so the index is
