@@ -108,9 +108,22 @@ Weekdays for Dina, Horā, Varṣa and Māsa bala are now taken in **local civil
 time**. They previously used the Julian-day weekday, which is UT-based, so a
 02:00 IST birth was being scored as the previous day.
 
-The only ṣaḍbala component still absent is **Yuddha Bala** (planetary war,
-BPHS 27.37). It applies only when two planets are within one degree and is
-omitted rather than approximated.
+**Yuddha Bala** (planetary war), BPHS 27.20 and ch. 81 v. 9, is now implemented.
+Only the five star grahas fight — the Sun, the Moon and the nodes never do. Two
+within one degree of longitude are at war; **Venus always wins**, whether north
+or south, and among the rest the planet **farther north in latitude** wins. The
+victor gains the difference of the two ṣaḍbalas and the vanquished loses it, so
+the adjustments sum to zero. Where three are within a degree each pair is its
+own war and a planet's adjustment is the sum over its pairs.
+
+Two caveats worth stating. The war condition uses **zodiacal longitude**, which
+is what most implementations use; Ernst Wilhelm argues from Varāhamihira and the
+Sūrya Siddhānta that it should be **apparent** longitude, which can differ by
+several degrees near the horizon. And the victor rule is genuinely contested in
+the literature — some texts use the brighter rays, some the lower longitude.
+This implementation follows BPHS ch. 81 v. 9 as translated by Santhanam.
+
+**Ṣaḍbala is now complete**: every component in BPHS ch. 27 is implemented.
 
 Because Varṣa, Māsa and Yuddha are absent, totals still read slightly low, so
 comparisons against `requiredRupas` remain conservative.
