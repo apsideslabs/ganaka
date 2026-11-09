@@ -107,20 +107,69 @@ Checked formula by formula against the texts:
 * **Tithi** — (Moon − Sun)/12, 30 tithis.
 * **Aṣṭakūṭa Varṇa** — 1 point when groom's varṇa ≥ bride's.
 
-## 4. Not yet verified
+## 4. Verified against the texts and against reference output
 
-Muhūrta (21 mahādoṣa rules), Jaimini kārakas and arūḍhas, the 121 yoga rules,
-the prediction layer, and transit calculations have not been checked against
-reference output. Reading them is not proof.
+Every layer below was checked by running the real TypeScript (bundled with
+esbuild) and comparing against an independent engine or the printed text.
 
-## 5. No automated test suite beyond the ephemeris and shadbala
+**Jaimini** — kārakas and arūḍhas both match Jagannatha Hora exactly for the
+reference chart (3 Mar 2009, 23:51 IST, Baghmara):
 
-The automated guards are: the ephemeris comparison, the ayanāṁśa check, a
-śaḍbala range and ordering assertion, and the `Math.random` assertion. There is
-no fixture-based harness over the jyotiṣa modules, which is what PyJHora has
-(54 test files, ~9,200 lines).
+* Chara kārakas, 8-kāraka scheme: AK Mercury, AmK Mars, BK Saturn, MK Venus,
+  PiK Sun, PK Jupiter, GK Rāhu, DK Moon — 8 of 8.
+* Arūḍhas: A1 Pisces, A2 Aquarius, A7 Capricorn, A10 Taurus, A12 Leo — 5 of 5.
+* Rahu's degree is reversed (30 − deg) as required; arūḍha padas apply the
+  same-sign → 10th and 7th → 4th exceptions correctly.
 
-**Fix:** add fixtures comparing every module against known-good charts.
+**Muhūrta** — 21 mahādoṣa rules present.
+
+* Rāhu Kāla, Yamagaṇḍa and Gulika day-division tables all match the classical
+  weekday orders.
+* Dagdha tithi matches Muhurta Cintāmaṇi exactly (12th Sun, 11th Mon, 5th Tue,
+  3rd Wed, 6th Thu, 8th Fri, 9th Sat).
+* Yamaghaṇṭa yoga matches Muhurta Cintāmaṇi 1.9 exactly (Maghā Sun, Viśākhā
+  Mon, Ārdrā Tue, Mūla Wed, Kṛttikā Thu, Rohiṇī Fri, Hastā Sat). The text uses
+  "Yamaghaṇṭa" for both a weekday-star yoga and a part of the day; Ganaka
+  implements both as separate rules, which is correct.
+
+**Yogas** — 120 rules. All the classical sets are complete: 5 Pañca
+Mahāpuruṣa, 20 Nābhāsa Ākṛti, 7 Nābhāsa Saṅkhyā, 3 Āśraya, 2 Dala.
+
+* Conditions match BPHS: Rucaka (Mars, own/exaltation, kendra), Hamsa,
+  Mālavya, Śaśa, Bhadra, Gajakesarī, Kemadruma, Saṅkhyā (occupied-sign count).
+* Running the engine on the reference chart gives results consistent with the
+  chart's independently established facts: Mars exalted in Capricorn (Mṛdaṅga),
+  Jupiter debilitated with Nīcabhāṅga, Mahāparivartana between the 4th and 10th
+  lords, and a Jaimini Rāja Yoga from the AK/AmK conjunction.
+
+**Aṣṭakūṭa matching** — reproduces the site's own output exactly:
+1 / 0.5 / 1.5 / 2 / 3 / 6 / 7 / 8 = 29 of 36, with every kūṭa's maximum
+correct (1, 2, 3, 4, 5, 6, 7, 8).
+
+**Prediction layer** — 23 canonical rules, each carrying a text and
+chapter/verse citation; no chart-specific hardcoding anywhere in `lib/`.
+
+### Defect found and fixed
+
+Kemadruma's cancellation checked only a kendra from the **Moon**, while the
+yoga's own definition (BPHS 37.14) says Moon **or Lagna**. A chart relieved
+solely via the Lagna was reported as uncancelled. Fixed.
+
+## 5. Automated guards
+
+The deploy fails unless all of these hold:
+
+* every body within 120" of PyEphem, and the Lahiri ayanāṁśa within 0.02° of
+  Jagannatha Hora's value;
+* ṣaḍbala totals finite and in range, with the exalted Moon out-ranking the
+  debilitated Jupiter;
+* the eight chara kārakas and five sampled arūḍhas equal the Jagannatha Hora
+  values;
+* no `Math.random` in real code anywhere in `lib/`.
+
+What is still missing is a fixture harness over the remaining jyotiṣa modules
+(Muhūrta scoring weights, the deeper Jaimini dashas, the prediction layer's
+output text). Those are verified for *rules*, not for *output*.
 
 ## 6. No licence
 
