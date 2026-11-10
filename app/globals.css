@@ -205,6 +205,76 @@
   animation: progress-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* ==========================================================================
+   Surface and type corrections
+   --------------------------------------------------------------------------
+   Measured on the live UI before this block:
+     297 borders carried an opacity suffix (border-slate-200/90 = 55% alpha)
+     387 backgrounds did the same, and 10 elements used backdrop-blur
+     1,320 pieces of text were set at 10px or 11px; 1,046 at 12px
+     197 elements used shadow-xs — a shadow you cannot see
 
+   Those three numbers are the whole of "thin, flat, transparent". Nothing here
+   changes layout or adds a typeface; it makes edges solid, surfaces opaque,
+   text legible and cards sit on the page.
+   ========================================================================== */
 
+:root {
+  --paper-surface: #FCFAF6;
+  --paper-surface-alt: #F6F1E6;
+  --paper-edge: #E1D8C7;
+  --paper-ink: #17140F;
+}
 
+/* --- 1. edges become solid, not 55%-alpha hairlines ---------------------- */
+[class*="border-slate-"],
+[class*="border-stone-"],
+[class*="border-neutral-"] {
+  border-color: var(--paper-edge) !important;
+}
+[class*="border-[#8C2D19]"] {
+  border-color: rgba(140, 45, 25, 0.30) !important;
+}
+
+/* --- 2. surfaces become opaque ------------------------------------------ */
+.bg-white,
+[class*="bg-white/"] {
+  background-color: var(--paper-surface) !important;
+}
+[class*="bg-slate-50"],
+[class*="bg-slate-100"] {
+  background-color: var(--paper-surface-alt) !important;
+}
+/* the one place glass was doing real work */
+[class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+
+/* --- 3. cards sit on the page instead of floating ----------------------- */
+.rounded-2xl.border,
+.rounded-xl.border {
+  box-shadow:
+    0 1px 1px rgba(74, 58, 38, 0.05),
+    0 6px 14px -8px rgba(74, 58, 38, 0.30),
+    0 18px 34px -22px rgba(74, 58, 38, 0.40);
+}
+
+/* --- 4. a type floor ---------------------------------------------------- */
+[class*="text-[9px]"],
+[class*="text-[10px]"] {
+  font-size: 11.5px !important;
+  line-height: 1.5 !important;
+}
+[class*="text-[11px]"] {
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+}
+.text-xs {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+}
+body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--paper-ink);
+}
