@@ -364,7 +364,7 @@ function Kundali({ varga, size, title }: { varga: any; size: number; title: stri
 }
 
 /** The cover: ornamental frame, zodiac wheel, title block, particulars bar. */
-function Cover({ chart, personName }: { chart: JyotishaChart; personName?: string }) {
+function Cover({ chart }: { chart: JyotishaChart }) {
   const bd = chart.meta.birthDetails;
   const p2 = (n: number) => String(n).padStart(2, '0');
 
@@ -513,7 +513,6 @@ function Cover({ chart, personName }: { chart: JyotishaChart; personName?: strin
       {/* title block */}
       <Text style={S.coverKicker2}>C O M P L E T E   J Y O T I S A   R E P O R T</Text>
       <Text style={S.coverBigTitle}>Jyotiṣa Birth Chart</Text>
-      {personName ? <Text style={S.coverSubName}>{personName}</Text> : null}
       <View style={S.coverDivider} />
       <View style={S.coverDividerDiamond} />
 
@@ -579,16 +578,12 @@ function Contents() {
 
 /* ------------------------------------------------------------------ document */
 
-export function ChartReport({
-  chart,
-  personName,
-}: {
-  chart: JyotishaChart;
-  personName?: string;
-}) {
+export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const bd = chart.meta.birthDetails;
   const p2 = (n: number) => String(n).padStart(2, '0');
-  const identity = [personName, `${p2(bd.day)}-${p2(bd.month)}-${bd.year}`, bd.locationName]
+  // The running head carries the moment and place only — this is Gaṇaka's
+  // report, not a personal document.
+  const identity = [`${p2(bd.day)}-${p2(bd.month)}-${bd.year}`, bd.locationName]
     .filter(Boolean)
     .join('  ·  ');
 
@@ -609,12 +604,12 @@ export function ChartReport({
 
   return (
     <Document
-      title={`Jyotisa Birth Chart${personName ? ` — ${personName}` : ''}`}
+      title="Jyotisa Birth Chart — Ganaka"
       author="Ganaka"
       subject="Vedic birth chart report"
       creator="Ganaka Classical Jyotisa Engine"
     >
-      <Cover chart={chart} personName={personName} />
+      <Cover chart={chart} />
       <Contents />
 
       {/* ------------------------------------------------ birth data */}
