@@ -3,6 +3,14 @@
  * Source: Phaladīpikā (Ch. 6, v. 44–70), Jātaka Pārijāta (Ch. 6), Sarvārtha Cintāmaṇi
  */
 
+/**
+ * CITATION NOTE — see lib/yogas/nabhasa-yogas.ts for the full explanation.
+ * Verse numbers in this file are edition-dependent (BPHS exists with 71, 97 and
+ * other chapter counts) and have not all been checked against a printed text.
+ * Treat chapter-level citations as reliable and verse-level ones as indicative.
+ */
+
+
 import { PlanetId } from '../astronomy/ephemeris';
 import {
   YogaDefinition,
