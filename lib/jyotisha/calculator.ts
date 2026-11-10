@@ -35,6 +35,8 @@ export interface CalculationInput {
   ayanamshaType?: AyanamshaType;
   customAyanamshaValue?: number;
   houseSystem?: 'equal_whole' | 'sripati' | 'placidus';
+  /** Aṣṭakavarga table recension; see AshtakavargaOptions. */
+  ashtakavargaRecension?: 'parashara' | 'varahamihira';
   jaiminiScheme?: '7_karaka' | '8_karaka';
 }
 
@@ -57,6 +59,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     customAyanamshaValue = 0,
     houseSystem = 'equal_whole',
     jaiminiScheme = '7_karaka',
+    ashtakavargaRecension = 'parashara',
   } = input;
 
   // 1. Julian Day (Universal Time)
@@ -206,7 +209,9 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   for (const [pId, pObj] of Object.entries(calculatedPlanets)) {
     rashiMap[pId as PlanetId] = pObj.rashiNumber;
   }
-  const ashtakavarga = calculateAshtakavarga(rashiMap, lagna.rashiNumber);
+  const ashtakavarga = calculateAshtakavarga(rashiMap, lagna.rashiNumber, {
+    recension: ashtakavargaRecension,
+  });
 
   // 11. Śaḍbala
   const shadbalaInput: any = {};
