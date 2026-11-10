@@ -205,6 +205,106 @@
   animation: progress-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* ==========================================================================
+   Paper-soft theme layer
+   --------------------------------------------------------------------------
+   The palette above was defined but almost nothing used it: components were
+   written with Tailwind's neutral utilities (382 bg-white, 740 border-slate,
+   1829 text-slate), which render as a cool grey dashboard on a warm canvas —
+   the "generic, transparent" look.
 
+   Rather than rewrite thirty panels, the neutrals are remapped inside
+   .ganaka-paper. Pure white becomes the paper surface, cool slate becomes warm
+   ink, hard shadows become soft warm ones, and a fine grain is laid over the
+   canvas so surfaces read as paper rather than as glass.
+   ========================================================================== */
 
+.ganaka-paper {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255, 252, 244, 0.9), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  color: var(--text-primary);
+}
 
+/* --- surfaces: white cards become paper cards --- */
+.ganaka-paper .bg-white {
+  background-color: var(--bg-surface);
+}
+.ganaka-paper .bg-white\/80,
+.ganaka-paper .bg-white\/90 {
+  background-color: rgba(252, 250, 246, 0.92);
+}
+.ganaka-paper .bg-slate-50 {
+  background-color: var(--bg-surface-subtle);
+}
+.ganaka-paper .bg-slate-100 {
+  background-color: #E7E1D4;
+}
+
+/* --- borders: cool grey becomes warm hairline --- */
+.ganaka-paper [class*="border-slate-"],
+.ganaka-paper .border {
+  border-color: var(--border-subtle);
+}
+.ganaka-paper .border-slate-300 {
+  border-color: var(--border-strong);
+}
+.ganaka-paper .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.ganaka-paper .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-subtle);
+}
+
+/* --- type: cool slate becomes warm ink --- */
+.ganaka-paper .text-slate-900,
+.ganaka-paper .text-slate-800 {
+  color: var(--text-primary);
+}
+.ganaka-paper .text-slate-700,
+.ganaka-paper .text-slate-600 {
+  color: #3A362F;
+}
+.ganaka-paper .text-slate-500 {
+  color: var(--text-secondary);
+}
+.ganaka-paper .text-slate-400 {
+  color: var(--text-muted);
+}
+
+/* --- depth: warm, shallow, never glassy --- */
+.ganaka-paper .shadow-xs,
+.ganaka-paper .shadow-sm {
+  box-shadow:
+    0 1px 1px rgba(60, 50, 35, 0.04),
+    0 2px 6px -1px rgba(60, 50, 35, 0.06);
+}
+.ganaka-paper .shadow-md,
+.ganaka-paper .shadow-lg {
+  box-shadow:
+    0 2px 4px rgba(60, 50, 35, 0.05),
+    0 12px 28px -8px rgba(60, 50, 35, 0.10);
+}
+
+/* --- corners: paper stock does not have 16px radii --- */
+.ganaka-paper .rounded-2xl {
+  border-radius: 10px;
+}
+.ganaka-paper .rounded-xl {
+  border-radius: 8px;
+}
+
+/* --- inputs and tables inherit the paper ground --- */
+.ganaka-paper input,
+.ganaka-paper select,
+.ganaka-paper textarea {
+  background-color: var(--bg-surface-raised);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.ganaka-paper thead tr {
+  background-color: var(--bg-surface-subtle);
+}
+.ganaka-paper tbody tr:nth-child(even) {
+  background-color: rgba(236, 231, 220, 0.45);
+}
