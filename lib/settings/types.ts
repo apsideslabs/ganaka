@@ -26,6 +26,17 @@ export interface PlatformSettings {
   dinaManaUnit: 'hours' | 'ghatis' | 'both';
   defaultChartStyle: 'north' | 'south' | 'east';
   themeTone: 'classic_parchment' | 'pure_white' | 'slate_astronomy';
+  /**
+   * Which recension of the aṣṭakavarga tables the engine uses.
+   *
+   * The two differ in exactly four cells and both total 337, so the checksum
+   * cannot tell them apart — only the source text can.
+   *   parashara     Bṛhat Parāśara Horā Śāstra ch. 66 — the working convention
+   *                 of modern practice, and what most software follows.
+   *   varahamihira  Bṛhat Jātaka ch. 13 — the older text (6th c.), continuously
+   *                 commented, and the lineage Kāmarūpa's own almanac cites.
+   */
+  ashtakavargaRecension: 'parashara' | 'varahamihira';
 }
 
 export type VargaSetMode = 'standard' | 'extended';
@@ -80,6 +91,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   dinaManaUnit: 'both',
   defaultChartStyle: 'north',
   themeTone: 'classic_parchment',
+  ashtakavargaRecension: 'parashara',
 };
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
