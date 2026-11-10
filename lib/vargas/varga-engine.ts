@@ -1,8 +1,18 @@
 /**
  * Gaṇaka — Divisional Chart (Varga) Engine
- * Implements classical Parāśari algorithms for all major Vargas:
- * D1, D2, D3, D4, D7, D9, D10, D12, D16, D20, D24, D27, D30, D40, D45, D60
- * per BPHS Chapters 6 and 7.
+ *
+ * Two groups, and the difference matters for anyone auditing the output:
+ *
+ * ṢOḌAŚAVARGA — the sixteen of BPHS ch. 6, with a construction rule stated
+ * there: D1, D2, D3, D4, D7, D9, D10, D12, D16, D20, D24, D27, D30, D40, D45,
+ * D60. Every rule below has been checked against those verses.
+ *
+ * BEYOND THE SIXTEEN — D5, D6, D8, D11, D81, D108, D144. Pārāśara gives no
+ * construction rule for these; they come from the Jaimini/Rudra and Tājika
+ * material and from later practice. D11 in particular has two rival readings
+ * (Rudrāṃśa anti-zodiacal vs a Labhāṃśa count), and the one implemented here is
+ * the Rudrāṃśa, following the anti-zodiacal rule. Do not present these as
+ * Parāśari.
  */
 
 import { PlanetId } from '../astronomy/ephemeris';
@@ -348,7 +358,10 @@ export function calculateVargaRashi(
       // Aries=Aries(1), Taurus=Pisces(12), Gemini=Aquarius(11), Cancer=Capricorn(10)...
       // Formula: startRashi = 13 - rashiNum, then count consecutively forward
       const part = Math.min(10, Math.floor(degInRashi / (30.0 / 11.0)));
-      const startRashi = (((13 - rashiNum - 1) % 12) + 12) % 12 + 1;
+      // Mirror the occupied sign across Aries: Aries and Libra start from
+      // themselves, Taurus from Pisces, Gemini from Aquarius, and so on.
+      // (Was ((12 - rashi) % 12) + 1 — one sign too early throughout.)
+      const startRashi = (((13 - rashiNum) % 12) + 12) % 12 + 1;
       targetRashi = (((startRashi - 1 + part) % 12) + 1);
       break;
     }
