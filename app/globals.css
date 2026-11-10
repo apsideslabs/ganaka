@@ -384,10 +384,31 @@
     0 1px 2px rgba(70, 55, 35, 0.05),
     0 16px 34px -24px rgba(70, 55, 35, 0.55);
 }
+/* Small tiles. The previous version set `background` on every rounded-xl.border,
+   which wiped the active nav tile's bg-slate-900 and left white text on white
+   paper. Tiles now lose their outline and carry a faint fill; anything with an
+   explicit dark background is left alone. */
 .ganaka-paper .rounded-xl.border {
-  background: rgba(253, 251, 246, 0.7);
-  border-color: rgba(120, 95, 60, 0.14);
+  border-color: transparent;
+  background-color: rgba(253, 251, 246, 0.45);
   border-radius: 3px;
+  box-shadow: none;
+}
+.ganaka-paper .rounded-xl.border:hover {
+  background-color: rgba(246, 240, 228, 0.9);
+}
+.ganaka-paper .rounded-xl.border[class*="bg-slate-9"],
+.ganaka-paper .rounded-xl.border[class*="bg-stone-9"],
+.ganaka-paper .rounded-xl.border[class*="bg-neutral-9"] {
+  background-color: #1B1814;
+  border-color: transparent;
+  box-shadow: 0 2px 10px -4px rgba(40, 30, 18, 0.5);
+}
+
+/* KPI strip: six outlined boxes read as a wireframe. Separate them with a
+   hairline instead of a border each. */
+.ganaka-paper .rounded-xl.border > .font-mono:first-child {
+  color: #8B7A5E;
 }
 
 /* --- display type --------------------------------------------------------
