@@ -49,8 +49,25 @@ const GRAHA: Record<string, { short: string; name: string; deva: string; ink: st
   saturn: { short: 'Sa', name: 'Śani', deva: 'शनि', ink: '#1E3A8A' },
   rahu: { short: 'Ra', name: 'Rāhu', deva: 'राहु', ink: '#6B21A8' },
   ketu: { short: 'Ke', name: 'Ketu', deva: 'केतु', ink: '#0F766E' },
+  // The engine also reports the true node; label it so it never prints as a raw
+  // id, but keep it out of the drawn chart where the mean node already sits.
+  true_rahu: { short: 'Rt', name: 'Rāhu (true)', deva: 'राहु', ink: '#6B21A8' },
+  true_ketu: { short: 'Kt', name: 'Ketu (true)', deva: 'केतु', ink: '#0F766E' },
 };
 const PLANETS = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
+
+
+/**
+ * The body face is Noto Serif, which has no Devanagari coverage, so any
+ * Devanagari embedded in a data string would render as empty boxes. Drop it
+ * rather than print tofu; IAST transliteration is kept.
+ */
+const clean = (v: unknown): string =>
+  String(v ?? '')
+    .replace(/[\u0900-\u097F]+/g, '')
+    .replace(/\(\s*[)\]}]*\s*\)/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
 /* ---------------------------------------------------------------- geometry */
 
@@ -194,7 +211,7 @@ function KV({ rows }: { rows: Array<[string, string]> }) {
       {rows.map(([k, v], i) => (
         <View key={i} style={S.kv}>
           <Text style={S.kvLabel}>{k.toUpperCase()}</Text>
-          <Text style={S.kvValue}>{v}</Text>
+          <Text style={S.kvValue}>{clean(v)}</Text>
         </View>
       ))}
     </View>
@@ -212,7 +229,7 @@ function Table({ cols, rows }: { cols: Col[]; rows: string[][] }) {
             key={i}
             style={[S.tCellHead, { width: `${c.width}%`, textAlign: c.align || 'left' }]}
           >
-            {c.label.toUpperCase()}
+            {clean(c.label).toUpperCase()}
           </Text>
         ))}
       </View>
@@ -223,7 +240,7 @@ function Table({ cols, rows }: { cols: Col[]; rows: string[][] }) {
               key={ci}
               style={[S.tCell, { width: `${cols[ci].width}%`, textAlign: cols[ci].align || 'left' }]}
             >
-              {cell}
+              {clean(cell)}
             </Text>
           ))}
         </View>
@@ -235,6 +252,7 @@ function Table({ cols, rows }: { cols: Col[]; rows: string[][] }) {
 function Kundali({ varga, size, title }: { varga: any; size: number; title: string }) {
   const byHouse: Record<number, Array<{ id: string; short: string; ink: string }>> = {};
   for (const [id, p] of Object.entries<any>(varga.planets || {})) {
+    if (id.startsWith('true_')) continue; // mean node already drawn
     const g = GRAHA[id] || { short: id.slice(0, 2), ink: INK };
     (byHouse[p.house] ||= []).push({ id, short: g.short, ink: g.ink });
   }
@@ -261,7 +279,10 @@ function Kundali({ varga, size, title }: { varga: any; size: number; title: stri
           const [sx, sy] = SIGN_AT[h - 1];
           const [cx, cy] = CENTRE_AT[h - 1];
           const list = byHouse[h] || [];
-          const fs = list.length > 4 ? 5.6 : list.length > 2 ? 6.4 : 7.4;
+          // A line of type is ~1.2x its size, so the step has to be at least
+          // that or consecutive planets overlap - which is exactly what
+          // happened in a house holding four of them.
+          const fs = list.length > 5 ? 5 : list.length > 3 ? 5.8 : list.length > 2 ? 6.6 : 7.6;
           return (
             <React.Fragment key={`h${h}`}>
               <Text
@@ -278,7 +299,7 @@ function Kundali({ varga, size, title }: { varga: any; size: number; title: stri
                   style={{
                     position: 'absolute',
                     left: (cx / 100) * size - 12,
-                    top: (cy / 100) * size - (list.length * fs * 0.62) / 2 + i * fs * 0.62,
+                    top: (cy / 100) * size - (list.length * fs * 1.22) / 2 + i * fs * 1.22,
                     width: 24,
                     textAlign: 'center',
                     fontSize: fs,
@@ -372,8 +393,8 @@ function Contents() {
           <View key={i} style={S.tocRow} wrap={false}>
             <Text style={S.tocNum}>{String(i + 1).padStart(2, '0')}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={S.tocTitle}>{c.title}</Text>
-              <Text style={S.tocDesc}>{c.desc}</Text>
+              <Text style={S.tocTitle}>{clean(c.title)}</Text>
+              <Text style={S.tocDesc}>{clean(c.desc)}</Text>
             </View>
           </View>
         ))}
@@ -449,10 +470,10 @@ export function ChartReport({
         <SubTitle>Pañcāṅga</SubTitle>
         <KV
           rows={[
-            ['Tithi', pn?.tithi ? `${pn.tithi.name} (${pn.tithi.number})` : '—'],
+            ['Tithi', pn?.tithi ? (String(pn.tithi.name).includes('(') ? pn.tithi.name : `${pn.tithi.name} (${pn.tithi.number})`) : '—'],
             ['Pakṣa', pn?.tithi?.paksha || '—'],
             ['Vāra', pn?.vara?.name || '—'],
-            ['Nakṣatra', pn?.nakshatra ? `${pn.nakshatra.name} (${pn.nakshatra.number})` : '—'],
+            ['Nakṣatra', pn?.nakshatra ? (String(pn.nakshatra.name).includes('(') ? pn.nakshatra.name : `${pn.nakshatra.name} (${pn.nakshatra.number})`) : '—'],
             ['Yoga', pn?.yoga?.name || '—'],
             ['Karaṇa', pn?.karana?.name || '—'],
             ['Sunrise', pn?.sunTimes?.sunrise || '—'],
@@ -670,15 +691,22 @@ export function ChartReport({
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
+            <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 6 }}>
+              {(() => {
+                const all = (chart as any).doshas.evaluatedDoshas as any[];
+                const formed = all.filter((d) => d.formationStatus !== 'Not Formed');
+                return `${formed.length} of ${all.length} doṣas evaluated are present. Absent ones are omitted.`;
+              })()}
+            </Text>
             <Table
               cols={[
                 { label: 'Doṣa', width: 46 },
                 { label: 'Status', width: 28 },
                 { label: 'Severity', width: 26 },
               ]}
-              rows={(chart as any).doshas.evaluatedDoshas.map((d: any) => [
-                d.name, d.formationStatus, d.severity,
-              ])}
+              rows={(chart as any).doshas.evaluatedDoshas
+                .filter((d: any) => d.formationStatus !== 'Not Formed')
+                .map((d: any) => [d.name, d.formationStatus, d.severity])}
             />
           </>
         )}
@@ -693,7 +721,7 @@ export function ChartReport({
               ]}
               rows={(chart as any).jaimini.charaKarakas.map((k: any) => [
                 `${k.karakaKey} · ${k.karakaName}`,
-                k.planetName,
+                GRAHA[String(k.planetName || '').toLowerCase()]?.name || k.planetName,
                 typeof k.degrees === 'number' ? k.degrees.toFixed(4) : '—',
               ])}
             />
