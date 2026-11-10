@@ -217,6 +217,16 @@ console.log('\n== Regression: bugs found by the Sanskrit audit ==');
     `${flat.filter((x, i) => x !== CANON_21[i]).length} differing`);
 }
 
+// --- Citations: no mechanically-generated verse numbers ------------------
+// The Nābhāsa set once carried verse numbers stepping one per yoga
+// (35.17, 35.18, … 35.28) while the actual Vāpī verse is BPHS 35.12.
+{
+  const nabhasa = readSource('lib/yogas/nabhasa-yogas.ts');
+  check('Vapi is pinned to the verified verse BPHS 35.12', nabhasa.includes('BPHS 35.12'));
+  check('no mechanical BPHS 35.17-35.28 run remains', !nabhasa.includes('BPHS Ch. 35, v. 2'));
+  check('nabhasa carries the citation caveat', nabhasa.includes('CITATION NOTE'));
+}
+
 /* ------------------------------------------------------ 3. STRUCTURAL INVARIANTS */
 
 console.log('\n== Structural invariants ==');
