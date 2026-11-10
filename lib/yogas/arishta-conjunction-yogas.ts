@@ -3,6 +3,14 @@
  * Sources: Bṛhat Jātaka (Ch. 13–14), Bṛhat Parāśara Horā Śāstra (Ch. 37, 44), Sārāvalī (Ch. 15–18), Jaimini Upadeśa Sūtras (Ch. 1)
  */
 
+/**
+ * CITATION NOTE — see lib/yogas/nabhasa-yogas.ts for the full explanation.
+ * Verse numbers in this file are edition-dependent (BPHS exists with 71, 97 and
+ * other chapter counts) and have not all been checked against a printed text.
+ * Treat chapter-level citations as reliable and verse-level ones as indicative.
+ */
+
+
 import { PlanetId } from '../astronomy/ephemeris';
 import {
   YogaDefinition,
