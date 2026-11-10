@@ -442,3 +442,83 @@
 .ganaka-paper .border-b.border-slate-200 {
   border-bottom-color: rgba(120, 95, 60, 0.18);
 }
+
+/* ==========================================================================
+   Reference pass: vedicrashi.in
+   --------------------------------------------------------------------------
+   Their language, measured from the live page: warm dark hero, a single bold
+   accent, a large type scale (h1 48 / h2 28 / body 16.8), 10px radii, soft
+   tinted cards with no visible border, and a glowing primary button.
+
+   Ganaka keeps its copper in place of their orange and its paper ground, but
+   adopts the scale, the tint, the radius and the glow.
+   ========================================================================== */
+
+.ganaka-paper {
+  /* type scale */
+  --t-h1: 2.85rem;   /* ~46px */
+  --t-h2: 1.7rem;    /* ~27px */
+  --t-h3: 1.15rem;
+  --t-body: 1.02rem; /* ~16.3px */
+  --t-kicker: 0.68rem;
+  /* surfaces */
+  --card-tint: #FFFCF5;
+  --card-line: rgba(140, 45, 25, 0.10);
+  --card-radius: 10px;
+}
+
+.ganaka-paper h1 {
+  font-family: var(--font-serif);
+  font-size: var(--t-h1);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  font-weight: 700;
+  color: #17120C;
+}
+.ganaka-paper h2 {
+  font-family: var(--font-serif);
+  font-size: var(--t-h2);
+  line-height: 1.2;
+  letter-spacing: -0.014em;
+  font-weight: 700;
+  color: #17120C;
+}
+.ganaka-paper h3 {
+  font-family: var(--font-serif);
+  font-size: var(--t-h3);
+  letter-spacing: -0.008em;
+  color: #17120C;
+}
+
+/* the small tracked label above a heading, in accent — their strongest device */
+.ganaka-paper .kicker,
+.ganaka-paper [class*="uppercase"][class*="tracking"] {
+  color: #A2470F;
+  font-family: var(--font-mono);
+  font-size: var(--t-kicker);
+  letter-spacing: 0.15em;
+}
+
+/* cards: tinted paper, no visible outline, 10px radius, warm soft shadow */
+.ganaka-paper .rounded-2xl.border {
+  background: var(--card-tint);
+  border-color: var(--card-line);
+  border-radius: var(--card-radius);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 1px 2px rgba(80, 55, 30, 0.05),
+    0 18px 40px -28px rgba(80, 55, 30, 0.6);
+}
+
+/* primary action: copper with the warm glow their orange has */
+.ganaka-paper button[class*="bg-[#8C2D19]"],
+.ganaka-paper a[class*="bg-[#8C2D19]"] {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 26px -10px rgba(140, 45, 25, 0.65);
+}
+
+/* generous vertical rhythm, as their sections have */
+.ganaka-paper > * + * {
+  margin-top: 1.6rem;
+}
