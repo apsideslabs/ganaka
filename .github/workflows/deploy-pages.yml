@@ -58,6 +58,12 @@ jobs:
 
       # PDF.js needs its worker served as a static file; the preview loads it
       # from <basePath>/pdf.worker.min.js
+      - name: Regression suite
+        run: |
+          npx --yes esbuild tests/run.ts --bundle --platform=node --format=cjs \
+            --outfile=/tmp/tests.cjs --log-level=error
+          node /tmp/tests.cjs
+
       - name: Fetch report fonts
         run: |
           mkdir -p public/fonts
