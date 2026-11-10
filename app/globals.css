@@ -522,3 +522,82 @@
 .ganaka-paper > * + * {
   margin-top: 1.6rem;
 }
+
+/* ==========================================================================
+   Hero band
+   --------------------------------------------------------------------------
+   The reference sites put a dark warm band at the top of the page and let
+   everything below sit on paper. That contrast is what reads as expensive.
+   Only the title block goes dark; the KPI strip below stays on paper, so the
+   inversion is limited to a small, known set of children.
+   ========================================================================== */
+
+.ganaka-paper .hero-band {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  background:
+    radial-gradient(900px 260px at 18% -40%, rgba(214, 116, 40, 0.30), transparent 70%),
+    linear-gradient(150deg, #241A12 0%, #332417 52%, #472B18 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 22px 48px -30px rgba(40, 26, 14, 0.85);
+}
+/* faint grain so the band reads as ink on stock, not a flat gradient */
+.ganaka-paper .hero-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* children: everything that was dark ink becomes light */
+.ganaka-paper .hero-band h1,
+.ganaka-paper .hero-band h1 input,
+.ganaka-paper .hero-band .text-slate-900,
+.ganaka-paper .hero-band .text-slate-800,
+.ganaka-paper .hero-band .text-slate-700,
+.ganaka-paper .hero-band strong {
+  color: #FBF4E7 !important;
+}
+.ganaka-paper .hero-band .text-slate-600,
+.ganaka-paper .hero-band .text-slate-500,
+.ganaka-paper .hero-band p,
+.ganaka-paper .hero-band span:not([class*="text-[#8C2D19]"]) {
+  color: #C9B79C;
+}
+.ganaka-paper .hero-band .text-slate-300 {
+  color: #6E5C45;
+}
+/* the copper accents keep their hue but lift to stay legible on dark */
+.ganaka-paper .hero-band .text-\[\#8C2D19\] {
+  color: #E8A163 !important;
+}
+/* chips inside the band */
+.ganaka-paper .hero-band [class*="bg-slate-"],
+.ganaka-paper .hero-band [class*="bg-[#8C2D19]/10"] {
+  background-color: rgba(255, 245, 230, 0.07) !important;
+  border-color: rgba(255, 245, 230, 0.16) !important;
+}
+.ganaka-paper .hero-band input[type="text"] {
+  color: #FBF4E7 !important;
+}
+.ganaka-paper .hero-band input[type="text"]:hover,
+.ganaka-paper .hero-band input[type="text"]:focus {
+  background-color: rgba(255, 245, 230, 0.08) !important;
+  border-color: rgba(232, 161, 99, 0.5) !important;
+}
+/* outline buttons in the band */
+.ganaka-paper .hero-band button[class*="border"],
+.ganaka-paper .hero-band a[class*="border"] {
+  background-color: rgba(255, 245, 230, 0.06);
+  border-color: rgba(255, 245, 230, 0.18);
+  color: #F0E4D0;
+}
+.ganaka-paper .hero-band button[class*="border"]:hover,
+.ganaka-paper .hero-band a[class*="border"]:hover {
+  background-color: rgba(255, 245, 230, 0.12);
+  border-color: rgba(232, 161, 99, 0.45);
+}
