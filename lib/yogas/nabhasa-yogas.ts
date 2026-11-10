@@ -17,7 +17,10 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     chapterAndVerse: 'BPHS Ch. 35, v. 17 / BJ 12:9 / Sarvāvalī 21:18',
     sanskritShloka: 'केन्द्रेभ्योऽन्यगताः सर्वे वापीयोगः प्रकीर्तितः । नित्यं सञ्चितवित्तोऽयं कृपणः स्थिरसौख्यभाक् ॥',
     category: 'Nabhasa',
-    definition: 'All seven non-node planets occupy exclusively the Panaphara (2, 5, 8, 11) or Apoklima (3, 6, 9, 12) houses, completely avoiding the Kendras (1, 4, 7, 10).',
+    definition:
+      'No planet occupies a kendra: all seven lie in the panapharas (2, 5, 8, 11) or apoklimas (3, 6, 9, 12). ' +
+      'BPHS 35.12 states it this way. Sārāvalī 21.14 reads it more strictly — all seven in the apoklimas, ' +
+      'or all seven in the panapharas, not a mixture. This implementation follows BPHS.',
     effects: 'Skilled in hoarding and preserving wealth, steady comforts, enduring financial stability, enduring physical stamina, and private contentment.',
     evaluate: (ctx) => {
       const occupiedHouses = Array.from(new Set(SEVEN_PLANETS.map((p) => ctx.planets[p]?.house).filter(Boolean)));
