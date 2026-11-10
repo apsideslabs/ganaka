@@ -8,9 +8,19 @@
 import { PlanetId } from '../astronomy/ephemeris';
 import { AshtakavargaResult, AshtakavargaTable, RashiNumber } from '../jyotisha/types';
 
-// Classical Parashari BAV Benefic House Rules (houses counted from respective grahas & Lagna)
-// 1-indexed house distances where a planet donates a bindu (1)
-const BAV_RULES: Record<
+/**
+ * Two recensions of the aṣṭakavarga tables are in circulation. They differ in
+ * exactly four cells, and every difference is count-preserving — both give the
+ * per-planet totals 48/49/39/54/56/52/39 and both sum to 337. A checksum
+ * therefore cannot tell them apart; only the source text can.
+ *
+ *   parashara     Bṛhat Parāśara Horā Śāstra ch. 66
+ *   varahamihira  Bṛhat Jātaka ch. 13, ślokas 1–7
+ *
+ * The tables below were previously labelled BPHS but were in fact the Bṛhat
+ * Jātaka reading. Both are now carried, and the BPHS reading is the default.
+ */
+const BAV_VARAHAMIHIRA: Record<
   string,
   Record<string, number[]>
 > = {
@@ -87,12 +97,43 @@ const BAV_RULES: Record<
 };
 
 /**
+ * BPHS ch. 66. Identical to the above except for four cells:
+ *   Moon from Moon      gains the 9th
+ *   Moon from Mars      loses the 9th
+ *   Moon from Jupiter   the 2nd in place of the 12th
+ *   Venus from Mars     the 4th in place of the 5th
+ */
+const BAV_PARASHARA: Record<string, Record<string, number[]>> = {
+  ...BAV_VARAHAMIHIRA,
+  moon: {
+    ...BAV_VARAHAMIHIRA.moon,
+    moon: [1, 3, 6, 7, 9, 10, 11],
+    mars: [2, 3, 5, 6, 10, 11],
+    jupiter: [1, 2, 4, 7, 8, 10, 11],
+  },
+  venus: {
+    ...BAV_VARAHAMIHIRA.venus,
+    mars: [3, 4, 6, 9, 11, 12],
+  },
+};
+
+export type AshtakavargaRecension = 'parashara' | 'varahamihira';
+
+export interface AshtakavargaOptions {
+  /** Which table recension to use. Defaults to BPHS ch. 66. */
+  recension?: AshtakavargaRecension;
+}
+
+/**
  * Calculates complete Aṣṭakavarga (BAV, SAV, Shodhana, Shodhya Pinda).
  */
 export function calculateAshtakavarga(
   planetaryRashiMap: Record<PlanetId, RashiNumber>,
-  lagnaRashi: RashiNumber
+  lagnaRashi: RashiNumber,
+  opts: AshtakavargaOptions = {}
 ): AshtakavargaResult {
+  const BAV_RULES =
+    opts.recension === 'varahamihira' ? BAV_VARAHAMIHIRA : BAV_PARASHARA;
   const grahas: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
 
   const positions: Record<string, number> = {
