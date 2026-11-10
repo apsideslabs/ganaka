@@ -352,32 +352,33 @@ console.log('\n== Sudarshana Cakra ==');
 /* --------------------------------------- SUDARSHANA GEOMETRY (no overflow) */
 
 {
-  // Mirrors cellSlot() in SudarshanaPanel.tsx. A graha label placed outside its
-  // band is what made the first version unreadable — it landed on the ring
-  // stroke, or on the next ring's text.
-  const BANDS: [number, number][] = [[40, 84], [88, 132], [136, 180]];
-  const cellSlot = (k: number, n: number, rIn: number, rOut: number): [number, number] => {
-    const mid = rIn + (rOut - rIn) * 0.62;
-    if (n === 1) return [mid, 0];
-    if (n === 2) return [rIn + 24 + k * 11, 0];
-    const rows = Math.ceil(n / 2);
-    const dr = rows > 1 ? 9 : 0;
-    const c = k % 2, r = Math.floor(k / 2);
-    return [mid + (r - (rows - 1) / 2) * dr, (c - 0.5) * 6.5];
+  // Mirrors the constants in SudarshanaPanel.tsx. Two failures have to be
+  // impossible: a graha label outside its band, and a stack tall enough to run
+  // into the neighbouring cell.
+  const BANDS: [number, number][] = [[34, 86], [90, 134], [138, 182]];
+  const MAX_STACK_STEP = 9.6;
+  const BAND_MID = 0.60;
+  const stackStep = (n: number, mid: number): number => {
+    if (n <= 1) return 0;
+    const halfRoom = Math.max(4, mid * Math.sin(Math.PI / 12) - 5);
+    return Math.min(MAX_STACK_STEP, (2 * halfRoom) / (n - 1));
   };
+
   let outside = 0;
-  let worstOffset = 0;
+  let tooTall = 0;
   for (const [rIn, rOut] of BANDS) {
+    const mid = rIn + (rOut - rIn) * BAND_MID;
+    if (mid < rIn + 4 || mid > rOut - 4) outside++;
     for (let n = 1; n <= 6; n++) {
-      for (let k = 0; k < n; k++) {
-        const [r, da] = cellSlot(k, n, rIn, rOut);
-        if (r < rIn + 4 || r > rOut - 4) outside++;
-        worstOffset = Math.max(worstOffset, Math.abs(da));
-      }
+      // half-height of the centred stack, in screen units
+      const half = ((n - 1) / 2) * stackStep(n, mid);
+      // the sector is 30 degrees; at radius `mid` its usable half-height is
+      // mid * sin(15) minus the label's own half-height (~4 units)
+      if (half > mid * Math.sin(Math.PI / 12) - 4) tooTall++;
     }
   }
-  check('no graha slot falls outside its ring band', outside === 0, String(outside));
-  check('angular offset stays inside the 30-degree cell', worstOffset < 15, worstOffset.toFixed(1));
+  check('every cell anchor sits inside its band', outside === 0, String(outside));
+  check('no stack is taller than its 30-degree sector', tooTall === 0, String(tooTall));
 }
 
 /* ------------------------------------------------------------------- REPORT */
