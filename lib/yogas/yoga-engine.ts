@@ -1003,7 +1003,10 @@ export const CLASSICAL_YOGA_REGISTRY: YogaDefinition[] = [
     chapterAndVerse: 'BJ Ch. 13, v. 6 / BPHS Ch. 37, v. 11-13 / Sarvāvalī 13:13',
     sanskritShloka: 'केमद्रुमे जन्म यस्य स भवेन्निर्धनः सदा । दुःखितः परप्रेष्यश्च मलिनाङ्गः कुचेष्टितः ॥',
     category: 'Chandra',
-    definition: 'No planet other than Sun, Rahu, or Ketu is in the 2nd or 12th house from Moon, AND no planet is in Kendra from Moon or Lagna.',
+    definition:
+      'No planet other than the Sun, Rāhu or Ketu occupies the 2nd or 12th house from the Moon. ' +
+      'A planet in a kendra from the Moon or from the Lagna cancels it (Kemadruma-bhaṅga, BPHS 37.14) — ' +
+      'that is a cancellation, not part of the formation.',
     effects: 'Creates periods of mental isolation and material hurdles; motivates intense inner spiritual self-reliance.',
     evaluate: (ctx) => {
       const moon = ctx.planets.moon;
