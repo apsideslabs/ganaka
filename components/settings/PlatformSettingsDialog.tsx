@@ -901,6 +901,57 @@ export function PlatformSettingsDialog({
               </div>
             )}
 
+            {/* 3b. AṢṬAKAVARGA RECENSION */}
+            {activeTab === 'display' && (
+              <div className="space-y-3">
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-600 font-bold block">
+                  Aṣṭakavarga Table Recension
+                </label>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Two classical texts give different bindu tables. They differ in four cells and
+                  both total 337, so the numbers will look plausible either way — only the source
+                  distinguishes them.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    id="platform-ashtakavarga-parashara"
+                    onClick={() => updateSetting('ashtakavargaRecension', 'parashara')}
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all active:scale-[0.98] ${
+                      settings.ashtakavargaRecension === 'parashara'
+                        ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-blue-600/30'
+                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-xs font-serif font-bold text-slate-900">
+                      Pārāśara — BPHS ch. 66
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                      The working convention of modern practice and most software. Default.
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    id="platform-ashtakavarga-mihira"
+                    onClick={() => updateSetting('ashtakavargaRecension', 'varahamihira')}
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all active:scale-[0.98] ${
+                      settings.ashtakavargaRecension === 'varahamihira'
+                        ? 'border-blue-600 bg-blue-50/40 text-slate-900 font-bold shadow-xs ring-1 ring-blue-600/30'
+                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-xs font-serif font-bold text-slate-900">
+                      Mihira — Bṛhat Jātaka ch. 13
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                      The older text (6th c.), continuously commented. Kāmarūpa&apos;s own almanac
+                      lineage cites Mihira.
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* 4. DISPLAY STYLE TAB */}
             {activeTab === 'display' && (
               <div className="space-y-5 animate-in fade-in duration-150">
