@@ -133,7 +133,13 @@ const MOOLATRIKONA: Record<string, { sign: number; from: number; to: number }> =
   saturn: { sign: 11, from: 0, to: 20 },
 };
 
-/** Saptavargaja Bala values, BPHS 27.6-27.19, in Virūpas. */
+/**
+ * Saptavargaja Bala values in Virūpas, stated in BPHS 27.3 as bhūtasaṃkhyā
+ * word-numerals — भूताब्धयः खाग्निनखास्तिथ्यो दश युगाः कराः = 45, 30, 20, 15,
+ * 10, 4, 2 — continuing the dignity list begun in 27.2.
+ *
+ * Note that Raman's table (22.5 / 7.5 / 3.75 / 1.875) is not in the verse.
+ */
 const SAPTAVARGAJA = {
   moolatrikona: 45,
   own: 30,
@@ -358,7 +364,7 @@ export function calculateShadbala(
     if (distFromDeb > 180) distFromDeb = 360 - distFromDeb;
     const ucchaBala = (distFromDeb / 180.0) * 60.0;
 
-    // 1.2 Saptavargaja Bala: dignity across seven vargas, BPHS 27.6-27.19.
+    // 1.2 Saptavargaja Bala: dignity across seven vargas, BPHS 27.2-27.3.
     let saptavargajaBala = 0;
     for (const v of VARGA_IDS) {
       const sign = vargaSign(lon, v);
