@@ -225,6 +225,17 @@ console.log('\n== Regression: bugs found by the Sanskrit audit ==');
   check('Vapi is pinned to the verified verse BPHS 35.12', nabhasa.includes('BPHS 35.12'));
   check('no mechanical BPHS 35.17-35.28 run remains', !nabhasa.includes('BPHS Ch. 35, v. 2'));
   check('nabhasa carries the citation caveat', nabhasa.includes('CITATION NOTE'));
+
+  // BPHS ch.75: the five Mahāpuruṣa yogas share one rule verse (75.1-2) and are
+  // described in blocks — 3-7, 8-12, 13-16, 17-19, 20-22. A mechanical +3 run
+  // (2-4, 5-7, 8-10, …) is the signature of numbering that was never looked up.
+  const engineSrc = readSource('lib/yogas/yoga-engine.ts');
+  check('Pancha Mahapurusha cite the shared rule verse 75.1-2',
+    (engineSrc.match(/BPHS 75\.1-2/g) || []).length === 5,
+    String((engineSrc.match(/BPHS 75\.1-2/g) || []).length));
+  check('no mechanical BPHS 75 verse run remains',
+    !/BPHS Ch\. 75, v\. (2-4|5-7|8-10|11-13|14-16)/.test(engineSrc));
+  check('Gajakesari pinned to BPHS 36.3', engineSrc.includes('BPHS 36.3'));
 }
 
 /* ------------------------------------------------------ 3. STRUCTURAL INVARIANTS */
