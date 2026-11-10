@@ -12,15 +12,57 @@ interface CelestialArmillaryLoadingProps {
 }
 
 /**
- * CelestialArmillaryLoading
- * Compact, high-precision astronomical armillary dial & sidereal planetary mechanism.
- * Tailored specifically to classical astronomical instrument design (Khagola / Gola Yantra):
- * - Refined compact footprint (160px - 180px) replacing bulky canvases
- * - Thin, delicate brass/slate instrument hairlines (0.5px - 0.75px)
- * - Classical 27 Nakṣatra azimuth ticks & 12 cardinal Rāśi coordinate marks
- * - Micro planetary spheres with subtle astronomical colors (no neon or AI-slop glows)
- * - Subtle, high-legibility typographic hierarchy with astronomical status indicators
+ * Gaṇaka — loading instrument.
+ *
+ * A single SVG armillary dial rather than a stack of spinning divs: crisper at
+ * any DPI, one compositing layer instead of six, and no blur or drop shadows on
+ * the overlay (both of which cost more than everything else here combined).
+ *
+ * The orbits are drawn to scale and turn at rates that follow Kepler's third
+ * law — period proportional to a^1.5 — so the inner planets genuinely outrun
+ * the outer ones. The radii below are a compressed but monotonic scale of the
+ * real semi-major axes (0.39, 0.72, 1.00, 1.52, 5.20, 9.54 AU).
  */
+
+/** Orbit radius in viewBox units, and the period it implies. */
+const ORBITS = [
+  { id: 'mercury', r: 26, size: 2.6, ink: '#8C8273', dur: 4.0 },
+  { id: 'venus', r: 38, size: 3.4, ink: '#C8B48B', dur: 7.1 },
+  { id: 'earth', r: 52, size: 3.4, ink: '#6E8494', dur: 11.3 },
+  { id: 'mars', r: 68, size: 3.0, ink: '#A9604A', dur: 16.9 },
+  { id: 'jupiter', r: 86, size: 4.6, ink: '#B08D5F', dur: 24.1 },
+  { id: 'saturn', r: 100, size: 4.0, ink: '#9C9182', dur: 30.2 },
+];
+
+const C = 120; // centre of the 240 viewBox
+const R_RING = 112;
+const R_INNER = 104;
+
+/** Tick marks: a fine graduation every 5°, a heavier one every 30°. */
+function ticks() {
+  const out: React.ReactElement[] = [];
+  for (let deg = 0; deg < 360; deg += 5) {
+    const major = deg % 30 === 0;
+    const a = ((deg - 90) * Math.PI) / 180;
+    const r1 = major ? R_INNER - 7 : R_INNER - 3;
+    const r2 = R_INNER;
+    out.push(
+      <line
+        key={deg}
+        x1={C + r1 * Math.cos(a)}
+        y1={C + r1 * Math.sin(a)}
+        x2={C + r2 * Math.cos(a)}
+        y2={C + r2 * Math.sin(a)}
+        stroke="#8A8279"
+        strokeWidth={major ? 1.1 : 0.6}
+        opacity={major ? 0.75 : 0.45}
+        strokeLinecap="round"
+      />
+    );
+  }
+  return out;
+}
+
 export function CelestialArmillaryLoading({
   fullScreen = false,
   isOverlay = false,
@@ -29,168 +71,79 @@ export function CelestialArmillaryLoading({
   className = '',
   size = 'md',
 }: CelestialArmillaryLoadingProps) {
-  // Dimensions calibrated to be compact, elegant, and non-intrusive
   const dimensionClass =
-    size === 'sm'
-      ? 'w-24 h-24'
-      : size === 'lg'
-      ? 'w-36 h-36'
-      : 'w-28 h-28 sm:w-32 sm:h-32';
+    size === 'sm' ? 'w-24 h-24' : size === 'lg' ? 'w-40 h-40' : 'w-28 h-28 sm:w-32 sm:h-32';
 
   const content = (
     <div className="flex flex-col items-center justify-center p-3 text-center select-none">
-      {/* Precision Astrolabe / Armillary Instrument Stage */}
-      <div className={`relative ${dimensionClass} flex items-center justify-center`}>
-        {/* Outer Graduated Astrolabe Ring (27 Nakṣatras & 12 Rāśis) */}
+      <div className={`relative ${dimensionClass}`}>
         <svg
           viewBox="0 0 240 240"
-          className="absolute inset-0 w-full h-full animate-[spin_160s_linear_infinite] text-stone-400/40 pointer-events-none"
+          className="w-full h-full"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
-          {/* Outer Calibration Ring */}
-          <circle cx="120" cy="120" r="115" stroke="currentColor" strokeWidth="0.6" />
-          <circle
-            cx="120"
-            cy="120"
-            r="110"
-            stroke="currentColor"
-            strokeWidth="0.4"
-            strokeDasharray="1.5 2.5"
-            opacity="0.65"
-          />
-          <circle cx="120" cy="120" r="88" stroke="currentColor" strokeWidth="0.35" opacity="0.3" />
+          {/* instrument frame */}
+          <circle cx={C} cy={C} r={R_RING} stroke="#8A8279" strokeWidth="1" opacity="0.55" />
+          <circle cx={C} cy={C} r={R_INNER} stroke="#8A8279" strokeWidth="0.5" opacity="0.4" />
+          {ticks()}
 
-          {/* 12 Cardinal & Kendra Rāśi Division Rays */}
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => {
-            const isKendra = deg % 90 === 0;
-            return (
-              <line
-                key={`cad-deg-${deg}`}
-                x1="120"
-                y1="5"
-                x2="120"
-                y2={isKendra ? '15' : '11'}
-                stroke={isKendra ? '#8C2D19' : 'currentColor'}
-                strokeWidth={isKendra ? '1' : '0.5'}
-                strokeOpacity={isKendra ? '0.9' : '0.5'}
-                transform={`rotate(${deg} 120 120)`}
-              />
-            );
-          })}
-
-          {/* 27 Nakṣatra Division Ticks (13°20') */}
-          {Array.from({ length: 27 }).map((_, i) => (
-            <line
-              key={`cad-nak-${i}`}
-              x1="120"
-              y1="9"
-              x2="120"
-              y2="13"
-              stroke="currentColor"
-              strokeWidth="0.4"
-              opacity="0.4"
-              transform={`rotate(${(i * 360) / 27} 120 120)`}
+          {/* orbits, faintest at the outside so the centre stays legible */}
+          {ORBITS.map((o) => (
+            <circle
+              key={`o-${o.id}`}
+              cx={C}
+              cy={C}
+              r={o.r}
+              stroke="#8A8279"
+              strokeWidth="0.45"
+              opacity={0.18 + (1 - o.r / R_RING) * 0.18}
             />
           ))}
+
+          {/* planets: one rotating group each, centre-anchored so no origin maths */}
+          {ORBITS.map((o) => (
+            <g key={`p-${o.id}`}>
+              <animateTransform
+                attributeName="transform"
+                attributeType="XML"
+                type="rotate"
+                from={`0 ${C} ${C}`}
+                to={`360 ${C} ${C}`}
+                dur={`${o.dur}s`}
+                repeatCount="indefinite"
+              />
+              {o.id === 'saturn' && (
+                <ellipse
+                  cx={C}
+                  cy={C - o.r}
+                  rx={o.size + 4.5}
+                  ry={o.size * 0.4}
+                  stroke={o.ink}
+                  strokeWidth="0.9"
+                  opacity="0.8"
+                  transform={`rotate(-18 ${C} ${C - o.r})`}
+                />
+              )}
+              <circle cx={C} cy={C - o.r} r={o.size} fill={o.ink} />
+            </g>
+          ))}
+
+          {/* sun at the centre */}
+          <circle cx={C} cy={C} r="6.5" fill="#8C2D19" opacity="0.9" />
+          <circle cx={C} cy={C} r="6.5" stroke="#C8B48B" strokeWidth="0.8" opacity="0.8" />
         </svg>
-
-        {/* Ecliptic Oblique Axis Ring (Tilted at 23.44° angle) */}
-        <svg
-          viewBox="0 0 240 240"
-          className="absolute inset-1 w-[calc(100%-8px)] h-[calc(100%-8px)] animate-[spin_100s_linear_infinite_reverse] pointer-events-none opacity-30 text-[#8C2D19]"
-          fill="none"
-        >
-          <ellipse
-            cx="120"
-            cy="120"
-            rx="96"
-            ry="38"
-            stroke="currentColor"
-            strokeWidth="0.5"
-            strokeDasharray="3 3"
-            transform="rotate(-23.44 120 120)"
-          />
-        </svg>
-
-        {/* Compact Prograde Concentric Planetary Orbits */}
-
-        {/* Orbit 5: Saturn (Śanaiścara) with rings - r = 78px, 26s */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[156px] h-[156px] rounded-full border border-stone-300/40 relative animate-[spin_26s_linear_infinite]">
-            <div
-              className="absolute -top-[3.5px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-stone-300 border border-stone-400 flex items-center justify-center"
-              title="Śani (Saturn)"
-            >
-              <div className="absolute -inset-[2px] rounded-full border border-amber-700/50 rotate-45 scale-y-[0.3]" />
-            </div>
-          </div>
-        </div>
-
-        {/* Orbit 4: Jupiter (Guru) - r = 62px, 17s */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[124px] h-[124px] rounded-full border border-stone-300/40 relative animate-[spin_17s_linear_infinite]">
-            <div
-              className="absolute -top-[3.5px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-amber-600/90 border border-amber-300"
-              title="Guru (Jupiter)"
-            />
-          </div>
-        </div>
-
-        {/* Orbit 3: Mars (Maṅgala) - r = 48px, 11s */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[96px] h-[96px] rounded-full border border-stone-300/45 relative animate-[spin_11s_linear_infinite]">
-            <div
-              className="absolute -top-[3px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#8C2D19] border border-amber-200"
-              title="Maṅgala (Mars)"
-            />
-          </div>
-        </div>
-
-        {/* Orbit 2: Earth & Moon (Bhūmi & Candra) - r = 35px, 7s */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[70px] h-[70px] rounded-full border border-stone-300/50 relative animate-[spin_7s_linear_infinite]">
-            <div
-              className="absolute -top-[3px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-stone-600 border border-stone-300 flex items-center justify-center"
-              title="Pṛthvī (Earth)"
-            >
-              <div className="absolute -inset-[3px] rounded-full animate-[spin_1.5s_linear_infinite]">
-                <div className="w-[3px] h-[3px] rounded-full bg-stone-200 absolute -top-[1px] left-1/2 -translate-x-1/2" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Orbit 1: Mercury & Venus (Inner Sidereal Grahas) - r = 22px, 3.2s */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[44px] h-[44px] rounded-full border border-stone-300/55 relative animate-[spin_3.2s_linear_infinite]">
-            <div
-              className="absolute -top-[2px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-stone-400 border border-stone-500"
-              title="Budha / Śukra"
-            />
-          </div>
-        </div>
-
-        {/* Subtle Central Surya (Classical Refined Solar Core) */}
-        <div className="relative z-10 flex items-center justify-center">
-          <div className="w-3.5 h-3.5 rounded-full bg-[#8C2D19] border border-amber-300/70 flex items-center justify-center shadow-xs">
-            <div className="w-1 h-1 rounded-full bg-amber-100" />
-          </div>
-        </div>
       </div>
 
-      {/* Professional Classical Instrumentation Caption */}
       {(title || subtitle) && (
-        <div className="mt-2.5 space-y-0.5">
+        <div className="mt-3 space-y-1">
           {title && (
-            <p className="font-serif text-xs font-semibold text-stone-800 tracking-tight">
-              {title}
-            </p>
+            <p className="font-serif text-xs font-semibold text-stone-800 tracking-tight">{title}</p>
           )}
           {subtitle && (
-            <p className="font-mono text-[10px] text-stone-500 tracking-normal flex items-center justify-center gap-1.5">
-              <span className="inline-block w-1 h-1 rounded-full bg-[#8C2D19]/70 animate-pulse" />
-              <span>{subtitle}</span>
+            <p className="font-mono text-[10px] text-stone-500 leading-relaxed max-w-[15rem] mx-auto">
+              {subtitle}
             </p>
           )}
         </div>
@@ -204,7 +157,7 @@ export function CelestialArmillaryLoading({
         id="ganaka-celestial-overlay"
         role="status"
         aria-label={title || 'Calculating astronomical ephemeris'}
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-[#FAF9F6]/92 backdrop-blur-xs animate-in fade-in duration-150 ${className}`}
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-[#FAF9F6] ${className}`}
       >
         {content}
       </div>
@@ -219,9 +172,5 @@ export function CelestialArmillaryLoading({
     );
   }
 
-  return (
-    <div className={`w-full py-6 flex items-center justify-center ${className}`}>
-      {content}
-    </div>
-  );
+  return <div className={`w-full py-6 flex items-center justify-center ${className}`}>{content}</div>;
 }
