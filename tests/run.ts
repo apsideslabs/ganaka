@@ -349,6 +349,37 @@ console.log('\n== Sudarshana Cakra ==');
   }
 }
 
+/* --------------------------------------- SUDARSHANA GEOMETRY (no overflow) */
+
+{
+  // Mirrors cellSlot() in SudarshanaPanel.tsx. A graha label placed outside its
+  // band is what made the first version unreadable — it landed on the ring
+  // stroke, or on the next ring's text.
+  const BANDS: [number, number][] = [[40, 84], [88, 132], [136, 180]];
+  const cellSlot = (k: number, n: number, rIn: number, rOut: number): [number, number] => {
+    const mid = rIn + (rOut - rIn) * 0.62;
+    if (n === 1) return [mid, 0];
+    if (n === 2) return [rIn + 24 + k * 11, 0];
+    const rows = Math.ceil(n / 2);
+    const dr = rows > 1 ? 9 : 0;
+    const c = k % 2, r = Math.floor(k / 2);
+    return [mid + (r - (rows - 1) / 2) * dr, (c - 0.5) * 6.5];
+  };
+  let outside = 0;
+  let worstOffset = 0;
+  for (const [rIn, rOut] of BANDS) {
+    for (let n = 1; n <= 6; n++) {
+      for (let k = 0; k < n; k++) {
+        const [r, da] = cellSlot(k, n, rIn, rOut);
+        if (r < rIn + 4 || r > rOut - 4) outside++;
+        worstOffset = Math.max(worstOffset, Math.abs(da));
+      }
+    }
+  }
+  check('no graha slot falls outside its ring band', outside === 0, String(outside));
+  check('angular offset stays inside the 30-degree cell', worstOffset < 15, worstOffset.toFixed(1));
+}
+
 /* ------------------------------------------------------------------- REPORT */
 
 console.log(`\n${'='.repeat(52)}`);
