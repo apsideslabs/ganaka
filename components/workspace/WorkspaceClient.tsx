@@ -38,6 +38,7 @@ import { TransitsPanel } from './TransitsPanel';
 import { BhavaChalitPanel } from './BhavaChalitPanel';
 import { MuhurtaPanel } from './MuhurtaPanel';
 import { AvakahadaPanel } from './AvakahadaPanel';
+import { SudarshanaPanel } from './SudarshanaPanel';
 import { IndicationsPanel } from './IndicationsPanel';
 import { MatchingBridgePanel } from './MatchingBridgePanel';
 import { GanakaButton } from '../ui/GanakaButton';
@@ -186,6 +187,7 @@ const PRESETS: PresetEvent[] = [
 export type WorkspaceTab =
   | 'kundali'
   | 'avakahada'
+  | 'sudarshana'
   | 'vargas'
   | 'navamsha'
   | 'planets'
@@ -233,6 +235,7 @@ const NAV_DOMAINS: NavDomain[] = [
     subTabs: [
       { id: 'kundali', name: 'Lagna Kuṇḍalī (D-1)', shortName: 'D-1 Lagna', icon: Compass },
       { id: 'avakahada', name: 'Avakahada Cakra (अवकहड़ा चक्र)', shortName: 'Avakahada Cakra', icon: Sparkles, badge: 'Birth Matrix' },
+      { id: 'sudarshana', name: 'Sudarśana Cakra (सुदर्शन चक्र)', shortName: 'Sudarśana Cakra', icon: Layers, badge: 'Triple Chart' },
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
       { id: 'navamsha', name: 'Navāṃśa (D-9) Reference & Grahas', shortName: 'Navāṃśa Table', icon: Table, badge: 'Canonical D9' },
       { id: 'matching_bridge', name: 'Vivāha Kūṭa Matching Profile', shortName: 'Kuṭa Profile', icon: Users, badge: 'Matching' },
@@ -1741,6 +1744,10 @@ ${Object.values(chartData.planets)
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'sudarshana' && (
+          <SudarshanaPanel chart={chartData} />
         )}
 
         {activeTab === 'avakahada' && (
