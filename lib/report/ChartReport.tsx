@@ -16,12 +16,14 @@ import {
   View,
   Svg,
   Polygon,
+  Path,
+  Circle,
   Line,
   StyleSheet,
 } from '@react-pdf/renderer';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
-import { SERIF } from './fonts';
+import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
 const MUTED = '#7A7267';
@@ -55,6 +57,30 @@ const GRAHA: Record<string, { short: string; name: string; deva: string; ink: st
   true_ketu: { short: 'Kt', name: 'Ketu (true)', deva: 'केतु', ink: '#0F766E' },
 };
 const PLANETS = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
+
+/** Unicode glyphs, drawn with Noto Sans Symbols. */
+const RASHI_GLYPH = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const GRAHA_GLYPH: Record<string, string> = {
+  sun: '☉', moon: '☽', mars: '♂', mercury: '☿', jupiter: '♃',
+  venus: '♀', saturn: '♄', rahu: '☊', ketu: '☋',
+};
+/** Sun lives in Symbols 2; everything else in Symbols 1. */
+const glyphFamily = (id: string) => (id === 'sun' ? SYMBOLS2 : SYMBOLS);
+
+const RAD = Math.PI / 180;
+const pt = (cx: number, cy: number, r: number, deg: number) => [
+  cx + r * Math.cos(deg * RAD),
+  cy + r * Math.sin(deg * RAD),
+] as const;
+
+/** Annulus sector, for the zodiac ring. */
+function sector(cx: number, cy: number, rOut: number, rIn: number, a0: number, a1: number) {
+  const [x1, y1] = pt(cx, cy, rOut, a0);
+  const [x2, y2] = pt(cx, cy, rOut, a1);
+  const [x3, y3] = pt(cx, cy, rIn, a1);
+  const [x4, y4] = pt(cx, cy, rIn, a0);
+  return `M ${x1} ${y1} A ${rOut} ${rOut} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${rIn} ${rIn} 0 0 0 ${x4} ${y4} Z`;
+}
 
 
 /**
@@ -141,6 +167,26 @@ const S = StyleSheet.create({
   chartBox: { backgroundColor: PAPER, borderWidth: 0.5, borderColor: '#E4DCCC', position: 'relative' },
 
   /* cover */
+  coverPage: { fontFamily: SERIF, backgroundColor: '#FDFBF6', color: INK },
+  frameOuter: { position: 'absolute', top: 18, left: 18, right: 18, bottom: 18, borderWidth: 0.9, borderColor: '#B08D4F' },
+  frameInner: { position: 'absolute', top: 23, left: 23, right: 23, bottom: 23, borderWidth: 0.35, borderColor: '#D3BE93' },
+  corner: { position: 'absolute', width: 5, height: 5, backgroundColor: '#B08D4F', transform: 'rotate(45deg)' },
+  mastBrand: { position: 'absolute', top: 46, left: 0, width: '100%', textAlign: 'center', fontSize: 13, letterSpacing: 7, color: ACCENT },
+  mastTag: { position: 'absolute', top: 63, left: 0, width: '100%', textAlign: 'center', fontSize: 5.6, letterSpacing: 2.6, color: '#8A7A5E' },
+  mastRule: { position: 'absolute', top: 74, left: 214, width: 167, height: 0.5, backgroundColor: '#C9B790' },
+  mastDiamond: { position: 'absolute', top: 71.5, left: 295, width: 4, height: 4, backgroundColor: '#B08D4F', transform: 'rotate(45deg)' },
+  coverKicker2: { position: 'absolute', top: 552, left: 0, width: '100%', textAlign: 'center', fontSize: 6, letterSpacing: 3, color: '#8A7A5E' },
+  coverBigTitle: { position: 'absolute', top: 570, left: 0, width: '100%', textAlign: 'center', fontSize: 30, color: ACCENT },
+  coverSubName: { position: 'absolute', top: 610, left: 0, width: '100%', textAlign: 'center', fontSize: 12, fontStyle: 'italic', color: INK },
+  coverDivider: { position: 'absolute', top: 636, left: 246, width: 103, height: 0.4, backgroundColor: '#C9B790' },
+  coverDividerDiamond: { position: 'absolute', top: 633.5, left: 295.5, width: 4, height: 4, backgroundColor: '#B08D4F', transform: 'rotate(45deg)' },
+  infoBar: { position: 'absolute', top: 664, left: 66, width: 463, flexDirection: 'row', borderWidth: 0.6, borderColor: '#D3BE93', backgroundColor: '#FBF6EA', paddingVertical: 11 },
+  infoCol: { flex: 1, alignItems: 'center', paddingHorizontal: 4 },
+  infoSep: { width: 0.4, backgroundColor: '#D8C7A4' },
+  infoLabel: { fontSize: 5.2, letterSpacing: 1.6, color: '#9A8A6E', marginBottom: 3 },
+  infoValue: { fontSize: 9.2, color: INK },
+  infoSub: { fontSize: 6.2, color: MUTED, marginTop: 2 },
+  coverImprint: { position: 'absolute', top: 752, left: 0, width: '100%', textAlign: 'center', fontSize: 5.4, letterSpacing: 1.8, color: '#8A7A5E' },
   cover: { paddingHorizontal: 42, paddingTop: 54, paddingBottom: 40, fontFamily: SERIF, backgroundColor: PAPER },
   coverRule: { height: 1.4, backgroundColor: ACCENT, marginBottom: 4 },
   coverBrandRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 5 },
@@ -317,57 +363,185 @@ function Kundali({ varga, size, title }: { varga: any; size: number; title: stri
   );
 }
 
+/** The cover: ornamental frame, zodiac wheel, title block, particulars bar. */
 function Cover({ chart, personName }: { chart: JyotishaChart; personName?: string }) {
   const bd = chart.meta.birthDetails;
   const p2 = (n: number) => String(n).padStart(2, '0');
+
+  const W = 595.28;
+  const H = 841.89;
+  const cx = W / 2;
+  const cy = 352;
+  const R_OUT = 168;
+  const R_RASHI = 140;   // inner edge of the zodiac band
+  const R_HOUSE = 120;   // inner edge of the house-number band
+  const R_FIELD = 52;    // inner field, planets orbit here
+  const R_CENTRE = 44;
+
+  const lagnaRashi = chart.lagna.rashiNumber;
+
+  // planet glyphs grouped by house, spread across each 30 degree sector
+  const byHouse: Record<number, string[]> = {};
+  for (const id of PLANETS) {
+    const pl: any = (chart.planets as any)[id];
+    if (!pl) continue;
+    (byHouse[pl.house] ||= []).push(id);
+  }
+
   return (
-    <Page size="A4" style={S.cover}>
-      <View style={S.coverBrandRow}>
-        <Text style={S.coverBrand}>GANAKA</Text>
-        <Text style={S.coverTag}>CLASSICAL JYOTIṢA ENGINE</Text>
-      </View>
-      <View style={S.coverRule} />
+    <Page size="A4" style={S.coverPage}>
+      {/* ornamental frame */}
+      <View style={S.frameOuter} fixed />
+      <View style={S.frameInner} fixed />
+      <View style={[S.corner, { top: 10, left: 10 }]} fixed />
+      <View style={[S.corner, { top: 10, right: 10 }]} fixed />
+      <View style={[S.corner, { bottom: 10, left: 10 }]} fixed />
+      <View style={[S.corner, { bottom: 10, right: 10 }]} fixed />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 96 }}>
-        <View style={{ width: 300 }}>
-          <Text style={S.coverTitle}>Jyotiṣa</Text>
-          <Text style={S.coverTitle2}>Birth Chart</Text>
-          <Text style={S.coverKicker}>C O M P L E T E   R E P O R T</Text>
-          {personName ? <Text style={S.coverName}>{personName}</Text> : null}
-          <Text style={S.coverDate}>
-            {`${p2(bd.day)}-${p2(bd.month)}-${bd.year}   ·   ${p2(bd.hour)}:${p2(bd.minute)}:${p2(bd.second)}`}
-          </Text>
-          <Text style={S.coverPlace}>{bd.locationName || '—'}</Text>
-          <Text style={S.coverCoords}>
-            {`Lat ${Math.abs(bd.latitude).toFixed(4)}${bd.latitude >= 0 ? ' N' : ' S'}   ·   Lon ${Math.abs(bd.longitude).toFixed(4)}${bd.longitude >= 0 ? ' E' : ' W'}   ·   UTC${bd.timezoneOffsetHours >= 0 ? '+' : ''}${bd.timezoneOffsetHours}`}
-          </Text>
-        </View>
+      {/* masthead */}
+      <Text style={S.mastBrand}>GANAKA</Text>
+      <Text style={S.mastTag}>CLASSICAL JYOTISA ENGINE</Text>
+      <View style={S.mastRule} />
+      <View style={S.mastDiamond} />
 
-        <View style={{ width: 130, alignItems: 'center', marginTop: 6 }}>
-          <Svg width={130} height={130} viewBox="0 0 100 100">
-            <Polygon points="50,2 98,50 50,98 2,50" fill="none" stroke={ACCENT} strokeWidth={0.8} />
-            <Polygon points="50,20 80,50 50,80 20,50" fill="none" stroke={ACCENT} strokeWidth={0.5} />
-            <Polygon points="50,38 62,50 50,62 38,50" fill={ACCENT} />
-          </Svg>
-          <Text style={{ fontSize: 6.4, letterSpacing: 1.6, color: ACCENT, marginTop: 8 }}>LAGNA</Text>
-          <Text style={{ fontSize: 12, marginTop: 2 }}>{RASHI[chart.lagna.rashiNumber - 1]}</Text>
-          <Text style={{ fontSize: 7, color: MUTED, marginTop: 1 }}>{chart.lagna.degreeStr}</Text>
+      {/* zodiac wheel */}
+      <View style={{ position: 'absolute', top: cy - R_OUT - 12, left: cx - R_OUT - 12, width: (R_OUT + 12) * 2, height: (R_OUT + 12) * 2 }}>
+        <Svg width={(R_OUT + 12) * 2} height={(R_OUT + 12) * 2} viewBox={`0 0 ${(R_OUT + 12) * 2} ${(R_OUT + 12) * 2}`}>
+          {Array.from({ length: 12 }, (_, i) => {
+            const a0 = -90 + i * 30 - 15;
+            const a1 = a0 + 30;
+            const c = (R_OUT + 12);
+            return (
+              <Path
+                key={i}
+                d={sector(c, c, R_OUT, R_RASHI, a0, a1)}
+                fill={i % 2 === 0 ? '#F6EEDD' : '#FBF6EA'}
+                stroke="#C9B790"
+                strokeWidth={0.5}
+              />
+            );
+          })}
+          <Circle cx={R_OUT + 12} cy={R_OUT + 12} r={R_HOUSE} fill="none" stroke="#C9B790" strokeWidth={0.5} />
+          <Circle cx={R_OUT + 12} cy={R_OUT + 12} r={R_CENTRE} fill="#F6EEDD" stroke={ACCENT} strokeWidth={0.9} />
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = -90 + i * 30;
+            const c = R_OUT + 12;
+            const [x1, y1] = pt(c, c, R_CENTRE, a);
+            const [x2, y2] = pt(c, c, R_HOUSE, a);
+            return <Line key={`l${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#D8C7A4" strokeWidth={0.35} />;
+          })}
+        </Svg>
+
+        {/* rashi glyphs */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const house = i + 1;
+          const rashi = ((lagnaRashi - 1 + i) % 12) + 1;
+          const a = -90 + i * 30;
+          const [x, y] = pt(R_OUT + 12, R_OUT + 12, (R_OUT + R_RASHI) / 2, a);
+          return (
+            <Text
+              key={`r${i}`}
+              style={{ position: 'absolute', left: x - 10, top: y - 7, width: 20, textAlign: 'center',
+                       fontFamily: SYMBOLS, fontSize: 13, color: house === 1 ? ACCENT : '#7A6A4F' }}
+            >
+              {RASHI_GLYPH[rashi - 1]}
+            </Text>
+          );
+        })}
+
+        {/* house numbers */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = -90 + i * 30;
+          const [x, y] = pt(R_OUT + 12, R_OUT + 12, R_HOUSE - 9, a);
+          return (
+            <Text
+              key={`h${i}`}
+              style={{ position: 'absolute', left: x - 8, top: y - 4, width: 16, textAlign: 'center',
+                       fontSize: 6.4, color: '#9A8A6E' }}
+            >
+              {i + 1}
+            </Text>
+          );
+        })}
+
+        {/* planets */}
+        {Object.entries(byHouse).flatMap(([h, ids]) =>
+          ids.map((id, k) => {
+            const n = ids.length;
+            // Keep the group inside its 30 degree sector and give each glyph a
+            // slot wide enough to read: alternate two radii when crowded, and
+            // step the angle by at least a glyph width.
+            const rMid = (R_HOUSE + R_FIELD) / 2;
+            const radii = n > 3 ? [rMid - 14, rMid + 14] : n > 2 ? [rMid - 10, rMid + 10] : [rMid];
+            const stepDeg = Math.min(6.5, 20 / Math.max(n, 1));
+            const a = -90 + (Number(h) - 1) * 30 + (k - (n - 1) / 2) * stepDeg;
+            const r = radii[k % radii.length];
+            const [x, y] = pt(R_OUT + 12, R_OUT + 12, r, a);
+            const gs = n > 3 ? 8.5 : n > 2 ? 9.5 : 11;
+            return (
+              <Text
+                key={`${h}-${id}`}
+                style={{ position: 'absolute', left: x - 9, top: y - gs * 0.55, width: 18, textAlign: 'center',
+                         fontFamily: glyphFamily(id), fontSize: gs, color: GRAHA[id]?.ink || INK }}
+              >
+                {GRAHA_GLYPH[id]}
+              </Text>
+            );
+          })
+        )}
+
+        {/* lagna in the centre */}
+        <Text style={{ position: 'absolute', left: R_OUT + 12 - 12, top: R_OUT + 12 - 22, width: 24,
+                       textAlign: 'center', fontFamily: SYMBOLS, fontSize: 18, color: ACCENT }}>
+          {RASHI_GLYPH[lagnaRashi - 1]}
+        </Text>
+        <Text style={{ position: 'absolute', left: R_OUT + 12 - 24, top: R_OUT + 12 + 5, width: 48,
+                       textAlign: 'center', fontSize: 4.8, letterSpacing: 1.2, color: '#8A7A5E' }}>
+          LAGNA
+        </Text>
+      </View>
+
+      {/* ascendant marker at the top of the wheel */}
+      <Text style={{ position: 'absolute', top: cy - R_OUT - 24, left: cx - 14, width: 28, textAlign: 'center',
+                     fontSize: 5.8, letterSpacing: 1.6, color: ACCENT }}>ASC</Text>
+      <View style={{ position: 'absolute', top: cy - R_OUT - 15, left: cx - 5, width: 10, height: 6 }}>
+        <Svg width={10} height={6} viewBox="0 0 10 6">
+          <Polygon points="0,0 10,0 5,6" fill={ACCENT} />
+        </Svg>
+      </View>
+
+      {/* title block */}
+      <Text style={S.coverKicker2}>C O M P L E T E   J Y O T I S A   R E P O R T</Text>
+      <Text style={S.coverBigTitle}>Jyotiṣa Birth Chart</Text>
+      {personName ? <Text style={S.coverSubName}>{personName}</Text> : null}
+      <View style={S.coverDivider} />
+      <View style={S.coverDividerDiamond} />
+
+      {/* particulars bar */}
+      <View style={S.infoBar}>
+        <View style={S.infoCol}>
+          <Text style={S.infoLabel}>DATE &amp; TIME</Text>
+          <Text style={S.infoValue}>{`${p2(bd.day)}-${p2(bd.month)}-${bd.year}  ·  ${p2(bd.hour)}:${p2(bd.minute)}`}</Text>
+          <Text style={S.infoSub}>{`UTC${bd.timezoneOffsetHours >= 0 ? '+' : ''}${bd.timezoneOffsetHours}`}</Text>
+        </View>
+        <View style={S.infoSep} />
+        <View style={S.infoCol}>
+          <Text style={S.infoLabel}>PLACE</Text>
+          <Text style={S.infoValue}>{bd.locationName || '—'}</Text>
+          <Text style={S.infoSub}>{`${Math.abs(bd.latitude).toFixed(2)}° ${bd.latitude >= 0 ? 'N' : 'S'} · ${Math.abs(bd.longitude).toFixed(2)}° ${bd.longitude >= 0 ? 'E' : 'W'}`}</Text>
+        </View>
+        <View style={S.infoSep} />
+        <View style={S.infoCol}>
+          <Text style={S.infoLabel}>LAGNA</Text>
+          <Text style={S.infoValue}>{RASHI[lagnaRashi - 1]}</Text>
+          <Text style={S.infoSub}>{chart.lagna.degreeStr}</Text>
         </View>
       </View>
 
-      <View style={S.coverFoot} fixed>
-        <View style={S.coverFootRule} />
-        <View style={S.coverFootRow}>
-          <Text style={S.coverFootTxt}>
-            {`Ayanāṃśa ${chart.meta.ayanamshaType} ${chart.meta.ayanamshaFormatted}`}
-          </Text>
-          <Text style={S.coverFootTxt}>{chart.meta.engineVersion}</Text>
-        </View>
-        <View style={[S.coverFootRow, { marginTop: 2 }]}>
-          <Text style={S.coverFootTxt}>{chart.meta.houseSystem.replace('_', ' ')}</Text>
-          <Text style={S.coverFootTxt}>{new Date().toISOString().slice(0, 10)}</Text>
-        </View>
-      </View>
+      {/* imprint */}
+      <Text style={S.coverImprint}>
+        {`${chart.meta.ayanamshaType.toUpperCase()} AYANĀṂŚA   ·   ${chart.meta.houseSystem.replace('_', ' ').toUpperCase()}   ·   VIṂŚOTTARĪ DAŚĀ`}
+      </Text>
     </Page>
   );
 }
