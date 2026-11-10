@@ -36,9 +36,9 @@ const RING: Record<
   SudarshanaReference,
   { label: string; deva: string; colour: string; rIn: number; rOut: number }
 > = {
-  lagna: { label: 'Lagna', deva: 'लग्न', colour: '#8C2D19', rIn: 40, rOut: 84 },
-  moon: { label: 'Candra', deva: 'चन्द्र', colour: '#41506B', rIn: 88, rOut: 132 },
-  sun: { label: 'Sūrya', deva: 'सूर्य', colour: '#9A6A1E', rIn: 136, rOut: 180 },
+  lagna: { label: 'Lagna', deva: 'लग्न', colour: '#8C2D19', rIn: 34, rOut: 86 },
+  moon: { label: 'Candra', deva: 'चन्द्र', colour: '#3E4A63', rIn: 90, rOut: 134 },
+  sun: { label: 'Sūrya', deva: 'सूर्य', colour: '#9A6A1E', rIn: 138, rOut: 182 },
 };
 
 const VB = 400;
@@ -62,19 +62,25 @@ function sectorPath(rIn: number, rOut: number, a0: number, a1: number): string {
 }
 
 /**
- * Where the k-th graha of an n-graha cell sits, as [radius, angularOffset].
- * Kept in step with the geometry test in tests/run.ts.
+ * Grahas in a cell stack vertically in SCREEN space, not radially.
+ *
+ * A radial stack looks correct at the top and bottom of the wheel and turns
+ * horizontal at 3 and 9 o'clock, where four labels ran together into a single
+ * unreadable line. Offsetting in screen y always reads as an ordered list.
  */
-export function cellSlot(k: number, n: number, rIn: number, rOut: number): [number, number] {
-  const mid = rIn + (rOut - rIn) * 0.62;
-  if (n === 1) return [mid, 0];
-  if (n === 2) return [rIn + 24 + k * 11, 0];
-  const rows = Math.ceil(n / 2);
-  const dr = rows > 1 ? 9 : 0;
-  const da = 6.5;
-  const c = k % 2;
-  const r = Math.floor(k / 2);
-  return [mid + (r - (rows - 1) / 2) * dr, (c - 0.5) * da];
+const MAX_STACK_STEP = 9.6;
+/** Where the middle of a cell's stack sits, as a fraction across its band. */
+const BAND_MID = 0.60;
+
+/**
+ * Vertical step for a stack of `n` grahas at radius `mid`. The cell is a 30°
+ * sector, so its usable half-height is mid·sin15°; a fixed step overflows that
+ * once a cell holds four or more, which is common (Makara took four here).
+ */
+function stackStep(n: number, mid: number): number {
+  if (n <= 1) return 0;
+  const halfRoom = Math.max(4, mid * Math.sin(Math.PI / 12) - 5);
+  return Math.min(MAX_STACK_STEP, (2 * halfRoom) / (n - 1));
 }
 
 export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
@@ -174,9 +180,9 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
                       <path
                         key={ref}
                         d={sectorPath(st.rIn, st.rOut, a0, a1)}
-                        fill={isActive ? '#8C2D19' : i % 2 ? '#FBF8F1' : '#FFFFFF'}
+                        fill={isActive ? '#8C2D19' : i % 2 ? '#F4EFE4' : '#FCFAF6'}
                         fillOpacity={isActive ? 0.07 : 1}
-                        stroke="#E6DECB"
+                        stroke="#DED5C3"
                         strokeWidth="0.7"
                       />
                     );
@@ -200,17 +206,17 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             ))}
 
             {/* centre disc */}
-            <circle cx={CX} cy={CY} r={38} fill="#FDFBF6" stroke="#8C2D19" strokeWidth="1.1" />
-            <text x={CX} y={CY - 9} textAnchor="middle" fontSize="7.5"
-                  fontFamily="ui-monospace, monospace" fill="#9A8A6E" letterSpacing="1">
+            <circle cx={CX} cy={CY} r={32} fill="#FCFAF6" stroke="#8C2D19" strokeWidth="1.1" />
+            <text x={CX} y={CY - 8} textAnchor="middle" fontSize="7"
+                  fontFamily="ui-monospace, monospace" fill="#8B8478" letterSpacing="1">
               YEAR {year}
             </text>
-            <text x={CX} y={CY + 11} textAnchor="middle" fontSize="20"
+            <text x={CX} y={CY + 10} textAnchor="middle" fontSize="19"
                   fontFamily="ui-serif, Georgia, serif" fontWeight="bold" fill="#8C2D19">
               {activeHouse}
             </text>
-            <text x={CX} y={CY + 24} textAnchor="middle" fontSize="6"
-                  fontFamily="ui-monospace, monospace" fill="#9A8A6E" letterSpacing="0.8">
+            <text x={CX} y={CY + 21} textAnchor="middle" fontSize="5.6"
+                  fontFamily="ui-monospace, monospace" fill="#8B8478" letterSpacing="0.8">
               HOUSE
             </text>
 
@@ -221,8 +227,8 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
               return (
                 <text
                   key={`hn-${h}`}
-                  x={px(192, i * 30).toFixed(2)}
-                  y={py(192, i * 30).toFixed(2)}
+                  x={px(193, i * 30).toFixed(2)}
+                  y={py(193, i * 30).toFixed(2)}
                   textAnchor="middle"
                   dominantBaseline="central"
                   fontSize={isActive ? 10 : 8.5}
@@ -235,46 +241,46 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
               );
             })}
 
-            {/* cell contents: sign number, then grahas in a band-aware grid */}
+            {/* cell contents: sign number, then grahas stacked in screen space */}
             {(['lagna', 'moon', 'sun'] as SudarshanaReference[]).map((ref) => {
               const st = RING[ref];
               const ring = chakra.rings.find((r) => r.reference === ref)!;
+              const mid = st.rIn + (st.rOut - st.rIn) * BAND_MID;
               return ring.houses.map((cell) => {
                 const ang = (cell.house - 1) * 30;
                 const n = cell.planets.length;
-                const fs = n <= 2 ? 8 : n <= 4 ? 7 : 6;
+                const fs = n <= 2 ? 8.2 : n <= 4 ? 7.4 : 6.6;
+                const ax = px(mid, ang);
+                const ay = py(mid, ang);
                 return (
                   <g key={`${ref}-${cell.house}`}>
                     <text
-                      x={px(st.rIn + 7.5, ang).toFixed(2)}
-                      y={py(st.rIn + 7.5, ang).toFixed(2)}
+                      x={px(st.rIn + 6, ang).toFixed(2)}
+                      y={py(st.rIn + 6, ang).toFixed(2)}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize="7"
+                      fontSize="6.4"
                       fontFamily="ui-serif, Georgia, serif"
                       fill={st.colour}
-                      opacity="0.7"
+                      opacity="0.6"
                     >
                       {cell.rashi}
                     </text>
-                    {cell.planets.map((p, k) => {
-                      const [rr, da] = cellSlot(k, n, st.rIn, st.rOut);
-                      return (
-                        <text
-                          key={p}
-                          x={px(rr, ang + da).toFixed(2)}
-                          y={py(rr, ang + da).toFixed(2)}
-                          textAnchor="middle"
-                          dominantBaseline="central"
-                          fontSize={fs}
-                          fontWeight="bold"
-                          fontFamily="ui-sans-serif, system-ui, sans-serif"
-                          fill="#2A2A30"
-                        >
-                          {GRAHA[p] ?? p}
-                        </text>
-                      );
-                    })}
+                    {cell.planets.map((p, k) => (
+                      <text
+                        key={p}
+                        x={ax.toFixed(2)}
+                        y={(ay + (k - (n - 1) / 2) * stackStep(n, mid)).toFixed(2)}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={fs}
+                        fontWeight="bold"
+                        fontFamily="ui-sans-serif, system-ui, sans-serif"
+                        fill="#171614"
+                      >
+                        {GRAHA[p] ?? p}
+                      </text>
+                    ))}
                   </g>
                 );
               });
