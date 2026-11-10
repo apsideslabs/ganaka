@@ -16,7 +16,7 @@ export default function MatchingPage() {
         fallback={
           <CelestialArmillaryLoading
             fullScreen
-            title="Loading Kuṭa Milan Workstation..."
+            title="Kuṭa Milan"
           />
         }
       >
