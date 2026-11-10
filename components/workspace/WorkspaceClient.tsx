@@ -866,10 +866,10 @@ ${Object.values(chartData.planets)
   };
 
   return (
-    <div className="ganaka-paper w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 space-y-6 text-slate-900">
+    <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 space-y-6 text-slate-900">
       {/* 1. PROFESSIONAL EXECUTIVE HEADER & ASTRONOMICAL COMMAND DECK */}
-      <div className="hero-band rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-6">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C2D19] bg-[#8C2D19]/10 px-2.5 py-0.5 rounded-md border border-[#8C2D19]/20">
