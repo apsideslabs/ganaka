@@ -6,7 +6,7 @@ export default function WorkspaceLoading() {
     <CelestialArmillaryLoading
       fullScreen
       title="Gaṇaka Calculation Engine"
-      subtitle="Initializing Planetary Harmonics & VSOP87 Ephemeris..."
+      subtitle="Computing sidereal positions"
     />
   );
 }
