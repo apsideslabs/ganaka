@@ -65,7 +65,10 @@ jobs:
           for f in NotoSerif/NotoSerif-Regular.ttf NotoSerif/NotoSerif-Bold.ttf \
                    NotoSerif/NotoSerif-Italic.ttf \
                    NotoSerifDevanagari/NotoSerifDevanagari-Regular.ttf \
-                   NotoSerifDevanagari/NotoSerifDevanagari-Bold.ttf; do
+                   NotoSerifDevanagari/NotoSerifDevanagari-Bold.ttf \
+                   NotoSansSymbols/NotoSansSymbols-Regular.ttf \
+                   NotoSansSymbols/NotoSansSymbols-Bold.ttf \
+                   NotoSansSymbols2/NotoSansSymbols2-Regular.ttf; do
             curl -sSL "$base/$f" -o "public/fonts/$(basename $f)"
           done
           ls -l public/fonts
