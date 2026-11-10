@@ -77,6 +77,20 @@ jobs:
                    NotoSansSymbols2/NotoSansSymbols2-Regular.ttf; do
             curl -sSL "$base/$f" -o "public/fonts/$(basename $f)"
           done
+
+          # UI typefaces. The app had none: font-serif and font-mono fell back to
+          # Times and Courier, which is a large part of why the interface read as
+          # a default Tailwind page. These are the web builds.
+          fs=https://cdn.jsdelivr.net/npm/@fontsource
+          for f in inter@5/files/inter-latin-400-normal.woff2 \
+                   inter@5/files/inter-latin-500-normal.woff2 \
+                   inter@5/files/inter-latin-600-normal.woff2 \
+                   inter@5/files/inter-latin-700-normal.woff2 \
+                   jetbrains-mono@5/files/jetbrains-mono-latin-400-normal.woff2 \
+                   jetbrains-mono@5/files/jetbrains-mono-latin-500-normal.woff2; do
+            curl -sSL "$fs/$f" -o "public/fonts/$(basename $f)"
+          done
+          ls -la public/fonts | tail -12
           ls -l public/fonts
 
       - name: Stage the PDF.js worker
