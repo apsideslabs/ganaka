@@ -8,14 +8,25 @@ import { YogaDefinition, YogaEvaluationContext, getRelativeHouse } from './yoga-
 
 const SEVEN_PLANETS: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
 
+/**
+ * CITATION NOTE — read before trusting a verse number anywhere in lib/yogas.
+ *
+ * BPHS exists in editions with 71, 97 and other chapter counts, so a verse
+ * number is only meaningful if it names its edition. The Nābhāsa set below
+ * previously carried verse numbers that stepped mechanically one per yoga
+ * (35.17, 35.18, … 35.28); the definition of Vāpī is in fact BPHS 35.12, so
+ * that numbering was not looked up. It has been reduced to chapter level,
+ * which is true regardless of edition. Vāpī alone is pinned to a verse that
+ * has been checked against the Sanskrit.
+ */
 export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
   {
     id: 'nabhasa_vapi',
     name: 'Vāpī Yoga (Nābhāsa Ākṛti)',
     sanskritName: 'वापी योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 17 / BJ 12:9 / Sarvāvalī 21:18',
-    sanskritShloka: 'केन्द्रेभ्योऽन्यगताः सर्वे वापीयोगः प्रकीर्तितः । नित्यं सञ्चितवित्तोऽयं कृपणः स्थिरसौख्यभाक् ॥',
+    chapterAndVerse: 'BPHS 35.12 / Bṛhat Jātaka 12 / Sārāvalī 21.14 (verified)',
+    sanskritShloka: 'सर्वकेन्द्रगतैः सर्वैर्मिश्रैः कमलसंज्ञकः । केन्द्रादन्यत्रगैः सर्वैर्योगो वापीसमाह्वयः ॥',
     category: 'Nabhasa',
     definition:
       'No planet occupies a kendra: all seven lie in the panapharas (2, 5, 8, 11) or apoklimas (3, 6, 9, 12). ' +
@@ -45,7 +56,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Yūpa Yoga (Nābhāsa Ākṛti — 1st to 4th Houses)',
     sanskritName: 'यूप योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 18 / BJ 12:10 / Sarvāvalī 21:20',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     sanskritShloka: 'लग्नाच्चतुर्षु भावेषु यूपयोगः प्रकीर्तितः । यज्ञादिशीलः संयन्ता धीरो दानरतः शुचिः ॥',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the four consecutive houses from Lagna (1st, 2nd, 3rd, and 4th houses).',
@@ -71,7 +82,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Śara Yoga / Bāṇa (Nābhāsa Ākṛti — 4th to 7th Houses)',
     sanskritName: 'शर योग (बाण योग)',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 19 / BJ 12:10 / Sarvāvalī 21:22',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     sanskritShloka: 'सुखात्सप्तमपर्यन्तं बाणयोगः समीरितः । शस्त्राजीवोऽथ लुब्धश्च साहसी कर्मठो नरः ॥',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the four consecutive houses from the 4th house to the 7th house (4, 5, 6, 7).',
@@ -97,7 +108,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Śakti Yoga (Nābhāsa Ākṛti — 7th to 10th Houses)',
     sanskritName: 'शक्ति योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 20 / BJ 12:10 / Sarvāvalī 21:24',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     sanskritShloka: 'कामाद्दशमपर्यन्तं शक्तियोगः प्रकीर्तितः । निष्कण्टकपदप्राप्तिर्धैर्यवान् विजयोद्यतः ॥',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the four consecutive houses from the 7th house to the 10th house (7, 8, 9, 10).',
@@ -123,7 +134,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Daṇḍa Yoga (Nābhāsa Ākṛti — 10th to 1st Houses)',
     sanskritName: 'दण्ड योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 21 / BJ 12:10 / Sarvāvalī 21:26',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     sanskritShloka: 'खालग्नपर्यन्तगतैर्दण्डयोग उदाहृतः । स्वकर्मनिरतो धीरो बन्धुहीनः क्रियापरः ॥',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the four consecutive houses from the 10th house to the 1st house (10, 11, 12, 1).',
@@ -149,7 +160,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Nauka Yoga / Nau (Nābhāsa Ākṛti — 7 Houses 1 to 7)',
     sanskritName: 'नौका योग (नौ योग)',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 22 / BJ 12:11 / Sarvāvalī 21:28',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     sanskritShloka: 'लग्नात्सप्तमपर्यन्तं नौयोगः परिकीर्तितः । जलजीवो बहुधनी ख्यातकीर्तिश्च लोकेषु ॥',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy seven continuous houses beginning from the Lagna to the 7th house (Houses 1, 2, 3, 4, 5, 6, 7).',
@@ -175,7 +186,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Kūṭa Yoga (Nābhāsa Ākṛti — 7 Houses 4 to 10)',
     sanskritName: 'कूट योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 23 / BJ 12:11 / Sarvāvalī 21:30',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the seven houses starting from the 4th house to the 10th house (4, 5, 6, 7, 8, 9, 10).',
     effects: 'Steadfast fortitude, mountain-like endurance, strategic foresight, and authoritative governance.',
@@ -200,7 +211,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Chatra Yoga (Nābhāsa Ākṛti — 7 Houses 7 to 1)',
     sanskritName: 'छत्र योग (नाभस आकृति)',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 24 / BJ 12:11 / Sarvāvalī 21:32',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the seven houses starting from the 7th house to the 1st house (7, 8, 9, 10, 11, 12, 1).',
     effects: 'Acts as a protective canopy (Chatra) for kin and dependents, honored by rulers, kind-hearted, wealthy, and long-lived.',
@@ -225,7 +236,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Cāpa Yoga / Dhanu (Nābhāsa Ākṛti — 7 Houses 10 to 4)',
     sanskritName: 'चाप योग (धनु योग)',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 25 / BJ 12:11 / Sarvāvalī 21:34',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously the seven houses starting from the 10th house to the 4th house (10, 11, 12, 1, 2, 3, 4).',
     effects: 'Courageous, skilled in archery and physical tactics, defender of treasures, commanding respectful obedience.',
@@ -250,7 +261,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Ardha-Candra Yoga (Nābhāsa Ākṛti — 7 Houses Panaphara/Apoklima)',
     sanskritName: 'अर्धचन्द्र योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 26 / BJ 12:11 / Sarvāvalī 21:36',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy continuously seven houses beginning from a Panaphara (2, 5, 8, 11) or Apoklima (3, 6, 9, 12) house.',
     effects: 'Gentle and charismatic demeanor, commander of armed forces or executive departments, graceful, and endowed with radiant beauty.',
@@ -277,7 +288,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Cakra Yoga (Nābhāsa Ākṛti — Alternate 6 Houses 1,3,5,7,9,11)',
     sanskritName: 'चक्र योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 27 / BJ 12:12 / Sarvāvalī 21:38',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy the odd (visama) houses from Lagna (1, 3, 5, 7, 9, 11).',
     effects: 'Emperor or universal ruler (Chakravartin), sovereign dignity, jewel among leaders, adorned with boundless wealth.',
@@ -301,7 +312,7 @@ export const NABHASA_AKRITI_EXPANDED_YOGAS: YogaDefinition[] = [
     name: 'Samudra Yoga (Nābhāsa Ākṛti — Even Houses 2,4,6,8,10,12)',
     sanskritName: 'समुद्र योग',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
-    chapterAndVerse: 'BPHS Ch. 35, v. 28 / BJ 12:12 / Sarvāvalī 21:40',
+    chapterAndVerse: 'BPHS ch. 35 (Nābhāsa); Bṛhat Jātaka ch. 12; Sārāvalī ch. 21',
     category: 'Nabhasa',
     definition: 'All seven non-node planets occupy the even (sama) houses from Lagna (2, 4, 6, 8, 10, 12).',
     effects: 'Blessed with precious jewels, vast maritime wealth, universal goodwill, steady happiness, and tranquil mind.',
