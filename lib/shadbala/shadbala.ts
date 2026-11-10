@@ -366,12 +366,16 @@ export function calculateShadbala(
       saptavargajaBala += dignityValue(pId, sign, degInVargaSign, v === 'D1');
     }
 
-    // 1.3 Ojayugma Bala: 15 virūpas in a favourable parity, otherwise 0.
-    //     Sun, Mars, Jupiter, Mercury and Saturn favour odd signs; the Moon
-    //     and Venus favour even signs (BPHS 27.12).
+    // 1.3 Ojayugma Bala (BPHS 27.5): a quarter rūpa (15 virūpas) for a
+    //     favourable parity, scored twice — once on the rāśi and once on the
+    //     navāṃśa — so the maximum is 30. Venus and the Moon favour even
+    //     signs and amśas; the rest favour odd.
     const favoursOdd = ['sun', 'mars', 'jupiter', 'mercury', 'saturn'].includes(pId);
     const isOddSign = pRashi % 2 === 1;
-    const ojayugmaBala = favoursOdd === isOddSign ? 15.0 : 0.0;
+    const isOddNavamsa = vargaSign(lon, 'D9') % 2 === 1;
+    const ojayugmaBala =
+      (favoursOdd === isOddSign ? 15.0 : 0.0) +
+      (favoursOdd === isOddNavamsa ? 15.0 : 0.0);
 
     // 1.4 Kendrādi Bala: kendra 60, panaphara 30, apoklima 15.
     const lagnaRashi = Math.floor(normalizeDegrees(lagnaLongitude) / 30) + 1;
@@ -380,9 +384,11 @@ export function calculateShadbala(
     if ([1, 4, 7, 10].includes(house)) kendradiBala = 60.0;
     else if ([2, 5, 8, 11].includes(house)) kendradiBala = 30.0;
 
-    // 1.5 Drekkāṇa Bala (BPHS 27.20): 15 virūpas in a same-gender drekkāṇa.
+    // 1.5 Drekkāṇa Bala (BPHS 27.6): 15 virūpas in a same-gender drekkāṇa.
+    //     आद्यमध्यावसानेषु ... पुंनपुंसकयोषाख्याः — first decanate masculine,
+    //     middle neuter, last feminine.
     const drekkanaPart = Math.floor(degInSign / 10);
-    const drekkanaGender = ['Male', 'Female', 'Neuter'][drekkanaPart];
+    const drekkanaGender = ['Male', 'Neuter', 'Female'][drekkanaPart];
     const drekkanaBala = prop.gender === drekkanaGender ? 15.0 : 0.0;
 
     const sthanaBala =
