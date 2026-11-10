@@ -938,9 +938,9 @@ ${Object.values(chartData.planets)
               variant="outline"
               onClick={async () => {
                 try {
-                  const blob = await buildReportBlob(chartData, chartTitle || undefined);
+                  const blob = await buildReportBlob(chartData);
                   const url = URL.createObjectURL(blob);
-                  setPdfPreview({ url, name: chartPdfFilename(chartData, chartTitle || undefined) });
+                  setPdfPreview({ url, name: chartPdfFilename(chartData) });
                 } catch (err) {
                   console.error('[report] PDF generation failed', err);
                 }
