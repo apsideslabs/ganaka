@@ -30,8 +30,8 @@ const COMPUTATION_STAGES = [
     step: 1,
     title: 'Ephemeris Geocentric Kinematics',
     sanskrit: 'ग्रहस्फुट-गणितम्',
-    detail: 'Interpolating VSOP87 planetary series, nutation in longitude & lunar anomalies',
-    code: 'VSOP87_HELIOCENTRIC_TO_GEOCENTRIC',
+    detail: 'Interpolating the built-in VSOP87 / Meeus series, nutation in longitude & lunar anomalies',
+    code: 'BUILTIN_SERIES_HELIOCENTRIC_TO_GEOCENTRIC',
     duration: 360,
   },
   {
@@ -171,7 +171,7 @@ export function MuhurtaCalculationSvg({
             Gaṇaka Sidereal Ephemeris Engine
           </span>
           <span className="text-[10px] px-2 py-0.5 bg-[#2A241C] text-[#C49A45] border border-[#C49A45]/30 rounded-xs">
-            VSOP87 / IAU-1980
+            Built-in series
           </span>
         </div>
         <div className="flex items-center gap-4 text-[11px] text-[#A69F91]">
