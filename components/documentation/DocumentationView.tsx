@@ -44,7 +44,7 @@ export function DocumentationView() {
       title: 'Changelog & Milestones',
       subtitle: 'Version history and release notes',
       content: `Version 1.0.0 (Sidereal Release):
-• Production ephemeris and Sidereal solar kinematics (VSOP87 / IAU-1980).
+• Sidereal planetary kinematics from truncated VSOP87 and Meeus series (agrees with Swiss Ephemeris to within ~33 arcsec; no external ephemeris files).
 • 16 Harmonic Divisional Charts (Ṣoḍaśavargas D1 to D60).
 • Dainika Pañcāṅga with sunrise-anchored limbs, Choghadiyā, and planetary Horās.
 • Canonical Muhūrta engine with 21 Mahādoṣa exclusions.
