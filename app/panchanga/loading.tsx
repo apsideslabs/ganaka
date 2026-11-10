@@ -6,7 +6,7 @@ export default function PanchangaLoading() {
     <CelestialArmillaryLoading
       fullScreen
       title="Gaṇaka Calendrical Engine"
-      subtitle="Calculating Precision Drik Pañcāṅga & Solar Ephemeris..."
+      subtitle="Computing pañcāṅga"
     />
   );
 }
