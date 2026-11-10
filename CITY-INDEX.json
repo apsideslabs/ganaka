@@ -1,12 +1,12 @@
 {
   "version": 3,
-  "towns": 70741,
+  "towns": 70742,
   "indiaTowns": 7312,
   "villageShards": 27,
   "indiaVillages": 550721,
-  "townBytes": 5972573,
+  "townBytes": 5972677,
   "shardBytes": 41203808,
   "timezones": 371,
-  "generated": "2026-11-10T02:44:33.209Z",
+  "generated": "2026-11-10T02:59:48.159Z",
   "source": "GeoNames cities5000 + India IN.zip (CC BY 4.0)"
 }
