@@ -15,6 +15,7 @@ import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-pl
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
 import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
+import { downloadChartJson } from '../../lib/report/export-chart-json';
 import { PdfPreview } from './PdfPreview';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
@@ -70,6 +71,7 @@ import {
   Settings,
   FileSpreadsheet,
   Printer,
+  FileJson,
   Copy,
   Check,
   Bookmark,
@@ -947,6 +949,21 @@ ${Object.values(chartData.planets)
               }}
               title="Preview the full chart report as a PDF"
               icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
+            />
+
+            <GanakaButton
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                try {
+                  downloadChartJson(chartData);
+                } catch (err) {
+                  console.error('[export] JSON export failed', err);
+                }
+              }}
+              title="Download the complete computed chart as JSON"
+              icon={<FileJson className="w-3.5 h-3.5 text-slate-500" />}
             />
           </div>
         </div>
