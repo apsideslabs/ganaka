@@ -236,6 +236,24 @@ console.log('\n== Regression: bugs found by the Sanskrit audit ==');
   check('no mechanical BPHS 75 verse run remains',
     !/BPHS Ch\. 75, v\. (2-4|5-7|8-10|11-13|14-16)/.test(engineSrc));
   check('Gajakesari pinned to BPHS 36.3', engineSrc.includes('BPHS 36.3'));
+
+  // BPHS 35: v.3 lists the names, the definitions begin at v.7 (Rajju/Musala/
+  // Nala) and v.8 (Mala/Sarpa); Kamala and Vāpī share v.12.
+  // the āśraya/dala yogas live in yoga-engine.ts, the ākṛti ones in nabhasa-yogas.ts
+  check('Rajju cites its definition at 35.7', engineSrc.includes('BPHS 35.7 (Rajju defined)'));
+  check('Mala cites its definition at 35.8', engineSrc.includes('BPHS 35.8 (Mala defined)'));
+  check('Kamala cites 35.12', engineSrc.includes('BPHS 35.12'));
+
+  // BPHS 36.5 defines Amalakirti, not v.10.
+  check('Amala cites 36.5', engineSrc.includes('BPHS 36.5'));
+
+  // BPHS 41: bahudravya is 41.2-8; the 9th/5th lords verse is 41.16.
+  check('dhana_5_9 cites 41.16', engineSrc.includes('BPHS 41.16'));
+  const dhanaSrc = readSource('lib/yogas/classical-raja-dhana-yogas.ts');
+  check('bahudravya cites 41.2-8', dhanaSrc.includes('BPHS 41.2-8'));
+
+  // Lakshmi is a fortune yoga; BPHS ch.42 is the poverty chapter.
+  check('Lakshmi no longer cites the poverty chapter', !/Lakshmi[\s\S]{0,400}BPHS Ch\. 42/.test(engineSrc));
 }
 
 /* ------------------------------------------------------ 3. STRUCTURAL INVARIANTS */
