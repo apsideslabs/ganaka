@@ -13,26 +13,20 @@
  */
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 
-/** Suggested filename for the report. */
-export function chartPdfFilename(chart: JyotishaChart, personName?: string): string {
-  const safe =
-    (personName || chart.meta.birthDetails.locationName || 'chart')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^A-Za-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'chart';
+/**
+ * Suggested filename. Gaṇaka's report is identified by its engine and the
+ * moment it describes, not by whoever happened to generate it.
+ */
+export function chartPdfFilename(chart: JyotishaChart): string {
   const d = chart.meta.birthDetails;
-  return `${safe}-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.pdf`;
+  return `Ganaka-Jyotisa-Chart-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.pdf`;
 }
 
 /**
  * Builds the report and returns it as a Blob. The caller decides what to do
  * with it — the workspace shows it in the preview modal first.
  */
-export async function buildReportBlob(
-  chart: JyotishaChart,
-  personName?: string
-): Promise<Blob> {
+export async function buildReportBlob(chart: JyotishaChart): Promise<Blob> {
   const [{ pdf }, React, { ChartReport }, { registerReportFonts }] = await Promise.all([
     import('@react-pdf/renderer'),
     import('react'),
@@ -42,6 +36,6 @@ export async function buildReportBlob(
 
   registerReportFonts();
 
-  const element = React.createElement(ChartReport, { chart, personName }) as any;
+  const element = React.createElement(ChartReport, { chart }) as any;
   return pdf(element).toBlob();
 }
