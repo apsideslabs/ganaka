@@ -17,6 +17,7 @@
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
 import { calculateAshtakavarga } from '../lib/ashtakavarga/ashtakavarga';
 import { NAKSHATRA_NAMAKSHARAS, NAKSHATRA_YONIS, NAKSHATRA_RAJJUS } from '../lib/jyotisha/avakahada';
+import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotisha/sudarshana';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
 
 let passed = 0;
@@ -301,6 +302,51 @@ console.log('\n== Structural invariants ==');
   // Vargas: all 23 present
   check('23 vargas computed', Object.keys(chart.vargas).length === 23,
     String(Object.keys(chart.vargas).length));
+}
+
+/* ------------------------------------------------- SUDARSHANA CAKRA (BPHS 74) */
+
+console.log('\n== Sudarshana Cakra ==');
+{
+  const sc: any = calculateSudarshanaChakra(chart, { yearOfLife: 17 });
+
+  // BPHS 74.4-6: three rings, each holding all twelve houses.
+  check('three rings', sc.rings.length === 3);
+  check('each ring has twelve houses', sc.rings.every((r: any) => r.houses.length === 12));
+  check('ring order is lagna, moon, sun',
+    sc.rings.map((r: any) => r.reference).join(',') === 'lagna,moon,sun');
+
+  // The signs never move between rings — only the house number does.
+  for (const r of sc.rings) {
+    const all = r.houses.flatMap((h: any) => h.planets);
+    check(`${r.reference} ring holds every graha exactly once`,
+      all.length === 9 && new Set(all).size === 9, `${all.length} placements`);
+  }
+
+  // The published worked example: Lagna Virgo, Moon Pisces, Sun Sagittarius,
+  // Jupiter in Gemini -> 10th from lagna, 4th from moon, 7th from sun.
+  const houseFrom = (ref: number, tgt: number) => ((tgt - ref + 12) % 12) + 1;
+  check('worked example: Virgo->Gemini is the 10th', houseFrom(6, 3) === 10);
+  check('worked example: Pisces->Gemini is the 4th', houseFrom(12, 3) === 4);
+  check('worked example: Sagittarius->Gemini is the 7th', houseFrom(9, 3) === 7);
+
+  // BPHS 74.22: one house per year, twelve-year cycle.
+  check('year 1 -> 1st house', sudarshanaHouseForYear(1) === 1);
+  check('year 12 -> 12th house', sudarshanaHouseForYear(12) === 12);
+  check('year 13 -> 1st house', sudarshanaHouseForYear(13) === 1);
+  check('year 25 -> 1st house', sudarshanaHouseForYear(25) === 1);
+  check('dasha attached for year 17 -> 5th house',
+    sc.dasha?.house === sudarshanaHouseForYear(17));
+
+  // BPHS 74.19-20: the use condition must be reported, not silently ignored.
+  check('applicability flag is present', typeof sc.applicable === 'boolean');
+  const distinct = new Set([chart.lagna.rashiNumber,
+    chart.planets.moon.rashiNumber, chart.planets.sun.rashiNumber]).size;
+  check('applicable only when all three reference signs differ',
+    sc.applicable === (distinct === 3));
+  if (!sc.applicable) {
+    check('inapplicable charts carry a reason', typeof sc.inapplicableReason === 'string');
+  }
 }
 
 /* ------------------------------------------------------------------- REPORT */
