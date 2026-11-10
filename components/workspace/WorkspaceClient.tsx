@@ -491,7 +491,12 @@ function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
     house = stored.houseSystem;
   }
 
-  return { name, year, month, day, hour, minute, second, city, ayan, house };
+  const rec: 'parashara' | 'varahamihira' =
+    getPlatformSettings()?.ashtakavargaRecension === 'varahamihira'
+      ? 'varahamihira'
+      : 'parashara';
+
+  return { name, year, month, day, hour, minute, second, city, ayan, house, rec };
 }
 
 export const WorkspaceClient: React.FC = () => {
@@ -524,6 +529,8 @@ export const WorkspaceClient: React.FC = () => {
 
   const [ayanamshaType, setAyanamshaType] = useState<AyanamshaType>(() => init.ayan);
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
+  const [ashtakavargaRecension, setAshtakavargaRecension] =
+    useState<'parashara' | 'varahamihira'>(() => init.rec);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
   const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
@@ -575,6 +582,12 @@ export const WorkspaceClient: React.FC = () => {
         if (currentPlat?.defaultAyanamsha && currentPlat.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
           setAyanamshaType(currentPlat.defaultAyanamsha);
         }
+        // Aṣṭakavarga recension changes the bindus, so recompute on change.
+        setAshtakavargaRecension(
+          currentPlat?.ashtakavargaRecension === 'varahamihira'
+            ? 'varahamihira'
+            : 'parashara'
+        );
         applyDefaultLocation(currentPlat?.defaultLocation);
       }
     });
@@ -678,8 +691,12 @@ export const WorkspaceClient: React.FC = () => {
       locationName: selectedCity.name,
       ayanamshaType,
       houseSystem,
+      ashtakavargaRecension,
     });
-  }, [year, month, day, hour, minute, second, selectedCity, ayanamshaType, houseSystem]);
+  }, [
+    year, month, day, hour, minute, second, selectedCity,
+    ayanamshaType, houseSystem, ashtakavargaRecension,
+  ]);
 
   // Determine which domain is currently active
   const currentDomain = useMemo(() => {
