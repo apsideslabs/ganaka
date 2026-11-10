@@ -64,10 +64,10 @@ They have been replaced by actual implementations:
 | Component | BPHS | Status |
 |---|---|---|
 | Uccha Bala | 27.1–27.5 | implemented |
-| **Saptavargaja Bala** | 27.6–27.19 | **implemented** — 7 vargas (D1, D2, D3, D7, D9, D12, D30), Moolatrikona 45 → Adhiśatru 1.875, with adhimitra/adhiśatru derived from the natural friendship table |
-| Ojayugma Bala | 27.12 | **corrected** — was 30/15, now 15 in a favourable parity and 0 otherwise |
+| **Saptavargaja Bala** | 27.2–27.3 | **implemented** — 7 vargas (D1, D2, D3, D7, D9, D12, D30), Mūlatrikoṇa 45 → Adhiśatru **2**, the values stated in BPHS 27.3 as bhūtasaṃkhyā word-numerals (भूताब्धयः खाग्निनखास्तिथ्यो दश युगाः कराः). Raman's 22.5/7.5/3.75/1.875 is a modern variant and is **not** in the verse. |
+| Ojayugma Bala | 27.5 | **corrected** — a quarter rūpa (15 virūpas) for a favourable parity, scored **twice**: once on the rāśi and once on the navāṃśa (समभांशे), maximum 30 |
 | Kendrādi Bala | 27.21 | implemented |
-| Drekkāṇa Bala | 27.20 | implemented |
+| Drekkāṇa Bala | 27.6 | **corrected** — the decanate genders were transposed (आद्यमध्यावसानेषु … पुंनपुंसकयोषाख्याः: masculine, neuter, feminine) |
 | Dig Bala | 27.22 | implemented |
 | Natonnata Bala | 27.23 | **implemented** — now scales with distance from solar noon instead of a binary day/night switch |
 | Paksha Bala | 27.24 | implemented, **with the Moon's doubling** |
@@ -78,7 +78,7 @@ They have been replaced by actual implementations:
 | Ceṣṭā Bala | 27.34 | implemented; the Sun's is its Ayana Bala and the Moon's its Paksha Bala, per BPHS |
 | Naisargika Bala | 27.35 | implemented |
 | Dṛg Bala | 27.36 | implemented |
-| **Varṣa Bala / Māsa Bala** | 27.26–27.27 | **still zero** — these need the weekday on which the solar year and solar month began, which requires a saṅkrānti search the ephemeris module does not expose |
+| **Varṣa Bala / Māsa Bala** | 27.26–27.27 | **implemented** — 15 and 30 virūpas to the weekday lord of the solar-year and solar-month ingress, found by bisection on the Sun's sidereal longitude |
 | **Yuddha Bala** | 27.37 | **still zero** — planetary war; applies only within one degree and is omitted rather than guessed |
 
 Ceṣṭā Bala now uses the classical seeghrocha method of BPHS 27.24-25 for Mars
@@ -212,3 +212,45 @@ output text). Those are verified for *rules*, not for *output*.
 ## 6. No licence
 
 No licence file is present. Until one is added, default copyright applies.
+
+## 3. Citations
+
+Every formula in `lib/` now carries a chapter-and-verse citation, and the yoga
+citations were audited against the Sanskrit chapter texts. Three families of
+error were found and fixed:
+
+* **Mechanical verse runs that were never looked up.** BPHS ch. 35 stepped one
+  verse per yoga (35.17 … 35.28) although the Vāpī definition is BPHS 35.12;
+  BPHS ch. 75 stepped three per Mahāpuruṣa yoga although all five share 75.1–2;
+  Phaladīpikā ch. 6 stepped one per house-yoga although the twelve share 6.57.
+* **Citations pointing at the wrong verse entirely.** Amalakīrti cited 36.10
+  (it is 36.5); `dhana_5_9` cited 41.8 (the 9th-and-5th-lords verse is 41.16);
+  Lakshmi cited BPHS ch. 42, which is the *poverty* chapter.
+* **A verse attributed to BPHS that is not BPHS.** The Vāpī śloka now quoted is
+  the actual 35.12.
+
+Of 120 cited yogas: **25 are pinned to a checked verse**, **9 are explicitly
+marked `verse unverified`**, and the rest cite at chapter level. No citation
+claims a verse number that has not been checked. A chapter citation is true in
+every edition; BPHS exists with 71, 97 and other chapter counts, so a bare verse
+number is meaningless without naming the edition.
+
+`tests/run.ts` guards the corrected citations so they cannot silently regress.
+
+## 4. Aṣṭakavarga recension
+
+The tables were labelled "BPHS ch. 66" but were in fact the **Bṛhat Jātaka
+ch. 13** reading. The two differ in exactly four cells and both total 337, so a
+checksum cannot tell them apart. Both are now carried:
+
+```ts
+calculateAshtakavarga(rashiMap, lagna, { recension: 'parashara' | 'varahamihira' })
+```
+
+Pārāśara (BPHS 66) is the default; Mihira is selectable from Platform Settings.
+
+## 5. D11 Rudrāṃśa
+
+The start sign was computed one sign early (`13 - rashi - 1` instead of
+`13 - rashi`), misplacing every planet in every D11 chart. Verified against
+published worked examples; four of four now reproduce.
