@@ -12,9 +12,11 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // A static export is a deployment artefact; type errors are surfaced in CI
-    // separately rather than blocking the site from going live.
-    ignoreBuildErrors: isExport,
+    // Type errors now block the build. The previous escape hatch was hiding
+    // 12,191 errors — 12,154 of them from one wrong bracket in the VSOP87
+    // type declarations — which meant a genuine type regression could reach
+    // production unnoticed.
+    ignoreBuildErrors: false,
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'date-fns'],
