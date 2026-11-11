@@ -18,6 +18,7 @@ import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
 import { calculateAshtakavarga } from '../lib/ashtakavarga/ashtakavarga';
 import { NAKSHATRA_NAMAKSHARAS, NAKSHATRA_YONIS, NAKSHATRA_RAJJUS } from '../lib/jyotisha/avakahada';
 import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotisha/sudarshana';
+import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
 
 let passed = 0;
@@ -438,6 +439,56 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------------------- VARṢAPHALA (annual) */
+
+console.log('\n== Varṣaphala ==');
+{
+  const b = FIXTURES[0].birth;
+  const natal: any = calculateFullJyotishaChart(b);
+  const vopts = {
+    latitude: b.latitude, longitude: b.longitude,
+    timezoneOffsetHours: b.timezoneOffsetHours,
+  };
+
+  const y1: any = calculateVarshaphala(natal, { ...vopts, yearNumber: 1 });
+  const y2: any = calculateVarshaphala(natal, { ...vopts, yearNumber: 2 });
+  const y13: any = calculateVarshaphala(natal, { ...vopts, yearNumber: 13 });
+
+  // The solver must land the Sun on its natal longitude, not near it.
+  check('solar return residual under 1 arcsecond', y1.residualArcsec < 1,
+    y1.residualArcsec.toFixed(3) + '"');
+
+  // One sidereal year apart, to within a couple of days (the Sun's speed
+  // varies, and leap structure shifts the civil date).
+  const gap = y2.solarReturnJD - y1.solarReturnJD;
+  check('successive returns are one sidereal year apart',
+    Math.abs(gap - 365.256363) < 2, gap.toFixed(3) + ' d');
+
+  // Munthā advances one sign a year and wraps at twelve.
+  const natalLagna = natal.lagna.rashiNumber;
+  for (const [label, y, n] of [['year 1', y1, 1], ['year 2', y2, 2], ['year 13', y13, 13]] as const) {
+    const expected = (((natalLagna - 1 + (n - 1)) % 12) + 1);
+    check(`munthā rāśi advances correctly (${label})`, y.muntha.rashiNumber === expected,
+      `${y.muntha.rashiNumber} vs ${expected}`);
+    check(`munthā natal house (${label})`, y.muntha.natalHouse === ((n - 1) % 12) + 1);
+  }
+  check('munthā returns to the natal ascendant in year 13',
+    y13.muntha.rashiNumber === y1.muntha.rashiNumber);
+
+  // Pañcavargīya bala is out of 25 and ordered.
+  const scores = y1.varshesha.scores;
+  check('seven grahas are scored', scores.length === 7);
+  check('pañcavargīya points within 0-25',
+    scores.every((s: any) => s.points >= 0 && s.points <= 25));
+  check('varṣeśa is the highest scorer',
+    scores[0].points === Math.max(...scores.map((s: any) => s.points)));
+
+  // The annual chart is a real chart, cast at the return instant.
+  check('annual chart has nine grahas', Object.keys(y1.chart.planets).length === 9);
+  check('annual chart lagna is a valid rāśi',
+    y1.chart.lagna.rashiNumber >= 1 && y1.chart.lagna.rashiNumber <= 12);
 }
 
 /* ------------------------------------------------------------------- REPORT */
