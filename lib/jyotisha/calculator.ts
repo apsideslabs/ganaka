@@ -132,6 +132,10 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   // 5. Bhāvas (Houses)
   const planetaryPositionsForHouses: Record<PlanetId, { siderealLongitude: number }> = {} as any;
   for (const [pId, pData] of Object.entries(rawPlanets)) {
+    // The ephemeris carries both nodes; the chart carries only the chosen one,
+    // which is already in `rahu`/`ketu`. Keeping the alternate here would give
+    // a house and a varga to a graha that is not in the chart.
+    if (pId === 'true_rahu' || pId === 'true_ketu') continue;
     planetaryPositionsForHouses[pId as PlanetId] = {
       siderealLongitude: pData.siderealLongitude,
     };
@@ -148,6 +152,10 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   const calculatedPlanets: Record<PlanetId, CalculatedPlanet> = {} as any;
 
   for (const [pId, pData] of Object.entries(rawPlanets)) {
+    // Only the nine grahas belong in the chart. `true_rahu`/`true_ketu` are
+    // ephemeris inputs; surfacing them put eleven cards in the planet grid,
+    // with Rāhu listed twice.
+    if (pId === 'true_rahu' || pId === 'true_ketu') continue;
     const pKey = pId as PlanetId;
     const prop = GRAHA_PROPERTIES[pKey];
     const rashiIndex = Math.floor(pData.siderealLongitude / 30);
