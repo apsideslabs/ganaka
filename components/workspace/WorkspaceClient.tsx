@@ -187,6 +187,7 @@ const PRESETS: PresetEvent[] = [
 export type WorkspaceTab =
   | 'kundali'
   | 'avakahada'
+  | 'matching_bridge'
   | 'sudarshana'
   | 'vargas'
   | 'navamsha'
