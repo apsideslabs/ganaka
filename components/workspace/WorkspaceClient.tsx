@@ -3,25 +3,39 @@
 /**
  * Gaṇaka — Core Calculation Workspace Client
  * Professional astronomical Jyotiṣa calculation workstation with structured 9-domain navigation,
- * High-precision classical mechanics, dual chart views,
+ * 760 verified cities/tīrthas, high-precision classical mechanics, dual chart views,
  * birth-time rectification steppers, and horoscope profile persistence.
  */
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../../lib/astronomy/coordinates';
 import { useCitySearch } from '../../hooks/use-city-search';
-import { formatPlace, formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
-import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
-import { downloadChartJson } from '../../lib/report/export-chart-json';
-import { PdfPreview } from './PdfPreview';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
+import { SphutasPanel } from './SphutasPanel';
+import { JanmaPanchangaPanel } from './JanmaPanchangaPanel';
 
-import dynamic from 'next/dynamic';
+import { VimshottariPanel } from './VimshottariPanel';
+import { ExtendedDashaPanel } from './ExtendedDashaPanel';
+import { AshtakavargaPanel } from './AshtakavargaPanel';
+import { ShadbalaPanel } from './ShadbalaPanel';
+import { YogasPanel } from './YogasPanel';
+import { DoshasPanel } from './DoshasPanel';
+import { RemediesPanel } from './RemediesPanel';
+import { VargasPanel } from './VargasPanel';
+import { NavamshaPanel } from './NavamshaPanel';
+import { JaiminiSpecialPanel } from './JaiminiSpecialPanel';
+import { AspectsPanel } from './AspectsPanel';
+import { TransitsPanel } from './TransitsPanel';
+import { BhavaChalitPanel } from './BhavaChalitPanel';
+import { MuhurtaPanel } from './MuhurtaPanel';
+import { AvakahadaPanel } from './AvakahadaPanel';
+import { IndicationsPanel } from './IndicationsPanel';
+import { MatchingBridgePanel } from './MatchingBridgePanel';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
 import { GanakaClockPicker } from '../ui/GanakaClockPicker';
@@ -53,7 +67,6 @@ import {
   Settings,
   FileSpreadsheet,
   Printer,
-  FileJson,
   Copy,
   Check,
   Bookmark,
@@ -70,107 +83,6 @@ import {
   Search,
   Users,
 } from 'lucide-react';
-
-
-/** Placeholder while a panel's chunk loads. */
-function PanelSkeleton() {
-  return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs animate-pulse">
-      <div className="h-4 w-40 bg-slate-200/70 rounded mb-4" />
-      <div className="h-3 w-full bg-slate-100 rounded mb-2" />
-      <div className="h-3 w-5/6 bg-slate-100 rounded mb-2" />
-      <div className="h-3 w-4/6 bg-slate-100 rounded" />
-    </div>
-  );
-}
-
-// Each panel is its own chunk, loaded when its tab is opened. They were all
-// imported statically, so every visitor downloaded 15,000 lines of panel code
-// to look at one — 2.6 MB of JS for the workspace page, about 880 KB gzipped.
-const SphutasPanel = dynamic(() => import('./SphutasPanel').then((m) => m.SphutasPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const JanmaPanchangaPanel = dynamic(() => import('./JanmaPanchangaPanel').then((m) => m.JanmaPanchangaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const VimshottariPanel = dynamic(() => import('./VimshottariPanel').then((m) => m.VimshottariPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const ExtendedDashaPanel = dynamic(() => import('./ExtendedDashaPanel').then((m) => m.ExtendedDashaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const AshtakavargaPanel = dynamic(() => import('./AshtakavargaPanel').then((m) => m.AshtakavargaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const ShadbalaPanel = dynamic(() => import('./ShadbalaPanel').then((m) => m.ShadbalaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const YogasPanel = dynamic(() => import('./YogasPanel').then((m) => m.YogasPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const DoshasPanel = dynamic(() => import('./DoshasPanel').then((m) => m.DoshasPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const RemediesPanel = dynamic(() => import('./RemediesPanel').then((m) => m.RemediesPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const VargasPanel = dynamic(() => import('./VargasPanel').then((m) => m.VargasPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const NavamshaPanel = dynamic(() => import('./NavamshaPanel').then((m) => m.NavamshaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const JaiminiSpecialPanel = dynamic(() => import('./JaiminiSpecialPanel').then((m) => m.JaiminiSpecialPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const AspectsPanel = dynamic(() => import('./AspectsPanel').then((m) => m.AspectsPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.TransitsPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const BhavaChalitPanel = dynamic(() => import('./BhavaChalitPanel').then((m) => m.BhavaChalitPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const MuhurtaPanel = dynamic(() => import('./MuhurtaPanel').then((m) => m.MuhurtaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const AvakahadaPanel = dynamic(() => import('./AvakahadaPanel').then((m) => m.AvakahadaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const VarshaphalaPanel = dynamic(() => import('./VarshaphalaPanel').then((m) => m.VarshaphalaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const SudarshanaPanel = dynamic(() => import('./SudarshanaPanel').then((m) => m.SudarshanaPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const IndicationsPanel = dynamic(() => import('./IndicationsPanel').then((m) => m.IndicationsPanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
-const MatchingBridgePanel = dynamic(() => import('./MatchingBridgePanel').then((m) => m.MatchingBridgePanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
 
 interface PresetEvent {
   name: string;
@@ -269,9 +181,6 @@ const PRESETS: PresetEvent[] = [
 export type WorkspaceTab =
   | 'kundali'
   | 'avakahada'
-  | 'matching_bridge'
-  | 'varshaphala'
-  | 'sudarshana'
   | 'vargas'
   | 'navamsha'
   | 'planets'
@@ -318,12 +227,20 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'D-1 Lagna birth chart, Avakahada Cakra, 16 harmonic divisional Ṣoḍaśavargas, & Navāṃśa mapping',
     subTabs: [
       { id: 'kundali', name: 'Lagna Kuṇḍalī (D-1)', shortName: 'D-1 Lagna', icon: Compass },
-      { id: 'varshaphala', name: 'Varṣaphala (वर्षफल)', shortName: 'Varṣaphala', icon: Calendar, badge: 'Annual' },
       { id: 'avakahada', name: 'Avakahada Cakra (अवकहड़ा चक्र)', shortName: 'Avakahada Cakra', icon: Sparkles, badge: 'Birth Matrix' },
-      { id: 'sudarshana', name: 'Sudarśana Cakra (सुदर्शन चक्र)', shortName: 'Sudarśana Cakra', icon: Layers, badge: 'Triple Chart' },
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
       { id: 'navamsha', name: 'Navāṃśa (D-9) Reference & Grahas', shortName: 'Navāṃśa Table', icon: Table, badge: 'Canonical D9' },
       { id: 'matching_bridge', name: 'Vivāha Kūṭa Matching Profile', shortName: 'Kuṭa Profile', icon: Users, badge: 'Matching' },
+    ],
+  },
+  {
+    id: 'varshaphala',
+    name: 'Varṣaphala (वर्षफल)',
+    shortName: 'Annual Chart',
+    icon: Calendar,
+    description: 'The year\u2019s own kuṇḍalī, cast for the solar return — munthā, varṣeśa and sahams',
+    subTabs: [
+      { id: 'varshaphala', name: 'Varṣaphala (वर्षफल)', shortName: 'Annual Chart', icon: Calendar, badge: 'Tājika' },
     ],
   },
   {
@@ -579,17 +496,7 @@ function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
     house = stored.houseSystem;
   }
 
-  const rec: 'parashara' | 'varahamihira' =
-    getPlatformSettings()?.ashtakavargaRecension === 'varahamihira'
-      ? 'varahamihira'
-      : 'parashara';
-
-  // Rāhu/Ketu convention. The toggle has existed in Workspace Settings for a
-  // while but was never passed to the calculator, so flipping it changed
-  // nothing. Read it here so the chart is actually cast from the chosen node.
-  const nodeType: 'mean' | 'true' = stored?.nodeMode === 'true' ? 'true' : 'mean';
-
-  return { name, year, month, day, hour, minute, second, city, ayan, house, rec, nodeType };
+  return { name, year, month, day, hour, minute, second, city, ayan, house };
 }
 
 export const WorkspaceClient: React.FC = () => {
@@ -611,9 +518,6 @@ export const WorkspaceClient: React.FC = () => {
   const [showSavedProfilesDrawer, setShowSavedProfilesDrawer] = useState<boolean>(false);
   const [copiedSummary, setCopiedSummary] = useState<boolean>(false);
 
-  // PDF report preview (blob URL + suggested filename)
-  const [pdfPreview, setPdfPreview] = useState<{ url: string; name: string } | null>(null);
-
   // Professional View Settings
   const [showWorkspaceSettings, setShowWorkspaceSettings] = useState<boolean>(false);
   const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
@@ -622,46 +526,12 @@ export const WorkspaceClient: React.FC = () => {
 
   const [ayanamshaType, setAyanamshaType] = useState<AyanamshaType>(() => init.ayan);
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
-  const [ashtakavargaRecension, setAshtakavargaRecension] =
-    useState<'parashara' | 'varahamihira'>(() => init.rec);
-  const [nodeType, setNodeType] = useState<'mean' | 'true'>(() => init.nodeType);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
   const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
   const [isApplyingTime, setIsApplyingTime] = useState<boolean>(false);
   const [isApplyingLocation, setIsApplyingLocation] = useState<boolean>(false);
   const [isSavedDefaultLocation, setIsSavedDefaultLocation] = useState<boolean>(false);
-
-  // The location chosen in Platform Settings is the default for chart
-  // calculation. Applied on mount and whenever the platform scope changes, so
-  // selecting a place in Settings carries through to this page without the user
-  // having to pick it again here.
-  const applyDefaultLocation = useCallback(
-    (loc?: Partial<CityLocation> | null) => {
-      if (!loc || typeof loc.latitude !== 'number' || typeof loc.longitude !== 'number') {
-        return;
-      }
-      setSelectedCity((prev) => {
-        if (prev.name === loc.name && prev.latitude === loc.latitude) return prev;
-        return {
-          name: loc.name || prev.name,
-          country: loc.country || 'India',
-          stateOrRegion: loc.stateOrRegion,
-          latitude: loc.latitude as number,
-          longitude: loc.longitude as number,
-          timezoneOffsetHours:
-            typeof loc.timezoneOffsetHours === 'number' ? loc.timezoneOffsetHours : 5.5,
-          timezoneName: loc.timezoneName || 'IST',
-        } as CityLocation;
-      });
-      setLocationQuery(formatPlace(loc as any));
-    },
-    []
-  );
-
-  useEffect(() => {
-    applyDefaultLocation(getPlatformSettings()?.defaultLocation);
-  }, [applyDefaultLocation]);
 
   // Synchronize with Workspace & Platform Settings in real-time
   useEffect(() => {
@@ -671,21 +541,11 @@ export const WorkspaceClient: React.FC = () => {
         if (currentWs.ayanamsha && currentWs.ayanamsha in AYANAMSHA_DEFINITIONS) {
           setAyanamshaType(currentWs.ayanamsha);
         }
-        // Node convention changes Rāhu/Ketu and everything derived from them,
-        // so the chart is recast when the toggle moves.
-        setNodeType(currentWs.nodeMode === 'true' ? 'true' : 'mean');
       } else if (scope === 'platform') {
         const currentPlat = getPlatformSettings();
         if (currentPlat?.defaultAyanamsha && currentPlat.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
           setAyanamshaType(currentPlat.defaultAyanamsha);
         }
-        // Aṣṭakavarga recension changes the bindus, so recompute on change.
-        setAshtakavargaRecension(
-          currentPlat?.ashtakavargaRecension === 'varahamihira'
-            ? 'varahamihira'
-            : 'parashara'
-        );
-        applyDefaultLocation(currentPlat?.defaultLocation);
       }
     });
     return unsub;
@@ -729,7 +589,7 @@ export const WorkspaceClient: React.FC = () => {
         timezoneName: loc.timezoneName || 'UTC+5.5',
       };
     setSelectedCity(matchingCity);
-    setLocationQuery(formatPlace(matchingCity));
+    setLocationQuery(matchingCity.name);
     setTimeout(() => {
       setIsApplyingLocation(false);
     }, 500);
@@ -788,13 +648,8 @@ export const WorkspaceClient: React.FC = () => {
       locationName: selectedCity.name,
       ayanamshaType,
       houseSystem,
-      ashtakavargaRecension,
-      nodeType,
     });
-  }, [
-    year, month, day, hour, minute, second, selectedCity,
-    ayanamshaType, houseSystem, ashtakavargaRecension, nodeType,
-  ]);
+  }, [year, month, day, hour, minute, second, selectedCity, ayanamshaType, houseSystem]);
 
   // Determine which domain is currently active
   const currentDomain = useMemo(() => {
@@ -927,7 +782,7 @@ export const WorkspaceClient: React.FC = () => {
 Title: ${chartTitle}
 Date of Birth: ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}
 Time of Birth: ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} (UTC${selectedCity.timezoneOffsetHours >= 0 ? `+${selectedCity.timezoneOffsetHours}` : selectedCity.timezoneOffsetHours})
-Location: ${formatPlace(selectedCity)} (${formatDMS(selectedCity.latitude, true)}, ${formatDMS(selectedCity.longitude, false)})
+Location: ${selectedCity.name} (${formatDMS(selectedCity.latitude, true)}, ${formatDMS(selectedCity.longitude, false)})
 Ayanāṃśa: ${AYANAMSHA_DEFINITIONS[ayanamshaType]?.name || ayanamshaType} (${chartData.meta.ayanamshaFormatted})
 Julian Day: ${chartData.meta.julianDay}
 
@@ -998,7 +853,7 @@ ${Object.values(chartData.planets)
                 {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}:{String(second).padStart(2, '0')} (UTC{selectedCity.timezoneOffsetHours >= 0 ? `+${selectedCity.timezoneOffsetHours}` : selectedCity.timezoneOffsetHours})
               </span>
               <span className="text-slate-300">•</span>
-              <span className="text-slate-700">{formatPlace(selectedCity)} ({formatDMS(selectedCity.latitude, true)}, {formatDMS(selectedCity.longitude, false)})</span>
+              <span className="text-slate-700">{selectedCity.name} ({formatDMS(selectedCity.latitude, true)}, {formatDMS(selectedCity.longitude, false)})</span>
             </p>
           </div>
 
@@ -1053,32 +908,9 @@ ${Object.values(chartData.planets)
               type="button"
               size="sm"
               variant="outline"
-              onClick={async () => {
-                try {
-                  const blob = await buildReportBlob(chartData);
-                  const url = URL.createObjectURL(blob);
-                  setPdfPreview({ url, name: chartPdfFilename(chartData) });
-                } catch (err) {
-                  console.error('[report] PDF generation failed', err);
-                }
-              }}
-              title="Preview the full chart report as a PDF"
+              onClick={() => window.print()}
+              title="Print / Save PDF of current workspace view"
               icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
-            />
-
-            <GanakaButton
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                try {
-                  downloadChartJson(chartData);
-                } catch (err) {
-                  console.error('[export] JSON export failed', err);
-                }
-              }}
-              title="Download the complete computed chart as JSON"
-              icon={<FileJson className="w-3.5 h-3.5 text-slate-500" />}
             />
           </div>
         </div>
@@ -1250,10 +1082,10 @@ ${Object.values(chartData.planets)
                 />
               </div>
 
-              {/* Location Autocomplete */}
+              {/* Location Autocomplete (220+ Cities) */}
               <div className="space-y-1.5 relative sm:col-span-2">
                 <label className="text-slate-700 font-semibold block flex items-center justify-between flex-wrap gap-1">
-                  <span>Location</span>
+                  <span>Location (220+ Verified Indian &amp; Global Cities)</span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -1302,7 +1134,7 @@ ${Object.values(chartData.planets)
                         key={idx}
                         onClick={() => {
                           setSelectedCity(loc);
-                          setLocationQuery(formatPlace(loc));
+                          setLocationQuery(loc.name);
                           setShowLocationDropdown(false);
                         }}
                         className="px-4 py-2.5 text-xs hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors"
@@ -1310,11 +1142,11 @@ ${Object.values(chartData.planets)
                         <div>
                           <span className="font-semibold text-slate-900">{loc.name}</span>
                           <span className="text-slate-500 text-[11px] block font-mono">
-                            {formatPlaceRegion(loc)} • {loc.latitude.toFixed(2)}°, {loc.longitude.toFixed(2)}°
+                            {loc.stateOrRegion ? `${loc.stateOrRegion}, ` : ''}{loc.country} • Lat: {loc.latitude}°, Lon: {loc.longitude}°
                           </span>
                         </div>
                         <span className="font-mono text-xs font-semibold text-[#8C2D19]">
-                          {formatUtcOffset(loc.timezoneOffsetHours)}
+                          UTC{loc.timezoneOffsetHours >= 0 ? `+${loc.timezoneOffsetHours}` : loc.timezoneOffsetHours}
                         </span>
                       </div>
                     ))}
@@ -1640,7 +1472,7 @@ ${Object.values(chartData.planets)
                       lagnaDegreeStr={chartData.lagna.degreeStr}
                       planets={chartData.planets}
                       title="Lagna Rāśi Kuṇḍalī (D-1)"
-                      subtitle={`${formatPlace(selectedCity)} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
+                      subtitle={`${selectedCity.name} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
                       style={chartStyle}
                     />
                   </div>
@@ -1673,7 +1505,7 @@ ${Object.values(chartData.planets)
                     lagnaDegreeStr={chartData.lagna.degreeStr}
                     planets={chartData.planets}
                     title="Lagna Rāśi Kuṇḍalī (D-1)"
-                    subtitle={`${formatPlace(selectedCity)} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
+                    subtitle={`${selectedCity.name} • ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`}
                     style={chartStyle}
                   />
                 </div>
@@ -1841,14 +1673,6 @@ ${Object.values(chartData.planets)
           </div>
         )}
 
-        {activeTab === 'varshaphala' && (
-          <VarshaphalaPanel chart={chartData} />
-        )}
-
-        {activeTab === 'sudarshana' && (
-          <SudarshanaPanel chart={chartData} />
-        )}
-
         {activeTab === 'avakahada' && (
           <AvakahadaPanel chart={chartData} />
         )}
@@ -2001,50 +1825,6 @@ ${Object.values(chartData.planets)
           }
         }}
       />
-
-      {/* PDF report preview - the document is built in memory and shown in an
-          iframe, so the reader can page through it before committing to a
-          download. Nothing is saved until they press Download. */}
-      {pdfPreview && (
-        <div
-          className="fixed inset-0 z-[120] bg-stone-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
-          onClick={() => setPdfPreview(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Chart report preview"
-        >
-          <div
-            className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[92vh] flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-stone-200 bg-[#FCFAF6]">
-              <div className="min-w-0">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-[#8C2D19] font-bold">
-                  Report Preview
-                </div>
-                <div className="text-xs text-stone-600 truncate">{pdfPreview.name}</div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={pdfPreview.url}
-                  download={pdfPreview.name}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#73240f] transition-colors"
-                >
-                  Download PDF
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setPdfPreview(null)}
-                  className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-            <PdfPreview url={pdfPreview.url} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
