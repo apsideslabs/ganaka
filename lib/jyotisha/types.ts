@@ -74,6 +74,8 @@ export interface CalculatedPlanet {
   dignity: DignityType;
   naturalBenefic: boolean;
   aspectsToHouses: number[]; // houses it casts Drishti on
+  /** Ecliptic latitude in degrees, carried from the ephemeris. */
+  latitude?: number;
 }
 
 export interface BhavaCusp {
