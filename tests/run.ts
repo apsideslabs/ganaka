@@ -386,9 +386,11 @@ console.log('\n== Sudarshana Cakra ==');
 console.log('\n== Node convention ==');
 {
   // Swiss Ephemeris sidereal values for the same moment, Lahiri.
-  const SWE_MEAN_RAHU = 283.691013;
-  const SWE_TRUE_RAHU = 284.754627;
-  const TOL = 60; // arcsec
+  // Geometric Swiss Ephemeris (SEFLG_TRUEPOS), the same convention as the
+  // planet fixtures.
+  const SWE_MEAN_RAHU = 283.703157;
+  const SWE_TRUE_RAHU = 284.756694;
+  const TOL = 25; // arcsec
 
   const nodeBirth = FIXTURES[0].birth;
   const meanChart: any = calculateFullJyotishaChart({ ...nodeBirth, nodeType: 'mean' });
