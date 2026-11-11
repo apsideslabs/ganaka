@@ -28,7 +28,20 @@ export interface FixtureChart {
  * case is ~33 arcsec; 60 gives headroom without being so loose it stops
  * catching a real regression. A 1-degree error fails; a rounding wobble does not.
  */
-export const TOLERANCE_ARCSEC = 60;
+/**
+ * Tolerance against the Swiss Ephemeris reference longitudes, in arcseconds.
+ *
+ * The reference values below are GEOMETRIC positions — Swiss Ephemeris with
+ * SEFLG_TRUEPOS — because that is the model this engine implements and the
+ * convention PyJHora uses. The previous values were apparent positions, which
+ * carry a light-time correction of up to 37" and made a correct engine look
+ * wrong.
+ *
+ * Measured after the ΔT and VSOP87-Earth fixes: every planet is within 0.5"
+ * across all three charts, and the Sun within 19" (it drifts with epoch
+ * because of the truncated nutation series). 25" holds that.
+ */
+export const TOLERANCE_ARCSEC = 25;
 
 export const FIXTURES: FixtureChart[] = [
   {
@@ -40,8 +53,14 @@ export const FIXTURES: FixtureChart[] = [
       locationName: 'Jalah, Baksa, Assam',
     },
     expected: {
-      sun: 319.322595, moon: 42.043782, mercury: 298.252505, venus: 351.292347,
-      mars: 297.10952, jupiter: 289.301561, saturn: 144.794175, rahu: 283.703157,
+      sun: 319.328331,
+      moon: 42.044194,
+      mercury: 298.263037,
+      venus: 351.292567,
+      mars: 297.119769,
+      jupiter: 289.309045,
+      saturn: 144.790284,
+      rahu: 283.703157,
     },
   },
   {
@@ -53,8 +72,14 @@ export const FIXTURES: FixtureChart[] = [
       locationName: 'Chennai, Tamil Nadu',
     },
     expected: {
-      sun: 256.859923, moon: 306.465258, mercury: 272.014436, venus: 282.530007,
-      mars: 226.118116, jupiter: 71.458921, saturn: 261.909691, rahu: 294.726414,
+      sun: 256.865708,
+      moon: 306.465492,
+      mercury: 272.013295,
+      venus: 282.529667,
+      mars: 226.127502,
+      jupiter: 71.455609,
+      saturn: 261.917206,
+      rahu: 294.726414,
     },
   },
   {
@@ -66,8 +91,14 @@ export const FIXTURES: FixtureChart[] = [
       locationName: 'Delhi',
     },
     expected: {
-      sun: 118.475325, moon: 135.287578, mercury: 145.024168, venus: 94.942048,
-      mars: 189.463536, jupiter: 310.776727, saturn: 145.60421, rahu: 336.976074,
+      sun: 118.480946,
+      moon: 135.287677,
+      mercury: 145.031185,
+      venus: 94.952755,
+      mars: 189.468739,
+      jupiter: 310.773806,
+      saturn: 145.611097,
+      rahu: 336.976074,
     },
   },
 ];
