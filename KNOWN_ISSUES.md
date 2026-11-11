@@ -254,3 +254,48 @@ Pārāśara (BPHS 66) is the default; Mihira is selectable from Platform Setting
 The start sign was computed one sign early (`13 - rashi - 1` instead of
 `13 - rashi`), misplacing every planet in every D11 chart. Verified against
 published worked examples; four of four now reproduce.
+
+## 6. Lunar node convention (Rāhu / Ketu)
+
+Three faults, all now fixed:
+
+**The setting was dead.** `nodeMode` existed in `WorkspaceSettings` and had a
+working toggle in Workspace Settings, but `WorkspaceClient` never passed it to
+the calculator. Flipping it stored a value and recast nothing.
+
+**The true node was wrong by 23 arcminutes.** It was approximated by a four-term
+correction applied to the mean node. Measured against the Swiss Ephemeris over
+60 dates (1990–2030):
+
+| | max error |
+|---|---|
+| before | 1395.7″ (23.3′) |
+| after | 39.3″ (0.66′) |
+
+The error exceeded the mean-to-true difference it was meant to model, so
+"true node" would have disagreed with every other true-node implementation.
+It is now computed from the Moon's actual orbital plane — the angular momentum
+`h = r × v` from the lunar position vector, using the 60+60 ELP2000 terms the
+Moon model already carries.
+
+**Kūṭa matching used a different node than the chart**, so two charts that
+disagreed on Rāhu's nakṣatra produced the wrong compatibility score. Both now
+read the same setting.
+
+The convention is applied immediately after the ephemeris call, before bhāva,
+nakṣatra, pada, aṣṭakavarga, yoga and daśā are derived — so every downstream
+value follows the chosen node. Post-hoc substitution would have left the
+nakṣatra computed from the mean position.
+
+**Default: mean node.** The Sūrya Siddhānta and the printed panchāṅga lineage
+tabulate the mean node, BPHS assumes it, and it keeps Rāhu permanently
+retrograde as the texts describe the graha. True node is available for KP and
+Jaimini practice, where it is the convention.
+
+### Duplicate node entries
+
+The ephemeris produces `true_rahu`/`true_ketu` alongside the chosen node. Both
+were being carried into `chart.planets`, so the planet grid rendered eleven
+cards with Rāhu listed twice. They are now excluded from the chart, from bhāva
+occupancy and from the varga inputs; the ephemeris still returns them so the
+node choice can be made.
