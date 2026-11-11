@@ -9,9 +9,26 @@
  */
 
 /** [amplitude, phase, frequency] */
-export type Vsop87Term = [number, number, number];
-export type Vsop87Order = Vsop87Term[][];
-export interface Vsop87Series { L: Vsop87Order; B: Vsop87Order; R: Vsop87Order }
+/**
+ * One VSOP87 term: [amplitude, phase, frequency].
+ *
+ * Typed as number[] rather than a 3-tuple on purpose. The tables are array
+ * literals, and TypeScript widens [a, b, c] to number[], which is not
+ * assignable to [number, number, number] — that mismatch produced 12,000+
+ * errors across the three data files and forced `ignoreBuildErrors` on for
+ * the production build. The shape is guaranteed by the generators in
+ * scripts/, not by the compiler.
+ */
+export type Vsop87Term = number[];
+/**
+ * Terms grouped by power of T (T in Julian millennia from J2000).
+ *
+ * This was declared Vsop87Term[][], one bracket too many, so the tables —
+ * which are Vsop87Order[] — were being read as a four-level type. Every row in
+ * every file failed to type-check.
+ */
+export type Vsop87Order = Vsop87Term[];
+export interface Vsop87Series { L: Vsop87Order[]; B: Vsop87Order[]; R: Vsop87Order[] }
 
 export const MERCURY_L: Vsop87Order[] = [
   [ // order 0: 83 terms
@@ -1754,7 +1771,7 @@ export const VSOP87_PLANETS: Record<string, Vsop87Series> = {
   saturn: { L: SATURN_L, B: SATURN_B, R: SATURN_R },
 };
 
-function evaluate(series: Vsop87Order, T: number): number {
+function evaluate(series: Vsop87Order[], T: number): number {
   let total = 0;
   for (let k = 0; k < series.length; k++) {
     const order = series[k];
