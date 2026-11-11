@@ -218,7 +218,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
-                <GanakaClockPicker value={groomTime} onChange={setGroomTime} />
+                <GanakaClockPicker value={groomTime} onChange={(t) => t && setGroomTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
               </div>
             </div>
 
@@ -295,7 +295,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
-                <GanakaClockPicker value={brideTime} onChange={setBrideTime} />
+                <GanakaClockPicker value={brideTime} onChange={(t) => t && setBrideTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
               </div>
             </div>
 
