@@ -26,7 +26,7 @@ except ImportError:
 # Amplitude thresholds in units of 1e-8 rad (L/B) and 1e-8 AU (R). Later orders
 # are multiplied by T**k (T in millennia, ~0.1 for our era) so a larger
 # amplitude is needed before a term matters.
-THRESHOLDS = [0, 0, 0, 0, 1e9, 1e9]
+THRESHOLDS = [5, 50, 500, 5000, 1e9, 1e9]
 
 
 def truncate(series):
@@ -70,16 +70,17 @@ header = '''/**
  * Coordinates are heliocentric ecliptic, mean equinox of date (VSOP87D).
  */
 
-/** [amplitude, phase, frequency] */
-export type Vsop87Term = [number, number, number];
+/** [amplitude, phase, frequency]. number[] not a 3-tuple: array literals
+ *  widen to number[] and a tuple type fails on every row. */
+export type Vsop87Term = number[];
 /** Terms grouped by power of T (T in Julian millennia from J2000). */
-export type Vsop87Order = Vsop87Term[][];
+export type Vsop87Order = Vsop87Term[];
 
 '''
 
 evaluator = '''
 /** Sum a VSOP87 series at T Julian millennia from J2000. */
-export function evaluateEarthSeries(series: Vsop87Order, T: number): number {
+export function evaluateEarthSeries(series: Vsop87Order[], T: number): number {
   let total = 0;
   for (let k = 0; k < series.length; k++) {
     const order = series[k];
