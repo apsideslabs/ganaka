@@ -25,7 +25,6 @@ export interface PlatformSettings {
   timeFormat: '24h' | '12h';
   dinaManaUnit: 'hours' | 'ghatis' | 'both';
   defaultChartStyle: 'north' | 'south' | 'east';
-  themeTone: 'classic_parchment' | 'pure_white' | 'slate_astronomy';
   /**
    * Which recension of the aṣṭakavarga tables the engine uses.
    *
@@ -90,7 +89,6 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   timeFormat: '24h',
   dinaManaUnit: 'both',
   defaultChartStyle: 'north',
-  themeTone: 'classic_parchment',
   ashtakavargaRecension: 'parashara',
 };
 
