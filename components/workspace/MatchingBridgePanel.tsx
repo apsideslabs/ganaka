@@ -15,8 +15,11 @@ export function MatchingBridgePanel({ chart }: MatchingBridgePanelProps) {
   const lunar = extractLunarData(chart);
   const marsHouse = chart.planets.mars.house;
   const isKuja = [1, 2, 4, 7, 8, 12].includes(marsHouse);
-  const seventhLord = chart.houses[7].lord;
-  const seventhSign = chart.houses[7].rashiNumber;
+  // The chart exposes `bhavas`; `houses` never existed on the type, so this
+  // panel was reading undefined and would throw on render.
+  const seventh = chart.bhavas[6];
+  const seventhLord = seventh.rashiLord;
+  const seventhSign = seventh.rashiNumber;
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-6">
@@ -75,7 +78,7 @@ export function MatchingBridgePanel({ chart }: MatchingBridgePanelProps) {
           <div className="space-y-1 text-slate-700">
             <p>
               <span className="text-slate-500 font-mono text-[11px] block">7th Cusp Sign:</span>
-              <span className="font-semibold">{RASHIS[seventhSign].sanskritName}</span>
+              <span className="font-semibold">{RASHIS[seventhSign as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12].sanskritName}</span>
             </p>
             <p>
               <span className="text-slate-500 font-mono text-[11px] block">7th House Lord:</span>
