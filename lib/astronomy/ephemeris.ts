@@ -109,18 +109,14 @@ export function calculateAllPlanets(
   const meanKetuLong = normalizeDegrees(meanNodeLong + 180.0);
   const meanNodeSpeed = -0.0529539; // approx -3' 11" per day retrograde
 
-  // True Node (with dominant lunar perturbations)
-  const M = normalizeDegrees(357.5291 + 35999.0503 * T) * DEG2RAD; // Sun anomaly
-  const Mprime = normalizeDegrees(134.9634 + 477198.8676 * T) * DEG2RAD; // Moon anomaly
-  const F = normalizeDegrees(93.2721 + 483202.0175 * T) * DEG2RAD;
-  const D = normalizeDegrees(297.8502 + 445267.1115 * T) * DEG2RAD;
-
-  const trueNodeCorrection =
-    -1.4979 * Math.sin(2 * (D - F)) -
-    0.206 * Math.sin(2 * D) -
-    0.1983 * Math.sin(2 * (D - M)) -
-    0.1661 * Math.sin(M);
-  const trueNodeLong = normalizeDegrees(meanNodeLong + trueNodeCorrection);
+  // True (osculating) node, from the Moon's actual orbital plane.
+  //
+  // The previous version applied a four-term correction to the mean node, which
+  // measured up to 23 arcminutes from the Swiss Ephemeris — larger than the
+  // mean-to-true difference it was meant to model. The osculating node is
+  // defined by the Moon's instantaneous angular momentum h = r x v, so it is
+  // derived here from the lunar position vector instead of approximated.
+  const trueNodeLong = calculateTrueNode(jd);
   const trueKetuLong = normalizeDegrees(trueNodeLong + 180.0);
 
   function makePlanet(
@@ -208,6 +204,49 @@ function calculateSunSpeed(T: number): number {
 /**
  * High-precision Lunar Coordinates (Brown's Lunar Theory ELP-2000).
  */
+/**
+ * Geocentric ecliptic position vector of the Moon, in AU.
+ */
+function moonEclipticVector(T: number): { x: number; y: number; z: number } {
+  const { lon, lat, dist } = calculateMoon(T);
+  const l = lon * DEG2RAD;
+  const b = lat * DEG2RAD;
+  return {
+    x: dist * Math.cos(b) * Math.cos(l),
+    y: dist * Math.cos(b) * Math.sin(l),
+    z: dist * Math.sin(b),
+  };
+}
+
+/**
+ * The Moon's osculating ascending node, in tropical degrees.
+ *
+ * The orbital plane's normal is the angular momentum h = r x v; the ascending
+ * node is the direction z-hat x h. Velocity comes from a central difference
+ * over one day either side, which is well inside the accuracy of the lunar
+ * series and avoids differentiating the 120 periodic terms analytically.
+ */
+function calculateTrueNode(jd: number): number {
+  const dt = 0.5; // days either side
+  const toT = (j: number) => (j - 2451545.0) / 36525;
+
+  const r0 = moonEclipticVector(toT(jd));
+  const rPlus = moonEclipticVector(toT(jd + dt));
+  const rMinus = moonEclipticVector(toT(jd - dt));
+
+  const vx = (rPlus.x - rMinus.x) / (2 * dt);
+  const vy = (rPlus.y - rMinus.y) / (2 * dt);
+  const vz = (rPlus.z - rMinus.z) / (2 * dt);
+
+  // h = r x v
+  const hx = r0.y * vz - r0.z * vy;
+  const hy = r0.z * vx - r0.x * vz;
+
+  // n = z-hat x h = (-hy, hx, 0)
+  const node = Math.atan2(hx, -hy) * RAD2DEG;
+  return normalizeDegrees(node);
+}
+
 function calculateMoon(T: number): { lon: number; lat: number; dist: number } {
   // ELP2000-82B truncated, as tabulated by Meeus in Astronomical Algorithms
   // ch. 47: 60 longitude/distance terms and 60 latitude terms, the
