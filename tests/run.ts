@@ -381,6 +381,53 @@ console.log('\n== Sudarshana Cakra ==');
   check('no stack is taller than its 30-degree sector', tooTall === 0, String(tooTall));
 }
 
+/* ------------------------------------------ NODE CONVENTION (mean vs true) */
+
+console.log('\n== Node convention ==');
+{
+  // Swiss Ephemeris sidereal values for the same moment, Lahiri.
+  const SWE_MEAN_RAHU = 283.691013;
+  const SWE_TRUE_RAHU = 284.754627;
+  const TOL = 60; // arcsec
+
+  const nodeBirth = FIXTURES[0].birth;
+  const meanChart: any = calculateFullJyotishaChart({ ...nodeBirth, nodeType: 'mean' });
+  const trueChart: any = calculateFullJyotishaChart({ ...nodeBirth, nodeType: 'true' });
+
+  const meanRahu = meanChart.planets.rahu.siderealLongitude;
+  const trueRahu = trueChart.planets.rahu.siderealLongitude;
+
+  const dMean = Math.abs(meanRahu - SWE_MEAN_RAHU) * 3600;
+  const dTrue = Math.abs(trueRahu - SWE_TRUE_RAHU) * 3600;
+
+  check('mean node within 60" of Swiss Ephemeris', dMean < TOL, dMean.toFixed(1) + '"');
+  // The osculating node was 23 arcmin out when it came from a 4-term series.
+  check('true node within 60" of Swiss Ephemeris', dTrue < TOL, dTrue.toFixed(1) + '"');
+
+  // The switch must actually move the chart.
+  check('switching the node moves Rāhu by about a degree',
+    Math.abs(trueRahu - meanRahu) > 0.5, Math.abs(trueRahu - meanRahu).toFixed(4) + '°');
+
+  // Ketu stays opposite in both modes.
+  for (const [name, c] of [['mean', meanChart], ['true', trueChart]] as const) {
+    const diff = ((c.planets.ketu.siderealLongitude - c.planets.rahu.siderealLongitude) % 360 + 360) % 360;
+    check(`Ketu opposite Rāhu (${name})`, Math.abs(diff - 180) < 0.001, diff.toFixed(4) + '°');
+  }
+
+  // Derived values must follow the chosen node, not the mean one.
+  check('true-mode Rāhu nakṣatra is derived from the true longitude',
+    trueChart.planets.rahu.nakshatraIndex ===
+      Math.floor(trueRahu / (360 / 27)) % 27);
+  check('mean-mode Rāhu nakṣatra is derived from the mean longitude',
+    meanChart.planets.rahu.nakshatraIndex ===
+      Math.floor(meanRahu / (360 / 27)) % 27);
+
+  // Default must remain the Parāśari convention.
+  const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
+  check('default node is mean',
+    Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
 /* ------------------------------------------------------------------- REPORT */
 
 console.log(`\n${'='.repeat(52)}`);
