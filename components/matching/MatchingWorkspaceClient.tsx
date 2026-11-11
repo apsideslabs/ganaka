@@ -25,6 +25,7 @@ import { MatchingDiagram } from './MatchingDiagram';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
 import { GanakaClockPicker } from '../ui/GanakaClockPicker';
 import { GanakaButton } from '../ui/GanakaButton';
+import { getWorkspaceSettings } from '@/lib/settings/settings-storage';
 import {
   Users,
   Award,
@@ -89,6 +90,7 @@ export function MatchingWorkspaceClient() {
       longitude: groomLocation.longitude,
       timezoneOffsetHours: groomLocation.timezoneOffsetHours,
       locationName: groomLocation.name,
+      nodeType: getWorkspaceSettings().nodeMode === 'true' ? 'true' : 'mean',
     };
     return calculateFullJyotishaChart(input);
   }, [groomDate, groomTime, groomLocation]);
@@ -107,6 +109,7 @@ export function MatchingWorkspaceClient() {
       longitude: brideLocation.longitude,
       timezoneOffsetHours: brideLocation.timezoneOffsetHours,
       locationName: brideLocation.name,
+      nodeType: getWorkspaceSettings().nodeMode === 'true' ? 'true' : 'mean',
     };
     return calculateFullJyotishaChart(input);
   }, [brideDate, brideTime, brideLocation]);
