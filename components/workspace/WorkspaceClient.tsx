@@ -155,6 +155,10 @@ const AvakahadaPanel = dynamic(() => import('./AvakahadaPanel').then((m) => m.Av
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const VarshaphalaPanel = dynamic(() => import('./VarshaphalaPanel').then((m) => m.VarshaphalaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const SudarshanaPanel = dynamic(() => import('./SudarshanaPanel').then((m) => m.SudarshanaPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -266,6 +270,7 @@ export type WorkspaceTab =
   | 'kundali'
   | 'avakahada'
   | 'matching_bridge'
+  | 'varshaphala'
   | 'sudarshana'
   | 'vargas'
   | 'navamsha'
@@ -313,6 +318,7 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'D-1 Lagna birth chart, Avakahada Cakra, 16 harmonic divisional Ṣoḍaśavargas, & Navāṃśa mapping',
     subTabs: [
       { id: 'kundali', name: 'Lagna Kuṇḍalī (D-1)', shortName: 'D-1 Lagna', icon: Compass },
+      { id: 'varshaphala', name: 'Varṣaphala (वर्षफल)', shortName: 'Varṣaphala', icon: Calendar, badge: 'Annual' },
       { id: 'avakahada', name: 'Avakahada Cakra (अवकहड़ा चक्र)', shortName: 'Avakahada Cakra', icon: Sparkles, badge: 'Birth Matrix' },
       { id: 'sudarshana', name: 'Sudarśana Cakra (सुदर्शन चक्र)', shortName: 'Sudarśana Cakra', icon: Layers, badge: 'Triple Chart' },
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
@@ -1833,6 +1839,10 @@ ${Object.values(chartData.planets)
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'varshaphala' && (
+          <VarshaphalaPanel chart={chartData} />
         )}
 
         {activeTab === 'sudarshana' && (
