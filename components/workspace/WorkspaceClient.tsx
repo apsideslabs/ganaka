@@ -16,26 +16,8 @@ import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
-import { SphutasPanel } from './SphutasPanel';
-import { JanmaPanchangaPanel } from './JanmaPanchangaPanel';
 
-import { VimshottariPanel } from './VimshottariPanel';
-import { ExtendedDashaPanel } from './ExtendedDashaPanel';
-import { AshtakavargaPanel } from './AshtakavargaPanel';
-import { ShadbalaPanel } from './ShadbalaPanel';
-import { YogasPanel } from './YogasPanel';
-import { DoshasPanel } from './DoshasPanel';
-import { RemediesPanel } from './RemediesPanel';
-import { VargasPanel } from './VargasPanel';
-import { NavamshaPanel } from './NavamshaPanel';
-import { JaiminiSpecialPanel } from './JaiminiSpecialPanel';
-import { AspectsPanel } from './AspectsPanel';
-import { TransitsPanel } from './TransitsPanel';
-import { BhavaChalitPanel } from './BhavaChalitPanel';
-import { MuhurtaPanel } from './MuhurtaPanel';
-import { AvakahadaPanel } from './AvakahadaPanel';
-import { IndicationsPanel } from './IndicationsPanel';
-import { MatchingBridgePanel } from './MatchingBridgePanel';
+import dynamic from 'next/dynamic';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
 import { GanakaClockPicker } from '../ui/GanakaClockPicker';
@@ -83,6 +65,101 @@ import {
   Search,
   Users,
 } from 'lucide-react';
+
+
+/** Placeholder while a panel's chunk loads. */
+function PanelSkeleton() {
+  return (
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs animate-pulse">
+      <div className="h-4 w-40 bg-slate-200/70 rounded mb-4" />
+      <div className="h-3 w-full bg-slate-100 rounded mb-2" />
+      <div className="h-3 w-5/6 bg-slate-100 rounded mb-2" />
+      <div className="h-3 w-4/6 bg-slate-100 rounded" />
+    </div>
+  );
+}
+
+// Each panel is its own chunk, loaded when its tab opens.
+const SphutasPanel = dynamic(() => import('./SphutasPanel').then((m) => m.SphutasPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const JanmaPanchangaPanel = dynamic(() => import('./JanmaPanchangaPanel').then((m) => m.JanmaPanchangaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const VimshottariPanel = dynamic(() => import('./VimshottariPanel').then((m) => m.VimshottariPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const ExtendedDashaPanel = dynamic(() => import('./ExtendedDashaPanel').then((m) => m.ExtendedDashaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const AshtakavargaPanel = dynamic(() => import('./AshtakavargaPanel').then((m) => m.AshtakavargaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const ShadbalaPanel = dynamic(() => import('./ShadbalaPanel').then((m) => m.ShadbalaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const YogasPanel = dynamic(() => import('./YogasPanel').then((m) => m.YogasPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const DoshasPanel = dynamic(() => import('./DoshasPanel').then((m) => m.DoshasPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const RemediesPanel = dynamic(() => import('./RemediesPanel').then((m) => m.RemediesPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const VargasPanel = dynamic(() => import('./VargasPanel').then((m) => m.VargasPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const NavamshaPanel = dynamic(() => import('./NavamshaPanel').then((m) => m.NavamshaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const JaiminiSpecialPanel = dynamic(() => import('./JaiminiSpecialPanel').then((m) => m.JaiminiSpecialPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const AspectsPanel = dynamic(() => import('./AspectsPanel').then((m) => m.AspectsPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.TransitsPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const BhavaChalitPanel = dynamic(() => import('./BhavaChalitPanel').then((m) => m.BhavaChalitPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const AvakahadaPanel = dynamic(() => import('./AvakahadaPanel').then((m) => m.AvakahadaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const IndicationsPanel = dynamic(() => import('./IndicationsPanel').then((m) => m.IndicationsPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const SudarshanaPanel = dynamic(() => import('./SudarshanaPanel').then((m) => m.SudarshanaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const VarshaphalaPanel = dynamic(() => import('./VarshaphalaPanel').then((m) => m.VarshaphalaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const MatchingBridgePanel = dynamic(() => import('./MatchingBridgePanel').then((m) => m.MatchingBridgePanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 
 interface PresetEvent {
   name: string;
@@ -197,7 +274,10 @@ export type WorkspaceTab =
   | 'remedies'
   | 'transits'
   | 'panchanga'
-  | 'indications';
+  | 'indications'
+  | 'sudarshana'
+  | 'matching_bridge'
+  | 'varshaphala';
 
 interface NavDomain {
   id: string;
@@ -230,6 +310,7 @@ const NAV_DOMAINS: NavDomain[] = [
       { id: 'avakahada', name: 'Avakahada Cakra (अवकहड़ा चक्र)', shortName: 'Avakahada Cakra', icon: Sparkles, badge: 'Birth Matrix' },
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
       { id: 'navamsha', name: 'Navāṃśa (D-9) Reference & Grahas', shortName: 'Navāṃśa Table', icon: Table, badge: 'Canonical D9' },
+      { id: 'sudarshana', name: 'Sudarśana Cakra (सुदर्शन चक्र)', shortName: 'Sudarśana Cakra', icon: Layers, badge: 'Triple Chart' },
       { id: 'matching_bridge', name: 'Vivāha Kūṭa Matching Profile', shortName: 'Kuṭa Profile', icon: Users, badge: 'Matching' },
     ],
   },
@@ -1695,6 +1776,14 @@ ${Object.values(chartData.planets)
             chart={chartData}
             onNavigateToVargaChart={() => setActiveTab('vargas')}
           />
+        )}
+
+        {activeTab === 'varshaphala' && (
+          <VarshaphalaPanel chart={chartData} />
+        )}
+
+        {activeTab === 'sudarshana' && (
+          <SudarshanaPanel chart={chartData} />
         )}
 
         {activeTab === 'matching_bridge' && (
