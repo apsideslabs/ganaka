@@ -68,6 +68,13 @@ export interface ShadbalaContext {
   timezoneOffsetHours?: number;
   /** Ayanamsa in degrees, needed for Ayana Bala. */
   ayanamsha?: number;
+  /**
+   * Julian Day of the solar-year and solar-month ingress, for Varṣa and Māsa
+   * Bala (BPHS 27.26–27.27). Both are optional: without them those two
+   * components score zero.
+   */
+  varshaIngressJD?: number;
+  masaIngressJD?: number;
 }
 
 // ---------------------------------------------------------------------------
