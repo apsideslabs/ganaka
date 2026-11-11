@@ -37,6 +37,19 @@ export interface CalculationInput {
   houseSystem?: 'equal_whole' | 'sripati' | 'placidus';
   /** Aṣṭakavarga table recension; see AshtakavargaOptions. */
   ashtakavargaRecension?: 'parashara' | 'varahamihira';
+  /**
+   * Which lunar node the chart is cast from.
+   *
+   * 'mean' (default) is the Parāśari convention: the Sūrya Siddhānta and the
+   * printed panchāṅga lineage tabulate the mean node, BPHS assumes it, and it
+   * keeps Rāhu permanently retrograde as the texts describe the graha.
+   * 'true' is the osculating node, used by KP and Jaimini practice; it swings
+   * up to 1°45′ from the mean and briefly turns direct.
+   *
+   * Substitution happens before nakshatra, pada, bhāva, aṣṭakavarga, yoga and
+   * daśā are derived, so every downstream value follows the chosen node.
+   */
+  nodeType?: 'mean' | 'true';
   jaiminiScheme?: '7_karaka' | '8_karaka';
 }
 
@@ -60,6 +73,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     houseSystem = 'equal_whole',
     jaiminiScheme = '7_karaka',
     ashtakavargaRecension = 'parashara',
+    nodeType = 'mean',
   } = input;
 
   // 1. Julian Day (Universal Time)
@@ -73,6 +87,14 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
 
   // 3. Ephemeris (Planetary positions & speeds)
   const rawPlanets = calculateAllPlanets(jd, ayanamshaType, customAyanamshaValue);
+
+  // 3a. Node convention. Both nodes are already computed; this decides which
+  // one the rest of the chart is built from. Done here, before houses,
+  // nakshatra, aṣṭakavarga or daśā, so nothing downstream keeps the mean value.
+  if (nodeType === 'true') {
+    rawPlanets.rahu = { ...rawPlanets.true_rahu, id: 'rahu', name: 'Rahu (True)' };
+    rawPlanets.ketu = { ...rawPlanets.true_ketu, id: 'ketu', name: 'Ketu (True)' };
+  }
   const sunTimes = calculateSolarTimes(jd, latitude, longitude, timezoneOffsetHours);
   const isDayBirth = jd >= sunTimes.sunriseJD && jd <= sunTimes.sunsetJD;
 
