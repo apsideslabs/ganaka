@@ -107,7 +107,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         <Rule />
 
         {/* ================= three reference signs ================= */}
-        <SectionHead n="01" title="The Three Signs" deva="त्रिलग्न" />
+        <SectionHead n="01" title="Your Three Signs" deva="त्रिलग्न" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 place-items-center">
           <div className="text-center">
             <RashiMedallion rashi={sun?.rashiNumber ?? 1} size={180} caption="Sūrya" />
@@ -126,16 +126,16 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         <Rule />
 
         {/* ================= graha table ================= */}
-        <SectionHead n="02" title="Graha Sphuṭa" deva="ग्रहस्फुट" />
+        <SectionHead n="02" title="Planetary Positions" deva="ग्रहस्फुट" />
         <div className="paper-card overflow-hidden">
           <table className="w-full text-[13px]">
             <thead>
               <tr className="bg-[#F8E7C4]/70 text-[#8A6A3E]">
-                <th className="text-left py-2 pl-3 font-normal tracking-[0.14em] text-[10px] uppercase">Graha</th>
-                <th className="text-left py-2 font-normal tracking-[0.14em] text-[10px] uppercase">Rāśi</th>
+                <th className="text-left py-2 pl-3 font-normal tracking-[0.14em] text-[10px] uppercase">Planet</th>
+                <th className="text-left py-2 font-normal tracking-[0.14em] text-[10px] uppercase">Sign</th>
                 <th className="text-right py-2 font-normal tracking-[0.14em] text-[10px] uppercase">Degree</th>
-                <th className="text-left py-2 pl-4 font-normal tracking-[0.14em] text-[10px] uppercase">Nakṣatra</th>
-                <th className="text-center py-2 font-normal tracking-[0.14em] text-[10px] uppercase">Bhāva</th>
+                <th className="text-left py-2 pl-4 font-normal tracking-[0.14em] text-[10px] uppercase">Star</th>
+                <th className="text-center py-2 font-normal tracking-[0.14em] text-[10px] uppercase">House</th>
                 <th className="text-right py-2 pr-3 font-normal tracking-[0.14em] text-[10px] uppercase">Dignity</th>
               </tr>
             </thead>
@@ -171,7 +171,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         <Rule />
 
         {/* ================= bhavas ================= */}
-        <SectionHead n="03" title="Bhāva" deva="भाव" />
+        <SectionHead n="03" title="The Twelve Houses" deva="भाव" />
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
           {((chart as any).bhavas ?? []).map((h: any) => (
             <div key={h.houseNumber} className="paper-card px-3 py-2.5">
@@ -191,7 +191,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         <Rule />
 
         {/* ================= vimshottari ================= */}
-        <SectionHead n="04" title="Viṃśottarī Daśā" deva="विंशोत्तरी" />
+        <SectionHead n="04" title="Life Periods" deva="विंशोत्तरी" />
         <div className="paper-card divide-y divide-[#EBDCBB]">
           {dashaTree.map((d: any, i: number) => (
             <div key={i} className="flex items-center justify-between px-4 py-2.5 text-[13px]">
@@ -219,7 +219,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         {/* ================= yogas ================= */}
         {yogas.length ? (
           <>
-            <SectionHead n="05" title="Yogas" deva="योग" />
+            <SectionHead n="05" title="Combinations Present" deva="योग" />
             <div className="flex flex-wrap gap-2">
               {yogas.map((y: any, i: number) => (
                 <span key={i} className="paper-chip">{y.name}</span>
@@ -232,7 +232,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         {/* ================= doshas ================= */}
         {doshas.length ? (
           <>
-            <SectionHead n="06" title="Doṣas" deva="दोष" />
+            <SectionHead n="06" title="Difficult Combinations" deva="दोष" />
             <div className="paper-card divide-y divide-[#EBDCBB]">
               {doshas.map((d: any, i: number) => (
                 <div key={i} className="flex items-center justify-between px-4 py-2.5 text-[13px]">
@@ -248,7 +248,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         {/* ================= ashtakavarga ================= */}
         {sav.length ? (
           <>
-            <SectionHead n="07" title="Sarvāṣṭakavarga" deva="अष्टकवर्ग" />
+            <SectionHead n="07" title="House Strength Points" deva="अष्टकवर्ग" />
             <div className="paper-card p-3">
               <div className="grid grid-cols-6 gap-1.5">
                 {sav.map((v, i) => (
@@ -269,7 +269,7 @@ export const KundliPoster: React.FC<{ chart: JyotishaChart }> = ({ chart }) => {
         {/* ================= jaimini ================= */}
         {karakas.length ? (
           <>
-            <SectionHead n="08" title="Jaimini Kārakas" deva="कारक" />
+            <SectionHead n="08" title="Significators" deva="कारक" />
             <div className="paper-card divide-y divide-[#EBDCBB]">
               {karakas.map((k: any, i: number) => (
                 <div key={i} className="flex items-center justify-between px-4 py-2 text-[13px]">
