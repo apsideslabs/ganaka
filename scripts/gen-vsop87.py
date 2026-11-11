@@ -87,9 +87,14 @@ planets_ts = '''/**
  */
 
 /** [amplitude, phase, frequency] */
-export type Vsop87Term = [number, number, number];
-export type Vsop87Order = Vsop87Term[][];
-export interface Vsop87Series { L: Vsop87Order; B: Vsop87Order; R: Vsop87Order }
+/** [amplitude, phase, frequency]. number[] not a 3-tuple: array literals
+ *  widen to number[], and a tuple type fails on every row of every table. */
+export type Vsop87Term = number[];
+/** Terms grouped by power of T (T in Julian millennia from J2000).
+ *  This was Vsop87Term[][], one bracket too many, so every table — declared
+ *  Vsop87Order[] — was read as a four-level type and nothing type-checked. */
+export type Vsop87Order = Vsop87Term[];
+export interface Vsop87Series { L: Vsop87Order[]; B: Vsop87Order[]; R: Vsop87Order[] }
 
 ''' + '\n\n'.join(blocks) + '''
 
@@ -100,7 +105,7 @@ export const VSOP87_PLANETS: Record<string, Vsop87Series> = {
   saturn: { L: SATURN_L, B: SATURN_B, R: SATURN_R },
 };
 
-function evaluate(series: Vsop87Order, T: number): number {
+function evaluate(series: Vsop87Order[], T: number): number {
   let total = 0;
   for (let k = 0; k < series.length; k++) {
     const order = series[k];
