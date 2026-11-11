@@ -373,3 +373,42 @@ body {
   background-repeat: repeat-x;
   opacity: 0.55;
 }
+
+/* --- paper stock -----------------------------------------------------------
+   The leaf has to read as printed stock, not as flat CSS: a fibre grain over
+   the whole page, cards with a warm cast shadow and a top highlight, chips
+   that look stamped. */
+.ganaka-poster {
+  background-image:
+    radial-gradient(1200px 500px at 50% -8%, #FFFDF4 0%, transparent 62%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #FDF4E0 0%, #FBEFD6 100%);
+  background-attachment: scroll, scroll, scroll;
+}
+
+.ganaka-poster .paper-card {
+  background: linear-gradient(180deg, #FFFCF2 0%, #FBF1DA 100%);
+  border: 1px solid #EBDCBB;
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 1px 2px rgba(120, 80, 30, 0.10),
+    0 10px 22px -14px rgba(120, 80, 30, 0.45);
+}
+
+.ganaka-poster .paper-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #FDF4DF, #F7E8C8);
+  border: 1px solid #E5D3AC;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  font-size: 12px;
+  color: #5C4028;
+  letter-spacing: 0.01em;
+}
+
+/* the maroon bar gets a soft inner edge so it sits on the stock */
+.ganaka-poster .poster-bar {
+  box-shadow: 0 2px 10px -4px rgba(110, 18, 32, 0.55);
+}
