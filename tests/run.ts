@@ -422,6 +422,16 @@ console.log('\n== Node convention ==');
     meanChart.planets.rahu.nakshatraIndex ===
       Math.floor(meanRahu / (360 / 27)) % 27);
 
+  // The chart must carry exactly the nine grahas — not eleven. The ephemeris
+  // also produces true_rahu/true_ketu; surfacing them put Rāhu in the planet
+  // grid twice.
+  for (const [label, c] of [['mean', meanChart], ['true', trueChart]] as const) {
+    const keys = Object.keys(c.planets);
+    check(`chart carries exactly nine grahas (${label})`, keys.length === 9, String(keys.length));
+    check(`no true_rahu leaked into the chart (${label})`, !keys.includes('true_rahu'));
+    check(`no true_ketu leaked into the chart (${label})`, !keys.includes('true_ketu'));
+  }
+
   // Default must remain the Parāśari convention.
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
