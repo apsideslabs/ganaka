@@ -499,7 +499,12 @@ function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
       ? 'varahamihira'
       : 'parashara';
 
-  return { name, year, month, day, hour, minute, second, city, ayan, house, rec };
+  // Rāhu/Ketu convention. The toggle has existed in Workspace Settings for a
+  // while but was never passed to the calculator, so flipping it changed
+  // nothing. Read it here so the chart is actually cast from the chosen node.
+  const nodeType: 'mean' | 'true' = stored?.nodeMode === 'true' ? 'true' : 'mean';
+
+  return { name, year, month, day, hour, minute, second, city, ayan, house, rec, nodeType };
 }
 
 export const WorkspaceClient: React.FC = () => {
@@ -534,6 +539,7 @@ export const WorkspaceClient: React.FC = () => {
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
   const [ashtakavargaRecension, setAshtakavargaRecension] =
     useState<'parashara' | 'varahamihira'>(() => init.rec);
+  const [nodeType, setNodeType] = useState<'mean' | 'true'>(() => init.nodeType);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
   const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
@@ -580,6 +586,9 @@ export const WorkspaceClient: React.FC = () => {
         if (currentWs.ayanamsha && currentWs.ayanamsha in AYANAMSHA_DEFINITIONS) {
           setAyanamshaType(currentWs.ayanamsha);
         }
+        // Node convention changes Rāhu/Ketu and everything derived from them,
+        // so the chart is recast when the toggle moves.
+        setNodeType(currentWs.nodeMode === 'true' ? 'true' : 'mean');
       } else if (scope === 'platform') {
         const currentPlat = getPlatformSettings();
         if (currentPlat?.defaultAyanamsha && currentPlat.defaultAyanamsha in AYANAMSHA_DEFINITIONS) {
@@ -695,10 +704,11 @@ export const WorkspaceClient: React.FC = () => {
       ayanamshaType,
       houseSystem,
       ashtakavargaRecension,
+      nodeType,
     });
   }, [
     year, month, day, hour, minute, second, selectedCity,
-    ayanamshaType, houseSystem, ashtakavargaRecension,
+    ayanamshaType, houseSystem, ashtakavargaRecension, nodeType,
   ]);
 
   // Determine which domain is currently active
