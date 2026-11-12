@@ -18,6 +18,9 @@ import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
 
 import dynamic from 'next/dynamic';
+import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
+import { downloadChartJson } from '../../lib/report/export-chart-json';
+import { PdfPreview } from './PdfPreview';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
 import { GanakaClockPicker } from '../ui/GanakaClockPicker';
@@ -49,6 +52,7 @@ import {
   Settings,
   FileSpreadsheet,
   Printer,
+  FileJson,
   Copy,
   Check,
   Bookmark,
@@ -609,6 +613,9 @@ export const WorkspaceClient: React.FC = () => {
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
+  // The report is built in memory and shown before download; nothing is saved
+  // until the reader presses Download.
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; name: string } | null>(null);
   const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
   const [isApplyingTime, setIsApplyingTime] = useState<boolean>(false);
   const [isApplyingLocation, setIsApplyingLocation] = useState<boolean>(false);
@@ -984,6 +991,38 @@ ${Object.values(chartData.planets)
             >
               <span>{copiedSummary ? 'Copied!' : 'Copy Data'}</span>
             </GanakaButton>
+
+            <GanakaButton
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const blob = await buildReportBlob(chartData);
+                  const url = URL.createObjectURL(blob);
+                  setPdfPreview({ url, name: chartPdfFilename(chartData) });
+                } catch (err) {
+                  console.error('[report] PDF generation failed', err);
+                }
+              }}
+              title="Preview the full chart report as a PDF"
+              icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
+            />
+
+            <GanakaButton
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                try {
+                  downloadChartJson(chartData);
+                } catch (err) {
+                  console.error('[export] JSON export failed', err);
+                }
+              }}
+              title="Download the complete computed chart as JSON"
+              icon={<FileJson className="w-3.5 h-3.5 text-slate-500" />}
+            />
 
             <GanakaButton
               type="button"
@@ -1914,6 +1953,50 @@ ${Object.values(chartData.planets)
           }
         }}
       />
+
+      {/* PDF report preview — the document is built in memory and shown before
+          download, so the reader can page through it first. Nothing is saved
+          until they press Download. */}
+      {pdfPreview && (
+        <div
+          className="fixed inset-0 z-[120] bg-stone-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setPdfPreview(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chart report preview"
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[92vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-stone-200 bg-[#FCFAF6]">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#8C2D19] font-bold">
+                  Report Preview
+                </div>
+                <div className="text-xs text-stone-600 truncate">{pdfPreview.name}</div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={pdfPreview.url}
+                  download={pdfPreview.name}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#73240f] transition-colors"
+                >
+                  Download PDF
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPdfPreview(null)}
+                  className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <PdfPreview url={pdfPreview.url} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
