@@ -867,10 +867,15 @@ export function calculatePanchanga(
   const udayaKarana = udayaKaranaIndex === 0 ? 'Kiṃstughna' : udayaKaranaIndex >= 57 ? KARANA_FIXED[udayaKaranaIndex - 57].name : KARANA_MOVABLE[(udayaKaranaIndex - 1) % 7].name;
 
   // 6. VĀRA (Vedic Weekday: Sunrise to Sunrise)
+  // `jd` is UT. For a 04:00 IST birth the UT civil date is already the previous
+  // day, so stepping back a whole day from `jd` moves back TWO local days and
+  // reports Tuesday where Wednesday is correct. Shift to local time first,
+  // then step back one day only if the moment precedes sunrise.
+  const localJD = jd + timezoneOffsetHours / 24.0;
   const isBeforeSunrise = jd < sunTimes.sunriseJD;
-  const effectiveVedicJD = isBeforeSunrise ? jd - 1.0 : jd;
+  const effectiveVedicJD = isBeforeSunrise ? localJD - 1.0 : localJD;
   const vedicVaraIndex = Math.floor(effectiveVedicJD + 1.5) % 7;
-  const civilWeekdayIndex = Math.floor(jd + 1.5) % 7;
+  const civilWeekdayIndex = Math.floor(localJD + 1.5) % 7;
 
   const vedicVara = VARA_DETAILS[vedicVaraIndex];
   const civilVara = VARA_DETAILS[civilWeekdayIndex];
