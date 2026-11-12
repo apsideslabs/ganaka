@@ -19,6 +19,9 @@ import { calculateAshtakavarga } from '../lib/ashtakavarga/ashtakavarga';
 import { NAKSHATRA_NAMAKSHARAS, NAKSHATRA_YONIS, NAKSHATRA_RAJJUS } from '../lib/jyotisha/avakahada';
 import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotisha/sudarshana';
 import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
+import { calculatePanchanga } from '../lib/jyotisha/panchanga';
+import { calculateAllPlanets } from '../lib/astronomy/ephemeris';
+import { calculateJulianDay } from '../lib/astronomy/julian';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
 
 let passed = 0;
@@ -439,6 +442,30 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------------------------- VĀRA (weekday) */
+
+console.log('\n== Vāra ==');
+{
+  // 23 Sep 2004 was a Thursday. Before sunrise the Vedic weekday is still the
+  // previous civil day's — Wednesday. The code used to step back a whole day
+  // from the UT Julian Day, which lands two local days back and reported
+  // Tuesday. Every pre-sunrise birth was affected.
+  const varaAt = (y: number, m: number, d: number, h: number, mi: number) => {
+    const jd = calculateJulianDay(y, m, d, h - 5.5, mi, 0);
+    const p: any = calculateAllPlanets(jd, 'lahiri', 0);
+    const pan: any = calculatePanchanga(
+      p.sun.siderealLongitude, p.moon.siderealLongitude, jd, 21.1458, 79.0882, 5.5
+    );
+    return pan.vara?.name ?? '';
+  };
+
+  check('23 Sep 2004 12:00 IST is Guruvāra (Thursday)', varaAt(2004, 9, 23, 12, 0).includes('Guru'), varaAt(2004, 9, 23, 12, 0));
+  check('23 Sep 2004 04:00 IST is Budhavāra (pre-sunrise → Wednesday)',
+    varaAt(2004, 9, 23, 4, 0).includes('Budha'), varaAt(2004, 9, 23, 4, 0));
+  check('22 Sep 2004 is Budhavāra', varaAt(2004, 9, 22, 12, 0).includes('Budha'), varaAt(2004, 9, 22, 12, 0));
+  check('21 Sep 2004 is Maṅgalavāra', varaAt(2004, 9, 21, 12, 0).includes('Maṅgala'), varaAt(2004, 9, 21, 12, 0));
 }
 
 /* ------------------------------------------------------- VARṢAPHALA (annual) */
