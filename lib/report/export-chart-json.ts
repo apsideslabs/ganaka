@@ -56,6 +56,8 @@ export interface GanakaChartExport {
     doshaCount: number;
     mahadashaCount: number;
   };
+  /** The engine's own record of how the chart was built. */
+  meta: Record<string, unknown>;
   chart: {
     lagna: JyotishaChart['lagna'];
     planets: JyotishaChart['planets'];
@@ -160,6 +162,8 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       ayanamshaValue: chart.meta.ayanamshaValue,
       ayanamshaFormatted: chart.meta.ayanamshaFormatted,
       houseSystem: chart.meta.houseSystem,
+      nodeType: (chart.meta as any).nodeType ?? 'mean',
+      jaiminiScheme: (chart.meta as any).jaiminiScheme ?? '7_karaka',
       julianDay: chart.meta.julianDay,
       engineVersion: chart.meta.engineVersion,
       calculatedAt: chart.meta.calculatedAt,
@@ -174,6 +178,7 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       mahadashaCount: tree.length,
     },
     ...buildExtendedSections(chart, depth),
+    meta: plain(chart.meta),
     chart: {
       lagna: plain(chart.lagna),
       planets: plain(chart.planets),
