@@ -587,6 +587,7 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Bhāva Bala & Phala', desc: 'House strength, iṣṭa and kaṣṭa, viṃśopaka' },
   { title: 'Yogas', desc: 'Classical combinations detected in the chart' },
   { title: 'Daśā Systems', desc: 'All sixteen systems and the period running now' },
+  { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
 
@@ -648,6 +649,9 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
     ));
     return calculateAllExtendedDashas(chart as any, birth);
   });
+  const dispositorRelations: any[] = ((chart as any).dispositorRelations || []);
+  const relationshipSummary: any = ((chart as any).relationships?.summary) || null;
+  const natalAttributes: any = ((chart as any).attributes) || null;
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -777,11 +781,13 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             { label: 'Nakṣatra', width: 20 },
             { label: 'Pada', width: 8, align: 'center' },
             { label: 'Bhāva', width: 9, align: 'center' },
-            { label: 'State', width: 15 },
+            { label: 'State', width: 11 },
+            { label: 'Avasthā', width: 13 },
+            { label: 'Sāyana', width: 12, align: 'right' },
           ]}
           rows={PLANETS.map((id) => {
             const p: any = (chart.planets as any)[id];
-            if (!p) return ['—', '—', '—', '—', '—', '—', '—'];
+            if (!p) return ['—', '—', '—', '—', '—', '—', '—', '—', '—'];
             const state = [p.isRetrograde ? 'Retro' : '', p.isCombust ? 'Combust' : '']
               .filter(Boolean)
               .join(', ') || 'Direct';
@@ -793,6 +799,10 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
               String(p.pada),
               String(p.house),
               state,
+              // Bālādi avasthā, the state the texts read strength from.
+              String(p.avasthas?.baladi ?? '—').split(' ')[0],
+              // Sāyana — the tropical longitude, before the ayanāṃśa is removed.
+              typeof p.tropicalLongitude === 'number' ? `${p.tropicalLongitude.toFixed(2)}°` : '—',
             ];
           })}
         />
@@ -1085,10 +1095,95 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         </Page>
       )}
 
+      {/* ------------------------------------------------ relationships & attributes */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Relationships & Attributes" identity={identity} />
+        <ChapterTitle num={12}>Relationships &amp; Attributes</ChapterTitle>
+
+        {dispositorRelations.length > 0 && (
+          <>
+            <SubTitle>Each Graha and the Lord of its Sign</SubTitle>
+            <Table
+              cols={[
+                { label: 'Graha', width: 18 },
+                { label: 'Rāśi', width: 22 },
+                { label: 'Dispositor', width: 20 },
+                { label: 'Natural', width: 13 },
+                { label: 'Temporal', width: 13 },
+                { label: 'Pañcadhā', width: 14 },
+              ]}
+              rows={dispositorRelations.map((d: any) => [
+                GRAHA[d.planet]?.name || d.planet,
+                d.rashiName,
+                GRAHA[d.dispositor]?.name || d.dispositor,
+                d.natural,
+                d.temporal === 'friend' ? 'Friend' : 'Enemy',
+                d.compound,
+              ])}
+            />
+          </>
+        )}
+
+        {relationshipSummary && (
+          <>
+            <SubTitle>Pañcadhā Maitrī — Chart Summary</SubTitle>
+            <Text style={{ fontSize: 7.6, color: MUTED, marginBottom: 6 }}>
+              {`${relationshipSummary.adhiMitra} great friendships, ${relationshipSummary.mitra} friendships, ` +
+               `${relationshipSummary.sama} neutral, ${relationshipSummary.shatru} enmities and ` +
+               `${relationshipSummary.adhiShatru} great enmities across the nine grahas.`}
+            </Text>
+          </>
+        )}
+
+        {natalAttributes && (
+          <>
+            <SubTitle>Favourable Attributes</SubTitle>
+            <KV rows={[
+              ['Janma Graha', `${natalAttributes.janmaGrahaName} (lord of ${natalAttributes.nakshatraName})`],
+              ['Number', `${natalAttributes.luckyNumber}  ·  with ${natalAttributes.companionNumbers.join(' and ')}`],
+              ['Colour', natalAttributes.luckyColour],
+              ['Day', natalAttributes.luckyDay],
+              ['Metal', natalAttributes.luckyMetal],
+              ['Gem', natalAttributes.gemstone],
+              ['Deity', natalAttributes.deity],
+              ['Direction', natalAttributes.direction],
+            ]} />
+            <Text style={{ fontSize: 6.8, color: MUTED, marginTop: 4, lineHeight: 1.4 }}>
+              {clean(natalAttributes.note)}
+            </Text>
+          </>
+        )}
+
+        {((chart.bhavas as any[]) || []).length > 0 && (
+          <>
+            <SubTitle>Bhāva Spaṣṭa</SubTitle>
+            <Table
+              cols={[
+                { label: 'Bhāva', width: 10, align: 'center' },
+                { label: 'Ādi', width: 22, align: 'right' },
+                { label: 'Madhya', width: 24, align: 'right' },
+                { label: 'Anta', width: 22, align: 'right' },
+                { label: 'Lord', width: 22 },
+              ]}
+              rows={((chart.bhavas as any[]) || []).map((h: any) => {
+                const f = (n: any) => (typeof n === 'number' ? `${n.toFixed(2)}°` : '—');
+                return [
+                  String(h.houseNumber ?? h.house ?? '—'),
+                  f(h.aadiDegree ?? h.startDegree),
+                  f(h.madhyaDegree ?? h.midDegree),
+                  f(h.antaDegree ?? h.endDegree),
+                  GRAHA[String(h.rashiLord || h.lord || '').toLowerCase()]?.name || '—',
+                ];
+              })}
+            />
+          </>
+        )}
+      </Page>
+
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle num={12}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={13}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
