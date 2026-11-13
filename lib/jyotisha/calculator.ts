@@ -17,6 +17,9 @@ import { calculateShadbala } from '../shadbala/shadbala';
 import { detectAllYogas } from '../yogas/yoga-engine';
 import { evaluateAllDoshas } from '../doshas/dosha-engine';
 import { calculateJaiminiFactors } from '../jaimini/jaimini-engine';
+import { calculatePlanetaryAvasthas } from './sphutas';
+import { calculateRelationshipMatrix, calculateDispositorRelations } from './relationships';
+import { calculateNatalAttributes } from './attributes';
 import { calculateSpecialPoints } from './special-lagnas';
 import { JyotishaChart, CalculatedPlanet, RashiNumber } from './types';
 import { GRAHA_PROPERTIES, NAKSHATRAS, RASHIS } from './constants';
@@ -291,6 +294,23 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   );
 
   // 14. Special Lagnas & Upagrahas
+  // Bālādi / Jāgradādi / Dīptādi avasthās, BPHS. The sphuṭas module could already
+  // compute these, but the result was never attached to the planet, so the
+  // workspace showed one word of it and the exports showed none.
+  for (const [pId, pObj] of Object.entries(calculatedPlanets) as any) {
+    try {
+      (pObj as any).avasthas = calculatePlanetaryAvasthas(
+        pId as PlanetId,
+        (pObj as any).longitudeInRashi ?? 0,
+        (pObj as any).rashiNumber ?? 1,
+        (pObj as any).dignity,
+        (pObj as any).isCombust ?? false
+      );
+    } catch {
+      /* a chart without a usable longitude simply carries no avasthā */
+    }
+  }
+
   const specialPoints = calculateSpecialPoints(
     rawPlanets.sun.siderealLongitude,
     rawPlanets.moon.siderealLongitude,
@@ -337,6 +357,17 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     jaimini,
     specialPoints,
   };
+
+  // Relationships and the favourable attributes were both computable before
+  // this — the friendship functions existed but were never called — so the
+  // panels and exports had nothing to show. They are attached here so every
+  // surface reads from one place.
+  const relationships = calculateRelationshipMatrix(baseChartForDoshas as any);
+  const dispositorRelations = calculateDispositorRelations(baseChartForDoshas as any);
+  const attributes = calculateNatalAttributes(baseChartForDoshas as any);
+  (baseChartForDoshas as any).relationships = relationships;
+  (baseChartForDoshas as any).dispositorRelations = dispositorRelations;
+  (baseChartForDoshas as any).attributes = attributes;
 
   const doshas = evaluateAllDoshas(baseChartForDoshas);
 
