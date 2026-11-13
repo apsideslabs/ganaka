@@ -1,13 +1,14 @@
 'use client';
 
 /**
- * Gaṇaka — Astronomical Engine Loading Component
- * Replaced the old AI-beam & box dial with CelestialArmillaryLoading
- * to ensure complete backward compatibility without any generic or AI-slop animations.
+ * Gaṇaka — loading dial.
+ *
+ * A thin compatibility wrapper around AnalogClockDial: the hands follow the real
+ * clock, so a loading state shows the actual time rather than an abstract spin.
  */
 
 import React from 'react';
-import { CelestialArmillaryLoading } from './CelestialArmillaryLoading';
+import { AnalogClockDial } from './AnalogClockDial';
 
 interface GanakaLoadingDialProps {
   title?: string;
@@ -26,7 +27,7 @@ export function GanakaLoadingDial({
   className = '',
 }: GanakaLoadingDialProps) {
   return (
-    <CelestialArmillaryLoading
+    <AnalogClockDial live
       fullScreen={fullScreen}
       isOverlay={isOverlay}
       title={title}
