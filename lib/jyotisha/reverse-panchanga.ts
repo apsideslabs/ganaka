@@ -198,10 +198,29 @@ export function searchPanchanga(
     return (a?.rashiNumber ?? 1) as RashiNumber;
   };
 
-  /** Full predicate at a moment. */
+  /**
+   * Full predicate at a moment.
+   *
+   * Only the bodies the criteria actually need are computed. The ephemeris call
+   * is 1.46 ms and the ascendant is 0.01 ms, so a lagna-only search that still
+   * fetched the planets would be a hundred and fifty times slower than it has
+   * to be — which is exactly what made a thirty-day lagna scan take seven
+   * seconds.
+   */
+  const needsLunar =
+    criteria.tithi != null || criteria.nakshatra != null ||
+    criteria.yoga != null || criteria.karana != null || criteria.paksha != null;
+  const needsSunMoon = needsLunar || needsVara;
+
   const matches = (jd: number): boolean => {
-    const { sun, moon } = sunMoonAt(jd);
-    if (!matchesLunar(criteria, lunarLimbs(sun, moon))) return false;
+    let sun = 0;
+    let moon = 0;
+    if (needsSunMoon) {
+      const v = sunMoonAt(jd);
+      sun = v.sun;
+      moon = v.moon;
+    }
+    if (needsLunar && !matchesLunar(criteria, lunarLimbs(sun, moon))) return false;
     if (needsVara && varaAt(jd, sun, moon) !== criteria.vara) return false;
     if (needsLagna && lagnaAt(jd) !== criteria.lagnaRashi) return false;
     return true;
@@ -301,4 +320,141 @@ function buildWindow(
 /** True when at least one criterion is set. */
 export function hasCriteria(c: PanchangaSearchCriteria): boolean {
   return Object.values(c).some((v) => v != null);
+}
+
+export interface SearchProgress {
+  /** 0–100. */
+  percent: number;
+  /** Samples processed so far. */
+  done: number;
+  /** Total samples for this range. */
+  total: number;
+  /** Windows found so far. */
+  found: number;
+  /** The moment being scanned, as a local stamp. */
+  scanning: string;
+}
+
+/**
+ * The same search, run in chunks so the caller can paint a progress bar.
+ *
+ * The synchronous version blocks for up to half a second on a wide range; a
+ * caller that wants to show a scan in progress needs the work split. Each chunk
+ * is a fixed number of samples, after which control returns to the event loop
+ * for one tick.
+ *
+ * `signal` lets the caller abandon a scan that a newer one has superseded.
+ */
+export async function searchPanchangaAsync(
+  criteria: PanchangaSearchCriteria,
+  opts: PanchangaSearchOptions,
+  onProgress?: (p: SearchProgress) => void,
+  signal?: { cancelled: boolean }
+): Promise<PanchangaWindow[]> {
+  const ayan: AyanamshaType = (opts.ayanamshaType ?? 'lahiri') as AyanamshaType;
+  const custom = opts.customAyanamshaValue ?? 0;
+  const maxResults = Math.max(1, opts.maxResults ?? 60);
+  const tz = opts.timezoneOffsetHours;
+
+  const startJD = calculateJulianDay(opts.from.year, opts.from.month, opts.from.day, 0, 0, 0) - tz / 24;
+  const endJD = calculateJulianDay(opts.to.year, opts.to.month, opts.to.day, 23, 59, 59) - tz / 24;
+  if (endJD <= startJD) return [];
+
+  const needsLagna = criteria.lagnaRashi != null;
+  const needsVara = criteria.vara != null;
+  const stepDays = (needsLagna ? 10 : 120) / (24 * 60);
+
+  const maxSamples = 20000;
+  const samples = Math.min(maxSamples, Math.ceil((endJD - startJD) / stepDays));
+  const step = (endJD - startJD) / Math.max(1, samples);
+
+  const sunMoonAt = (jd: number) => {
+    const p: any = calculateAllPlanets(jd, ayan, custom);
+    return { sun: p.sun.siderealLongitude, moon: p.moon.siderealLongitude };
+  };
+  const varaAt = (jd: number, sun: number, moon: number): number => {
+    const pan: any = calculatePanchanga(sun, moon, jd, opts.latitude, opts.longitude, tz);
+    return pan?.vara?.number ?? -1;
+  };
+  const lagnaAt = (jd: number): RashiNumber => {
+    const a: any = calculateAscendant(jd, opts.latitude, opts.longitude, ayan, custom);
+    return (a?.rashiNumber ?? 1) as RashiNumber;
+  };
+  const needsLunar =
+    criteria.tithi != null || criteria.nakshatra != null ||
+    criteria.yoga != null || criteria.karana != null || criteria.paksha != null;
+  const needsSunMoon = needsLunar || needsVara;
+
+  const matches = (jd: number): boolean => {
+    let sun = 0;
+    let moon = 0;
+    if (needsSunMoon) {
+      const v = sunMoonAt(jd);
+      sun = v.sun;
+      moon = v.moon;
+    }
+    if (needsLunar && !matchesLunar(criteria, lunarLimbs(sun, moon))) return false;
+    if (needsVara && varaAt(jd, sun, moon) !== criteria.vara) return false;
+    if (needsLagna && lagnaAt(jd) !== criteria.lagnaRashi) return false;
+    return true;
+  };
+  const boundary = (lo: number, hi: number): number => {
+    const target = matches(hi);
+    let a = lo;
+    let b = hi;
+    for (let i = 0; i < 14; i++) {
+      const mid = (a + b) / 2;
+      if (matches(mid) === target) b = mid;
+      else a = mid;
+    }
+    return b;
+  };
+
+  const windows: PanchangaWindow[] = [];
+  const ctx = { sunMoonAt, lagnaAt, tz, ayan, custom, opts };
+  let cursor = startJD;
+  let prev = matches(cursor);
+  let windowStart = prev ? cursor : null;
+  let done = 0;
+
+  const CHUNK = Math.max(8, Math.ceil(samples / 40));
+  while (cursor < endJD && windows.length < maxResults) {
+    for (let k = 0; k < CHUNK && cursor < endJD && windows.length < maxResults; k++) {
+      const next = Math.min(endJD, cursor + step);
+      const verdict = matches(next);
+      if (verdict !== prev) {
+        const t = boundary(cursor, next);
+        if (verdict) windowStart = t;
+        else if (windowStart != null) {
+          windows.push(buildWindow(windowStart, t, criteria, ctx));
+          windowStart = null;
+        }
+      }
+      prev = verdict;
+      cursor = next;
+      done++;
+    }
+
+    if (signal?.cancelled) return windows;
+
+    if (onProgress) {
+      const c = jdToLocal(cursor, tz);
+      onProgress({
+        percent: Math.min(100, Math.round((done / Math.max(1, samples)) * 100)),
+        done,
+        total: samples,
+        found: windows.length,
+        scanning: stamp(c),
+      });
+    }
+    // Hand control back so the browser can paint.
+    await new Promise((r) => setTimeout(r, 0));
+  }
+
+  if (windowStart != null && windows.length < maxResults) {
+    windows.push(buildWindow(windowStart, endJD, criteria, ctx));
+  }
+  onProgress?.({ percent: 100, done: samples, total: samples, found: windows.length, scanning: '' });
+
+  return windows;
 }
