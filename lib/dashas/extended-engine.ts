@@ -18,6 +18,11 @@ import {
   DashaComparisonRow,
 } from './extended-types';
 import { calculateAstottariDasha, ASTOTTARI_SYSTEM_DEF } from './astottari';
+import {
+  CONDITIONAL_SYSTEM_DEFS,
+  calculateShodashottari, calculateDwadashottari, calculatePanchottari,
+  calculateShatabdika, calculateChaturashiti, calculateDwisaptati,
+} from './conditional-dashas';
 import { calculateYoginiDasha, YOGINI_SYSTEM_DEF } from './yogini';
 import { calculateKalacakraDasha, KALACAKRA_SYSTEM_DEF } from './kalacakra';
 import { calculateCharaDasha, JAIMINI_CHARA_SYSTEM_DEF } from './jaimini-chara';
@@ -44,6 +49,7 @@ export const ALL_EXTENDED_SYSTEMS = [
   JAIMINI_NARAYANA_SYSTEM_DEF,
   JAIMINI_SHULA_SYSTEM_DEF,
   JAIMINI_DRG_SYSTEM_DEF,
+  ...CONDITIONAL_SYSTEM_DEFS,
 ];
 
 export function calculateSingleExtendedDasha(
@@ -53,6 +59,18 @@ export function calculateSingleExtendedDasha(
   variant?: string
 ): ExtendedDashaCalculationResult {
   switch (systemId) {
+    case 'shodashottari':
+      return calculateShodashottari(chart, birthDate);
+    case 'dwadashottari':
+      return calculateDwadashottari(chart, birthDate);
+    case 'panchottari':
+      return calculatePanchottari(chart, birthDate);
+    case 'shatabdika':
+      return calculateShatabdika(chart, birthDate);
+    case 'chaturashiti':
+      return calculateChaturashiti(chart, birthDate);
+    case 'dwisaptati':
+      return calculateDwisaptati(chart, birthDate);
     case 'astottari':
       return calculateAstottariDasha(
         chart,
@@ -92,6 +110,12 @@ export function calculateAllExtendedDashas(
     narayana: calculateNarayanaDasha(chart, birthDate),
     shula: calculateShulaDasha(chart, birthDate),
     drg: calculateDrgDasha(chart, birthDate),
+    shodashottari: calculateShodashottari(chart, birthDate),
+    dwadashottari: calculateDwadashottari(chart, birthDate),
+    panchottari: calculatePanchottari(chart, birthDate),
+    shatabdika: calculateShatabdika(chart, birthDate),
+    chaturashiti: calculateChaturashiti(chart, birthDate),
+    dwisaptati: calculateDwisaptati(chart, birthDate),
   };
 }
 
@@ -110,6 +134,12 @@ export function buildDashaComparisonMatrix(
     'narayana',
     'shula',
     'drg',
+    'shodashottari',
+    'dwadashottari',
+    'panchottari',
+    'shatabdika',
+    'chaturashiti',
+    'dwisaptati',
   ];
 
   for (const sysId of systemOrder) {
