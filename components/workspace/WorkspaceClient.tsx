@@ -140,6 +140,10 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const BhavaBalaPanel = dynamic(() => import('./BhavaBalaPanel').then((m) => m.BhavaBalaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const BhavaChalitPanel = dynamic(() => import('./BhavaChalitPanel').then((m) => m.BhavaChalitPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -281,7 +285,8 @@ export type WorkspaceTab =
   | 'indications'
   | 'sudarshana'
   | 'matching_bridge'
-  | 'varshaphala';
+  | 'varshaphala'
+  | 'bhava_bala';
 
 interface NavDomain {
   id: string;
@@ -347,6 +352,7 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'Bhāva Chalita cusps, Sandhis, and Graha Dṛṣṭi aspect rays',
     subTabs: [
       { id: 'bhavas', name: 'Bhāva Chalita & Sandhis', shortName: 'Bhāva Chalita', icon: HomeIcon },
+      { id: 'bhava_bala', name: 'Bhāva Bala (भाव बल)', shortName: 'Bhāva Bala', icon: Award, badge: 'House Strength' },
       { id: 'aspects', name: 'Dṛṣṭi (Aspects Matrix)', shortName: 'Dṛṣṭi Matrix', icon: Eye },
     ],
   },
@@ -1843,6 +1849,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'bhava_bala' && (
+          <BhavaBalaPanel chart={chartData} />
         )}
 
         {activeTab === 'aspects' && (
