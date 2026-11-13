@@ -472,15 +472,42 @@ const NAV_DOMAINS: NavDomain[] = [
     name: 'Pañcāṅga & Muhūrta',
     shortName: 'Pañcāṅga',
     icon: Sun,
-    description: 'Janma Kuṇḍalī chart, 5 sacred limbs of birth, and temporal Muhūrta of the birth day',
+    description: 'The five limbs at birth, the birth-day muhūrtas, and a reverse search for any tithi or nakṣatra',
     subTabs: [
-      { id: 'relationships', name: 'Relationships & Attributes (मैत्री)', shortName: 'Maitrī', icon: Users, badge: 'Pañcadhā' },
-      { id: 'knowledge_base', name: 'Textual Knowledge Base (स्रोत)', shortName: 'Sources', icon: BookOpen, badge: 'Rules' },
-      { id: 'time_sensitivity', name: 'Birth-Time Sensitivity', shortName: 'Time Sensitivity', icon: Clock, badge: '±min' },
+      { id: 'panchanga', name: 'Janma Pañcāṅga & Muhūrta (जन्म पञ्चाङ्ग)', shortName: 'Janma Pañcāṅga', icon: Sun, badge: '5 Limbs' },
+      { id: 'reverse_panchanga', name: 'Reverse Pañcāṅga (Chart Finder)', shortName: 'Reverse Pañcāṅga', icon: Search, badge: 'Search' },
+    ],
+  },
+  {
+    id: 'prashna_cakra',
+    name: 'Praśna & Cakra',
+    shortName: 'Praśna',
+    icon: Compass,
+    description: 'Horary judgement by the moment of asking, and the Sarvatobhadra figure used to read obstruction',
+    subTabs: [
       { id: 'prashna', name: 'Praśna (प्रश्न — Horary)', shortName: 'Praśna', icon: Compass, badge: 'Horary' },
       { id: 'sarvatobhadra', name: 'Sarvatobhadra Cakra (सर्वतोभद्र)', shortName: 'Sarvatobhadra', icon: Grid3x3, badge: '9×9' },
-      { id: 'reverse_panchanga', name: 'Reverse Pañcāṅga (Chart Finder)', shortName: 'Reverse Pañcāṅga', icon: Search, badge: 'Search' },
-      { id: 'panchanga', name: 'Janma Pañcāṅga & Muhūrta (जन्म पञ्चाङ्ग)', shortName: 'Janma Pañcāṅga', icon: Sun, badge: '5 Limbs' },
+    ],
+  },
+  {
+    id: 'maitri',
+    name: 'Relationships & Attributes',
+    shortName: 'Maitrī',
+    icon: Users,
+    description: 'Pañcadhā maitrī between the grahas, dispositor readings, and the favourable number, colour, day and gem',
+    subTabs: [
+      { id: 'relationships', name: 'Relationships & Attributes (मैत्री)', shortName: 'Maitrī', icon: Users, badge: 'Pañcadhā' },
+    ],
+  },
+  {
+    id: 'sources_method',
+    name: 'Sources & Method',
+    shortName: 'Sources',
+    icon: BookOpen,
+    description: 'The rule behind every result, with its verse, edition and recorded disagreement — and how far the birth time can be trusted',
+    subTabs: [
+      { id: 'knowledge_base', name: 'Textual Knowledge Base (स्रोत)', shortName: 'Sources', icon: BookOpen, badge: 'Rules' },
+      { id: 'time_sensitivity', name: 'Birth-Time Sensitivity', shortName: 'Time Sensitivity', icon: Clock, badge: '±min' },
     ],
   },
   {
