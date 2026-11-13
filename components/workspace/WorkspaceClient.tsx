@@ -37,6 +37,7 @@ import {
   Clock,
   MapPin,
   Compass,
+  Grid3x3,
   Layers,
   Table,
   BookOpen,
@@ -137,6 +138,14 @@ const AspectsPanel = dynamic(() => import('./AspectsPanel').then((m) => m.Aspect
   loading: () => <PanelSkeleton />,
 });
 const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.TransitsPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const PrashnaPanel = dynamic(() => import('./PrashnaPanel').then((m) => m.PrashnaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const SarvatobhadraPanel = dynamic(() => import('./SarvatobhadraPanel').then((m) => m.SarvatobhadraPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
@@ -296,7 +305,9 @@ export type WorkspaceTab =
   | 'varshaphala'
   | 'bhava_bala'
   | 'phala'
-  | 'reverse_panchanga';
+  | 'reverse_panchanga'
+  | 'prashna'
+  | 'sarvatobhadra';
 
 interface NavDomain {
   id: string;
@@ -446,6 +457,8 @@ const NAV_DOMAINS: NavDomain[] = [
     icon: Sun,
     description: 'Janma Kuṇḍalī chart, 5 sacred limbs of birth, and temporal Muhūrta of the birth day',
     subTabs: [
+      { id: 'prashna', name: 'Praśna (प्रश्न — Horary)', shortName: 'Praśna', icon: Compass, badge: 'Horary' },
+      { id: 'sarvatobhadra', name: 'Sarvatobhadra Cakra (सर्वतोभद्र)', shortName: 'Sarvatobhadra', icon: Grid3x3, badge: '9×9' },
       { id: 'reverse_panchanga', name: 'Reverse Pañcāṅga (Chart Finder)', shortName: 'Reverse Pañcāṅga', icon: Search, badge: 'Search' },
       { id: 'panchanga', name: 'Janma Pañcāṅga & Muhūrta (जन्म पञ्चाङ्ग)', shortName: 'Janma Pañcāṅga', icon: Sun, badge: '5 Limbs' },
     ],
@@ -1024,9 +1037,11 @@ ${Object.values(chartData.planets)
                   console.error('[report] PDF generation failed', err);
                 }
               }}
-              title="Preview the full chart report as a PDF"
+              title="Preview and download the full chart report as a PDF"
               icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
-            />
+            >
+              <span>Export as PDF</span>
+            </GanakaButton>
 
             <GanakaButton
               type="button"
@@ -1041,16 +1056,9 @@ ${Object.values(chartData.planets)
               }}
               title="Download the complete computed chart as JSON"
               icon={<FileJson className="w-3.5 h-3.5 text-slate-500" />}
-            />
-
-            <GanakaButton
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => window.print()}
-              title="Print / Save PDF of current workspace view"
-              icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
-            />
+            >
+              <span>Export as JSON</span>
+            </GanakaButton>
           </div>
         </div>
 
@@ -1862,6 +1870,14 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'prashna' && (
+          <PrashnaPanel chart={chartData} />
+        )}
+
+        {activeTab === 'sarvatobhadra' && (
+          <SarvatobhadraPanel chart={chartData} />
         )}
 
         {activeTab === 'reverse_panchanga' && (
