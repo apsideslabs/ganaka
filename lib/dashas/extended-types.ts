@@ -24,7 +24,9 @@ export type ExtendedDashaSystemId =
   | 'panchottari'
   | 'shatabdika'
   | 'chaturashiti'
-  | 'dwisaptati';
+  | 'dwisaptati'
+  | 'mandooka'
+  | 'trikona';
 
 export type DashaClassification = 'nakshatra_planetary' | 'raasi_jaimini';
 
