@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { MatchingWorkspaceClient } from '@/components/matching/MatchingWorkspaceClient';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
 export const metadata: Metadata = {
   title: 'Kuṭa Milan & Vivāha Matching — Gaṇaka',
@@ -14,7 +14,7 @@ export default function MatchingPage() {
     <div className="w-full flex-1 flex flex-col bg-[#FDFCF8]">
       <Suspense
         fallback={
-          <CelestialArmillaryLoading
+          <AnalogClockDial live
             fullScreen
             title="Kuṭa Milan"
           />
