@@ -36,7 +36,7 @@ import { PanchangaChoghadiya } from './PanchangaChoghadiya';
 import { PanchangaMuhurtaMatrix } from './PanchangaMuhurtaMatrix';
 import { MuhurtaFinderPanel } from '@/components/muhurta/MuhurtaFinderPanel';
 import { PanchangaSettingsDialog } from '@/components/settings/PanchangaSettingsDialog';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 import { RASHIS } from '@/lib/jyotisha/constants';
 import { RashiNumber } from '@/lib/jyotisha/types';
 import {
@@ -931,7 +931,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
       {/* Clean Solar System Astronomical Loading Overlay */}
       {navigatingToWorkspace && (
-        <CelestialArmillaryLoading
+        <AnalogClockDial live
           isOverlay
           title="Loading Kuṇḍalī Workspace..."
         />
