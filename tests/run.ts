@@ -21,6 +21,10 @@ import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotis
 import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
 import { calculatePanchanga } from '../lib/jyotisha/panchanga';
 import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
+import { calculatePhala } from '../lib/jyotisha/phala-advanced';
+import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
+import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
+import { calculateVargaRashi } from '../lib/vargas/varga-engine';
 import { calculateAllPlanets } from '../lib/astronomy/ephemeris';
 import { calculateJulianDay } from '../lib/astronomy/julian';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
@@ -304,8 +308,8 @@ console.log('\n== Structural invariants ==');
     `${totalYears.toFixed(2)} + ${elapsed.toFixed(2)} elapsed`
   );
 
-  // Vargas: all 23 present
-  check('23 vargas computed', Object.keys(chart.vargas).length === 23,
+  // Vargas: all 24 present (16 classical + D5, D6, D8, D11, D81, D108, D144, D150)
+  check('24 vargas computed', Object.keys(chart.vargas).length === 24,
     String(Object.keys(chart.vargas).length));
 }
 
@@ -443,6 +447,53 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------- ISHTA / KASHTA, KAKṢYĀ, VARṆADA */
+
+console.log('\n== Ishta, Kakṣyā & Varṇada ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const ph: any = calculatePhala(natal);
+  const rows = Object.values(ph.planets) as any[];
+
+  check('seven tāras carry Ishta and Kaṣṭa', rows.length === 7);
+  check('Ishta and Kaṣṭa always sum to 60',
+    rows.every((r) => Math.abs(r.ishta + r.kashta - 60) < 1e-9));
+  check('Ishta stays within 0-60', rows.every((r) => r.ishta >= -1e-9 && r.ishta <= 60 + 1e-9),
+    rows.map((r) => r.ishta.toFixed(1)).join(' '));
+  check('Kaṣṭa stays within 0-60', rows.every((r) => r.kashta >= -1e-9 && r.kashta <= 60 + 1e-9));
+  check('Ucca Bala stays within 0-60', rows.every((r) => r.uccaBala >= 0 && r.uccaBala <= 60));
+
+  // Kakṣyā: eight 3°45' divisions per sign, boundaries exact.
+  check('kakṣyā span is 3.75°', Math.abs(KAKSHYA_SPAN - 3.75) < 1e-12);
+  check('0° is kakṣyā 1', kakshyaFor(0.01).kakshyaNumber === 1);
+  check('just under 3.75° is still kakṣyā 1', kakshyaFor(3.74).kakshyaNumber === 1);
+  check('just over 3.75° is kakṣyā 2', kakshyaFor(3.76).kakshyaNumber === 2);
+  check('29.9° is kakṣyā 8', kakshyaFor(29.9).kakshyaNumber === 8);
+  check('kakṣyā lords run Saturn → Lagna',
+    kakshyaFor(0.1).kakshyaLord === 'saturn' && kakshyaFor(29.9).kakshyaLord === 'lagna');
+
+  const kt = calculateKakshyaTransits(natal, {
+    sun: natal.planets.sun.siderealLongitude,
+    moon: natal.planets.moon.siderealLongitude,
+  });
+  check('kakṣyā transits resolve bindus', kt.length === 2 && kt.every((k) => k.bindus === 0 || k.bindus === 1));
+
+  // Varṇada reproduces the one worked example the text gives:
+  // Libra lagna with Scorpio horā lagna → Aries.
+  const sp: any = calculateSpecialPoints(210, 0, 180, 0, 0, 1, 0);
+  check('Varṇada matches the text example (Libra + Scorpio → Aries)',
+    sp.horaLagna.rashi === 8 && sp.varnadaLagna.rashi === 1,
+    `horā ${sp.horaLagna.rashi}, varṇada ${sp.varnadaLagna.rashi}`);
+
+  // D-150 exists and lands in a valid sign.
+  const d150 = calculateVargaRashi(14.3, 'D150' as any);
+  check('D-150 returns a valid rāśi', d150.rashiNumber >= 1 && d150.rashiNumber <= 12);
+
+  check('Bīja and Kṣetra sphuṭas are computed', ph.progeny.length === 2);
+  check('Bīja wants an odd sign, Kṣetra an even one',
+    ph.progeny[0].favourableParity === 'odd' && ph.progeny[1].favourableParity === 'even');
 }
 
 /* ------------------------------------------------------------ BHĀVA BALA (27.26) */
