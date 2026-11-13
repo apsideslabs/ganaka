@@ -204,3 +204,9 @@
 .animate-progress-sweep {
   animation: progress-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+
+/* Gaṇaka — analogue clock loader */
+@keyframes gkd-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
