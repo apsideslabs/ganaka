@@ -12,6 +12,13 @@
  * this instead of recomputing, so the two can never drift apart.
  */
 import type { JyotishaChart } from '@/lib/jyotisha/types';
+import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
+import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
+import { calculatePrashna } from '@/lib/jyotisha/prashna';
+import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
+import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
+import { calculateVarshaphala } from '@/lib/varshaphala/varshaphala';
+import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '@/lib/varshaphala/tajika-dashas';
 
 /** Bump only on a breaking change to the shape below. */
 export const EXPORT_SCHEMA = 'ganaka.chart/v1';
@@ -62,6 +69,20 @@ export interface GanakaChartExport {
     jaimini: JyotishaChart['jaimini'];
     specialPoints: JyotishaChart['specialPoints'];
   };
+  /** House strength — BPHS 27.26–31. */
+  bhavaBala: Record<string, unknown>;
+  /** Ishta/Kaṣṭa, motion states, Bīja and Kṣetra sphuṭas — BPHS 28. */
+  phala: Record<string, unknown>;
+  /** Sarvatobhadra ring position and vedha for each graha. */
+  sarvatobhadra: Record<string, unknown>;
+  /** The sixteen daśā systems, level-1 periods only. */
+  extendedDashas: Record<string, unknown>;
+  /** The current year's Varṣaphala, condensed. */
+  varshaphala: Record<string, unknown> | null;
+  /** Tājika Muḍḍa, Patyayini and Ithasala/Ishrafa for that year. */
+  tajika: Record<string, unknown> | null;
+  /** Praśna sphuṭas for the birth moment, without an arudha direction. */
+  prashna: Record<string, unknown>;
 }
 
 /** Deep, JSON-safe copy: drops functions and undefined, keeps Dates as ISO. */
@@ -93,9 +114,12 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
   const depth = Math.max(1, opts.dashaDepth ?? 3);
   const vim: any = chart.vimshottari || {};
   const tree: any[] = trimDasha(vim.tree || [], depth);
+  // The slim tree carries the same dates and lords without the repeated
+  // derived strings, and is what the export ships.
+  const slimTree: any[] = slimDashaTree(vim.tree || [], depth);
   // fullAstronomicalTree is a parallel structure whose dates are already carried
   // on every node above, so shipping both doubles the file for no information.
-  const vimshottari = { ...vim, tree, fullAstronomicalTree: undefined };
+  const vimshottari = { ...vim, tree: slimTree, fullAstronomicalTree: undefined };
   delete vimshottari.fullAstronomicalTree;
 
   return {
@@ -131,6 +155,7 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       doshaCount: ((chart.doshas as any)?.evaluatedDoshas || []).length,
       mahadashaCount: tree.length,
     },
+    ...buildExtendedSections(chart, depth),
     chart: {
       lagna: plain(chart.lagna),
       planets: plain(chart.planets),
@@ -147,6 +172,228 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       specialPoints: plain(chart.specialPoints),
     },
   };
+}
+
+
+/**
+ * The sections added after the original export: house strength, Ishta/Kaṣṭa,
+ * Sarvatobhadra, the sixteen daśā systems, Varṣaphala, Tājika and Praśna.
+ *
+ * Every one is wrapped so a single failing calculation cannot break the whole
+ * document — a consumer gets the sections that computed and `null` for the rest
+ * rather than an exception instead of a file.
+ */
+function buildExtendedSections(chart: JyotishaChart, depth: number) {
+  const safe = <T,>(fn: () => T, fallback: T): T => {
+    try { return fn(); } catch { return fallback; }
+  };
+
+  // --- Bhāva Bala ---------------------------------------------------------
+  const bhavaBala = safe(() => {
+    const bb: any = calculateBhavaBala(chart);
+    const out: Record<string, unknown> = {};
+    for (const [house, r] of Object.entries(bb) as any) {
+      out[house] = {
+        rashi: r.rashiName,
+        reference: r.referenceAngle,
+        lord: r.lord,
+        digBala: Number(r.digBala.toFixed(2)),
+        drigAdjustment: Number(r.drigAdjustment.toFixed(2)),
+        adhipatiBala: Number(r.adhipatiBala.toFixed(2)),
+        occupancyAdjustment: r.occupancyAdjustment,
+        dayNightAdjustment: r.dayNightAdjustment,
+        totalVirupas: Number(r.totalVirupas.toFixed(2)),
+        totalRupas: Number(r.totalRupas.toFixed(3)),
+        rank: r.rank,
+        aspectingPlanets: r.aspectingPlanets,
+      };
+    }
+    return out;
+  }, {});
+
+  // --- Ishta / Kaṣṭa, motion, progeny sphuṭas ------------------------------
+  const phala = safe(() => {
+    const ph: any = calculatePhala(chart);
+    return {
+      planets: Object.fromEntries(
+        Object.entries(ph.planets).map(([k, p]: any) => [k, {
+          name: p.name,
+          uccaBala: Number(p.uccaBala.toFixed(2)),
+          chestaBala: Number(p.chestaBala.toFixed(2)),
+          ishta: Number(p.ishta.toFixed(2)),
+          kashta: Number(p.kashta.toFixed(2)),
+          motionState: p.motionState,
+          speed: Number(p.speed.toFixed(4)),
+          speedRatio: Number(p.speedRatio.toFixed(3)),
+        }])
+      ),
+      progenySphutas: ph.progeny.map((s: any) => ({
+        key: s.key,
+        name: s.name,
+        longitude: Number(s.longitude.toFixed(4)),
+        rashi: s.rashiName,
+        degreeStr: s.degreeStr,
+        wants: s.favourableParity,
+        isFavourable: s.isFavourable,
+      })),
+    };
+  }, {});
+
+  // --- Sarvatobhadra: each graha's ring position and vedha ------------------
+  const sarvatobhadra = safe(() => {
+    const perPlanet: Record<string, unknown> = {};
+    for (const [id, pos] of Object.entries(chart.planets as any)) {
+      const p: any = pos;
+      const idx = p.nakshatraIndex ?? 0;
+      const v = vedhaFor(idx);
+      perPlanet[id] = {
+        nakshatra: p.nakshatraName ?? nakshatraAt(idx),
+        ringIndex: idx,
+        vedha: { front: v.front, left: v.left, right: v.right },
+      };
+    }
+    return {
+      note: 'Ring-level vedha only. The classical cross-layer vedha set is not reproduced.',
+      planets: perPlanet,
+    };
+  }, {});
+
+  // --- The sixteen daśā systems, level-1 periods ---------------------------
+  const extendedDashas = safe(() => {
+    const bd = chart.meta.birthDetails;
+    const birth = new Date(Date.UTC(
+      bd.year, bd.month - 1, bd.day,
+      Math.round(bd.hour - (bd.timezoneOffsetHours ?? 0)), bd.minute, bd.second
+    ));
+    const all: any = calculateAllExtendedDashas(chart, birth);
+    const out: Record<string, unknown> = {};
+    for (const [id, r] of Object.entries(all) as any) {
+      out[id] = {
+        name: r.system?.name ?? id,
+        cycleYears: r.system?.cycleYears ?? 0,
+        provenance: r.system?.scripturalProvenance ?? '',
+        eligibility: r.eligibility?.status ?? 'universal',
+        current: r.currentPeriod?.majorPeriod?.name ?? '',
+        periods: slimPeriods(r.periods),
+      };
+    }
+    return out;
+  }, {});
+
+  // --- Varṣaphala and Tājika for the current year of life ------------------
+  const bd = chart.meta.birthDetails;
+  const yearNumber = Math.max(1, new Date().getFullYear() - bd.year);
+
+  const varshaphala = safe(() => {
+    const v: any = calculateVarshaphala(chart, {
+      yearNumber,
+      latitude: bd.latitude,
+      longitude: bd.longitude,
+      timezoneOffsetHours: bd.timezoneOffsetHours,
+    });
+    return {
+      yearNumber: v.yearNumber,
+      solarReturn: v.solarReturn,
+      residualArcsec: Number(v.residualArcsec.toFixed(4)),
+      annualLagna: v.chart.lagna.rashiName,
+      muntha: { house: v.muntha.house, rashi: v.muntha.rashiName, natalHouse: v.muntha.natalHouse },
+      varshesha: {
+        lord: v.varshesha.lordName,
+        scores: v.varshesha.scores.map((s: any) => ({ planet: s.planet, points: s.points })),
+      },
+      sahams: v.sahams.map((s: any) => ({ name: s.name, rashi: s.rashiName, house: s.house })),
+    };
+  }, null);
+
+  const tajika = safe(() => {
+    const yearStart = new Date(Date.UTC(new Date().getFullYear(), 0, 1));
+    const mudda = calculateMudda(chart.planets.moon.siderealLongitude, yearStart);
+    const pat: any = calculatePatyayini(chart, yearStart);
+    const aspects = calculateTajikaAspects(chart);
+    return {
+      yearStart: yearStart.toISOString().slice(0, 10),
+      mudda: mudda.map((m) => ({
+        lord: m.lord,
+        from: m.startDate.toISOString().slice(0, 10),
+        to: m.endDate.toISOString().slice(0, 10),
+        days: Number(m.durationDays.toFixed(2)),
+      })),
+      patyayini: {
+        totalDegrees: Number(pat.totalDegrees.toFixed(4)),
+        rows: pat.rows.map((r: any) => ({
+          body: r.body,
+          krishamsa: Number(r.krishamsa.toFixed(4)),
+          patyamsa: Number(r.patyamsa.toFixed(4)),
+          fractionOfYear: Number(r.fractionOfYear.toFixed(6)),
+        })),
+      },
+      aspects: aspects.map((a) => ({
+        pair: `${a.a}-${a.b}`,
+        type: a.type,
+        angle: a.aspectAngle,
+        separation: Number(a.separation.toFixed(3)),
+        orb: Number(a.orb.toFixed(2)),
+      })),
+    };
+  }, null);
+
+  // --- Praśna sphuṭas for the moment (no arudha without a direction) -------
+  const prashna = safe(() => {
+    const p: any = calculatePrashna(chart);
+    const pick = (x: any) => ({ longitude: Number(x.longitude.toFixed(4)), rashi: x.rashiName, degreeStr: x.degreeStr });
+    return {
+      note: 'Arudha needs the direction the questioner faced and is omitted here.',
+      trisphuta: pick(p.trisphuta),
+      chatusphuta: pick(p.chatusphuta),
+      panchasphuta: pick(p.panchasphuta),
+      pranaSphuta: pick(p.pranaSphuta),
+      dehaSphuta: pick(p.dehaSphuta),
+      mrityuSphuta: pick(p.mrityuSphuta),
+      sixFactors: p.sixFactors,
+    };
+  }, {});
+
+  return { bhavaBala, phala, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna };
+}
+
+/**
+ * Reduce a daśā period to the fields that carry information. The engine's
+ * periods repeat long derived strings on every node; keeping the dates, the
+ * lord and the length is what a consumer needs and cuts the file by a third.
+ */
+/** Recursive slimmer for the Vimśottarī tree, keeping the nesting. */
+function slimDashaTree(periods: any[], depth: number, level = 1): any[] {
+  return (periods || []).map((p) => {
+    const node: any = {
+      lord: p.lordKey ?? p.lord ?? p.planet ?? '',
+      name: p.name ?? p.lordName ?? '',
+      from: p.startDateStr ?? p.startDate ?? '',
+      to: p.endDateStr ?? p.endDate ?? '',
+      years: Number((p.durationYears ?? 0).toFixed(3)),
+    };
+    // The Vimśottarī tree marks the period running at birth and how much of it
+    // had already elapsed; both are real information, not derived duplicates.
+    if (p.isBirthActive) {
+      node.isBirthActive = true;
+      if (p.elapsedBeforeBirthYears != null) {
+        node.elapsedBeforeBirthYears = Number(p.elapsedBeforeBirthYears.toFixed(3));
+      }
+    }
+    if (level < depth && p.subPeriods?.length) {
+      node.subPeriods = slimDashaTree(p.subPeriods, depth, level + 1);
+    }
+    return node;
+  });
+}
+
+function slimPeriods(periods: any[]): any[] {
+  return (periods || []).map((p) => ({
+    lord: p.lordKey ?? p.lord ?? '',
+    name: p.name ?? p.lordName ?? '',
+    from: p.startDateStr ?? p.startDate ?? '',
+    to: p.endDateStr ?? p.endDate ?? '',
+    years: Number((p.durationYears ?? 0).toFixed(3)),
+  }));
 }
 
 /** Suggested filename, matching the PDF's convention. */
