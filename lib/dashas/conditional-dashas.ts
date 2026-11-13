@@ -231,10 +231,12 @@ function evaluateEligibility(spec: ConditionalDashaSpec, chart: JyotishaChart): 
 
   return {
     status: satisfied ? 'satisfied' : 'not_satisfied',
-    description: satisfied
-      ? `Condition met — ${detail}.`
-      : `Condition not met — ${detail}. ${spec.condition}`,
-  } as DashaEligibility;
+    isSatisfied: satisfied,
+    conditionTitle: spec.id,
+    classicalRule: spec.condition,
+    chartEvaluation: detail,
+    scripturalSource: spec.provenance,
+  };
 }
 
 /**
