@@ -74,6 +74,16 @@ export interface GanakaChartExport {
   bhavaBala: Record<string, unknown>;
   /** Ishta/Kaṣṭa, motion states, Bīja and Kṣetra sphuṭas — BPHS 28. */
   phala: Record<string, unknown>;
+  /** Pañcadhā maitrī — natural, temporal and compound relationships. */
+  relationships: Record<string, unknown>;
+  /** Each graha against the lord of the sign it sits in. */
+  dispositorRelations: Array<Record<string, unknown>>;
+  /** Favourable number, colour, day, gem and deity. */
+  attributes: Record<string, unknown>;
+  /** Sāyana (tropical) longitudes beside the nirayana ones. */
+  sayana: Array<Record<string, unknown>>;
+  /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
+  bhavaSpasht: Array<Record<string, unknown>>;
   /** Viṃśopaka weighting across the varga sets. */
   vimshopaka: Array<Record<string, unknown>>;
   /** Sarvatobhadra ring position and vedha for each graha. */
@@ -244,6 +254,47 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
+  // --- Relationships, attributes, sāyana and bhāva spaṣṭa -------------------
+  const relationships = safe(() => {
+    const r: any = (chart as any).relationships;
+    if (!r) return {};
+    return {
+      pairs: r.pairs.map((p: any) => ({
+        planet: p.planet, other: p.other,
+        natural: p.natural, temporal: p.temporal, compound: p.compound,
+        houseDistance: p.houseDistance,
+      })),
+      summary: r.summary,
+    };
+  }, {});
+
+  const dispositorRelations = safe(() =>
+    ((chart as any).dispositorRelations || []).map((d: any) => ({
+      planet: d.planet, rashi: d.rashiName, dispositor: d.dispositor,
+      natural: d.natural, temporal: d.temporal, compound: d.compound,
+    })), []);
+
+  const attributes = safe(() => (chart as any).attributes ?? {}, {});
+
+  const sayana = safe(() =>
+    Object.entries(chart.planets as any).map(([id, p]: any) => ({
+      planet: id,
+      sayana: Number(p.tropicalLongitude?.toFixed?.(4) ?? 0),
+      nirayana: Number(p.siderealLongitude?.toFixed?.(4) ?? 0),
+      ayanamshaApplied: Number(((p.tropicalLongitude ?? 0) - (p.siderealLongitude ?? 0)).toFixed(4)),
+    })), []);
+
+  const bhavaSpasht = safe(() =>
+    ((chart.bhavas as any[]) || []).map((h: any) => ({
+      house: h.houseNumber ?? h.house,
+      rashi: h.rashiNumber,
+      lord: h.rashiLord ?? h.lord,
+      aadi: Number((h.aadiDegree ?? h.startDegree ?? 0).toFixed(3)),
+      madhya: Number((h.madhyaDegree ?? h.midDegree ?? 0).toFixed(3)),
+      anta: Number((h.antaDegree ?? h.endDegree ?? 0).toFixed(3)),
+      madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
+    })), []);
+
   // --- Viṃśopaka -----------------------------------------------------------
   const vimshopaka = safe(() => {
     const v: any[] = calculateVimshopakaBala(chart.vargas) as any[];
@@ -372,7 +423,10 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
-  return { bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna };
+  return {
+    bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
+    relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
+  };
 }
 
 /**
