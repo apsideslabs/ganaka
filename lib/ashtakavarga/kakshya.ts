@@ -16,8 +16,14 @@ import { RASHIS } from '../jyotisha/constants';
 /** Kakṣyā span in degrees — 30 / 8. */
 export const KAKSHYA_SPAN = 3.75;
 
+/**
+ * The eighth kakṣyā belongs to the Lagna, which is not a graha, so the lord
+ * type is the seven tāras plus a 'lagna' member rather than PlanetId alone.
+ */
+export type KakshyaLord = Exclude<PlanetId, 'rahu' | 'ketu'> | 'lagna';
+
 /** The eight kakṣyā lords, in order from 0° of a sign. */
-export const KAKSHYA_LORDS: PlanetId[] = [
+export const KAKSHYA_LORDS: KakshyaLord[] = [
   'saturn',
   'jupiter',
   'mars',
@@ -25,9 +31,7 @@ export const KAKSHYA_LORDS: PlanetId[] = [
   'venus',
   'mercury',
   'moon',
-  // The eighth belongs to the Lagna. It is represented by a sentinel so the
-  // array stays PlanetId-shaped; no graha rules it.
-  'lagna' as PlanetId,
+  'lagna',
 ];
 
 export interface KakshyaPosition {
@@ -39,7 +43,7 @@ export interface KakshyaPosition {
   degreeInRashi: number;
   /** 1-based, 1–8. */
   kakshyaNumber: number;
-  kakshyaLord: PlanetId | 'lagna';
+  kakshyaLord: KakshyaLord;
   kakshyaLordName: string;
   /** Bindus the kakṣyā lord contributed in this sign, 0–8. */
   bindus: number;
@@ -63,7 +67,7 @@ const LORD_LABEL: Record<string, string> = {
  */
 export function kakshyaFor(
   siderealLongitude: number
-): { rashiNumber: RashiNumber; degreeInRashi: number; kakshyaNumber: number; kakshyaLord: PlanetId } {
+): { rashiNumber: RashiNumber; degreeInRashi: number; kakshyaNumber: number; kakshyaLord: KakshyaLord } {
   const norm = ((siderealLongitude % 360) + 360) % 360;
   const rashiNumber = (Math.floor(norm / 30) + 1) as RashiNumber;
   const degreeInRashi = norm % 30;
@@ -108,7 +112,7 @@ export function calculateKakshyaTransits(
       rashiName: RASHIS[rashiNumber]?.name ?? '',
       degreeInRashi,
       kakshyaNumber,
-      kakshyaLord: kakshyaLord as PlanetId | 'lagna',
+      kakshyaLord,
       kakshyaLordName: LORD_LABEL[kakshyaLord] ?? kakshyaLord,
       bindus,
       isFavourable: bindus > 0,
