@@ -331,6 +331,11 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       ayanamshaFormatted,
       julianDay: parseFloat(jd.toFixed(6)),
       houseSystem,
+      // Recorded so a chart can be reproduced exactly. Without the node
+      // convention a Rāhu that is 1°45′ out is indistinguishable from one that
+      // is right, and the daśā balance moves with it.
+      nodeType: (nodeType ?? 'mean'),
+      jaiminiScheme: (jaiminiScheme ?? '7_karaka'),
       birthDetails: {
         year,
         month,
