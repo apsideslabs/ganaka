@@ -81,6 +81,12 @@ function shortestArc(a: number, b: number): number {
   return delta;
 }
 
+/** Keep an angle in 0–360 so a hand that lands on the short arc still reports
+ *  a canonical value (355.7°, not −4.3°). */
+function wrap(deg: number): number {
+  return ((deg % 360) + 360) % 360;
+}
+
 /** Smooth in-and-out, so each hand settles rather than snapping. */
 function easeInOut(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -130,7 +136,7 @@ export function AnalogClockDial({
   subtitle,
   className = '',
   size = 'md',
-  handDuration = 820,
+  handDuration = 1400,
   onComplete,
 }: AnalogClockDialProps) {
   const [angles, setAngles] = useState<HandAngles>(() => anglesFor(targetTime ?? new Date()));
@@ -150,8 +156,20 @@ export function AnalogClockDial({
     stop();
     setSettled(false);
 
-    const from = anglesFor(new Date());
     const to = anglesFor(targetTime);
+
+    // Reduced motion: land on the target at once and report completion.
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    if (reduceMotion) {
+      setAngles(to);
+      setSettled(true);
+      onComplete?.();
+      return;
+    }
+
+    const from = anglesFor(new Date());
     const span = Math.max(120, handDuration);
     const total = span * 3;
     const startedAt = performance.now();
@@ -170,9 +188,9 @@ export function AnalogClockDial({
       }
 
       setAngles({
-        hour: from.hour + shortestArc(from.hour, to.hour) * phase(0),
-        minute: from.minute + shortestArc(from.minute, to.minute) * phase(1),
-        second: from.second + shortestArc(from.second, to.second) * phase(2),
+        hour: wrap(from.hour + shortestArc(from.hour, to.hour) * phase(0)),
+        minute: wrap(from.minute + shortestArc(from.minute, to.minute) * phase(1)),
+        second: wrap(from.second + shortestArc(from.second, to.second) * phase(2)),
       });
       rafRef.current = requestAnimationFrame(step);
     };
