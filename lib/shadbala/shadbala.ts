@@ -506,17 +506,30 @@ export function calculateShadbala(
     const naisargikaBala = NAISARGIKA_BALA_VIRUPAS[pId] || 20.0;
 
     // ---- 6. DṚG BALA ----------------------------------------------------
-    // Parāśari whole-sign dṛṣṭi, BPHS ch. 26: every graha aspects the 7th;
-    // Mars also the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and
-    // 10th. Benefics add 60, malefics subtract, balance divided by 4.
-    const ASPECT_HOUSES: Record<string, number[]> = {
-      sun: [7],
-      moon: [7],
-      mercury: [7],
-      venus: [7],
-      mars: [4, 7, 8],
-      jupiter: [5, 7, 9],
-      saturn: [3, 7, 10],
+    // Parāśari whole-sign dṛṣṭi, BPHS ch. 26. Every graha aspects the 7th for a
+    // full 60 virūpas; Mars adds the 4th and 8th, Jupiter the 5th and 9th,
+    // Saturn the 3rd and 10th, and those special aspects carry graded values
+    // rather than a second full one. A benefic aspect adds its value and a
+    // malefic subtracts it; the balance is divided by four.
+    //
+    // The earlier version gave every aspect a flat 60, which made Saturn's
+    // 3rd aspect as strong as its opposition and left Mars and Jupiter with no
+    // distinction from the Sun. The grades below are the conventional ones:
+    // 60 for the 7th, 45 for Mars's 4th and 8th, 30 for Jupiter's 5th and 9th,
+    // 15 for Saturn's 3rd and 10th.
+    //
+    // NOT implemented: the continuous sputa dṛṣṭi of BPHS 26, where the value
+    // varies with the exact angular separation rather than the whole-sign
+    // house. That needs the piecewise curve, and a wrong curve is worse than a
+    // documented whole-sign approximation.
+    const ASPECT_HOUSES: Record<string, Array<[number, number]>> = {
+      sun: [[7, 60]],
+      moon: [[7, 60]],
+      mercury: [[7, 60]],
+      venus: [[7, 60]],
+      mars: [[7, 60], [4, 45], [8, 45]],
+      jupiter: [[7, 60], [5, 30], [9, 30]],
+      saturn: [[7, 60], [3, 15], [10, 15]],
     };
     const moonWaxing = moonSunDiff <= 180;
     let drishtiSum = 0;
@@ -524,13 +537,14 @@ export function calculateShadbala(
       if (other === pId) continue;
       const otherRashi = Math.floor(normalizeDegrees(planetaryPositions[other].siderealLongitude) / 30) + 1;
       const houseFromOther = (((pRashi - otherRashi + 12) % 12) + 1);
-      if ((ASPECT_HOUSES[other] || [7]).includes(houseFromOther)) {
+      const aspect = (ASPECT_HOUSES[other] || [[7, 60]]).find(([h]) => h === houseFromOther);
+      if (aspect) {
         const isBenefic =
           other === 'jupiter' ||
           other === 'venus' ||
           other === 'mercury' ||
           (other === 'moon' && moonWaxing);
-        drishtiSum += isBenefic ? 60 : -60;
+        drishtiSum += isBenefic ? aspect[1] : -aspect[1];
       }
     }
     const drigBala = Math.max(-60, Math.min(60, drishtiSum / 4));
