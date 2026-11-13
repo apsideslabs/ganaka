@@ -481,6 +481,7 @@ const VARGA_LABELS: Record<VargaId, string> = {
   D81: 'D-81 (Ekāśītāṃśa / Navanavāṃśa)',
   D108: 'D-108 (Aṣṭottaraśatāṃśa / Nakshatra Pada)',
   D144: 'D-144 (Dvādaśadvādaśāṃśa / Deep Lineage)',
+  D150: 'D-150 (Nāḍyāṃśa / Micro-Division)',
 };
 
 function getInitialParams(searchParams: ReturnType<typeof useSearchParams>) {
