@@ -22,6 +22,7 @@ import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
 import { calculatePanchanga } from '../lib/jyotisha/panchanga';
 import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
 import { calculatePhala } from '../lib/jyotisha/phala-advanced';
+import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
@@ -447,6 +448,48 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------- CONDITIONAL NAKṢATRA DAŚĀS (ch. 46) */
+
+console.log('\n== Conditional daśās ==');
+{
+  const spec = (id: string) => CONDITIONAL_DASHA_SPECS.find((s) => s.id === id)!;
+
+  // The chapter's own worked examples.
+  const shat = spec('shatabdika');
+  const r1 = lordIndexAtBirth(5, shat.startNakshatra, shat.lords.length, 'forward');
+  check('Śatābdika on a Mrigāśīrṣa birth gives Mars, 20 years',
+    r1.count === 6 && shat.lords[r1.index].key === 'mars' && shat.lords[r1.index].years === 20,
+    `count ${r1.count}, ${shat.lords[r1.index].key}`);
+
+  const pan = spec('panchottari');
+  const r2 = lordIndexAtBirth(5, pan.startNakshatra, pan.lords.length, 'forward');
+  check('Pañcottarī on a Mrigāśīrṣa birth gives Mercury, 13 years',
+    r2.count === 16 && pan.lords[r2.index].key === 'mercury' && pan.lords[r2.index].years === 13,
+    `count ${r2.count}, ${pan.lords[r2.index].key}`);
+
+  const r3 = lordIndexAtBirth(6, shat.startNakshatra, shat.lords.length, 'forward');
+  check('Śatābdika on an Ārdrā birth falls to the last lord, Saturn, 30 years',
+    r3.count === 7 && shat.lords[r3.index].key === 'saturn' && shat.lords[r3.index].years === 30,
+    `count ${r3.count}, ${shat.lords[r3.index].key}`);
+
+  // Every system must total exactly its stated cycle.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const birth = new Date(Date.UTC(2009, 2, 3, 18, 21));
+  for (const sp of CONDITIONAL_DASHA_SPECS) {
+    const r: any = calculateConditionalDasha(sp, natal, birth);
+    const sum = r.periods.reduce((t: number, p: any) => t + p.durationYears, 0);
+    check(`${sp.name} totals ${sp.cycleYears} years`, Math.abs(sum - sp.cycleYears) < 0.01,
+      sum.toFixed(2));
+    check(`${sp.name} lord years sum to the cycle`,
+      Math.abs(sp.lords.reduce((t, l) => t + l.years, 0) - sp.cycleYears) < 1e-9);
+    check(`${sp.name} periods run consecutively`,
+      r.periods.every((p: any, i: number) =>
+        i === 0 || Math.abs(p.startDate.getTime() - r.periods[i - 1].endDate.getTime()) < 1000));
+  }
+
+  check('six conditional systems are defined', CONDITIONAL_DASHA_SPECS.length === 6);
 }
 
 /* ------------------------------------------- ISHTA / KASHTA, KAKṢYĀ, VARṆADA */
