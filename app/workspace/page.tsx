@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { WorkspaceClient } from '@/components/workspace/WorkspaceClient';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
 export const metadata: Metadata = {
   title: 'Gaṇaka — Jyotiṣa Calculation Workspace',
@@ -19,7 +19,7 @@ export default function WorkspacePage() {
     <div className="w-full flex-1 flex flex-col bg-[#FDFCF8]">
       <Suspense
         fallback={
-          <CelestialArmillaryLoading
+          <AnalogClockDial live
             fullScreen
             title="Gaṇaka Astronomical Workstation"
           />
