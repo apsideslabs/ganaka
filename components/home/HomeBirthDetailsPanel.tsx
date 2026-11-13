@@ -24,7 +24,7 @@ import { availableCountries, countryForTimezone } from '@/lib/astronomy/city-ind
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
 import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 import {
   getPlatformSettings,
   savePlatformSettings,
@@ -41,6 +41,8 @@ export function HomeBirthDetailsPanel() {
 
   // Loading indicator for instant button state
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
+  // The instant the dial should settle on while the chart is being built.
+  const [clockTarget, setClockTarget] = useState<Date | null>(null);
   const [isQuickFilling, setIsQuickFilling] = useState<boolean>(false);
   const [usedDefaultLocSuccess, setUsedDefaultLocSuccess] = useState<boolean>(false);
 
@@ -268,6 +270,9 @@ export function HomeBirthDetailsPanel() {
     });
 
     setIsCalculating(true);
+    // Local wall-clock time, so the dial shows the hour that was entered rather
+    // than a UTC-shifted one.
+    setClockTarget(new Date(finalYear, finalMonth - 1, finalDay, finalHour, finalMinute, finalSecond));
     router.push(`/workspace?${params.toString()}`);
   };
 
@@ -662,11 +667,14 @@ export function HomeBirthDetailsPanel() {
         </div>
       </form>
 
-      {/* Clean Solar System Astronomical Loading Overlay */}
+      {/* The dial winds from the current time to the birth moment, hand by hand */}
       {isCalculating && (
-        <CelestialArmillaryLoading
+        <AnalogClockDial
           isOverlay
-          title="Calculating Ephemeris & Kundalī..."
+          size="md"
+          targetTime={clockTarget}
+          title="Calculating Ephemeris & Kundalī"
+          subtitle="The dial is setting to the moment you gave"
         />
       )}
     </div>
