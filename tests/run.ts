@@ -622,6 +622,47 @@ console.log('\n== Ṣaḍbala, Bhāva Bala & Viṃśopaka ==');
   check('dṛṣṭi is graded, not a flat sixty per aspect', graded);
 }
 
+/* ---------------------------------------------------- REPORT & EXPORT PARITY */
+
+console.log('\n== Report & export parity ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+
+  // Everything the workspace shows must reach the JSON.
+  const required = ['bhavaBala', 'phala', 'vimshopaka', 'sarvatobhadra',
+                    'extendedDashas', 'varshaphala', 'tajika', 'prashna'];
+  for (const k of required) {
+    check(`JSON carries ${k}`, e[k] != null && (Array.isArray(e[k]) ? e[k].length > 0 : Object.keys(e[k]).length > 0));
+  }
+  check('JSON viṃśopaka covers seven grahas', e.vimshopaka.length === 7, String(e.vimshopaka.length));
+  check('JSON viṃśopaka carries every varga set',
+    e.vimshopaka.every((v: any) => ['shadvarga', 'saptavarga', 'dashavarga', 'shodashavarga']
+      .every((k) => typeof v[k] === 'number')));
+
+  // Every doṣa and yoga must name its source. A result with no verse is a
+  // weakness the checklist calls out explicitly.
+  const doshas = natal.doshas.evaluatedDoshas as any[];
+  check('every doṣa names a chapter or verse',
+    doshas.every((d) => d.primarySource?.chapter || d.primarySource?.verseOrShloka),
+    doshas.filter((d) => !d.primarySource?.chapter && !d.primarySource?.verseOrShloka)
+      .map((d) => d.name).join(','));
+  check('every yoga names a chapter and verse',
+    (natal.yogas as any[]).every((y) => y.chapterAndVerse),
+    (natal.yogas as any[]).filter((y) => !y.chapterAndVerse).map((y) => y.name).join(','));
+
+  // No citation may point past the end of the work it cites.
+  const impossible: string[] = [];
+  for (const d of doshas) {
+    const t = `${d.primarySource?.chapter ?? ''} ${d.primarySource?.verseOrShloka ?? ''}`;
+    for (const m of t.matchAll(/(?:Ch\.?|Chapter)\s*(\d+)/gi)) if (+m[1] > 97) impossible.push(d.name);
+  }
+  for (const y of natal.yogas as any[]) {
+    for (const m of String(y.chapterAndVerse || '').matchAll(/(?:Ch\.?|Chapter)\s*(\d+)/gi)) if (+m[1] > 97) impossible.push(y.name);
+  }
+  check('no citation points past chapter 97', impossible.length === 0, impossible.slice(0, 4).join(','));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
