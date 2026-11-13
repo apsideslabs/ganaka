@@ -533,7 +533,7 @@ console.log('\n== Knowledge base ==');
     kb.withDisagreement >= kb.total - 3, `${kb.withDisagreement} of ${kb.total}`);
   check('record ids are unique',
     new Set(KNOWLEDGE_BASE.map((r) => r.id)).size === KNOWLEDGE_BASE.length);
-  check('lookup by id works', getRule('bphs_46_168_sthira_years')?.location.includes('46'));
+  check('lookup by id works', getRule('bphs_46_168_sthira_years')?.location.includes('46') === true);
   check('search finds the Sthira rule by keyword',
     searchRules('sthira').some((r) => r.id === 'bphs_46_168_sthira_years'));
   check('search finds rules by implementation file',
