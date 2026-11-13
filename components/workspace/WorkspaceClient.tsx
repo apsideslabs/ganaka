@@ -140,6 +140,10 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const PhalaPanel = dynamic(() => import('./PhalaPanel').then((m) => m.PhalaPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const BhavaBalaPanel = dynamic(() => import('./BhavaBalaPanel').then((m) => m.BhavaBalaPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -286,7 +290,8 @@ export type WorkspaceTab =
   | 'sudarshana'
   | 'matching_bridge'
   | 'varshaphala'
-  | 'bhava_bala';
+  | 'bhava_bala'
+  | 'phala';
 
 interface NavDomain {
   id: string;
@@ -385,6 +390,7 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'Six-fold planetary potency, Bhāva Bala, and Viṃśopakā 20-point dignity',
     subTabs: [
       { id: 'shadbala', name: 'Śaḍbala & Viṃśopakā Bala', shortName: 'Śaḍbala & Viṃśopakā', icon: Award },
+      { id: 'phala', name: 'Ishta & Kaṣṭa Phala', shortName: 'Ishta / Kaṣṭa', icon: Sparkles, badge: 'Delivery' },
     ],
   },
   {
@@ -1849,6 +1855,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'phala' && (
+          <PhalaPanel chart={chartData} />
         )}
 
         {activeTab === 'bhava_bala' && (
