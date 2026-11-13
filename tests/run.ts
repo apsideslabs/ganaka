@@ -663,6 +663,59 @@ console.log('\n== Report & export parity ==');
   check('no citation points past chapter 97', impossible.length === 0, impossible.slice(0, 4).join(','));
 }
 
+/* ----------------------------------------- RELATIONSHIPS & ATTRIBUTES */
+
+console.log('\n== Pañcadhā maitrī & attributes ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  check('relationship matrix is attached to the chart', !!natal.relationships);
+  check('every graha relates to every other',
+    natal.relationships.pairs.length === 9 * 8, String(natal.relationships.pairs.length));
+  check('compound grades are one of the five',
+    natal.relationships.pairs.every((p: any) =>
+      ['Adhi Mitra', 'Mitra', 'Sama', 'Shatru', 'Adhi Shatru'].includes(p.compound)));
+  check('summary counts every pair',
+    Object.values(natal.relationships.summary).reduce((a: any, b: any) => a + b, 0)
+      === natal.relationships.pairs.length);
+  check('dispositor relations cover nine grahas', natal.dispositorRelations.length === 9);
+
+  // Natural friendship must be antisymmetric-consistent: if A calls B a friend
+  // and B calls A a friend, the compound cannot be an enmity on both sides.
+  const both = natal.relationships.pairs.find(
+    (p: any) => p.natural === 'Mitra' && p.temporal === 'friend');
+  check('friend + temporal friend reads as at least Mitra',
+    !both || ['Adhi Mitra', 'Mitra'].includes(both.compound), both?.compound);
+
+  check('attributes are attached', !!natal.attributes);
+  check('lucky number is 1-9',
+    natal.attributes.luckyNumber >= 1 && natal.attributes.luckyNumber <= 9,
+    String(natal.attributes.luckyNumber));
+  check('attributes carry colour, day, metal, gem and deity',
+    ['luckyColour', 'luckyDay', 'luckyMetal', 'gemstone', 'deity']
+      .every((k) => typeof natal.attributes[k] === 'string' && natal.attributes[k].length > 0));
+
+  // Avasthās must reach every graha, not just the ones the panel happened to read.
+  const planets = Object.values(natal.planets) as any[];
+  check('every graha carries all three avasthās',
+    planets.every((p) => p.avasthas?.baladi && p.avasthas?.jagradadi && p.avasthas?.deeptadi),
+    planets.filter((p) => !p.avasthas?.deeptadi).length + ' missing');
+
+  // Sāyana must sit ayanāṃśa degrees above nirayana.
+  const sun: any = natal.planets.sun;
+  const diff = sun.tropicalLongitude - sun.siderealLongitude;
+  check('sāyana minus nirayana equals the ayanāṃśa',
+    Math.abs(diff - natal.meta.ayanamshaValue) < 0.01, diff.toFixed(4));
+
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  for (const k of ['relationships', 'dispositorRelations', 'attributes', 'sayana', 'bhavaSpasht']) {
+    check(`JSON carries ${k}`,
+      e[k] != null && (Array.isArray(e[k]) ? e[k].length > 0 : Object.keys(e[k]).length > 0));
+  }
+  check('JSON sāyana covers nine grahas', e.sayana.length === 9);
+  check('JSON bhāva spaṣṭa covers twelve houses', e.bhavaSpasht.length === 12);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
