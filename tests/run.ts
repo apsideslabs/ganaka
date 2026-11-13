@@ -21,6 +21,7 @@ import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotis
 import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
 import { calculatePanchanga } from '../lib/jyotisha/panchanga';
 import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
+import { calculateVimshopakaBala } from '../lib/jyotisha/vimshopaka';
 import { calculatePhala } from '../lib/jyotisha/phala-advanced';
 import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
 import { mandookaOrder, mandookaYears, trikonaOrder, calculateMandookaDasha, calculateTrikonaDasha } from '../lib/dashas/jaimini-mandooka-trikona';
@@ -560,6 +561,65 @@ console.log('\n== Reverse panchanga async ==');
     check('async search reports progress more than once', ticks > 1, `${ticks} ticks`);
   });
   pendingAsync.push(done);
+}
+
+/* ------------------------------------------- STRENGTH PANELS ARE REAL DATA */
+
+console.log('\n== Ṣaḍbala, Bhāva Bala & Viṃśopaka ==');
+{
+  // Every value these panels display must come from a calculation, be finite,
+  // and add up. A panel that renders "undefined" or a placeholder would pass a
+  // smoke test but mislead the reader, so the arithmetic is checked here.
+  for (const fixture of FIXTURES) {
+    const c: any = calculateFullJyotishaChart(fixture.birth);
+    const tag = `${fixture.birth.year}-${fixture.birth.month}-${fixture.birth.day}`;
+
+    const sb = Object.entries(c.shadbala) as Array<[string, any]>;
+    check(`[${tag}] ṣaḍbala covers seven grahas`, sb.length === 7, String(sb.length));
+
+    const components = ['sthanaBala', 'digBala', 'kalaBala', 'chestaBala', 'naisargikaBala', 'drigBala'];
+    check(`[${tag}] every graha carries all six balas`,
+      sb.every(([, v]) => components.every((k) => typeof v[k] === 'number' && Number.isFinite(v[k]))),
+      sb.filter(([, v]) => !components.every((k) => Number.isFinite(v[k]))).map(([k]) => k).join(','));
+
+    // The total is the six components plus the Yuddha Bala adjustment, and the
+    // war adjustments net to zero across the chart — so the column of totals
+    // must equal the column of component sums even where two grahas fight.
+    const totalOfTotals = sb.reduce((t, [, v]) => t + v.totalVirupas, 0);
+    const totalOfComponents = sb.reduce(
+      (t, [, v]) => t + components.reduce((s, k) => s + v[k], 0), 0);
+    check(`[${tag}] totals equal components, war adjustment netting to zero`,
+      Math.abs(totalOfTotals - totalOfComponents) < 0.5,
+      `${totalOfTotals.toFixed(1)} vs ${totalOfComponents.toFixed(1)}`);
+
+    check(`[${tag}] dṛg bala stays within its sixty-virūpa bound`,
+      sb.every(([, v]) => v.drigBala >= -60 && v.drigBala <= 60),
+      sb.map(([, v]) => v.drigBala).join(','));
+
+    check(`[${tag}] rūpas are the virūpas over sixty`,
+      sb.every(([, v]) => Math.abs(v.totalRupas - v.totalVirupas / 60) < 0.02));
+
+    check(`[${tag}] every graha is ranked, ranks unique`,
+      new Set(sb.map(([, v]) => v.rank)).size === 7);
+
+    const bb = Object.values(calculateBhavaBala(c)) as any[];
+    check(`[${tag}] bhāva bala covers twelve houses`, bb.length === 12, String(bb.length));
+    check(`[${tag}] every house total is finite and positive`,
+      bb.every((h) => Number.isFinite(h.totalVirupas) && h.totalVirupas > 0));
+    check(`[${tag}] house ranks are unique one to twelve`,
+      new Set(bb.map((h) => h.rank)).size === 12);
+
+    const vim = calculateVimshopakaBala(c.vargas) as any[];
+    check(`[${tag}] viṃśopaka scores seven grahas`, vim.length === 7, String(vim.length));
+  }
+
+  // The graded dṛṣṭi must actually distinguish aspects. A flat sixty would
+  // only ever produce drig values that are multiples of fifteen.
+  const graded = FIXTURES.some((f) => {
+    const c: any = calculateFullJyotishaChart(f.birth);
+    return (Object.values(c.shadbala) as any[]).some((v) => Math.abs(v.drigBala % 15) > 1e-9);
+  });
+  check('dṛṣṭi is graded, not a flat sixty per aspect', graded);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
