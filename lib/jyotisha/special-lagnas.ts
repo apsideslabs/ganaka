@@ -109,6 +109,13 @@ export function calculateSpecialPoints(
     combinedSign % 2 === 1 ? combinedSign : 13 - combinedSign;
   const varnadaLagnaLong = (varnadaRashi - 1) * 30;
 
+  // 9. Kunda (कुन्द) — the Kunda-siddhānta rectification point. Prasna Marga
+  //    5.8–9: multiply the lagna's longitude by 81 (ku = 1, nda = 8) and cast
+  //    out whole circles. The result should fall in the birth nakṣatra or one
+  //    of its trines; if it does not, the lagna — and so the birth time — is
+  //    moved by ten minutes of arc per nakṣatra until it does.
+  const kundaLagnaLong = normalizeDegrees(lagnaLongitude * 81);
+
   function makePoint(deg: number) {
     const rashi = (Math.floor(deg / 30) + 1) as RashiNumber;
     const degInRashi = deg % 30;
@@ -133,6 +140,7 @@ export function calculateSpecialPoints(
     ghatiLagna: makePoint(ghatiLagnaLong),
     shreeLagna: makePoint(shreeLagnaLong),
     varnadaLagna: makePoint(varnadaLagnaLong),
+    kundaLagna: makePoint(kundaLagnaLong),
     induLagna: makePoint(induLagnaLong),
   };
 }
