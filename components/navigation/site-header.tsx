@@ -10,7 +10,7 @@ import { HamburgerIcon, CloseIcon, ArrowRightIcon } from '@/components/ui/icons'
 import { Settings, Globe, Loader2 } from 'lucide-react';
 import { PlatformSettingsDialog } from '@/components/settings/PlatformSettingsDialog';
 import { useTranslation } from '@/lib/i18n/use-translation';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -253,13 +253,13 @@ export function SiteHeader() {
 
       {/* Navigation Loading Overlays */}
       {navigatingWorkspace && (
-        <CelestialArmillaryLoading
+        <AnalogClockDial live
           isOverlay
           title="Loading Kuṇḍalī Workspace..."
         />
       )}
       {navigatingPanchanga && (
-        <CelestialArmillaryLoading
+        <AnalogClockDial live
           isOverlay
           title="Loading Drik Pañcāṅga..."
         />
