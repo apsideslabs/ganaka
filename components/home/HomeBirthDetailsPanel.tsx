@@ -43,6 +43,10 @@ export function HomeBirthDetailsPanel() {
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   // The instant the dial should settle on while the chart is being built.
   const [clockTarget, setClockTarget] = useState<Date | null>(null);
+  // The route to take once the dial has finished setting. Navigating at the
+  // same moment the overlay mounts tears the overlay down before a single hand
+  // moves, which is what made this look like a flash.
+  const pendingHref = useRef<string | null>(null);
   const [isQuickFilling, setIsQuickFilling] = useState<boolean>(false);
   const [usedDefaultLocSuccess, setUsedDefaultLocSuccess] = useState<boolean>(false);
 
@@ -269,12 +273,43 @@ export function HomeBirthDetailsPanel() {
       house: houseSystem,
     });
 
-    setIsCalculating(true);
     // Local wall-clock time, so the dial shows the hour that was entered rather
     // than a UTC-shifted one.
-    setClockTarget(new Date(finalYear, finalMonth - 1, finalDay, finalHour, finalMinute, finalSecond));
-    router.push(`/workspace?${params.toString()}`);
+    const target = new Date(finalYear, finalMonth - 1, finalDay, finalHour, finalMinute, finalSecond);
+    const href = `/workspace?${params.toString()}`;
+
+    // Anyone who has asked the system to reduce motion gets the chart straight
+    // away; the dial is decoration, not a gate.
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+    if (reduceMotion) {
+      router.push(href);
+      return;
+    }
+
+    pendingHref.current = href;
+    // Warm the route while the hands move, so the wait is not added to the load.
+    router.prefetch?.(href);
+    setClockTarget(target);
+    setIsCalculating(true);
   };
+
+  // Safety net: a backgrounded tab throttles requestAnimationFrame, and the dial
+  // would then never report completion. Navigate anyway after the sweep plus a
+  // margin so the form can never trap the user behind an animation.
+  useEffect(() => {
+    if (!isCalculating) return;
+    const t = setTimeout(() => {
+      const href = pendingHref.current;
+      if (href) {
+        pendingHref.current = null;
+        router.push(href);
+      }
+    }, 6500);
+    return () => clearTimeout(t);
+  }, [isCalculating, router]);
 
   const defaultLocName = platformSettings.defaultLocation?.name || 'Default';
 
@@ -673,8 +708,16 @@ export function HomeBirthDetailsPanel() {
           isOverlay
           size="md"
           targetTime={clockTarget}
+          handDuration={1400}
           title="Calculating Ephemeris & Kundalī"
           subtitle="The dial is setting to the moment you gave"
+          onComplete={() => {
+            const href = pendingHref.current;
+            if (href) {
+              pendingHref.current = null;
+              router.push(href);
+            }
+          }}
         />
       )}
     </div>
