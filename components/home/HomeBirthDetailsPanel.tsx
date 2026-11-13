@@ -307,7 +307,7 @@ export function HomeBirthDetailsPanel() {
         pendingHref.current = null;
         router.push(href);
       }
-    }, 6500);
+    }, 8000);
     return () => clearTimeout(t);
   }, [isCalculating, router]);
 
@@ -708,7 +708,6 @@ export function HomeBirthDetailsPanel() {
           isOverlay
           size="md"
           targetTime={clockTarget}
-          handDuration={1400}
           title="Calculating Ephemeris & Kundalī"
           subtitle="The dial is setting to the moment you gave"
           onComplete={() => {
