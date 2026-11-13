@@ -395,7 +395,7 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'Viṃśottarī 6-level hierarchy & Extended systems (Aṣṭottarī, Yoginī, Kālacakra, Jaiminī)',
     subTabs: [
       { id: 'vimshottari', name: 'Viṃśottarī Daśā (6-Level Hierarchy)', shortName: 'Viṃśottarī (6 Levels)', icon: Clock, badge: '120y' },
-      { id: 'extended_dashas', name: 'Extended Daśās (7 Systems)', shortName: 'Extended Daśās', icon: Layers, badge: '7 Systems' },
+      { id: 'extended_dashas', name: 'Extended Daśās (16 Systems)', shortName: 'Extended Daśās', icon: Layers, badge: '16 Systems' },
     ],
   },
   {
