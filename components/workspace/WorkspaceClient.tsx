@@ -660,6 +660,8 @@ export const WorkspaceClient: React.FC = () => {
   // The report is built in memory and shown before download; nothing is saved
   // until the reader presses Download.
   const [pdfPreview, setPdfPreview] = useState<{ url: string; name: string } | null>(null);
+  const [pdfBuilding, setPdfBuilding] = useState(false);
+  const [pdfError, setPdfError] = useState('');
   const [ashtakavargaVargaId, setAshtakavargaVargaId] = useState<VargaId>('D1');
   const [isApplyingTime, setIsApplyingTime] = useState<boolean>(false);
   const [isApplyingLocation, setIsApplyingLocation] = useState<boolean>(false);
@@ -1040,19 +1042,35 @@ ${Object.values(chartData.planets)
               type="button"
               size="sm"
               variant="outline"
+              disabled={pdfBuilding}
               onClick={async () => {
+                setPdfBuilding(true);
+                setPdfError('');
+                // The renderer blocks the main thread for several seconds while
+                // it lays out and subsets fonts. Paint the busy state first, or
+                // the click looks like it did nothing.
+                await new Promise((r) => setTimeout(r, 30));
                 try {
                   const blob = await buildReportBlob(chartData);
                   const url = URL.createObjectURL(blob);
                   setPdfPreview({ url, name: chartPdfFilename(chartData) });
-                } catch (err) {
+                } catch (err: any) {
                   console.error('[report] PDF generation failed', err);
+                  setPdfError(
+                    err?.message
+                      ? `PDF could not be built: ${err.message}`
+                      : 'PDF could not be built. The browser may be out of memory — try closing other tabs.'
+                  );
+                } finally {
+                  setPdfBuilding(false);
                 }
               }}
               title="Preview and download the full chart report as a PDF"
-              icon={<Printer className="w-3.5 h-3.5 text-slate-500" />}
+              icon={pdfBuilding
+                ? <Loader2 className="w-3.5 h-3.5 text-[#8C2D19] animate-spin" />
+                : <Printer className="w-3.5 h-3.5 text-slate-500" />}
             >
-              <span>Export as PDF</span>
+              <span>{pdfBuilding ? 'Building…' : 'Export as PDF'}</span>
             </GanakaButton>
 
             <GanakaButton
@@ -1072,6 +1090,20 @@ ${Object.values(chartData.planets)
               <span>Export as JSON</span>
             </GanakaButton>
           </div>
+
+          {pdfError && (
+            <div className="mt-2 flex items-start gap-2 rounded-lg border border-[#8C2D19]/30 bg-[#8C2D19]/5 px-3 py-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-[#8C2D19] shrink-0 mt-0.5" />
+              <p className="text-[11px] text-[#8C2D19] leading-relaxed flex-1">{pdfError}</p>
+              <button
+                type="button"
+                onClick={() => setPdfError('')}
+                className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19]/70 hover:text-[#8C2D19]"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 2. RECTIFICATION TIME-STEPPER & REAL-TIME CONTROLS */}
