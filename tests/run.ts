@@ -708,12 +708,32 @@ console.log('\n== Pañcadhā maitrī & attributes ==');
     Math.abs(diff - natal.meta.ayanamshaValue) < 0.01, diff.toFixed(4));
 
   const e: any = buildChartExport(natal, { dashaDepth: 3 });
-  for (const k of ['relationships', 'dispositorRelations', 'attributes', 'sayana', 'bhavaSpasht']) {
+  for (const k of ['relationships', 'dispositorRelations', 'attributes', 'sayana', 'bhavaSpasht', 'drishti', 'sudarshana']) {
     check(`JSON carries ${k}`,
       e[k] != null && (Array.isArray(e[k]) ? e[k].length > 0 : Object.keys(e[k]).length > 0));
   }
   check('JSON sāyana covers nine grahas', e.sayana.length === 9);
   check('JSON bhāva spaṣṭa covers twelve houses', e.bhavaSpasht.length === 12);
+
+  // Dṛṣṭi: every planet aspects at least the 7th from itself, and the byHouse
+  // index must agree with the byPlanet one.
+  check('every graha aspects at least one house',
+    Object.values(e.drishti.byPlanet).every((h: any) => Array.isArray(h) && h.length > 0));
+  const houseIdx: any = e.drishti.byHouse;
+  let consistent = true;
+  for (const [pid, houses] of Object.entries(e.drishti.byPlanet as any)) {
+    for (const h of houses as number[]) {
+      if (!(houseIdx[String(h)] || []).includes(pid)) consistent = false;
+    }
+  }
+  check('dṛṣṭi byHouse agrees with byPlanet', consistent);
+
+  check('Sudarśana has three rings', e.sudarshana.rings.length === 3);
+  check('each ring covers twelve houses',
+    e.sudarshana.rings.every((r: any) => r.houses.length === 12));
+  check('Sudarśana names the active house',
+    e.sudarshana.dasha?.house >= 1 && e.sudarshana.dasha?.house <= 12,
+    String(e.sudarshana.dasha?.house));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
