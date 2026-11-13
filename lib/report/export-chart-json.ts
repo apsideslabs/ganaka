@@ -15,6 +15,7 @@ import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
 import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
 import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
+import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -84,6 +85,10 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** Graha dṛṣṭi — which houses each graha aspects. */
+  drishti: Record<string, unknown>;
+  /** Sudarśana Cakra — the three rings and the annual house. */
+  sudarshana: Record<string, unknown> | null;
   /** Viṃśopaka weighting across the varga sets. */
   vimshopaka: Array<Record<string, unknown>>;
   /** Sarvatobhadra ring position and vedha for each graha. */
@@ -295,6 +300,46 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
 
+  // --- Dṛṣṭi matrix and Sudarśana -------------------------------------------
+  const drishti = safe(() => {
+    const byPlanet: Record<string, number[]> = {};
+    const byHouse: Record<string, string[]> = {};
+    for (let h = 1; h <= 12; h++) byHouse[String(h)] = [];
+    for (const [id, p] of Object.entries(chart.planets as any)) {
+      const houses: number[] = (p as any)?.aspectsToHouses ?? [];
+      byPlanet[id] = houses;
+      for (const h of houses) {
+        if (byHouse[String(h)]) byHouse[String(h)].push(id);
+      }
+    }
+    return {
+      note: 'Whole-sign graha dṛṣṭi: houses are numbered from the lagna.',
+      byPlanet,
+      byHouse,
+    };
+  }, {});
+
+  const sudarshana = safe(() => {
+    const bd = chart.meta.birthDetails;
+    const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
+    const s: any = calculateSudarshanaChakra(chart, { yearOfLife });
+    return {
+      yearOfLife,
+      dasha: s.dasha,
+      rings: s.rings.map((r: any) => ({
+        reference: r.reference,
+        referenceRashi: r.referenceRashi,
+        referenceRashiName: r.referenceRashiName,
+        houses: r.houses.map((h: any) => ({
+          house: h.house,
+          rashi: h.rashi,
+          planets: h.planets,
+        })),
+      })),
+      perGraha: s.perGraha,
+    };
+  }, null);
+
   // --- Viṃśopaka -----------------------------------------------------------
   const vimshopaka = safe(() => {
     const v: any[] = calculateVimshopakaBala(chart.vargas) as any[];
@@ -426,6 +471,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   return {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
+    drishti, sudarshana,
   };
 }
 
