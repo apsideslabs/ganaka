@@ -24,6 +24,7 @@ import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
 import { calculatePhala } from '../lib/jyotisha/phala-advanced';
 import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
 import { mandookaOrder, mandookaYears, trikonaOrder, calculateMandookaDasha, calculateTrikonaDasha } from '../lib/dashas/jaimini-mandooka-trikona';
+import { searchPanchanga } from '../lib/jyotisha/reverse-panchanga';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
@@ -449,6 +450,42 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------------- REVERSE PAÑCĀṄGA SEARCH */
+
+console.log('\n== Reverse Pañcāṅga ==');
+{
+  const f = FIXTURES[0].birth as any;
+  const natal: any = calculateFullJyotishaChart(f);
+  const natalNak = natal.planets.moon.nakshatraIndex + 1;
+  const opts = {
+    from: { year: 2009, month: 3, day: 1 },
+    to: { year: 2009, month: 3, day: 8 },
+    latitude: f.latitude, longitude: f.longitude,
+    timezoneOffsetHours: f.timezoneOffsetHours,
+    stepMinutes: 60, maxResults: 60,
+  };
+
+  const byNak = searchPanchanga({ nakshatra: natalNak }, opts);
+  check('search finds the janma nakṣatra window', byNak.length > 0, `${byNak.length} matches`);
+  check('search recovers the birth moment itself',
+    byNak.some((m) => m.year === 2009 && m.month === 3 && m.day === 3 && m.hour === 23),
+    byNak.filter((m) => m.day === 3).map((m) => m.hour).join(','));
+  check('every result carries the requested nakṣatra',
+    byNak.every((m) => m.nakshatraNumber === natalNak));
+  check('results are in chronological order',
+    byNak.every((m, i) => i === 0 || m.jd >= byNak[i - 1].jd));
+
+  // The lagna search must bracket a birth known to be Vṛścika.
+  const byLagna = searchPanchanga({ lagnaRashi: 8 }, { ...opts, to: { year: 2009, month: 3, day: 3 } });
+  check('lagna search finds Vṛścika rising around the birth',
+    byLagna.length > 0 && byLagna.some((m) => m.hour === 23));
+  check('every lagna result is the requested sign',
+    byLagna.every((m) => m.lagnaRashi === 8));
+
+  const capped = searchPanchanga({ nakshatra: natalNak }, { ...opts, maxResults: 3 });
+  check('maxResults is respected', capped.length <= 3, String(capped.length));
 }
 
 /* ---------------------------------------------- MAṆḌŪKA & TRIKOṆA RĀŚI DAŚĀS */
