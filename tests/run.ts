@@ -23,6 +23,7 @@ import { calculatePanchanga } from '../lib/jyotisha/panchanga';
 import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
 import { calculatePhala } from '../lib/jyotisha/phala-advanced';
 import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
+import { mandookaOrder, mandookaYears, trikonaOrder, calculateMandookaDasha, calculateTrikonaDasha } from '../lib/dashas/jaimini-mandooka-trikona';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
@@ -448,6 +449,50 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ---------------------------------------------- MAṆḌŪKA & TRIKOṆA RĀŚI DAŚĀS */
+
+console.log('\n== Maṇḍūka & Trikoṇa ==');
+{
+  const R = ['Meṣa','Vṛṣabha','Mithuna','Karka','Siṃha','Kanyā','Tulā','Vṛścika','Dhanu','Makara','Kumbha','Mīna'];
+
+  // Leap orders the text states outright.
+  check('Maṇḍūka from Aries runs the movable quartet first',
+    JSON.stringify(mandookaOrder(1).slice(0, 4)) === JSON.stringify([1, 4, 7, 10]),
+    mandookaOrder(1).slice(0, 4).map((r) => R[r - 1]).join(' '));
+  check('Maṇḍūka from Cancer reverses each quartet but keeps the seed first',
+    JSON.stringify(mandookaOrder(4).slice(0, 4)) === JSON.stringify([4, 1, 10, 7]),
+    mandookaOrder(4).slice(0, 4).map((r) => R[r - 1]).join(' '));
+  check('Maṇḍūka from Sagittarius runs the dual quartet first',
+    JSON.stringify(mandookaOrder(9).slice(0, 4)) === JSON.stringify([9, 12, 3, 6]),
+    mandookaOrder(9).slice(0, 4).map((r) => R[r - 1]).join(' '));
+  check('Maṇḍūka order covers twelve distinct signs',
+    new Set(mandookaOrder(1)).size === 12 && new Set(mandookaOrder(4)).size === 12);
+
+  // Duration branch: own sign 12, lord in the 7th 10.
+  check('Maṇḍūka gives 12 years when the lord is in its own sign', mandookaYears(1, 1) === 12);
+  check('Maṇḍūka gives 10 years when the lord is in the 7th', mandookaYears(1, 7) === 10);
+
+  // Trikoṇa succession must never revisit a sign.
+  for (const seed of [1, 2, 3, 4, 5, 6] as any[]) {
+    check(`Trikoṇa order from ${R[seed - 1]} covers twelve distinct signs`,
+      new Set(trikonaOrder(seed)).size === 12,
+      trikonaOrder(seed).map((r: any) => R[r - 1]).join(' '));
+  }
+  check('Trikoṇa from a cardinal odd seed runs the zodiac directly',
+    JSON.stringify(trikonaOrder(1)) === JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12]));
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const birth = new Date(Date.UTC(2009, 2, 3, 18, 21));
+  for (const [label, calc] of [['Maṇḍūka', calculateMandookaDasha], ['Trikoṇa', calculateTrikonaDasha]] as any) {
+    const r: any = calc(natal, birth);
+    check(`${label} produces twelve periods`, r.periods.length === 12);
+    check(`${label} periods run consecutively`, r.periods.every((p: any, i: number) =>
+      i === 0 || Math.abs(p.startDate.getTime() - r.periods[i - 1].endDate.getTime()) < 1000));
+    check(`${label} durations are within 1-12 years`,
+      r.periods.every((p: any) => p.durationYears >= 1 && p.durationYears <= 12));
+  }
 }
 
 /* ------------------------------------------- CONDITIONAL NAKṢATRA DAŚĀS (ch. 46) */
