@@ -1,10 +1,12 @@
 import React from 'react';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
-export default function WorkspaceLoading() {
+export default function Loading() {
   return (
-    <CelestialArmillaryLoading
+    <AnalogClockDial
       fullScreen
+      live
+      size="lg"
       title="Gaṇaka Calculation Engine"
       subtitle="Computing sidereal positions"
     />
