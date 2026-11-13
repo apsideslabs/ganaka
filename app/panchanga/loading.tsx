@@ -1,10 +1,12 @@
 import React from 'react';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
-export default function PanchangaLoading() {
+export default function Loading() {
   return (
-    <CelestialArmillaryLoading
+    <AnalogClockDial
       fullScreen
+      live
+      size="lg"
       title="Gaṇaka Calendrical Engine"
       subtitle="Computing pañcāṅga"
     />
