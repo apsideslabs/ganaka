@@ -712,6 +712,12 @@ console.log('\n== Pañcadhā maitrī & attributes ==');
     check(`JSON carries ${k}`,
       e[k] != null && (Array.isArray(e[k]) ? e[k].length > 0 : Object.keys(e[k]).length > 0));
   }
+  check('JSON carries the engine meta block', !!e.meta && !!e.meta.engineVersion);
+  check('JSON records the node convention',
+    e.calculation.nodeType === 'mean' || e.calculation.nodeType === 'true',
+    String(e.calculation.nodeType));
+  check('meta records the node convention too',
+    natal.meta.nodeType === 'mean' || natal.meta.nodeType === 'true');
   check('JSON sāyana covers nine grahas', e.sayana.length === 9);
   check('JSON bhāva spaṣṭa covers twelve houses', e.bhavaSpasht.length === 12);
 
