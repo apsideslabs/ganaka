@@ -63,8 +63,10 @@ export interface BrahmaGrahaResult {
  */
 export function findBrahmaGraha(chart: JyotishaChart): BrahmaGrahaResult {
   const bhavas: any[] = (chart.bhavas as any[]) ?? [];
-  const lordOfHouse = (h: number): PlanetId =>
-    RASHIS[bhavas[h - 1]?.rashiNumber ?? 1]?.lord as PlanetId;
+  const lordOfHouse = (h: number): PlanetId => {
+    const rashi = (bhavas[h - 1]?.rashiNumber ?? 1) as RashiNumber;
+    return RASHIS[rashi]?.lord as PlanetId;
+  };
 
   const candidateHouses = [6, 8, 12];
   const candidates = candidateHouses.map((h) => {
