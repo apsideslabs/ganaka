@@ -27,6 +27,7 @@ import {
   calculateMandookaDasha, calculateTrikonaDasha,
   MANDOOKA_SYSTEM_DEF, TRIKONA_SYSTEM_DEF,
 } from './jaimini-mandooka-trikona';
+import { calculateSthiraDasha, STHIRA_SYSTEM_DEF } from './jaimini-sthira';
 import { calculateYoginiDasha, YOGINI_SYSTEM_DEF } from './yogini';
 import { calculateKalacakraDasha, KALACAKRA_SYSTEM_DEF } from './kalacakra';
 import { calculateCharaDasha, JAIMINI_CHARA_SYSTEM_DEF } from './jaimini-chara';
@@ -56,6 +57,7 @@ export const ALL_EXTENDED_SYSTEMS = [
   ...CONDITIONAL_SYSTEM_DEFS,
   MANDOOKA_SYSTEM_DEF,
   TRIKONA_SYSTEM_DEF,
+  STHIRA_SYSTEM_DEF,
 ];
 
 export function calculateSingleExtendedDasha(
@@ -65,6 +67,8 @@ export function calculateSingleExtendedDasha(
   variant?: string
 ): ExtendedDashaCalculationResult {
   switch (systemId) {
+    case 'sthira':
+      return calculateSthiraDasha(chart, birthDate);
     case 'mandooka':
       return calculateMandookaDasha(chart, birthDate);
     case 'trikona':
@@ -128,6 +132,7 @@ export function calculateAllExtendedDashas(
     dwisaptati: calculateDwisaptati(chart, birthDate),
     mandooka: calculateMandookaDasha(chart, birthDate),
     trikona: calculateTrikonaDasha(chart, birthDate),
+    sthira: calculateSthiraDasha(chart, birthDate),
   };
 }
 
@@ -154,6 +159,7 @@ export function buildDashaComparisonMatrix(
     'dwisaptati',
     'mandooka',
     'trikona',
+    'sthira',
   ];
 
   for (const sysId of systemOrder) {
