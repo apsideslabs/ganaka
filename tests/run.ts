@@ -29,6 +29,7 @@ import { calculatePranapada } from '../lib/jyotisha/pranapada';
 import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sthira';
 import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
 import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
+import { buildChartExport } from '../lib/report/export-chart-json';
 import { SBC_RING, nakshatraAt, vedhaFor, buildSarvatobhadraGrid } from '../lib/jyotisha/sarvatobhadra';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
@@ -455,6 +456,37 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------------------ EXPORT COMPLETENESS */
+
+console.log('\n== Export ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+
+  const sections = ['bhavaBala', 'phala', 'sarvatobhadra', 'extendedDashas', 'prashna'];
+  for (const k of sections) {
+    check(`export carries ${k}`, e[k] && Object.keys(e[k]).length > 0);
+  }
+  check('export carries all sixteen dasha systems', Object.keys(e.extendedDashas).length === 16);
+  check('export carries the Varsaphala', e.varshaphala != null && e.varshaphala.yearNumber >= 1);
+  check('export carries the Tajika dashas', e.tajika != null && e.tajika.mudda.length > 0);
+
+  // Every dasha node must keep its lord, dates and length after slimming.
+  const t = e.chart.vimshottari.tree;
+  check('slimmed dasha tree keeps lords and dates',
+    t.length > 0 && t.every((n: any) => n.lord && n.from && n.to && n.years > 0),
+    JSON.stringify(t[0] ?? {}));
+  check('slimmed dasha tree keeps three levels',
+    !!t[0].subPeriods?.[0]?.subPeriods && t[0].subPeriods[0].subPeriods[0].subPeriods === undefined);
+
+  const json = JSON.stringify(e);
+  check('export has no undefined placeholders', !json.includes('undefined'));
+  check('export stays under 1 MB', json.length < 1_000_000, `${(json.length / 1024).toFixed(0)} KB`);
+  check('pretty export stays under 1 MB',
+    JSON.stringify(e, null, 2).length < 1_000_000,
+    `${(JSON.stringify(e, null, 2).length / 1024).toFixed(0)} KB`);
 }
 
 /* ------------------------------------------- KUNDA, PRASNA, SARVATOBHADRA */
