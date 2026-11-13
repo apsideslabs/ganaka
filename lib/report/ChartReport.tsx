@@ -27,6 +27,7 @@ import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
 import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
 import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
+import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -587,6 +588,7 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Bhāva Bala & Phala', desc: 'House strength, iṣṭa and kaṣṭa, viṃśopaka' },
   { title: 'Yogas', desc: 'Classical combinations detected in the chart' },
   { title: 'Daśā Systems', desc: 'All sixteen systems and the period running now' },
+  { title: 'Dṛṣṭi & Sudarśana', desc: 'Graha aspects by house, and the three annual rings' },
   { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
@@ -652,6 +654,10 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const dispositorRelations: any[] = ((chart as any).dispositorRelations || []);
   const relationshipSummary: any = ((chart as any).relationships?.summary) || null;
   const natalAttributes: any = ((chart as any).attributes) || null;
+  const sudarshana: any = safe(() => {
+    const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
+    return calculateSudarshanaChakra(chart as any, { yearOfLife });
+  });
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -1095,10 +1101,68 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         </Page>
       )}
 
+      {/* ------------------------------------------------ drishti & sudarshana */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Dṛṣṭi & Sudarśana" identity={identity} />
+        <ChapterTitle num={12}>Dṛṣṭi &amp; Sudarśana</ChapterTitle>
+
+        <SubTitle>Graha Dṛṣṭi — which houses each graha aspects</SubTitle>
+        <Table
+          cols={[
+            { label: 'Graha', width: 16 },
+            ...Array.from({ length: 12 }, (_, i) => ({
+              label: String(i + 1), width: 7, align: 'center' as const,
+            })),
+          ]}
+          rows={PLANETS.map((id) => {
+            const p: any = (chart.planets as any)[id];
+            const houses: number[] = p?.aspectsToHouses ?? [];
+            return [
+              GRAHA[id]?.name || id,
+              // U+25CF and U+00B7 are not in Noto Serif and render as bars.
+              // The bullet U+2022 is, and reads clearly at this size.
+              ...Array.from({ length: 12 }, (_, i) =>
+                houses.includes(i + 1) ? '•' : ''),
+            ];
+          })}
+        />
+        <Text style={{ fontSize: 6.8, color: MUTED, marginTop: 3 }}>
+          Whole-sign dṛṣṭi. Columns are houses numbered from the lagna; a bullet marks an aspect.
+        </Text>
+
+        {sudarshana && sudarshana.rings && (
+          <>
+            <SubTitle>Sudarśana Cakra — the three rings</SubTitle>
+            <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 6 }}>
+              {`Year ${sudarshana.dasha?.yearOfLife} of life activates house ${sudarshana.dasha?.house} in all three rings (BPHS 74.21–22).`}
+            </Text>
+            <Table
+              cols={[
+                { label: 'House', width: 10, align: 'center' },
+                { label: 'From Lagna', width: 30 },
+                { label: 'From Candra', width: 30 },
+                { label: 'From Sūrya', width: 30 },
+              ]}
+              rows={Array.from({ length: 12 }, (_, i) => {
+                const cell = (ref: string) => {
+                  const ring = sudarshana.rings.find((r: any) => r.reference === ref);
+                  const h = ring?.houses?.[i];
+                  if (!h) return '—';
+                  const names = (h.planets || []).map(
+                    (x: string) => GRAHA[x]?.short || x).join(' ');
+                  return `${RASHI[(h.rashi || 1) - 1]}${names ? '  ·  ' + names : ''}`;
+                };
+                return [String(i + 1), cell('lagna'), cell('moon'), cell('sun')];
+              })}
+            />
+          </>
+        )}
+      </Page>
+
       {/* ------------------------------------------------ relationships & attributes */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Relationships & Attributes" identity={identity} />
-        <ChapterTitle num={12}>Relationships &amp; Attributes</ChapterTitle>
+        <ChapterTitle num={13}>Relationships &amp; Attributes</ChapterTitle>
 
         {dispositorRelations.length > 0 && (
           <>
@@ -1183,7 +1247,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle num={13}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={14}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
