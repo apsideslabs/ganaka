@@ -14,6 +14,7 @@
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
 import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
+import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -73,6 +74,8 @@ export interface GanakaChartExport {
   bhavaBala: Record<string, unknown>;
   /** Ishta/Kaṣṭa, motion states, Bīja and Kṣetra sphuṭas — BPHS 28. */
   phala: Record<string, unknown>;
+  /** Viṃśopaka weighting across the varga sets. */
+  vimshopaka: Array<Record<string, unknown>>;
   /** Sarvatobhadra ring position and vedha for each graha. */
   sarvatobhadra: Record<string, unknown>;
   /** The sixteen daśā systems, level-1 periods only. */
@@ -241,6 +244,20 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
+  // --- Viṃśopaka -----------------------------------------------------------
+  const vimshopaka = safe(() => {
+    const v: any[] = calculateVimshopakaBala(chart.vargas) as any[];
+    return v.map((x) => ({
+      planet: x.planet,
+      name: x.planetName,
+      shadvarga: Number(x.shadvargaScore?.toFixed?.(3) ?? 0),
+      saptavarga: Number(x.saptavargaScore?.toFixed?.(3) ?? 0),
+      dashavarga: Number(x.dashavargaScore?.toFixed?.(3) ?? 0),
+      shodashavarga: Number(x.shodashavargaScore?.toFixed?.(3) ?? 0),
+      percentageRating: x.percentageRating,
+    }));
+  }, []);
+
   // --- Sarvatobhadra: each graha's ring position and vedha ------------------
   const sarvatobhadra = safe(() => {
     const perPlanet: Record<string, unknown> = {};
@@ -355,7 +372,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
-  return { bhavaBala, phala, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna };
+  return { bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna };
 }
 
 /**
