@@ -141,6 +141,10 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const KnowledgeBasePanel = dynamic(() => import('./KnowledgeBasePanel').then((m) => m.KnowledgeBasePanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const TimeSensitivityPanel = dynamic(() => import('./TimeSensitivityPanel').then((m) => m.TimeSensitivityPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -312,7 +316,8 @@ export type WorkspaceTab =
   | 'reverse_panchanga'
   | 'prashna'
   | 'sarvatobhadra'
-  | 'time_sensitivity';
+  | 'time_sensitivity'
+  | 'knowledge_base';
 
 interface NavDomain {
   id: string;
@@ -462,6 +467,7 @@ const NAV_DOMAINS: NavDomain[] = [
     icon: Sun,
     description: 'Janma Kuṇḍalī chart, 5 sacred limbs of birth, and temporal Muhūrta of the birth day',
     subTabs: [
+      { id: 'knowledge_base', name: 'Textual Knowledge Base (स्रोत)', shortName: 'Sources', icon: BookOpen, badge: 'Rules' },
       { id: 'time_sensitivity', name: 'Birth-Time Sensitivity', shortName: 'Time Sensitivity', icon: Clock, badge: '±min' },
       { id: 'prashna', name: 'Praśna (प्रश्न — Horary)', shortName: 'Praśna', icon: Compass, badge: 'Horary' },
       { id: 'sarvatobhadra', name: 'Sarvatobhadra Cakra (सर्वतोभद्र)', shortName: 'Sarvatobhadra', icon: Grid3x3, badge: '9×9' },
@@ -1876,6 +1882,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'knowledge_base' && (
+          <KnowledgeBasePanel />
         )}
 
         {activeTab === 'time_sensitivity' && (
