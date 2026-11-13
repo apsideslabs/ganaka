@@ -25,6 +25,9 @@ import { calculatePhala } from '../lib/jyotisha/phala-advanced';
 import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
 import { mandookaOrder, mandookaYears, trikonaOrder, calculateMandookaDasha, calculateTrikonaDasha } from '../lib/dashas/jaimini-mandooka-trikona';
 import { searchPanchanga } from '../lib/jyotisha/reverse-panchanga';
+import { calculatePranapada } from '../lib/jyotisha/pranapada';
+import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sthira';
+import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
@@ -450,6 +453,57 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------- PRĀṆAPADA, STHIRA, AND THE TĀJIKA DAŚĀS */
+
+console.log('\n== Praṇapada, Sthira & Tājika ==');
+{
+  // The text's three worked examples: 985 vighaṭis gives a 170° arc, and the
+  // Sun's class adds 0°, 240° or 120°.
+  const sunrise = 2454893.5;
+  const birth = sunrise + (985 * 24) / 86400;
+  const p1 = calculatePranapada(15, birth, sunrise, 0);   // Aries, movable
+  const p2 = calculatePranapada(45, birth, sunrise, 0);   // Taurus, fixed
+  const p3 = calculatePranapada(75, birth, sunrise, 0);   // Gemini, dual
+  check('Praṇapada: movable Sun → Libra 5°', p1.rashiNumber === 7 && Math.abs(p1.degreeInRashi - 5) < 1e-6, p1.degreeStr);
+  check('Praṇapada: fixed Sun → Cancer 5°', p2.rashiNumber === 4 && Math.abs(p2.degreeInRashi - 5) < 1e-6, p2.degreeStr);
+  check('Praṇapada: dual Sun → Aries 5°', p3.rashiNumber === 1 && Math.abs(p3.degreeInRashi - 5) < 1e-6, p3.degreeStr);
+  check('Praṇapada class offsets are 0/240/120', p1.classOffset === 0 && p2.classOffset === 240 && p3.classOffset === 120);
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const birthDate = new Date(Date.UTC(2009, 2, 3, 18, 21));
+
+  const brahma = findBrahmaGraha(natal);
+  check('Brahma graha is one of the 6th/8th/12th lords',
+    ['sun','moon','mars','mercury','jupiter','venus','saturn'].includes(brahma.planet), brahma.name);
+
+  const sthira: any = calculateSthiraDasha(natal, birthDate);
+  check('Sthira has twelve periods', sthira.periods.length === 12);
+  check('Sthira totals 96 years (4×7 + 4×8 + 4×9)',
+    Math.abs(sthira.periods.reduce((t: number, p: any) => t + p.durationYears, 0) - 96) < 1e-9);
+  check('Sthira years are only 7, 8 or 9',
+    sthira.periods.every((p: any) => [7, 8, 9].includes(p.durationYears)));
+
+  const yearStart = new Date(Date.UTC(2025, 6, 28));
+  const mudda = calculateMudda(natal.planets.moon.siderealLongitude, yearStart);
+  const muddaDays = mudda.reduce((t, p) => t + p.durationDays, 0);
+  check('Muḍḍa tiles exactly one year', Math.abs(muddaDays - 365.2425) < 0.5, muddaDays.toFixed(2));
+
+  const pat: any = calculatePatyayini(natal, yearStart);
+  check('Patyayini ranks eight bodies', pat.rows.length === 8);
+  const patSum = pat.rows.reduce((t: number, r: any) => t + r.patyamsa, 0);
+  // The telescoping identity: the patyāṃśas sum to the largest krishāṃśa.
+  check('Patyayini patyāṃśas telescope to the largest krishāṃśa',
+    Math.abs(patSum - pat.totalDegrees) < 1e-6, `${patSum.toFixed(3)} vs ${pat.totalDegrees.toFixed(3)}`);
+  check('Patyayini fractions sum to 1',
+    Math.abs(pat.rows.reduce((t: number, r: any) => t + r.fractionOfYear, 0) - 1) < 1e-9);
+
+  const aspects = calculateTajikaAspects(natal);
+  check('Tājika aspects are only Ithasala or Ishrafa',
+    aspects.every((a) => a.type === 'ithasala' || a.type === 'ishrafa'));
+  check('Tājika aspect separations stay within their orb',
+    aspects.every((a) => Math.abs(a.separation - a.aspectAngle) <= a.orb + 1e-9));
 }
 
 /* ------------------------------------------------- REVERSE PAÑCĀṄGA SEARCH */
