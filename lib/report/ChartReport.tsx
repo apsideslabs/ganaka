@@ -23,6 +23,10 @@ import {
 } from '@react-pdf/renderer';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
+import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
+import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
+import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
+import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -142,6 +146,15 @@ const S = StyleSheet.create({
   chapterRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   chapterBar: { width: 3, height: 15, backgroundColor: ACCENT, marginRight: 7 },
   chapterTitle: { fontSize: 15, letterSpacing: 0.2 },
+  chapterNum: { fontSize: 15, color: ACCENT, marginRight: 8, letterSpacing: 0.4 },
+
+  folio: {
+    position: 'absolute', bottom: 20, left: 42, right: 42,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    borderTopWidth: 0.5, borderTopColor: RULE, paddingTop: 4,
+  },
+  folioLeft: { fontSize: 6.2, letterSpacing: 1.1, color: MUTED },
+  folioRight: { fontSize: 7, letterSpacing: 0.6, color: MUTED },
 
   h3: { fontSize: 10.5, marginTop: 12, marginBottom: 6, color: INK },
   rule: { height: 0.5, backgroundColor: RULE, marginBottom: 7 },
@@ -229,14 +242,24 @@ function RunningHead({ chapter, identity }: { chapter: string; identity: string 
       </View>
       <View style={S.headRule} fixed />
       <View style={S.headRuleThin} fixed />
+
+      {/* Folio. A bound report is paged; a web page is not. */}
+      <View style={S.folio} fixed>
+        <Text style={S.folioLeft}>GANAKA · CLASSICAL JYOTIṢA ENGINE</Text>
+        <Text
+          style={S.folioRight}
+          render={({ pageNumber, totalPages }: any) => `${pageNumber} / ${totalPages}`}
+        />
+      </View>
     </>
   );
 }
 
-function ChapterTitle({ children }: { children: string }) {
+function ChapterTitle({ children, num }: { children: string; num?: number }) {
   return (
     <View style={S.chapterRow}>
       <View style={S.chapterBar} />
+      {num != null && <Text style={S.chapterNum}>{String(num).padStart(2, '0')}</Text>}
       <Text style={S.chapterTitle}>{children}</Text>
     </View>
   );
@@ -554,6 +577,9 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Aṣṭakavarga', desc: 'Sarva and bhinna aṣṭakavarga bindus' },
   { title: 'Viṃśottarī Daśā', desc: 'Mahā, antara and pratyantar periods' },
   { title: 'Śaḍbala', desc: 'Six-fold planetary strength in virūpas' },
+  { title: 'Bhāva Bala & Phala', desc: 'House strength, iṣṭa and kaṣṭa, viṃśopaka' },
+  { title: 'Yogas', desc: 'Classical combinations detected in the chart' },
+  { title: 'Daśā Systems', desc: 'All sixteen systems and the period running now' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
 
@@ -599,6 +625,25 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const tree: any[] = (chart.vimshottari as any)?.tree || [];
   const sav: number[] = (chart.ashtakavarga as any)?.sav?.bindusByRashi || [];
 
+  // Strength and phala are computed here rather than passed in, so the report
+  // carries every section the workspace shows. Each is guarded: a failure in one
+  // drops that section rather than the whole document.
+  const safe = (fn: () => any) => { try { return fn(); } catch { return null; } };
+  const bhavaBala: any = safe(() => calculateBhavaBala(chart as any));
+  const phala: any = safe(() => calculatePhala(chart as any));
+  const vimshopaka: any = safe(() => calculateVimshopakaBala(chart.vargas));
+  const extended: any = safe(() => {
+    const b = chart.meta.birthDetails;
+    const birth = new Date(Date.UTC(
+      b.year, b.month - 1, b.day,
+      Math.round(b.hour - (b.timezoneOffsetHours ?? 0)), b.minute, b.second
+    ));
+    return calculateAllExtendedDashas(chart as any, birth);
+  });
+  const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
+    (y: any) => y && (y.isPresent !== false)
+  );
+
   const chartPages: any[][] = [];
   for (let i = 0; i < vargas.length; i += 2) chartPages.push(vargas.slice(i, i + 2));
 
@@ -615,7 +660,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ birth data */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Birth Data" identity={identity} />
-        <ChapterTitle>Birth Data &amp; Pañcāṅga</ChapterTitle>
+        <ChapterTitle num={1}>Birth Data &amp; Pañcāṅga</ChapterTitle>
         <SubTitle>Particulars</SubTitle>
         <KV
           rows={[
@@ -655,7 +700,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {av && (
         <Page size="A4" style={S.page} wrap>
           <RunningHead chapter="Avakahada Cakra" identity={identity} />
-          <ChapterTitle>Avakahada Cakra</ChapterTitle>
+          <ChapterTitle num={2}>Avakahada Cakra</ChapterTitle>
           <SubTitle>Birth Matrix</SubTitle>
           <KV
             rows={[
@@ -694,7 +739,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ planets */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Planetary Positions" identity={identity} />
-        <ChapterTitle>Planetary Positions</ChapterTitle>
+        <ChapterTitle num={3}>Planetary Positions</ChapterTitle>
         <Table
           cols={[
             { label: 'Graha', width: 16 },
@@ -727,7 +772,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ D-1 */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Lagna Kundali" identity={identity} />
-        <ChapterTitle>Lagna Kuṇḍalī (D-1)</ChapterTitle>
+        <ChapterTitle num={4}>Lagna Kuṇḍalī (D-1)</ChapterTitle>
         <Kundali varga={chart.vargas.D1} size={330} title="D-1 · Rāśi" />
         <SubTitle>Bhāvas</SubTitle>
         <Table
@@ -750,7 +795,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {chartPages.map((pair, i) => (
         <Page key={i} size="A4" style={S.page} wrap>
           <RunningHead chapter="Divisional Charts" identity={identity} />
-          {i === 0 && <ChapterTitle>Divisional Charts</ChapterTitle>}
+          {i === 0 && <ChapterTitle num={5}>Divisional Charts</ChapterTitle>}
           {pair.map((v) => (
             <Kundali
               key={v.id}
@@ -768,7 +813,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ ashtakavarga */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Aṣṭakavarga" identity={identity} />
-        <ChapterTitle>Aṣṭakavarga</ChapterTitle>
+        <ChapterTitle num={6}>Aṣṭakavarga</ChapterTitle>
         <SubTitle>Sarvaṣṭakavarga</SubTitle>
         <Table
           cols={[{ label: '', width: 16 }, ...RASHI_EN.map((r) => ({ label: r.slice(0, 3), width: 7, align: 'center' as const }))]}
@@ -788,7 +833,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ dasha */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Viṃśottarī Daśā" identity={identity} />
-        <ChapterTitle>Viṃśottarī Daśā</ChapterTitle>
+        <ChapterTitle num={7}>Viṃśottarī Daśā</ChapterTitle>
         <SubTitle>Mahādaśā</SubTitle>
         <Table
           cols={[
@@ -830,7 +875,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ shadbala */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Śaḍbala" identity={identity} />
-        <ChapterTitle>Śaḍbala</ChapterTitle>
+        <ChapterTitle num={8}>Śaḍbala</ChapterTitle>
         <Table
           cols={[
             { label: 'Graha', width: 16 },
@@ -853,10 +898,152 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         />
       </Page>
 
+
+      {/* ------------------------------------------------ bhava bala & phala */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Bhāva Bala & Phala" identity={identity} />
+        <ChapterTitle num={9}>Bhāva Bala &amp; Phala</ChapterTitle>
+        <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+          House strength by the five components of BPHS 27.26–31, then the iṣṭa and kaṣṭa
+          reading of BPHS 28 — which always total sixty — and the viṃśopaka weighting across
+          the divisional charts.
+        </Text>
+
+        {bhavaBala && (
+          <>
+            <SubTitle>Bhāva Bala</SubTitle>
+            <Table
+              cols={[
+                { label: 'Bhāva', width: 9, align: 'center' },
+                { label: 'Rāśi', width: 20 },
+                { label: 'Dig', width: 12, align: 'right' },
+                { label: 'Dṛg', width: 12, align: 'right' },
+                { label: 'Adhipati', width: 15, align: 'right' },
+                { label: 'Total', width: 16, align: 'right' },
+                { label: 'Rūpa', width: 16, align: 'right' },
+              ]}
+              rows={Object.entries(bhavaBala).map(([h, r]: any) => [
+                h,
+                r.rashiName || '—',
+                r.digBala.toFixed(1),
+                r.drigAdjustment.toFixed(1),
+                r.adhipatiBala.toFixed(1),
+                r.totalVirupas.toFixed(1),
+                r.totalRupas.toFixed(2),
+              ])}
+            />
+          </>
+        )}
+
+        {phala?.planets && (
+          <>
+            <SubTitle>Iṣṭa &amp; Kaṣṭa Phala</SubTitle>
+            <Table
+              cols={[
+                { label: 'Graha', width: 22 },
+                { label: 'Ucca', width: 15, align: 'right' },
+                { label: 'Ceṣṭā', width: 15, align: 'right' },
+                { label: 'Iṣṭa', width: 16, align: 'right' },
+                { label: 'Kaṣṭa', width: 16, align: 'right' },
+                { label: 'Motion', width: 16 },
+              ]}
+              rows={Object.entries(phala.planets).map(([id, p]: any) => [
+                GRAHA[id]?.name || id,
+                p.uccaBala.toFixed(1),
+                p.chestaBala.toFixed(1),
+                p.ishta.toFixed(1),
+                p.kashta.toFixed(1),
+                p.motionState || '—',
+              ])}
+            />
+          </>
+        )}
+
+        {vimshopaka && (
+          <>
+            <SubTitle>Viṃśopaka Bala</SubTitle>
+            <Table
+              cols={[
+                { label: 'Graha', width: 20 },
+                { label: 'Ṣaḍvarga', width: 16, align: 'right' },
+                { label: 'Saptavarga', width: 18, align: 'right' },
+                { label: 'Daśavarga', width: 17, align: 'right' },
+                { label: 'Ṣoḍaśavarga', width: 17, align: 'right' },
+                { label: 'Rating', width: 12, align: 'right' },
+              ]}
+              rows={(Array.isArray(vimshopaka) ? vimshopaka : []).map((v: any) => {
+                const f = (n: any) => (typeof n === 'number' ? n.toFixed(2) : '—');
+                return [
+                  v.planetName || GRAHA[v.planet]?.name || v.planet || '—',
+                  f(v.shadvargaScore),
+                  f(v.saptavargaScore),
+                  f(v.dashavargaScore),
+                  f(v.shodashavargaScore),
+                  typeof v.percentageRating === 'number' ? `${v.percentageRating}` : '—',
+                ];
+              })}
+            />
+          </>
+        )}
+      </Page>
+
+      {/* ------------------------------------------------ yogas */}
+      {formedYogas.length > 0 && (
+        <Page size="A4" style={S.page} wrap>
+          <RunningHead chapter="Yogas" identity={identity} />
+          <ChapterTitle num={10}>Yogas</ChapterTitle>
+          <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+            {formedYogas.length} classical combinations detected. Each carries its source and
+            verse in the workspace; only the formed ones are listed here. A name marked * is
+            flagged by the engine as an unverified reading rather than a settled rule.
+          </Text>
+          <Table
+            cols={[
+              { label: 'Yoga', width: 34 },
+              { label: 'Source', width: 24 },
+              { label: 'Verse', width: 20 },
+              { label: 'Strength', width: 22 },
+            ]}
+            rows={formedYogas.map((y: any) => [
+              `${y.name || y.id || '—'}${y.isUnverified ? ' *' : ''}`,
+              y.sourceText || '—',
+              y.chapterAndVerse || '—',
+              y.strengthRating || y.strength || '—',
+            ])}
+          />
+        </Page>
+      )}
+
+      {/* ------------------------------------------------ dasha systems */}
+      {extended && Object.keys(extended).length > 0 && (
+        <Page size="A4" style={S.page} wrap>
+          <RunningHead chapter="Daśā Systems" identity={identity} />
+          <ChapterTitle num={11}>Daśā Systems</ChapterTitle>
+          <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+            Sixteen systems, each with the period running at the date of this report. A system
+            that does not apply to this chart is marked ineligible rather than omitted.
+          </Text>
+          <Table
+            cols={[
+              { label: 'System', width: 30 },
+              { label: 'Cycle', width: 12, align: 'right' },
+              { label: 'Eligibility', width: 20 },
+              { label: 'Current period', width: 38 },
+            ]}
+            rows={Object.entries(extended).map(([id, r]: any) => [
+              r.system?.name || id,
+              r.system?.cycleYears ? `${r.system.cycleYears}y` : '—',
+              r.eligibility?.status || 'universal',
+              r.currentPeriod?.majorPeriod?.name || '—',
+            ])}
+          />
+        </Page>
+      )}
+
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={12}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
@@ -869,13 +1056,20 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             </Text>
             <Table
               cols={[
-                { label: 'Doṣa', width: 46 },
-                { label: 'Status', width: 28 },
-                { label: 'Severity', width: 26 },
+                { label: 'Doṣa', width: 34 },
+                { label: 'Status', width: 18 },
+                { label: 'Severity', width: 14 },
+                { label: 'Source', width: 34 },
               ]}
               rows={(chart as any).doshas.evaluatedDoshas
                 .filter((d: any) => d.formationStatus !== 'Not Formed')
-                .map((d: any) => [d.name, d.formationStatus, d.severity])}
+                .map((d: any) => [
+                  d.name,
+                  d.formationStatus,
+                  d.severity,
+                  // The checklist asks that every result show the rule behind it.
+                  d.primarySource?.verseOrShloka || d.primarySource?.chapter || '—',
+                ])}
             />
           </>
         )}
