@@ -140,6 +140,10 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const ReversePanchangPanel = dynamic(() => import('./ReversePanchangPanel').then((m) => m.ReversePanchangPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const PhalaPanel = dynamic(() => import('./PhalaPanel').then((m) => m.PhalaPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -291,7 +295,8 @@ export type WorkspaceTab =
   | 'matching_bridge'
   | 'varshaphala'
   | 'bhava_bala'
-  | 'phala';
+  | 'phala'
+  | 'reverse_panchanga';
 
 interface NavDomain {
   id: string;
@@ -441,6 +446,7 @@ const NAV_DOMAINS: NavDomain[] = [
     icon: Sun,
     description: 'Janma Kuṇḍalī chart, 5 sacred limbs of birth, and temporal Muhūrta of the birth day',
     subTabs: [
+      { id: 'reverse_panchanga', name: 'Reverse Pañcāṅga (Chart Finder)', shortName: 'Reverse Pañcāṅga', icon: Search, badge: 'Search' },
       { id: 'panchanga', name: 'Janma Pañcāṅga & Muhūrta (जन्म पञ्चाङ्ग)', shortName: 'Janma Pañcāṅga', icon: Sun, badge: '5 Limbs' },
     ],
   },
@@ -1856,6 +1862,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'reverse_panchanga' && (
+          <ReversePanchangPanel chart={chartData} />
         )}
 
         {activeTab === 'phala' && (
