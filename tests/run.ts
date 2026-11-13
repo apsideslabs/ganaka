@@ -24,7 +24,7 @@ import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
 import { calculatePhala } from '../lib/jyotisha/phala-advanced';
 import { CONDITIONAL_DASHA_SPECS, lordIndexAtBirth, calculateConditionalDasha } from '../lib/dashas/conditional-dashas';
 import { mandookaOrder, mandookaYears, trikonaOrder, calculateMandookaDasha, calculateTrikonaDasha } from '../lib/dashas/jaimini-mandooka-trikona';
-import { searchPanchanga } from '../lib/jyotisha/reverse-panchanga';
+import { searchPanchanga, searchPanchangaAsync } from '../lib/jyotisha/reverse-panchanga';
 import { calculatePranapada } from '../lib/jyotisha/pranapada';
 import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sthira';
 import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
@@ -32,11 +32,15 @@ import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
+import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
 import { SBC_RING, nakshatraAt, vedhaFor, buildSarvatobhadraGrid } from '../lib/jyotisha/sarvatobhadra';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
 import { calculateAllPlanets } from '../lib/astronomy/ephemeris';
+
+/** Async checks collected here and awaited before the summary. */
+const pendingAsync: Promise<void>[] = [];
 import { calculateJulianDay } from '../lib/astronomy/julian';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
 
@@ -511,6 +515,51 @@ console.log('\n== Time zone & birth-time sensitivity ==');
     baghmara.unstable.map((u: any) => u.label).join(','));
   check('the Baghmara lagna sign itself does not move at ±5 min',
     baghmara.stable.includes('Lagna rāśi'));
+}
+
+/* ------------------------------------------------ KNOWLEDGE BASE & SEARCH UI */
+
+console.log('\n== Knowledge base ==');
+{
+  const kb = knowledgeBaseSummary();
+  check('knowledge base holds records', kb.total >= 15, String(kb.total));
+  check('every record carries a source and location',
+    KNOWLEDGE_BASE.every((r) => r.work && r.location && r.edition && r.translation));
+  check('every record names its implementation',
+    KNOWLEDGE_BASE.every((r) => r.implementation.length > 0));
+  check('Sanskrit records also carry a transliteration',
+    KNOWLEDGE_BASE.filter((r) => r.sanskrit).every((r) => r.transliteration));
+  check('most records note a disagreement',
+    kb.withDisagreement >= kb.total - 3, `${kb.withDisagreement} of ${kb.total}`);
+  check('record ids are unique',
+    new Set(KNOWLEDGE_BASE.map((r) => r.id)).size === KNOWLEDGE_BASE.length);
+  check('lookup by id works', getRule('bphs_46_168_sthira_years')?.location.includes('46'));
+  check('search finds the Sthira rule by keyword',
+    searchRules('sthira').some((r) => r.id === 'bphs_46_168_sthira_years'));
+  check('search finds rules by implementation file',
+    searchRules('pranapada.ts').length > 0);
+  check('an empty search returns everything', searchRules('').length === kb.total);
+}
+
+console.log('\n== Reverse panchanga async ==');
+{
+  // The suite runs synchronously, so the async scan is driven through a promise
+  // and the checks run in its continuation. Anything after this block that must
+  // wait belongs inside it.
+  const opts = {
+    from: { year: 2009, month: 3, day: 1 },
+    to: { year: 2009, month: 3, day: 8 },
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
+  };
+  const sync = searchPanchanga({ nakshatra: 4 }, opts);
+  let ticks = 0;
+  const done = searchPanchangaAsync({ nakshatra: 4 }, opts, () => { ticks++; }).then((asyncOut) => {
+    check('async search returns the same windows as the sync one',
+      asyncOut.length === sync.length &&
+      asyncOut.every((w, i) => Math.abs(w.startJD - sync[i].startJD) < 1e-9));
+    check('async search reports progress more than once', ticks > 1, `${ticks} ticks`);
+  });
+  pendingAsync.push(done);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
@@ -1066,11 +1115,13 @@ console.log('\n== Varṣaphala ==');
 
 /* ------------------------------------------------------------------- REPORT */
 
-console.log(`\n${'='.repeat(52)}`);
-console.log(`passed: ${passed}   failed: ${failed}`);
-if (failed > 0) {
-  console.log('\nFailures:');
-  for (const f of failures) console.log('  - ' + f);
-  process.exit(1);
-}
-console.log('All checks passed.');
+Promise.all(pendingAsync).then(() => {
+  console.log(`\n${'='.repeat(52)}`);
+  console.log(`passed: ${passed}   failed: ${failed}`);
+  if (failed > 0) {
+    console.log('\nFailures:');
+    for (const f of failures) console.log('  - ' + f);
+    process.exit(1);
+  }
+  console.log('All checks passed.');
+});
