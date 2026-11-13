@@ -184,7 +184,9 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
  * rather than an exception instead of a file.
  */
 function buildExtendedSections(chart: JyotishaChart, depth: number) {
-  const safe = <T,>(fn: () => T, fallback: T): T => {
+  // Untyped on purpose: the sections below return different shapes and a
+  // generic here would force every fallback to match its branch exactly.
+  const safe = (fn: () => any, fallback: any): any => {
     try { return fn(); } catch { return fallback; }
   };
 
