@@ -454,6 +454,7 @@ export interface SpecialPoints {
   horaLagna: { rashi: RashiNumber; degreeInRashi: number; degreeStr: string };
   ghatiLagna: { rashi: RashiNumber; degreeInRashi: number; degreeStr: string };
   shreeLagna: { rashi: RashiNumber; degreeInRashi: number; degreeStr: string };
+  varnadaLagna: { rashi: RashiNumber; degreeInRashi: number; degreeStr: string };
   induLagna: { rashi: RashiNumber; degreeInRashi: number; degreeStr: string };
 }
 
