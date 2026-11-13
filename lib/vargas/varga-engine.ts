@@ -58,6 +58,7 @@ export const EXTENDED_VARGA_IDS: ExtendedVargaId[] = [
   'D81',
   'D108',
   'D144',
+  'D150',
 ];
 
 export const ALL_VARGA_IDS: VargaId[] = [
@@ -91,6 +92,7 @@ export const VARGA_DEFINITIONS: Record<VargaId, VargaDefinition> = {
   D11: { id: 'D11', name: 'Rudrāṃśa', sanskritName: 'रुद्रांश (डी-११ / एकादशांश)', factor: 11, significance: 'Rudra force, destruction of adversaries, combat & sudden windfalls', category: 'extended', classicalSource: 'BPHS & Jaimini Sutras' },
   D81: { id: 'D81', name: 'Ekāśītāṃśa', sanskritName: 'एकाशीत्यंश (डी-८१ / नव-नवांश)', factor: 81, significance: 'Subtle spiritual core, 9×9 Navāṃśa harmonic of soul destiny', category: 'extended', classicalSource: 'Classical Jaimini / BPHS Harmonic' },
   D108: { id: 'D108', name: 'Aṣṭottaraśatāṃśa', sanskritName: 'अष्टोत्तरशतांश (डी-१०८)', factor: 108, significance: 'Micro-Nakshatra Pada harmonics across the 108 Nakshatra Padas', category: 'extended', classicalSource: 'Surya Siddhanta & Deva Keralam' },
+  D150: { id: 'D150', name: 'Nāḍyāṃśa', sanskritName: 'नाड्यंश (डी-१५०)', factor: 150, significance: 'Nāḍī micro-division used in the finest Prāṇa-level work', category: 'extended', classicalSource: 'Nāḍyāṃśa tradition — recensions differ on the count start' },
   D144: { id: 'D144', name: 'Dvādaśadvādaśāṃśa', sanskritName: 'द्वादशद्वादशांश (डी-१४४)', factor: 144, significance: 'Ancestral karma micro-seeds, 12×12 Dvādaśāṃśa deep lineage', category: 'extended', classicalSource: 'BPHS 12×12 Harmonic Division' },
 };
 
@@ -392,6 +394,15 @@ export function calculateVargaRashi(
       // Classical Nakshatra Pada harmonic: Cycles through the 12 signs from the sign itself
       const part = Math.min(107, Math.floor(degInRashi / (30.0 / 108.0)));
       targetRashi = (((rashiNum - 1 + part) % 12) + 1);
+      break;
+    }
+
+    case 'D150': {
+      // Nāḍyāṃśa: 150 parts of 12′ each (30 / 150). The recensions differ on
+      // where the count starts; this follows the common cyclic reading, which
+      // counts on from the sign itself and wraps every twelve nāḍyāṃśas.
+      const nadiamsa = Math.min(149, Math.floor(degInRashi / 0.2));
+      targetRashi = (((rashiNum - 1 + nadiamsa) % 12) + 1);
       break;
     }
 
