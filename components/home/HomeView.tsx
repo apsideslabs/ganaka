@@ -5,7 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { GeometricSolarSystemBackground } from '@/components/background/GeometricSolarSystemBackground';
 import { GanakaButton } from '@/components/ui/GanakaButton';
-import { CelestialArmillaryLoading } from '@/components/ui/CelestialArmillaryLoading';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
 const HomeBirthDetailsPanel = dynamic(
   () =>
@@ -15,9 +15,7 @@ const HomeBirthDetailsPanel = dynamic(
   {
     loading: () => (
       <div className="w-full min-h-[360px] p-8 bg-white border border-stone-200/90 rounded-2xl flex items-center justify-center shadow-sm">
-        <CelestialArmillaryLoading
-          title="Gaṇaka Calculation Console"
-        />
+        <AnalogClockDial live size="md" title="Gaṇaka Calculation Console" />
       </div>
     ),
   }
@@ -508,18 +506,12 @@ export function HomeView() {
         </div>
       </section>
 
-      {/* Clean Solar System Astronomical Loading Overlays for Navigation */}
+      {/* Navigation overlays show the current time — these routes compute for now */}
       {navigatingToPanchanga && (
-        <CelestialArmillaryLoading
-          isOverlay
-          title="Loading Drik Pañcāṅga..."
-        />
+        <AnalogClockDial isOverlay live size="md" title="Loading Drik Pañcāṅga" />
       )}
       {navigatingToWorkspace && (
-        <CelestialArmillaryLoading
-          isOverlay
-          title="Loading Kuṇḍalī Workspace..."
-        />
+        <AnalogClockDial isOverlay live size="md" title="Loading Kuṇḍalī Workspace" />
       )}
     </div>
   );
