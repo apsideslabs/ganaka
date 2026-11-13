@@ -20,6 +20,7 @@ import { NAKSHATRA_NAMAKSHARAS, NAKSHATRA_YONIS, NAKSHATRA_RAJJUS } from '../lib
 import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotisha/sudarshana';
 import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
 import { calculatePanchanga } from '../lib/jyotisha/panchanga';
+import { calculateBhavaBala } from '../lib/shadbala/bhava-bala';
 import { calculateAllPlanets } from '../lib/astronomy/ephemeris';
 import { calculateJulianDay } from '../lib/astronomy/julian';
 import { FIXTURES, TOLERANCE_ARCSEC, type FixtureChart } from './fixtures';
@@ -442,6 +443,46 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------------------------ BHĀVA BALA (27.26) */
+
+console.log('\n== Bhāva Bala ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const bb: any = calculateBhavaBala(natal);
+  const rows = Object.values(bb) as any[];
+
+  check('twelve houses are scored', rows.length === 12);
+  check('every house has a dig bala within 0-60',
+    rows.every((r) => r.digBala >= 0 && r.digBala <= 60.001),
+    rows.map((r) => r.digBala.toFixed(1)).join(' '));
+
+  // The 1st bhāva sits on its own reference angle, so its dig bala is ~0.
+  check('1st bhāva dig bala is ~0 (stands on the ascendant)',
+    bb[1].digBala < 1, bb[1].digBala.toFixed(3));
+
+  // A bhāva opposite its reference angle scores the full 60.
+  const maxDig = Math.max(...rows.map((r) => r.digBala));
+  check('some bhāva reaches the 60-virūpa maximum', maxDig > 59.9, maxDig.toFixed(2));
+
+  check('total equals the sum of its components', rows.every((r) =>
+    Math.abs(r.totalVirupas - (r.digBala + r.drigAdjustment + r.adhipatiBala +
+      r.occupancyAdjustment + r.dayNightAdjustment)) < 1e-6));
+
+  check('rūpas are virūpas over sixty', rows.every((r) =>
+    Math.abs(r.totalRupas - r.totalVirupas / 60) < 1e-9));
+
+  const ranks = rows.map((r) => r.rank).sort((a, b) => a - b);
+  check('ranks are 1-12 with no ties', JSON.stringify(ranks) === JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12]));
+
+  // The occupancy rule moves a house by exactly one rūpa either way.
+  check('occupancy adjustment is a whole rūpa or nothing',
+    rows.every((r) => [0, 60, -60].includes(r.occupancyAdjustment)));
+
+  // The rising-class bonus is either 15 or nothing.
+  check('day/night adjustment is 15 virūpas or nothing',
+    rows.every((r) => [0, 15].includes(r.dayNightAdjustment)));
 }
 
 /* ------------------------------------------------------------- VĀRA (weekday) */
