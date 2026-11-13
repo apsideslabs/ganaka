@@ -193,7 +193,8 @@ function evaluateEligibility(spec: ConditionalDashaSpec, chart: JyotishaChart): 
 
   const lagnaLord = RASHIS[lagnaRashi]?.lord as PlanetId;
   const lagna = chart.planets?.[lagnaLord] as any;
-  const tenthLord = RASHIS[chart.bhavas?.[9]?.rashiNumber ?? 1]?.lord as PlanetId;
+  const tenthRashi = ((chart.bhavas as any)?.[9]?.rashiNumber ?? 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  const tenthLord = RASHIS[tenthRashi]?.lord as PlanetId;
   const tenth = chart.planets?.[tenthLord] as any;
 
   let satisfied = false;
