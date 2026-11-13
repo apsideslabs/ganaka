@@ -143,6 +143,10 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const RelationshipPanel = dynamic(() => import('./RelationshipPanel').then((m) => m.RelationshipPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
 const KnowledgeBasePanel = dynamic(() => import('./KnowledgeBasePanel').then((m) => m.KnowledgeBasePanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -319,7 +323,8 @@ export type WorkspaceTab =
   | 'prashna'
   | 'sarvatobhadra'
   | 'time_sensitivity'
-  | 'knowledge_base';
+  | 'knowledge_base'
+  | 'relationships';
 
 interface NavDomain {
   id: string;
@@ -469,6 +474,7 @@ const NAV_DOMAINS: NavDomain[] = [
     icon: Sun,
     description: 'Janma Kuṇḍalī chart, 5 sacred limbs of birth, and temporal Muhūrta of the birth day',
     subTabs: [
+      { id: 'relationships', name: 'Relationships & Attributes (मैत्री)', shortName: 'Maitrī', icon: Users, badge: 'Pañcadhā' },
       { id: 'knowledge_base', name: 'Textual Knowledge Base (स्रोत)', shortName: 'Sources', icon: BookOpen, badge: 'Rules' },
       { id: 'time_sensitivity', name: 'Birth-Time Sensitivity', shortName: 'Time Sensitivity', icon: Clock, badge: '±min' },
       { id: 'prashna', name: 'Praśna (प्रश्न — Horary)', shortName: 'Praśna', icon: Compass, badge: 'Horary' },
@@ -1916,6 +1922,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'relationships' && (
+          <RelationshipPanel chart={chartData} />
         )}
 
         {activeTab === 'knowledge_base' && (
