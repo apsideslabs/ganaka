@@ -149,7 +149,7 @@ export function calculatePatyayini(
       body: s.body,
       name: s.name,
       longitude: s.lon,
-      rashiName: RASHIS[(Math.floor(s.lon / 30) + 1) as 1]?.name ?? '',
+      rashiName: RASHIS[(Math.floor(s.lon / 30) + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12]?.name ?? '',
       krishamsa: s.krishamsa,
       patyamsa,
       fractionOfYear: fraction,
