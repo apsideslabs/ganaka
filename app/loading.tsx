@@ -1,12 +1,14 @@
 import React from 'react';
-import { GanakaLoadingDial } from '@/components/ui/GanakaLoadingDial';
+import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 
-export default function RootLoading() {
+export default function Loading() {
   return (
-    <GanakaLoadingDial
+    <AnalogClockDial
       fullScreen
+      live
+      size="lg"
       title="Gaṇaka Astronomical Engine"
-      subtitle="Loading Computational Ephemeris & Jyotiṣa Matrices..."
+      subtitle="Loading computational ephemeris & jyotiṣa matrices"
     />
   );
 }
