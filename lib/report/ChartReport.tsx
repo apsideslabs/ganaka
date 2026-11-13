@@ -157,6 +157,13 @@ const S = StyleSheet.create({
   folioRight: { fontSize: 7, letterSpacing: 0.6, color: MUTED },
 
   h3: { fontSize: 10.5, marginTop: 12, marginBottom: 6, color: INK },
+
+  glanceRow: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -3, marginBottom: 4 },
+  glanceCell: {
+    width: '33.33%', paddingHorizontal: 3, paddingVertical: 6,
+  },
+  glanceLabel: { fontSize: 6, letterSpacing: 0.8, color: MUTED, marginBottom: 1.5 },
+  glanceValue: { fontSize: 9.4, color: INK },
   rule: { height: 0.5, backgroundColor: RULE, marginBottom: 7 },
 
   /* tables */
@@ -583,9 +590,10 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
 
-function Contents() {
+function Contents({ identity }: { identity: string }) {
   return (
     <Page size="A4" style={S.page} wrap>
+      <RunningHead chapter="Contents" identity={identity} />
       <ChapterTitle>Contents</ChapterTitle>
       <View style={{ marginTop: 8 }}>
         {CHAPTERS.map((c, i) => (
@@ -655,7 +663,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       creator="Ganaka Classical Jyotisa Engine"
     >
       <Cover chart={chart} />
-      <Contents />
+      <Contents identity={identity} />
 
       {/* ------------------------------------------------ birth data */}
       <Page size="A4" style={S.page} wrap>
@@ -681,6 +689,27 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             ['Nakṣatra', `${chart.lagna.nakshatraName} pada ${chart.lagna.pada}`],
           ]}
         />
+        <SubTitle>Chart at a Glance</SubTitle>
+        <View style={S.glanceRow}>
+          {[
+            ['Lagna', `${RASHI[(chart.lagna.rashiNumber || 1) - 1]} ${chart.lagna.degreeStr || ''}`.trim()],
+            ['Candra Rāśi', RASHI[((chart.planets as any).moon?.rashiNumber || 1) - 1]],
+            ['Janma Nakṣatra', `${(chart.planets as any).moon?.nakshatraName || '—'} pāda ${(chart.planets as any).moon?.pada ?? '—'}`],
+            ['Mahādaśā', (() => {
+              const active = tree.find((n: any) => n?.isBirthActive) ?? tree[0];
+              return active?.lordName || active?.name || '—';
+            })()],
+            ['Yogas formed', String(((chart.yogas as any[]) || []).length)],
+            ['Doṣas present', String(((chart as any).doshas?.evaluatedDoshas || [])
+              .filter((d: any) => d.formationStatus !== 'Not Formed').length)],
+          ].map(([k, v], i) => (
+            <View key={i} style={S.glanceCell}>
+              <Text style={S.glanceLabel}>{String(k).toUpperCase()}</Text>
+              <Text style={S.glanceValue}>{clean(String(v))}</Text>
+            </View>
+          ))}
+        </View>
+
         <SubTitle>Pañcāṅga</SubTitle>
         <KV
           rows={[
@@ -767,6 +796,25 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             ];
           })}
         />
+
+        <SubTitle>Bhāva Lords &amp; Occupants</SubTitle>
+        <Table
+          cols={[
+            { label: 'Bhāva', width: 10, align: 'center' },
+            { label: 'Rāśi', width: 24 },
+            { label: 'Lord', width: 22 },
+            { label: 'Occupants', width: 44 },
+          ]}
+          rows={((chart.bhavas as any[]) || []).map((h: any) => [
+            String(h.houseNumber ?? h.house ?? '—'),
+            RASHI[(h.rashiNumber || 1) - 1],
+            GRAHA[String(h.rashiLord || h.lord || '').toLowerCase()]?.name || h.rashiLord || '—',
+            (h.planetsInHouse || []).length
+              ? (h.planetsInHouse as any[]).map((x: any) =>
+                  GRAHA[String(x.planetId || x).toLowerCase()]?.name || String(x.planetId || x)).join(', ')
+              : '—',
+          ])}
+        />
       </Page>
 
       {/* ------------------------------------------------ D-1 */}
@@ -804,9 +852,6 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
               title={v.name && v.name !== v.id ? `${v.id} · ${v.name}` : v.id}
             />
           ))}
-          <Text style={[S.footerTxt, { marginTop: 'auto', textAlign: 'right' }]}>
-            {`${i * 2 + 1}–${Math.min(i * 2 + 2, vargas.length)} of ${vargas.length}`}
-          </Text>
         </Page>
       ))}
 
