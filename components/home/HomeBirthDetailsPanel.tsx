@@ -33,6 +33,7 @@ import {
 } from '@/lib/settings/settings-storage';
 import { DEFAULT_PLATFORM_SETTINGS, PlatformSettings } from '@/lib/settings/types';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { offsetForZone } from '@/lib/astronomy/city-index';
 
 export function HomeBirthDetailsPanel() {
   const router = useRouter();
@@ -212,7 +213,15 @@ export function HomeBirthDetailsPanel() {
 
     const finalLat = isCustomCoordinates ? customLat : selectedCity!.latitude;
     const finalLng = isCustomCoordinates ? customLng : selectedCity!.longitude;
-    const finalTz = isCustomCoordinates ? customTz : selectedCity!.timezoneOffsetHours;
+    // Resolve the offset for the birth date from the city's IANA zone rather
+    // than the single stored number. India has had no daylight saving since
+    // 1945, but a London birth in 1970 sits inside the permanent British
+    // Standard Time experiment and is UTC+1 all year — a fixed offset gets
+    // that wrong by an hour, and an hour moves the lagna by a whole sign.
+    const historicalTz = isCustomCoordinates
+      ? null
+      : offsetForZone(selectedCity!.timezoneName, finalYear, finalMonth, finalDay, finalHour, finalMinute);
+    const finalTz = isCustomCoordinates ? customTz : (historicalTz ?? selectedCity!.timezoneOffsetHours);
     const finalCity = isCustomCoordinates ? customCityName : selectedCity!.name;
     const finalName = chartName.trim() || 'Jātaka';
 
