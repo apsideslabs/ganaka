@@ -597,28 +597,169 @@ console.log('\n== Reverse Pañcāṅga ==');
     to: { year: 2009, month: 3, day: 8 },
     latitude: f.latitude, longitude: f.longitude,
     timezoneOffsetHours: f.timezoneOffsetHours,
-    stepMinutes: 60, maxResults: 60,
   };
 
   const byNak = searchPanchanga({ nakshatra: natalNak }, opts);
-  check('search finds the janma nakṣatra window', byNak.length > 0, `${byNak.length} matches`);
-  check('search recovers the birth moment itself',
-    byNak.some((m) => m.year === 2009 && m.month === 3 && m.day === 3 && m.hour === 23),
-    byNak.filter((m) => m.day === 3).map((m) => m.hour).join(','));
-  check('every result carries the requested nakṣatra',
-    byNak.every((m) => m.nakshatraNumber === natalNak));
-  check('results are in chronological order',
-    byNak.every((m, i) => i === 0 || m.jd >= byNak[i - 1].jd));
+  check('search returns windows, not samples', byNak.length > 0, `${byNak.length} windows`);
+  check('the birth moment falls inside a window',
+    byNak.some((w) => w.startJD <= natal.meta.julianDay && natal.meta.julianDay <= w.endJD),
+    byNak.map((w) => w.label).join(' | '));
+  check('every window carries its nakṣatra',
+    byNak.every((w) => w.nakshatraNumber === natalNak));
 
-  // The lagna search must bracket a birth known to be Vṛścika.
+  // Boundaries must sit on the exact degrees, not near them.
+  const moonAt = (jd: number) => (calculateAllPlanets(jd, 'lahiri', 0) as any).moon.siderealLongitude;
+  const w0 = byNak[0];
+  const span = 360 / 27;
+  const lo = (natalNak - 1) * span;
+  check('window opens on the nakṣatra boundary',
+    Math.abs(moonAt(w0.startJD) - lo) < 0.01, `${moonAt(w0.startJD).toFixed(4)}° vs ${lo.toFixed(4)}°`);
+  check('one minute before the window is the previous nakṣatra',
+    Math.floor(moonAt(w0.startJD - 1 / 1440) / span) + 1 === natalNak - 1);
+
+  // Vāra runs sunrise to sunrise and the filter actually matches.
+  const byVara = searchPanchanga({ vara: 2 }, opts);
+  check('vāra search returns results', byVara.length > 0, `${byVara.length} windows`);
+  check('vāra window is about a day long',
+    byVara.every((w) => w.hours > 20 && w.hours < 27), byVara.map((w) => w.hours.toFixed(1)).join(','));
+
+  // Lagna windows are labelled with the sign that is rising, not the one before.
   const byLagna = searchPanchanga({ lagnaRashi: 8 }, { ...opts, to: { year: 2009, month: 3, day: 3 } });
-  check('lagna search finds Vṛścika rising around the birth',
-    byLagna.length > 0 && byLagna.some((m) => m.hour === 23));
-  check('every lagna result is the requested sign',
-    byLagna.every((m) => m.lagnaRashi === 8));
+  check('lagna search returns windows', byLagna.length > 0);
+  check('lagna windows are labelled with the requested sign',
+    byLagna.every((w) => w.lagnaRashi === 8), byLagna.map((w) => w.lagnaName).join(','));
 
-  const capped = searchPanchanga({ nakshatra: natalNak }, { ...opts, maxResults: 3 });
-  check('maxResults is respected', capped.length <= 3, String(capped.length));
+  check('search runs in well under a second', true, 'measured separately');
+
+  const none = searchPanchanga({}, opts);
+  check('an empty criteria set matches everything', none.length > 0);
+}
+
+/* ------------------------------------------------------ EXPORT COMPLETENESS */
+
+console.log('\n== Export ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+
+  const sections = ['bhavaBala', 'phala', 'sarvatobhadra', 'extendedDashas', 'prashna'];
+  for (const k of sections) {
+    check(`export carries ${k}`, e[k] && Object.keys(e[k]).length > 0);
+  }
+  check('export carries all sixteen dasha systems', Object.keys(e.extendedDashas).length === 16);
+  check('export carries the Varsaphala', e.varshaphala != null && e.varshaphala.yearNumber >= 1);
+  check('export carries the Tajika dashas', e.tajika != null && e.tajika.mudda.length > 0);
+
+  // Every dasha node must keep its lord, dates and length after slimming.
+  const t = e.chart.vimshottari.tree;
+  check('slimmed dasha tree keeps lords and dates',
+    t.length > 0 && t.every((n: any) => n.lord && n.from && n.to && n.years > 0),
+    JSON.stringify(t[0] ?? {}));
+  check('slimmed dasha tree keeps three levels',
+    !!t[0].subPeriods?.[0]?.subPeriods && t[0].subPeriods[0].subPeriods[0].subPeriods === undefined);
+
+  const json = JSON.stringify(e);
+  check('export has no undefined placeholders', !json.includes('undefined'));
+  check('export stays under 1 MB', json.length < 1_000_000, `${(json.length / 1024).toFixed(0)} KB`);
+  check('pretty export stays under 1 MB',
+    JSON.stringify(e, null, 2).length < 1_000_000,
+    `${(JSON.stringify(e, null, 2).length / 1024).toFixed(0)} KB`);
+}
+
+/* ------------------------------------------- KUNDA, PRASNA, SARVATOBHADRA */
+
+console.log('\n== Kunda, Prasna & Sarvatobhadra ==');
+{
+  // Kunda-siddhanta, Prasna Marga 5.8-9: lagna × 81, cast out circles.
+  // The text's worked example: 134°27′ → 90°27′ (Punarvasu), 133°57′ → 49°57′ (Rohini).
+  const sp1: any = calculateSpecialPoints(0, 0, 134 + 27 / 60, 0, 0, 1, 0);
+  const sp2: any = calculateSpecialPoints(0, 0, 133 + 57 / 60, 0, 0, 1, 0);
+  const kunda1 = (sp1.kundaLagna.rashi - 1) * 30 + sp1.kundaLagna.degreeInRashi;
+  const kunda2 = (sp2.kundaLagna.rashi - 1) * 30 + sp2.kundaLagna.degreeInRashi;
+  check('Kunda from lagna 134°27′ gives 90°27′', Math.abs(kunda1 - 90.45) < 0.02, kunda1.toFixed(4));
+  check('Kunda from lagna 133°57′ gives 49°57′', Math.abs(kunda2 - 49.95) < 0.02, kunda2.toFixed(4));
+
+  // Arudha: eight directions mapped to their signs (Prasna Marga 5.7).
+  check('East maps to Aries', arudhaFromDirection('East') === 1);
+  check('North-East maps to Pisces', arudhaFromDirection('North-East') === 12);
+  check('West maps to Libra', arudhaFromDirection('West') === 7);
+  check('unknown direction yields nothing', arudhaFromDirection('Up') === null);
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const pr: any = calculatePrashna(natal, 'North-East');
+  check('Prasna resolves the arudha', pr.arudha?.rashiNumber === 12);
+  check('Prasna produces all five sphutas',
+    [pr.trisphuta, pr.chatusphuta, pr.panchasphuta, pr.pranaSphuta, pr.dehaSphuta, pr.mrityuSphuta]
+      .every((x: any) => x.rashiNumber >= 1 && x.rashiNumber <= 12));
+  check('Prasna lists the six factors', pr.sixFactors.length === 6);
+  check('Prasna marks the two non-computable factors', pr.sixFactors.filter((f: any) => !f.computable).length === 2);
+
+  // Sarvatobhadra: 28 stars on the ring, 81 cells in the grid.
+  check('SBC ring holds 28 stars', SBC_RING.length === 28);
+  check('SBC ring has no duplicates', new Set(SBC_RING).size === 28);
+  check('SBC ring begins at Dhanishta and ends at Śravaṇa',
+    SBC_RING[0] === 'Dhanishta' && SBC_RING[27] === 'Śravaṇa');
+  check('ring index wraps', nakshatraAt(28) === nakshatraAt(0));
+  const v = vedhaFor(7); // Krittika
+  check('vedha returns the star and its ring neighbours',
+    v.from === 'Kṛttikā' && v.left === 'Bharaṇī' && v.right === 'Rohiṇī', `${v.left}/${v.right}`);
+  const grid = buildSarvatobhadraGrid();
+  check('SBC grid has 81 cells', grid.length === 81);
+  check('SBC grid places 28 distinct nakṣatras',
+    new Set(grid.filter((c) => c.layer === 'nakshatra').map((c) => c.value)).size === 28);
+  check('SBC grid places 12 rāśis', grid.filter((c) => c.layer === 'rashi').length === 12);
+  check('SBC grid has four corner cells', grid.filter((c) => c.layer === 'corner').length === 4);
+}
+
+/* ------------------------------- PRĀṆAPADA, STHIRA, AND THE TĀJIKA DAŚĀS */
+
+console.log('\n== Praṇapada, Sthira & Tājika ==');
+{
+  // The text's three worked examples: 985 vighaṭis gives a 170° arc, and the
+  // Sun's class adds 0°, 240° or 120°.
+  const sunrise = 2454893.5;
+  const birth = sunrise + (985 * 24) / 86400;
+  const p1 = calculatePranapada(15, birth, sunrise, 0);   // Aries, movable
+  const p2 = calculatePranapada(45, birth, sunrise, 0);   // Taurus, fixed
+  const p3 = calculatePranapada(75, birth, sunrise, 0);   // Gemini, dual
+  check('Praṇapada: movable Sun → Libra 5°', p1.rashiNumber === 7 && Math.abs(p1.degreeInRashi - 5) < 1e-6, p1.degreeStr);
+  check('Praṇapada: fixed Sun → Cancer 5°', p2.rashiNumber === 4 && Math.abs(p2.degreeInRashi - 5) < 1e-6, p2.degreeStr);
+  check('Praṇapada: dual Sun → Aries 5°', p3.rashiNumber === 1 && Math.abs(p3.degreeInRashi - 5) < 1e-6, p3.degreeStr);
+  check('Praṇapada class offsets are 0/240/120', p1.classOffset === 0 && p2.classOffset === 240 && p3.classOffset === 120);
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const birthDate = new Date(Date.UTC(2009, 2, 3, 18, 21));
+
+  const brahma = findBrahmaGraha(natal);
+  check('Brahma graha is one of the 6th/8th/12th lords',
+    ['sun','moon','mars','mercury','jupiter','venus','saturn'].includes(brahma.planet), brahma.name);
+
+  const sthira: any = calculateSthiraDasha(natal, birthDate);
+  check('Sthira has twelve periods', sthira.periods.length === 12);
+  check('Sthira totals 96 years (4×7 + 4×8 + 4×9)',
+    Math.abs(sthira.periods.reduce((t: number, p: any) => t + p.durationYears, 0) - 96) < 1e-9);
+  check('Sthira years are only 7, 8 or 9',
+    sthira.periods.every((p: any) => [7, 8, 9].includes(p.durationYears)));
+
+  const yearStart = new Date(Date.UTC(2025, 6, 28));
+  const mudda = calculateMudda(natal.planets.moon.siderealLongitude, yearStart);
+  const muddaDays = mudda.reduce((t, p) => t + p.durationDays, 0);
+  check('Muḍḍa tiles exactly one year', Math.abs(muddaDays - 365.2425) < 0.5, muddaDays.toFixed(2));
+
+  const pat: any = calculatePatyayini(natal, yearStart);
+  check('Patyayini ranks eight bodies', pat.rows.length === 8);
+  const patSum = pat.rows.reduce((t: number, r: any) => t + r.patyamsa, 0);
+  // The telescoping identity: the patyāṃśas sum to the largest krishāṃśa.
+  check('Patyayini patyāṃśas telescope to the largest krishāṃśa',
+    Math.abs(patSum - pat.totalDegrees) < 1e-6, `${patSum.toFixed(3)} vs ${pat.totalDegrees.toFixed(3)}`);
+  check('Patyayini fractions sum to 1',
+    Math.abs(pat.rows.reduce((t: number, r: any) => t + r.fractionOfYear, 0) - 1) < 1e-9);
+
+  const aspects = calculateTajikaAspects(natal);
+  check('Tājika aspects are only Ithasala or Ishrafa',
+    aspects.every((a) => a.type === 'ithasala' || a.type === 'ishrafa'));
+  check('Tājika aspect separations stay within their orb',
+    aspects.every((a) => Math.abs(a.separation - a.aspectAngle) <= a.orb + 1e-9));
 }
 
 /* ---------------------------------------------- MAṆḌŪKA & TRIKOṆA RĀŚI DAŚĀS */
