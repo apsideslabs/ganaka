@@ -303,7 +303,8 @@ export type ExtendedVargaId =
   | 'D11'
   | 'D81'
   | 'D108'
-  | 'D144';
+  | 'D144'
+  | 'D150';
 
 export type VargaId = StandardVargaId | ExtendedVargaId;
 
