@@ -18,7 +18,13 @@ export type ExtendedDashaSystemId =
   | 'chara'
   | 'narayana'
   | 'shula'
-  | 'drg';
+  | 'drg'
+  | 'shodashottari'
+  | 'dwadashottari'
+  | 'panchottari'
+  | 'shatabdika'
+  | 'chaturashiti'
+  | 'dwisaptati';
 
 export type DashaClassification = 'nakshatra_planetary' | 'raasi_jaimini';
 
