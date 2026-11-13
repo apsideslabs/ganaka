@@ -167,6 +167,15 @@ const S = StyleSheet.create({
   glanceValue: { fontSize: 9.4, color: INK },
   rule: { height: 0.5, backgroundColor: RULE, marginBottom: 7 },
 
+  barRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2.6 },
+  barLabel: { width: 62, fontSize: 7.4, color: INK },
+  barTrack: { flex: 1, height: 7, backgroundColor: '#F1EADC', borderRadius: 1.5, marginRight: 6 },
+  barFill: { height: 7, backgroundColor: ACCENT, borderRadius: 1.5, opacity: 0.85 },
+  barValue: { width: 42, fontSize: 7, color: MUTED, textAlign: 'right' },
+
+  timelineTrack: { flexDirection: 'row', height: 12, borderRadius: 2, overflow: 'hidden' },
+  timelineKey: { fontSize: 6.2, color: MUTED, marginRight: 8 },
+
   /* tables */
   tHead: { flexDirection: 'row', backgroundColor: BAND, borderTopWidth: 0.6, borderTopColor: ACCENT, paddingVertical: 3.4 },
   tRow: { flexDirection: 'row', borderBottomWidth: 0.3, borderBottomColor: RULE, paddingVertical: 3.2 },
@@ -237,6 +246,83 @@ const S = StyleSheet.create({
 });
 
 /* ------------------------------------------------------------- sub-components */
+
+
+/**
+ * A horizontal strength bar.
+ *
+ * Several chapters were tables of bare numbers — Bhāva Bala, Śaḍbala, the
+ * daśā lengths. A reader cannot compare a column of figures at a glance; a bar
+ * shows the ranking immediately. Drawn with Views rather than SVG because a
+ * rectangle with a width percentage is cheaper and stays crisp.
+ */
+function StrengthBars({
+  rows,
+  max,
+  unit = '',
+}: {
+  rows: Array<{ label: string; value: number; note?: string }>;
+  max?: number;
+  unit?: string;
+}) {
+  const top = max ?? Math.max(...rows.map((r) => r.value), 1);
+  return (
+    <View style={{ marginTop: 2 }}>
+      {rows.map((r, i) => (
+        <View key={i} style={S.barRow} wrap={false}>
+          <Text style={S.barLabel}>{clean(r.label)}</Text>
+          <View style={S.barTrack}>
+            <View
+              style={[
+                S.barFill,
+                { width: `${Math.max(1, Math.min(100, (r.value / top) * 100))}%` },
+              ]}
+            />
+          </View>
+          <Text style={S.barValue}>
+            {r.value.toFixed(1)}{unit}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * A proportional timeline. Used for the daśā sequence so the reader can see how
+ * much of a life each period claims before reading any dates.
+ */
+function Timeline({
+  segments,
+}: {
+  segments: Array<{ label: string; weight: number; ink?: string }>;
+}) {
+  const total = segments.reduce((t, x) => t + x.weight, 0) || 1;
+  return (
+    <View style={{ marginTop: 4, marginBottom: 8 }}>
+      <View style={S.timelineTrack}>
+        {segments.map((x, i) => (
+          <View
+            key={i}
+            style={{
+              width: `${(x.weight / total) * 100}%`,
+              height: 12,
+              backgroundColor: x.ink || ACCENT,
+              opacity: 0.55 + (i % 3) * 0.15,
+            }}
+          />
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 3 }}>
+        {segments.map((x, i) => (
+          <Text key={i} style={S.timelineKey}>
+            {clean(x.label)} {x.weight.toFixed(1)}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+}
 
 function RunningHead({ chapter, identity }: { chapter: string; identity: string }) {
   return (
@@ -957,6 +1043,17 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             ];
           })}
         />
+
+        <SubTitle>Total Strength in Virūpas</SubTitle>
+        <StrengthBars
+          rows={PLANETS.slice(0, 7).map((id) => ({
+            label: GRAHA[id]?.name || id,
+            value: Number((chart.shadbala as any)?.[id]?.totalVirupas ?? 0),
+          }))}
+        />
+        <Text style={{ fontSize: 6.8, color: MUTED, marginTop: 3 }}>
+          Bars are scaled to the strongest graha. The required minimum for each is in the table above.
+        </Text>
       </Page>
 
 
@@ -992,6 +1089,13 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
                 r.totalVirupas.toFixed(1),
                 r.totalRupas.toFixed(2),
               ])}
+            />
+            <SubTitle>House Strength in Virūpas</SubTitle>
+            <StrengthBars
+              rows={Object.entries(bhavaBala).map(([h, r]: any) => ({
+                label: `House ${h}`,
+                value: r.totalVirupas,
+              }))}
             />
           </>
         )}
@@ -1098,6 +1202,21 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
               r.currentPeriod?.majorPeriod?.name || '—',
             ])}
           />
+
+          {tree.length > 0 && (
+            <>
+              <SubTitle>Viṃśottarī — how a life divides</SubTitle>
+              <Timeline
+                segments={tree.map((n: any) => ({
+                  label: (n.lordName || n.name || '').split(' ')[0],
+                  weight: Number(n.durationYears ?? 0),
+                }))}
+              />
+              <Text style={{ fontSize: 6.8, color: MUTED }}>
+                Each segment is one mahādaśā, its width proportional to its length in years.
+              </Text>
+            </>
+          )}
         </Page>
       )}
 
