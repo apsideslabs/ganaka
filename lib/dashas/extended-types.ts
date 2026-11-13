@@ -26,7 +26,8 @@ export type ExtendedDashaSystemId =
   | 'chaturashiti'
   | 'dwisaptati'
   | 'mandooka'
-  | 'trikona';
+  | 'trikona'
+  | 'sthira';
 
 export type DashaClassification = 'nakshatra_planetary' | 'raasi_jaimini';
 
