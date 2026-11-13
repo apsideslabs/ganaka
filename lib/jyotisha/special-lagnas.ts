@@ -81,6 +81,34 @@ export function calculateSpecialPoints(
   const gulikaLong = normalizeDegrees(sunLongitude + gulikaGhatis * 30.0);
   const mandiLong = normalizeDegrees(gulikaLong + 1.875 * 15.0);
 
+  // 8. Varṇada Lagna (BPHS 5.10-13). Count to the lagna: forwards from Aries
+  //    for an odd sign, backwards from Pisces for an even one. Do the same for
+  //    the Horā Lagna. Add when the two figures share a class, take the
+  //    difference when they do not — and since every figure the count can
+  //    produce is odd, the sum branch is the one that fires. Count the result
+  //    out again by its own parity: odd forwards from Aries, even backwards
+  //    from Pisces.
+  //
+  //    Two English recensions of this verse differ on the last two steps, and
+  //    the Jaimini Sutra note subtracts in every case instead. This follows the
+  //    Parāśara/Santhanam reading, which reproduces the one worked example the
+  //    text gives (Libra lagna, Scorpio horā lagna → Aries).
+  const countTo = (rashi: number): number => {
+    const r = ((rashi - 1) % 12) + 1;
+    return r % 2 === 1 ? r : 13 - r;
+  };
+  const varnadaFigureForLagna = countTo(Math.floor(lagnaLongitude / 30) + 1);
+  const varnadaFigureForHora = countTo(Math.floor(horaLagnaLong / 30) + 1);
+  const sameClass =
+    varnadaFigureForLagna % 2 === varnadaFigureForHora % 2;
+  const combined = sameClass
+    ? varnadaFigureForLagna + varnadaFigureForHora
+    : Math.abs(varnadaFigureForLagna - varnadaFigureForHora);
+  const combinedSign = ((combined - 1) % 12 + 12) % 12 + 1;
+  const varnadaRashi =
+    combinedSign % 2 === 1 ? combinedSign : 13 - combinedSign;
+  const varnadaLagnaLong = (varnadaRashi - 1) * 30;
+
   function makePoint(deg: number) {
     const rashi = (Math.floor(deg / 30) + 1) as RashiNumber;
     const degInRashi = deg % 30;
@@ -104,6 +132,7 @@ export function calculateSpecialPoints(
     horaLagna: makePoint(horaLagnaLong),
     ghatiLagna: makePoint(ghatiLagnaLong),
     shreeLagna: makePoint(shreeLagnaLong),
+    varnadaLagna: makePoint(varnadaLagnaLong),
     induLagna: makePoint(induLagnaLong),
   };
 }
