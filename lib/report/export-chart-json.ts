@@ -43,6 +43,9 @@ export interface GanakaChartExport {
     ayanamshaValue: number;
     ayanamshaFormatted: string;
     houseSystem: string;
+    /** Mean or true lunar node — the checklist requires this be recorded. */
+    nodeType: 'mean' | 'true';
+    jaiminiScheme: '7_karaka' | '8_karaka';
     julianDay: number;
     engineVersion: string;
     calculatedAt: string;
