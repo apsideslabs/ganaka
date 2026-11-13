@@ -87,9 +87,16 @@ function wrap(deg: number): number {
   return ((deg % 360) + 360) % 360;
 }
 
-/** Smooth in-and-out, so each hand settles rather than snapping. */
+/**
+ * Cosine in-and-out.
+ *
+ * The cubic curve used before peaked at twice the average speed in the middle
+ * of every sweep, so a 120° arc crossed in 1.4s read as a flick. The cosine
+ * curve peaks at 1.57×, which is steady enough to follow while still easing
+ * into the stop rather than hitting it.
+ */
 function easeInOut(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return 0.5 - 0.5 * Math.cos(Math.PI * t);
 }
 
 function polar(r: number, deg: number): [number, number] {
@@ -136,7 +143,7 @@ export function AnalogClockDial({
   subtitle,
   className = '',
   size = 'md',
-  handDuration = 1400,
+  handDuration = 1800,
   onComplete,
 }: AnalogClockDialProps) {
   const [angles, setAngles] = useState<HandAngles>(() => anglesFor(targetTime ?? new Date()));
@@ -182,8 +189,17 @@ export function AnalogClockDial({
       if (elapsed >= total) {
         setAngles(to);
         setSettled(true);
-        rafRef.current = null;
         onComplete?.();
+
+        // The dial has landed on the birth moment. It must not sit frozen while
+        // the workspace loads — a stopped clock reads as broken. Carry the
+        // second hand forward from the target so the instrument stays alive.
+        const settledAt = performance.now();
+        const tick = (t2: number) => {
+          setAngles(anglesFor(new Date(targetTime.getTime() + (t2 - settledAt))));
+          rafRef.current = requestAnimationFrame(tick);
+        };
+        rafRef.current = requestAnimationFrame(tick);
         return;
       }
 
