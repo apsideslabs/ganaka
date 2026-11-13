@@ -28,6 +28,8 @@ import { searchPanchanga } from '../lib/jyotisha/reverse-panchanga';
 import { calculatePranapada } from '../lib/jyotisha/pranapada';
 import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sthira';
 import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
+import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
+import { SBC_RING, nakshatraAt, vedhaFor, buildSarvatobhadraGrid } from '../lib/jyotisha/sarvatobhadra';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
@@ -453,6 +455,51 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------- KUNDA, PRASNA, SARVATOBHADRA */
+
+console.log('\n== Kunda, Prasna & Sarvatobhadra ==');
+{
+  // Kunda-siddhanta, Prasna Marga 5.8-9: lagna × 81, cast out circles.
+  // The text's worked example: 134°27′ → 90°27′ (Punarvasu), 133°57′ → 49°57′ (Rohini).
+  const sp1: any = calculateSpecialPoints(0, 0, 134 + 27 / 60, 0, 0, 1, 0);
+  const sp2: any = calculateSpecialPoints(0, 0, 133 + 57 / 60, 0, 0, 1, 0);
+  const kunda1 = (sp1.kundaLagna.rashi - 1) * 30 + sp1.kundaLagna.degreeInRashi;
+  const kunda2 = (sp2.kundaLagna.rashi - 1) * 30 + sp2.kundaLagna.degreeInRashi;
+  check('Kunda from lagna 134°27′ gives 90°27′', Math.abs(kunda1 - 90.45) < 0.02, kunda1.toFixed(4));
+  check('Kunda from lagna 133°57′ gives 49°57′', Math.abs(kunda2 - 49.95) < 0.02, kunda2.toFixed(4));
+
+  // Arudha: eight directions mapped to their signs (Prasna Marga 5.7).
+  check('East maps to Aries', arudhaFromDirection('East') === 1);
+  check('North-East maps to Pisces', arudhaFromDirection('North-East') === 12);
+  check('West maps to Libra', arudhaFromDirection('West') === 7);
+  check('unknown direction yields nothing', arudhaFromDirection('Up') === null);
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const pr: any = calculatePrashna(natal, 'North-East');
+  check('Prasna resolves the arudha', pr.arudha?.rashiNumber === 12);
+  check('Prasna produces all five sphutas',
+    [pr.trisphuta, pr.chatusphuta, pr.panchasphuta, pr.pranaSphuta, pr.dehaSphuta, pr.mrityuSphuta]
+      .every((x: any) => x.rashiNumber >= 1 && x.rashiNumber <= 12));
+  check('Prasna lists the six factors', pr.sixFactors.length === 6);
+  check('Prasna marks the two non-computable factors', pr.sixFactors.filter((f: any) => !f.computable).length === 2);
+
+  // Sarvatobhadra: 28 stars on the ring, 81 cells in the grid.
+  check('SBC ring holds 28 stars', SBC_RING.length === 28);
+  check('SBC ring has no duplicates', new Set(SBC_RING).size === 28);
+  check('SBC ring begins at Dhanishta and ends at Śravaṇa',
+    SBC_RING[0] === 'Dhanishta' && SBC_RING[27] === 'Śravaṇa');
+  check('ring index wraps', nakshatraAt(28) === nakshatraAt(0));
+  const v = vedhaFor(7); // Krittika
+  check('vedha returns the star and its ring neighbours',
+    v.from === 'Kṛttikā' && v.left === 'Bharaṇī' && v.right === 'Rohiṇī', `${v.left}/${v.right}`);
+  const grid = buildSarvatobhadraGrid();
+  check('SBC grid has 81 cells', grid.length === 81);
+  check('SBC grid places 28 distinct nakṣatras',
+    new Set(grid.filter((c) => c.layer === 'nakshatra').map((c) => c.value)).size === 28);
+  check('SBC grid places 12 rāśis', grid.filter((c) => c.layer === 'rashi').length === 12);
+  check('SBC grid has four corner cells', grid.filter((c) => c.layer === 'corner').length === 4);
 }
 
 /* ------------------------------- PRĀṆAPADA, STHIRA, AND THE TĀJIKA DAŚĀS */
