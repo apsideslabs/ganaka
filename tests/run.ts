@@ -30,6 +30,8 @@ import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sth
 import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
 import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
+import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
+import { offsetForZone } from '../lib/astronomy/city-index';
 import { SBC_RING, nakshatraAt, vedhaFor, buildSarvatobhadraGrid } from '../lib/jyotisha/sarvatobhadra';
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
@@ -456,6 +458,59 @@ console.log('\n== Node convention ==');
   const defaultChart: any = calculateFullJyotishaChart(nodeBirth);
   check('default node is mean',
     Math.abs(defaultChart.planets.rahu.siderealLongitude - meanRahu) < 1e-9);
+}
+
+/* ------------------------------------------- HISTORICAL TZ & TIME SENSITIVITY */
+
+console.log('\n== Time zone & birth-time sensitivity ==');
+{
+  // India has had no daylight saving since 1945, but it ran UTC+6:30 during
+  // the war, and Britain ran permanent UTC+1 from Oct 1968 to Oct 1971.
+  check('IST 2009 resolves to +5:30', offsetForZone('Asia/Kolkata', 2009, 3, 3) === 5.5);
+  check('IST 1942 resolves to +6:30 (wartime)',
+    offsetForZone('Asia/Kolkata', 1942, 9, 1) === 6.5, String(offsetForZone('Asia/Kolkata', 1942, 9, 1)));
+  check('London July 1970 resolves to +1 (permanent BST)',
+    offsetForZone('Europe/London', 1970, 7, 15) === 1);
+  check('London January 1970 also +1 — the same experiment',
+    offsetForZone('Europe/London', 1970, 1, 15) === 1, String(offsetForZone('Europe/London', 1970, 1, 15)));
+  check('London January 1980 resolves to 0',
+    offsetForZone('Europe/London', 1980, 1, 15) === 0);
+  check('New York July resolves to -4, January to -5',
+    offsetForZone('America/New_York', 1980, 7, 4) === -4 &&
+    offsetForZone('America/New_York', 1980, 1, 4) === -5);
+
+  // Sensitivity: every verdict must come from two real calculations.
+  const f = FIXTURES[0].birth as any;
+  const rep: any = assessTimeSensitivity({
+    year: f.year, month: f.month, day: f.day, hour: f.hour, minute: f.minute, second: f.second,
+    latitude: f.latitude, longitude: f.longitude, timezoneOffsetHours: f.timezoneOffsetHours,
+  } as any, 5);
+
+  check('sensitivity reports every compared output',
+    rep.stable.length + rep.unstable.length >= 9,
+    `${rep.stable.length} stable + ${rep.unstable.length} unstable`);
+  check('a one-minute window is at least as stable as a five-minute one',
+    assessTimeSensitivity({
+      year: f.year, month: f.month, day: f.day, hour: f.hour, minute: f.minute, second: f.second,
+      latitude: f.latitude, longitude: f.longitude, timezoneOffsetHours: f.timezoneOffsetHours,
+    } as any, 1).unstable.length <= rep.unstable.length);
+  check('sensitivity gives a distance to the next lagna sign change',
+    rep.minutesToLagnaChange != null && rep.minutesToLagnaChange > 0 && rep.minutesToLagnaChange <= 130,
+    String(rep.minutesToLagnaChange));
+  check('varga outputs are actually read, not silently blank',
+    rep.stable.concat(rep.unstable.map((u: any) => u.label)).some((l: string) => l.startsWith('D-9')),
+    rep.unstable.map((u: any) => u.label).join(','));
+  // The Baghmara chart's lagna sits 0.97° before a navāṃśa boundary — about
+  // four minutes — so D-9 must move across a five-minute window there.
+  const baghmara: any = assessTimeSensitivity({
+    year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0,
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
+  } as any, 5);
+  check('the Baghmara D-9 lagna moves at ±5 min',
+    baghmara.unstable.some((u: any) => u.label === 'D-9 lagna'),
+    baghmara.unstable.map((u: any) => u.label).join(','));
+  check('the Baghmara lagna sign itself does not move at ±5 min',
+    baghmara.stable.includes('Lagna rāśi'));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
