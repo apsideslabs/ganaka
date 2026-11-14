@@ -338,9 +338,15 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
   return (
     <svg
       ref={svgRef}
+      // Required for a standalone export: without the namespace a saved .svg is
+      // not recognised as SVG by strict parsers (cairosvg, Illustrator, print
+      // pipelines), and every label renders as tofu boxes.
+      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 600 600"
       className="w-full h-full select-none"
-      style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision' }}
+      // textRendering:geometricPrecision disables font shaping in several SVG
+      // consumers, which is the other half of the tofu problem on export.
+      style={{ shapeRendering: 'geometricPrecision' }}
     >
       <defs>
         {/* Clip paths for every house to physically prevent any text from crossing boundaries */}
@@ -399,7 +405,6 @@ export const NorthIndianSVG: React.FC<NorthIndianSVGProps> = ({
               fill={isSelected ? '#FBEDE7' : isKendra ? '#FAF4E8' : '#FFFDF8'}
               stroke="#5A5045"
               strokeWidth="2"
-              className="hover:fill-[#F6EEE0]"
             />
           </g>
         );
