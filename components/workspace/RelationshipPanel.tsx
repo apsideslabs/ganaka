@@ -11,6 +11,7 @@
 import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { Info, Users, Sparkles, Grid3x3 } from 'lucide-react';
+import { calculateRelationshipMatrix } from '@/lib/jyotisha/relationships';
 
 interface RelationshipPanelProps {
   chart: JyotishaChart;
@@ -27,7 +28,16 @@ const GRADE_INK: Record<string, string> = {
 export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) => {
   const [tab, setTab] = useState<'dispositors' | 'matrix' | 'attributes'>('dispositors');
 
-  const rel: any = (chart as any).relationships;
+  /**
+   * Which divisional chart the temporal and compound readings are taken from.
+   *
+   * Natural friendship never changes — it is fixed by the planetary cabinet.
+   * Temporal friendship is the sign distance between the two grahas, so it does
+   * change with the varga, and the compound verdict changes with it.
+   */
+  const [varga, setVarga] = useState<string>('D1');
+
+  const rel: any = useMemo(() => calculateRelationshipMatrix(chart, varga), [chart, varga]);
   const dispositors: any[] = (chart as any).dispositorRelations || [];
   const attrs: any = (chart as any).attributes;
 
@@ -131,9 +141,26 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
 
       {tab === 'matrix' && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs overflow-x-auto">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
-            Compound relation of each graha to every other
-          </h3>
+          <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+              Compound relation of each graha to every other
+            </h3>
+            <div className="flex items-center gap-2">
+              <label htmlFor="rel-varga" className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                Chart
+              </label>
+              <select
+                id="rel-varga"
+                value={varga}
+                onChange={(e) => setVarga(e.target.value)}
+                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white text-slate-700"
+              >
+                {['D1', 'D2', 'D3', 'D4', 'D7', 'D9', 'D10', 'D12', 'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'].map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+          </div>
           <table className="w-full text-[10px]">
             <thead>
               <tr className="border-b border-slate-200">
@@ -206,7 +233,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p className="text-[11px] text-slate-500 leading-relaxed">
           {attrs?.note ||
-            'Natural friendship is fixed by the planetary cabinet; temporal friendship comes from the house distance between the two grahas in this chart; the compound reading is the two combined.'}
+            'Natural friendship is fixed by the planetary cabinet and never changes; temporal friendship comes from the sign distance between the two grahas in the chart selected above; the compound reading is the two combined. Astrologers differ on two points: whether the compound verdict should be read from the rāśi or from a divisional chart, and whether the cabinet should follow the Parāśarī or the Jaimini table — the two disagree on a handful of pairs. Switch the varga above to see how far the temporal reading moves.'}
         </p>
       </div>
     </div>
