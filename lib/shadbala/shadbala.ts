@@ -9,12 +9,16 @@
  * Dṛg Bala used Math.random(). Both are gone. Every term below is either
  * computed from the chart or explicitly zero with a note saying why.
  *
- * Still approximated, and marked as such in the code:
- *   - Ceṣṭā Bala uses a motion-state classification rather than the classical
- *     seeghrocha (mean minus true anomaly) method, because the mean-longitude
- *     elements needed for it are not exposed by the ephemeris module.
- *   - Yuddha Bala (planetary war) is not implemented; it applies only when two
- *     planets are within one degree and is omitted rather than guessed.
+ * Both of the approximations this header used to declare have since been
+ * implemented, so the note is corrected rather than left to mislead:
+ *
+ *   - Ceṣṭā Bala uses the classical seeghrocha construction — see
+ *     `chestaBalaFromKendra`, which takes the mean longitude, the true tropical
+ *     longitude and the seeghrocha and returns the arc ÷ 3. The motion-state
+ *     fallback survives only for callers that pass no Julian Day.
+ *   - Yuddha Bala (planetary war) is computed at step 7, for the five tārā
+ *     grahas within one degree, with the victor gaining and the vanquished
+ *     losing the difference so the adjustments net to zero.
  */
 
 import { PlanetId } from '../astronomy/ephemeris';
