@@ -24,7 +24,7 @@
  */
 import type { JyotishaChart, PlanetId } from '../jyotisha/types';
 import { buildKpCusps, cuspLord, type KpCusp } from './cusps';
-import { significatorsOf, nodeAgency, type SignificatorsResult } from './significators';
+import { significatorsOf, nodeAgency, type SignificatorsResult, type NodeAgent } from './significators';
 import { rulingPlanetsForChart, type RulingPlanetsResult } from './ruling-planets';
 import { evaluateCuspPromise, cuspalInterlinks, type CuspPromiseResult, type CuspInterlink } from './promise';
 import { kpTiming, type KpTimingResult } from './timing';
@@ -50,8 +50,8 @@ export interface KpLayer {
   interlinks: CuspInterlink[];
   /** Timing for the primary house of each matter. */
   timing: Record<string, KpTimingResult>;
-  /** Nodes acting as agents of the grahas they associate with. */
-  nodeAgents: Array<{ node: PlanetId; agentOf: PlanetId }>;
+  /** Nodes acting as agents of the grahas they represent, with the basis. */
+  nodeAgents: NodeAgent[];
   /** Fruitful / semi-fruitful / barren sign of each house. */
   fertility: Record<number, string>;
 }
