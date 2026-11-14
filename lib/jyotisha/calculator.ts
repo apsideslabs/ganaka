@@ -123,7 +123,9 @@ export function clearChartCache(): void {
  * speed the rest of the engine expects for retrogradation.
  */
 function siddhanticPlanetPositions(jd: number): Record<string, { siderealLongitude: number; [k: string]: unknown }> {
-  const ss = suryaSiddhantaPositions(jd, false);
+  // The bīja-corrected counts are the documented tradition (Burgess, from the
+  // Makaranda tables), so they are what the mode uses by default.
+  const ss = suryaSiddhantaPositions(jd, true);
   const modern = calculateAllPlanets(jd, 'lahiri', 0);
   const out: Record<string, { siderealLongitude: number; [k: string]: unknown }> = {};
   for (const [id, lon] of Object.entries(ss)) {
