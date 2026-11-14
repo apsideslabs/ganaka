@@ -29,6 +29,7 @@ import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
+import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -757,6 +758,9 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       maxResults: 40,
     });
   }) || [];
+  const doubleTransit: any = safe(() =>
+    calculateDoubleTransit(chart.lagna.rashiNumber, new Date(), (chart.meta as any).ayanamshaType));
+  const argalaList: any[] = ((chart as any).argala || []);
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -887,8 +891,9 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             { label: 'Pada', width: 8, align: 'center' },
             { label: 'Bhāva', width: 9, align: 'center' },
             { label: 'State', width: 11 },
-            { label: 'Avasthā', width: 13 },
-            { label: 'Sāyana', width: 12, align: 'right' },
+            { label: 'Bālādi', width: 11 },
+            { label: 'Lajjitādi', width: 12 },
+            { label: 'Sāyana', width: 11, align: 'right' },
           ]}
           rows={PLANETS.map((id) => {
             const p: any = (chart.planets as any)[id];
@@ -906,6 +911,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
               state,
               // Bālādi avasthā, the state the texts read strength from.
               String(p.avasthas?.baladi ?? '—').split(' ')[0],
+              String(p.avasthas?.lajjitadi ?? '—').split(' ')[0],
               // Sāyana — the tropical longitude, before the ayanāṃśa is removed.
               typeof p.tropicalLongitude === 'number' ? `${p.tropicalLongitude.toFixed(2)}°` : '—',
             ];
@@ -1171,7 +1177,9 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
                 { label: 'Saptavarga', width: 18, align: 'right' },
                 { label: 'Daśavarga', width: 17, align: 'right' },
                 { label: 'Ṣoḍaśavarga', width: 17, align: 'right' },
-                { label: 'Rating', width: 12, align: 'right' },
+                { label: 'Rating', width: 10, align: 'right' },
+                { label: 'Band', width: 15 },
+                { label: 'Grade', width: 12 },
               ]}
               rows={(Array.isArray(vimshopaka) ? vimshopaka : []).map((v: any) => {
                 const f = (n: any) => (typeof n === 'number' ? n.toFixed(2) : '—');
@@ -1182,6 +1190,8 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
                   f(v.dashavargaScore),
                   f(v.shodashavargaScore),
                   typeof v.percentageRating === 'number' ? `${v.percentageRating}` : '—',
+                  v.band || '—',
+                  v.namedGrade || '—',
                 ];
               })}
             />
@@ -1325,6 +1335,46 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             elongation and testing the Moon’s ecliptic latitude at each syzygy. Dates are local
             to the birth place.
           </Text>
+          {doubleTransit?.houses?.length > 0 && (
+            <>
+              <SubTitle>Jupiter–Saturn Double Transit</SubTitle>
+              <Text style={{ fontSize: 7.2, color: MUTED, marginBottom: 5 }}>
+                {`As of ${doubleTransit.transitDateStr}. A house is doubly activated when transiting Jupiter ` +
+                 `(5th, 7th, 9th from itself) and transiting Saturn (3rd, 7th, 10th) both reach it.`}
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+                {doubleTransit.houses.filter((h: any) => h.active).map((h: any) => (
+                  <Text key={h.house} style={{ fontSize: 8, color: ACCENT, marginRight: 12 }}>
+                    {`House ${h.house} — ${h.detail}`}
+                  </Text>
+                ))}
+                {doubleTransit.activeHouses.length === 0 && (
+                  <Text style={{ fontSize: 8, color: MUTED }}>No house carries a double transit today.</Text>
+                )}
+              </View>
+            </>
+          )}
+
+          {argalaList.length > 0 && (
+            <>
+              <SubTitle>Jaimini Argalā &amp; Virodhārgalā</SubTitle>
+              <Table
+                cols={[
+                  { label: 'Reference', width: 22 },
+                  { label: 'Argala', width: 26 },
+                  { label: 'Obstruction', width: 26 },
+                  { label: 'Status', width: 26 },
+                ]}
+                rows={argalaList.map((a: any) => [
+                  `${a.argalaType} — house ${a.houseFromLagna}`,
+                  (a.argalaPlanets || []).length ? a.argalaPlanets.map((x: string) => GRAHA[x]?.short || x).join(' ') : '—',
+                  `${a.virodhaHouse}: ${(a.virodhaPlanets || []).map((x: string) => GRAHA[x]?.short || x).join(' ') || '—'}`,
+                  a.status,
+                ])}
+              />
+            </>
+          )}
+
           <Table
             cols={[
               { label: 'Type', width: 12 },
