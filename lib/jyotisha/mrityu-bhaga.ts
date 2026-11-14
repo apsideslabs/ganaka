@@ -21,11 +21,30 @@ import { GRAHA_PROPERTIES, RASHIS } from './constants';
 
 export type MrityuRecension = 'jataka_parijata' | 'phaladipika';
 
+/**
+ * How "the 18th degree" is read — and the sources do not agree.
+ *
+ *   'portion'  the classical reading: the nth degree is the portion from
+ *              (n−1)° to n°, because a bhāga is a part, not a point. "18th
+ *              degree" is 17°–18°. This follows from the trimsamsa the degree
+ *              falls in, so the boundaries sit on whole degrees.
+ *   'point'    K. S. Charak's medical-astrology reading: the degree is a point,
+ *              taken with half a degree either side — 17°30′–18°30′.
+ *
+ * The two overlap most of the time, which is why both appear to work. They part
+ * company near a boundary, and at the 30th degree Charak's reading runs past the
+ * end of the sign. Default is 'portion' — it is the older and the internally
+ * consistent reading.
+ */
+export type MrityuInterpretation = 'portion' | 'point';
+
 /** Degrees within each sign, Aries first. */
 const TABLE: Record<string, Record<MrityuRecension, number[]>> = {
   ascendant: {
+    // Kausika Hora gives Gemini 21 where the others give 22 — the only cell on
+    // which the Lagna row differs.
     jataka_parijata: [1, 9, 22, 22, 25, 2, 4, 23, 18, 20, 24, 10],
-    phaladipika: [1, 9, 22, 22, 25, 2, 4, 23, 18, 20, 24, 10],
+    phaladipika: [1, 9, 21, 22, 25, 2, 4, 23, 18, 20, 24, 10],
   },
   sun: {
     jataka_parijata: [20, 9, 12, 6, 8, 24, 16, 17, 22, 2, 3, 23],
@@ -87,12 +106,16 @@ export interface MrityuBhagaRow {
   criticalDegree: number;
   /** Signed distance in arcminutes from the critical degree. */
   deltaMinutes: number;
+  /** The band actually in force, in degrees within the sign. */
+  bandFrom: number;
+  bandTo: number;
   withinOrb: boolean;
   orbMinutes: number;
 }
 
 export interface MrityuBhagaResult {
   recension: MrityuRecension;
+  interpretation: MrityuInterpretation;
   rows: MrityuBhagaRow[];
   /** Only the bodies actually sitting on their degree. */
   affected: MrityuBhagaRow[];
@@ -119,7 +142,8 @@ const signDelta = (a: number, b: number): number => {
  */
 export function calculateMrityuBhaga(
   chart: JyotishaChart,
-  recension: MrityuRecension = 'jataka_parijata'
+  recension: MrityuRecension = 'jataka_parijata',
+  interpretation: MrityuInterpretation = 'portion'
 ): MrityuBhagaResult {
   const rows: MrityuBhagaRow[] = [];
 
@@ -133,6 +157,23 @@ export function calculateMrityuBhaga(
     const deltaMinutes = deltaDeg * 60;
     const orb = ORB_MINUTES[body] ?? 30;
 
+    // 'portion' — the nth degree spans (n−1)° to n°. 'point' — the degree plus
+    // the body's orb either side.
+    let bandFrom: number;
+    let bandTo: number;
+    if (interpretation === 'portion') {
+      bandFrom = Math.max(0, critical - 1);
+      bandTo = critical;
+    } else {
+      const half = orb / 60;
+      bandFrom = critical - half;
+      bandTo = critical + half;
+    }
+    const withinOrb =
+      interpretation === 'portion'
+        ? degreeInRashi >= bandFrom && degreeInRashi < bandTo
+        : Math.abs(deltaMinutes) <= orb;
+
     rows.push({
       body,
       bodyName: BODY_NAMES[body] ?? body,
@@ -141,7 +182,9 @@ export function calculateMrityuBhaga(
       degreeInRashi: Number(degreeInRashi.toFixed(4)),
       criticalDegree: critical,
       deltaMinutes: Number(deltaMinutes.toFixed(1)),
-      withinOrb: Math.abs(deltaMinutes) <= orb,
+      bandFrom: Number(bandFrom.toFixed(3)),
+      bandTo: Number(bandTo.toFixed(3)),
+      withinOrb,
       orbMinutes: orb,
     });
   };
@@ -170,6 +213,7 @@ export function calculateMrityuBhaga(
 
   return {
     recension,
+    interpretation,
     rows,
     affected: rows.filter((r) => r.withinOrb),
     table,
@@ -177,7 +221,10 @@ export function calculateMrityuBhaga(
       'The sources disagree on the Moon: Jātaka Pārijāta gives 8, 25, 22, 22, 21, 1, 4, 23, 18, 20, 20, 10 ' +
       'while Phaladīpikā and Bṛhat Prajāpatya give 26, 12, 13, 25, 24, 11, 26, 14, 13, 25, 5, 12. ' +
       'Every other graha agrees across the traditions. Orbs: Lagna 1°, Sun/Moon/Mercury 40′, the rest 30′. ' +
-      'A graha here has its significations exposed to crisis — it is not by itself a prediction of death.',
+      'A graha here has its significations exposed to crisis — it is not by itself a prediction of death. ' +
+      (interpretation === 'portion'
+        ? 'Reading the degree as a portion: the nth degree spans (n−1)° to n°, following the trimsamsa it falls in.'
+        : 'Reading the degree as a point with an orb either side, after Charak; this runs past the sign boundary at the 30th degree.'),
   };
 }
 
