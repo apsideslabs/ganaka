@@ -41,7 +41,7 @@ import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
 import { housesSignified } from '../lib/kp/significators';
-import { calculateNavaTara, taraFor } from '../lib/jyotisha/navatara';
+import { calculateNavaTara, taraFor, taraToday } from '../lib/jyotisha/navatara';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
 import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode } from '../lib/astronomy/siddhantic';
@@ -1674,6 +1674,40 @@ console.log('\n== KP aspects & Navatara chakra ==');
   check('the inauspicious taras are 3, 5 and 7',
     JSON.stringify(nt.cycle.filter((c) => c.tara.nature === 'inauspicious').map((c) => c.tara.number)) === '[3,5,7]');
   check('five taras are auspicious', nt.favourable.length === 5);
+}
+
+/* --------------------------------------------- TARA FOR A GIVEN DAY */
+
+console.log('\n== Tara today ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const nt = calculateNavaTara(natal);
+
+  // A fixed date so the test does not drift.
+  const d = new Date('2026-11-14T12:00:00Z');
+  const t = taraToday(nt.janmaNumber, d, 26.65, 91.15, 5.5);
+
+  check('today resolves to a real tara', t.taraNumber >= 1 && t.taraNumber <= 9, String(t.taraNumber));
+  check('today names the Moon nakshatra', t.nakshatraName.length > 0);
+  check('today agrees with the chakra table',
+    nt.rows.find((r) => r.nakshatraNumber === t.nakshatraNumber)?.taraNumber === t.taraNumber,
+    `${t.nakshatraNumber} → ${t.taraNumber}`);
+  check('today carries guidance', t.guidance.length > 20);
+
+  // Consecutive days must move by at most two nakshatras — the Moon never
+  // crosses more than that in a day.
+  const t2 = taraToday(nt.janmaNumber, new Date('2026-11-15T12:00:00Z'), 26.65, 91.15, 5.5);
+  const step = Math.abs(t2.nakshatraNumber - t.nakshatraNumber);
+  check('the Moon advances by one or two nakshatras a day', step >= 1 && step <= 2, String(step));
+
+  // The nakshatra helper must stay in range across a year.
+  let inRange = true;
+  for (let i = 0; i < 24; i++) {
+    const dd = new Date(Date.UTC(2026, 0, 1 + i * 15, 12));
+    const n = taraToday(nt.janmaNumber, dd, 26.65, 91.15, 5.5).nakshatraNumber;
+    if (n < 1 || n > 27) inRange = false;
+  }
+  check('the Moon nakshatra stays within 1-27 across a year', inRange);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
