@@ -74,7 +74,27 @@ function rashiOf(chart: JyotishaChart, id: PlanetId): RashiNumber {
  * Build the full matrix. Only grahas present in the chart are included, so a
  * chart computed without the nodes simply yields a smaller matrix.
  */
-export function calculateRelationshipMatrix(chart: JyotishaChart): RelationshipMatrix {
+/**
+ * Varga rāśi of a graha, or its D1 rāśi when no varga is asked for.
+ *
+ * The natural friendship is fixed by the planetary cabinet and never changes.
+ * The temporal reading comes from the sign distance between the two grahas — so
+ * it shifts when the chart is a divisional one, which is exactly why an
+ * astrologer will check D-9 as well as D-1 before committing to a compound
+ * verdict.
+ */
+function rashiIn(chart: JyotishaChart, id: PlanetId, varga?: string): RashiNumber {
+  if (!varga || varga === 'D1') return rashiOf(chart, id);
+  const v: any = (chart.vargas as any)?.[varga];
+  const p: any = v?.planets?.[id] ?? (v?.positions as any)?.[id];
+  const r = Number(p?.rashiNumber ?? p?.rashi ?? 0);
+  return (r >= 1 && r <= 12 ? r : rashiOf(chart, id)) as RashiNumber;
+}
+
+export function calculateRelationshipMatrix(
+  chart: JyotishaChart,
+  varga?: string
+): RelationshipMatrix {
   const present = RELATION_PLANETS.filter((id) => (chart.planets as any)?.[id]);
   const pairs: RelationshipPair[] = [];
   const byPlanet: RelationshipMatrix['byPlanet'] = {};
@@ -82,11 +102,11 @@ export function calculateRelationshipMatrix(chart: JyotishaChart): RelationshipM
 
   for (const a of present) {
     byPlanet[a] = [];
-    const aRashi = rashiOf(chart, a);
+    const aRashi = rashiIn(chart, a, varga);
 
     for (const b of present) {
       if (a === b) continue;
-      const bRashi = rashiOf(chart, b);
+      const bRashi = rashiIn(chart, b, varga);
 
       const natural = calculateNaturalFriendship(a, b);
       const temporal = getTatkalikaRelationship(aRashi, bRashi);
