@@ -539,6 +539,29 @@ function computeChart(input: CalculationInput): JyotishaChart {
 
   const doshas = evaluateAllDoshas(baseChartForDoshas);
 
+
+  /**
+   * Self-check: does the ayanāṃśa the chart STATES match the one its positions
+   * actually imply?
+   *
+   * The two are computed in different places — the label from `calculateAyanamsha`
+   * at the chart's julianDay, the positions from the ephemeris subtracting the
+   * same value. If those ever drift apart the chart is silently inconsistent
+   * between its own label and its own arithmetic, and nothing downstream can
+   * tell. Measured from the Sun, whose tropical longitude is always available.
+   */
+  const sunForCheck: any = (baseChartForDoshas as any)?.planets?.sun;
+  if (sunForCheck && typeof sunForCheck.tropicalLongitude === 'number' && typeof sunForCheck.siderealLongitude === 'number') {
+    const implied = ((sunForCheck.tropicalLongitude - sunForCheck.siderealLongitude) % 360 + 360) % 360;
+    const stated = Number(ayanamsha);
+    const driftArcmin = Math.abs(implied - stated) * 60;
+    if (driftArcmin > 0.05) {
+      warnings.push(
+        `The ayanāṃśa applied to the positions (${implied.toFixed(6)}°) is not the one the chart states ` +
+        `(${stated.toFixed(6)}°) — ${driftArcmin.toFixed(2)}′ apart. Every sidereal longitude carries that error.`
+      );
+    }
+  }
   return {
     ...baseChartForDoshas,
     doshas,
