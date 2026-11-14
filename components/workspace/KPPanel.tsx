@@ -18,20 +18,26 @@ import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateKpLayer, KP_MATTERS, type KpLayer } from '@/lib/kp';
 import {
   Compass, ListOrdered, Target, ShieldCheck, Clock, Link2, Info, ChevronRight,
+  Orbit, CalendarRange,
 } from 'lucide-react';
+import { KpChart } from './kp/KpChart';
+import { KpMark } from './kp/KpMark';
 
 interface KPPanelProps {
   chart: JyotishaChart;
 }
 
-type Tab = 'cusps' | 'significators' | 'ruling' | 'promise' | 'timing';
+type Tab = 'chart' | 'cusps' | 'planets' | 'significators' | 'ruling' | 'promise' | 'timing' | 'dasha';
 
 const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+  { id: 'chart', label: 'Chart', icon: Orbit },
   { id: 'cusps', label: 'Cusps', icon: Compass },
+  { id: 'planets', label: 'Planets', icon: ListOrdered },
   { id: 'significators', label: 'Significators', icon: ListOrdered },
   { id: 'ruling', label: 'Ruling Planets', icon: Target },
   { id: 'promise', label: 'Promise', icon: ShieldCheck },
   { id: 'timing', label: 'Timing', icon: Clock },
+  { id: 'dasha', label: 'Dasha', icon: CalendarRange },
 ];
 
 const TONE: Record<string, { text: string; bg: string; border: string }> = {
@@ -58,7 +64,7 @@ const CuspBar: React.FC<{ pct: number }> = ({ pct }) => (
 );
 
 export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
-  const [tab, setTab] = useState<Tab>('cusps');
+  const [tab, setTab] = useState<Tab>('chart');
   const [house, setHouse] = useState(7);
   const [matter, setMatter] = useState('marriage');
 
@@ -99,8 +105,8 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         <div className="px-6 pt-5 pb-4 border-b border-slate-100">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-[#8C2D19]" />
+              <div className="flex items-center gap-2.5 mb-1">
+                <KpMark size={22} className="text-[#8C2D19]" />
                 <h2 className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-500">
                   KP · Krishnamurti Paddhati
                 </h2>
@@ -119,7 +125,8 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                 ['12', 'cusps'],
                 [String(kp.ruling.workingSet.length), 'ruling'],
                 [String(kp.interlinks.length), 'interlinks'],
-                [String(kp.nodeAgents.length), 'agents'],
+                [String(kp.planets.length), 'grahas'],
+                [String(kp.dasha.length), 'periods'],
               ].map(([n, l]) => (
                 <div key={l} className="text-center px-3 py-2 rounded-lg bg-slate-50 border border-slate-200/80">
                   <div className="font-serif text-base text-slate-900 leading-none">{n}</div>
@@ -168,6 +175,83 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
           );
         })}
       </div>
+
+      {/* ── chart ──────────────────────────────────────────────── */}
+      {tab === 'chart' && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+              Placidus cusp chart
+            </h3>
+            <span className="text-[9px] font-mono uppercase tracking-wider text-slate-400">
+              ascendant at 9 o&rsquo;clock · houses unequal
+            </span>
+          </div>
+          <div className="p-5">
+            <KpChart cusps={kp.cusps} planets={kp.planets} />
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4 pt-4 border-t border-slate-100">
+              {kp.planets.map((p) => (
+                <span key={p.id} className="text-[10px] text-slate-500">
+                  <span className="font-semibold text-[#8C2D19]">{p.name.split(' ')[0]}</span>{' '}
+                  {p.rashiName} {p.degreeInRashi.toFixed(1)}° · H{p.house} · {p.subLord}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── planets ────────────────────────────────────────────── */}
+      {tab === 'planets' && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+              Grahas · the four lords of each degree
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-slate-50/60">
+                  {['Graha', 'Long.', 'Rāśi', 'Deg', 'H', 'Nakṣatra', 'Pd', 'Sign', 'Star', 'Sub', 'Sub-sub', 'Sig.'].map((h) => (
+                    <th key={h} className="text-left py-2 px-2.5 font-mono text-[9px] uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {kp.planets.map((p) => (
+                  <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50/40">
+                    <td className="py-2 px-2.5 text-slate-800 whitespace-nowrap">
+                      {p.name.split(' ')[0]}
+                      {p.retrograde && <span className="text-slate-400 text-[9px] ml-1">R</span>}
+                    </td>
+                    <td className="py-2 px-2.5 font-mono tabular-nums text-slate-600">{p.longitude.toFixed(2)}</td>
+                    <td className="py-2 px-2.5 text-slate-600 whitespace-nowrap">{p.rashiName}</td>
+                    <td className="py-2 px-2.5 font-mono tabular-nums text-slate-600">{p.degreeInRashi.toFixed(2)}</td>
+                    <td className="py-2 px-2.5 font-mono text-slate-500">{p.house}</td>
+                    <td className="py-2 px-2.5 text-slate-600 whitespace-nowrap">{p.nakshatra}</td>
+                    <td className="py-2 px-2.5 font-mono text-slate-500">{p.pada}</td>
+                    <td className="py-2 px-2.5 text-slate-600 capitalize">{p.signLord}</td>
+                    <td className="py-2 px-2.5 text-slate-600 capitalize">{p.starLord}</td>
+                    <td className="py-2 px-2.5 font-semibold text-[#8C2D19] capitalize">{p.subLord}</td>
+                    <td className="py-2 px-2.5 text-slate-400 capitalize">{p.subSubLord}</td>
+                    <td className="py-2 px-2.5 font-mono text-[10px] text-slate-500">{p.signifies.join(',')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-5 py-3 bg-slate-50/60 border-t border-slate-100">
+            <p className="text-[10px] text-slate-500">
+              H is the Placidus house whose arc holds the graha, which need not match its sign —
+              that mismatch is what the cuspal reading turns on. Sig. lists the houses it signifies
+              by occupation, ownership and star link, with node agency included.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── cusps ──────────────────────────────────────────────── */}
       {tab === 'cusps' && (
@@ -530,6 +614,56 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── dasha ──────────────────────────────────────────────── */}
+      {tab === 'dasha' && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+              Viṃśottarī · mahā and antara
+            </h3>
+            <span className="text-[9px] font-mono uppercase tracking-wider text-slate-400">
+              KP uses Viṃśottarī only
+            </span>
+          </div>
+          <div className="max-h-[32rem] overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 bg-white">
+                <tr className="bg-slate-50/80">
+                  {['Level', 'Lord', 'From', 'To', 'Signifies'].map((h) => (
+                    <th key={h} className="text-left py-2 px-3 font-mono text-[9px] uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {kp.dasha.map((d, i) => (
+                  <tr
+                    key={`${d.level}-${d.lord}-${i}`}
+                    className={`border-t border-slate-100 ${d.isRunning ? 'bg-[#8C2D19]/[0.04]' : ''} ${
+                      d.level === 'mahā' ? 'font-medium' : ''
+                    }`}
+                  >
+                    <td className="py-1.5 px-3 text-[10px] font-mono text-slate-400">
+                      {d.level === 'mahā' ? 'MD' : 'AD'}
+                    </td>
+                    <td className={`py-1.5 px-3 capitalize ${d.level === 'mahā' ? 'text-slate-900' : 'text-slate-600 pl-6'}`}>
+                      {d.lordName}
+                      {d.isRunning && (
+                        <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-[#8C2D19] text-white">now</span>
+                      )}
+                    </td>
+                    <td className="py-1.5 px-3 font-mono text-slate-600 tabular-nums">{d.from}</td>
+                    <td className="py-1.5 px-3 font-mono text-slate-600 tabular-nums">{d.to}</td>
+                    <td className="py-1.5 px-3 font-mono text-[10px] text-slate-500">{d.signifies.join(',')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
