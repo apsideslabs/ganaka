@@ -10,7 +10,7 @@
 
 import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
-import { calculateMrityuBhaga, mrityuBhagaTable, type MrityuRecension } from '@/lib/jyotisha/mrityu-bhaga';
+import { calculateMrityuBhaga, mrityuBhagaTable, type MrityuRecension, type MrityuInterpretation } from '@/lib/jyotisha/mrityu-bhaga';
 import { calculateNadi, NADI_INFO } from '@/lib/jyotisha/nadi';
 import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { Info, Sparkles, Skull, Waves, Star } from 'lucide-react';
@@ -50,8 +50,9 @@ const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({ child
 export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
   const [tab, setTab] = useState<Tab>('avasthas');
   const [recension, setRecension] = useState<MrityuRecension>('jataka_parijata');
+  const [interpretation, setInterpretation] = useState<MrityuInterpretation>('portion');
 
-  const mrityu = useMemo(() => calculateMrityuBhaga(chart, recension), [chart, recension]);
+  const mrityu = useMemo(() => calculateMrityuBhaga(chart, recension, interpretation), [chart, recension, interpretation]);
   const nadi = useMemo(() => calculateNadi(chart), [chart]);
   const table = useMemo(() => mrityuBhagaTable(), []);
   const navatara = useMemo(() => calculateNavaTara(chart), [chart]);
@@ -149,19 +150,32 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
         <div className="space-y-5">
           <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
             <SectionHead right={
-              <select aria-label="Recension" value={recension}
-                onChange={(e) => setRecension(e.target.value as MrityuRecension)}
-                className="px-3 py-2 text-[13px] border border-slate-300 rounded-lg bg-white text-slate-700">
-                <option value="jataka_parijata">Jātaka Pārijāta</option>
-                <option value="phaladipika">Phaladīpikā</option>
-              </select>
+              <div className="flex items-center gap-2 flex-wrap">
+                <select aria-label="Recension" value={recension}
+                  onChange={(e) => setRecension(e.target.value as MrityuRecension)}
+                  className="px-3 py-2 text-[13px] border border-slate-300 rounded-lg bg-white text-slate-700">
+                  <option value="jataka_parijata">Jātaka Pārijāta</option>
+                  <option value="phaladipika">Phaladīpikā · Kausika</option>
+                </select>
+                <select aria-label="Interpretation" value={interpretation}
+                  onChange={(e) => setInterpretation(e.target.value as MrityuInterpretation)}
+                  className="px-3 py-2 text-[13px] border border-slate-300 rounded-lg bg-white text-slate-700">
+                  <option value="portion">Degree as a portion</option>
+                  <option value="point">Degree as a point</option>
+                </select>
+              </div>
             }>Mṛtyu Bhāga · this chart</SectionHead>
 
+            <p className="text-[12px] text-slate-500 mb-4 leading-relaxed">
+              {interpretation === 'portion'
+                ? 'Reading the degree as a portion: the nth degree spans (n−1)° to n°, following the trimsamsa it falls in. This is the older reading, and the only one that does not run past the end of the sign at the 30th degree.'
+                : 'Reading the degree as a point, taken with half a degree either side — after K. S. Charak, who brought these degrees into medical astrology. The two readings overlap most of the time and part company near a boundary.'}
+            </p>
             <div className="overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="bg-slate-50/70">
-                    <Th>Body</Th><Th>Rāśi</Th><Th>Degree</Th><Th>Critical</Th><Th>Δ</Th><Th>Orb</Th>
+                    <Th>Body</Th><Th>Rāśi</Th><Th>Degree</Th><Th>Band</Th><Th>Δ</Th><Th>Status</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -170,14 +184,14 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
                       <td className="py-2.5 px-3 text-slate-800 font-medium">{r.bodyName}</td>
                       <td className="py-2.5 px-3 text-slate-600">{r.rashiName}</td>
                       <td className="py-2.5 px-3 font-mono tabular-nums text-slate-600">{r.degreeInRashi.toFixed(2)}°</td>
-                      <td className="py-2.5 px-3 font-mono tabular-nums text-slate-700">{r.criticalDegree}°</td>
+                      <td className="py-2.5 px-3 font-mono tabular-nums text-slate-700">{r.bandFrom.toFixed(0)}–{r.bandTo.toFixed(0)}°</td>
                       <td className={`py-2.5 px-3 font-mono tabular-nums ${r.withinOrb ? 'text-[#8C2D19] font-semibold' : 'text-slate-500'}`}>
                         {r.deltaMinutes > 0 ? '+' : ''}{r.deltaMinutes.toFixed(0)}′
                       </td>
                       <td className="py-2.5 px-3">
                         {r.withinOrb
-                          ? <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#8C2D19] text-white font-medium">in orb</span>
-                          : <span className="text-[11px] text-slate-400">±{r.orbMinutes}′</span>}
+                          ? <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#8C2D19] text-white font-medium">in band</span>
+                          : <span className="text-[11px] text-slate-400">outside</span>}
                       </td>
                     </tr>
                   ))}
