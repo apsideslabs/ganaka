@@ -36,6 +36,7 @@ import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
 import { calculateKpLayer } from '../lib/kp';
 import { generateClassicalChartIndications } from '../lib/jyotisha/indications';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
+import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
 import { fertilityOf } from '../lib/kp/constants';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
@@ -1323,7 +1324,7 @@ console.log('\n== Overall reading ==');
 {
   const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
   const report = generateClassicalChartIndications(natal);
-  const reading = buildOverallReading(report);
+  const reading = buildOverallReading(report, natal);
 
   check('the reading has a headline', reading.headline.length > 20);
   check('the reading has four movements at most', reading.movements.length > 0 && reading.movements.length <= 4,
@@ -1346,7 +1347,25 @@ console.log('\n== Overall reading ==');
     blob.length < 3000, `${blob.length} chars`);
 
   check('thin-ground domains are named, not listed as rules',
-    Array.isArray(reading.thinGrounds));
+    Array.isArray(reading.thinnest));
+  check('the method is stated so the weights can be argued with',
+    reading.method.includes('40%') && reading.method.includes('25%'));
+
+  // Five-layer scoring: weights sum to 1 and every layer is bounded.
+  const spec = { id: 'career', label: 'Career', house: 10, karakas: ['sun', 'saturn'] as any, vargas: ['D1', 'D10'] };
+  const scored = scoreDomain(natal, spec);
+  check('five layers are scored', scored.layers.length === 5);
+  check('layer weights sum to 1',
+    Math.abs(scored.layers.reduce((a, l) => a + l.weight, 0) - 1) < 1e-9);
+  check('every layer score is bounded 0-1',
+    scored.layers.every((l) => l.score >= 0 && l.score <= 1));
+  check('the total is bounded 0-100', scored.total >= 0 && scored.total <= 100);
+  check('the total matches the weighted sum',
+    Math.abs(scored.total - Math.round(scored.layers.reduce((a, l) => a + l.score * l.weight, 0) * 100)) <= 1);
+  check('the tone follows the total',
+    (scored.total >= 70) === (scored.tone === 'strong') &&
+    (scored.total < 40) === (scored.tone === 'weak'));
+  check('every layer explains itself', scored.layers.every((l) => l.read.length > 10));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
