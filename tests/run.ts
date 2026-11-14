@@ -1807,6 +1807,52 @@ console.log('\n== Mrityu bhaga sources ==');
   else check('no graha exactly on its degree in this fixture (edge test skipped)', true);
 }
 
+/* ------------------------- MRITYU BHAGA: THE DOCUMENTED WORKED EXAMPLE */
+
+console.log('\n== Mrityu bhaga worked example ==');
+{
+  // Jataka Parijata 1.57 as worked in the sources: "Sun at 19°20' Aries is in
+  // the 20th degree, which is the Sun's Aries mrityu bhaga." The band for
+  // N = 20 must therefore be 19°00' to 20°00', half-open.
+  const mk = (sunDeg: number): any => ({
+    lagna: { rashiNumber: 1, siderealLongitude: 10.5, nakshatraNumber: 1, nakshatraName: 'Aśvinī' },
+    planets: {
+      sun: { siderealLongitude: sunDeg, rashiNumber: 1 },
+      moon: { siderealLongitude: 24.5, rashiNumber: 1 },
+      mars: { siderealLongitude: 18.5, rashiNumber: 1 },
+      mercury: { siderealLongitude: 14.5, rashiNumber: 1 },
+      jupiter: { siderealLongitude: 18.5, rashiNumber: 1 },
+      venus: { siderealLongitude: 27.5, rashiNumber: 1 },
+      saturn: { siderealLongitude: 9.5, rashiNumber: 1 },
+      rahu: { siderealLongitude: 13.5, rashiNumber: 1 },
+      ketu: { siderealLongitude: 7.5, rashiNumber: 1 },
+    },
+    specialPoints: {},
+  });
+
+  const sunRow = (deg: number) =>
+    calculateMrityuBhaga(mk(deg), 'jataka_parijata', 'portion').rows.find((r) => r.body === 'sun')!;
+
+  const at = sunRow(19 + 20 / 60);
+  check('the Aries Sun degree is 20', at.criticalDegree === 20, String(at.criticalDegree));
+  check('the band runs 19 to 20', at.bandFrom === 19 && at.bandTo === 20);
+  check('the documented example lands inside the band', at.withinOrb);
+
+  check('18°59′ is outside', !sunRow(18 + 59 / 60).withinOrb);
+  check('19°00′ is inside (lower edge)', sunRow(19).withinOrb);
+  check('19°59′ is inside', sunRow(19 + 59 / 60).withinOrb);
+  check('20°00′ is outside (upper edge excluded)', !sunRow(20).withinOrb);
+
+  // The point reading must place the same graha differently, which is the whole
+  // reason the interpretation is switchable.
+  const pointAt = calculateMrityuBhaga(mk(20.4), 'jataka_parijata', 'point')
+    .rows.find((r) => r.body === 'sun')!;
+  const portionAt = calculateMrityuBhaga(mk(20.4), 'jataka_parijata', 'portion')
+    .rows.find((r) => r.body === 'sun')!;
+  check('the two readings can disagree', pointAt.withinOrb !== portionAt.withinOrb,
+    `point ${pointAt.withinOrb} vs portion ${portionAt.withinOrb}`);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
