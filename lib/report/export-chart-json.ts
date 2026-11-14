@@ -18,7 +18,7 @@ import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
-import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '@/lib/jyotisha/kp';
+import { calculateKpLayer } from '@/lib/kp';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -388,39 +388,49 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
 
   // --- KP layer -------------------------------------------------------------
   const kp = safe(() => {
-    const bd = chart.meta.birthDetails;
-    const ruling = calculateRulingPlanets(
-      new Date(), bd.latitude, bd.longitude, bd.timezoneOffsetHours,
-      chart.meta.ayanamshaType as any
-    );
-    const significators: Record<string, unknown> = {};
-    for (let h = 1; h <= 12; h++) {
-      significators[String(h)] = calculateSignificators(chart, h).map((l) => ({
-        level: l.level, rule: l.rule, planets: l.planets,
-      }));
-    }
-    const promises: Record<string, unknown> = {};
-    for (const [key, m] of Object.entries(KP_MATTERS)) {
-      // The matter's principal house is the first of its group that is not the
-      // general 2nd/11th support houses.
-      const primary = m.matter[0] ?? 1;
-      // Only the signification is exported, not the promise verdict or its
-      // prose: which houses the sub lord touches is a calculation, whether the
-      // matter fructifies is a prediction and belongs outside this document.
-      const r: any = evaluateCuspPromise(chart, primary, m.matter, m.detrimental);
-      promises[key] = r
-        ? {
-            house: r.house,
-            subLord: r.subLord,
-            signifies: r.signifies,
-            matterHouses: r.matterHouses,
-            detrimentalHouses: r.detrimentalHouses,
-            hitsMatter: r.hitsMatter,
-            hitsDetrimental: r.hitsDetrimental,
-          }
-        : null;
-    }
-    return { ruling, significators, promises };
+    const layer = calculateKpLayer(chart);
+    return {
+      cusps: layer.cusps.map((c) => ({
+        house: c.house,
+        longitude: c.longitude,
+        rashi: c.rashi,
+        rashiName: c.rashiName,
+        signLord: c.lords.signLord,
+        starLord: c.lords.starLord,
+        subLord: c.lords.subLord,
+        subSubLord: c.lords.subSubLord,
+        occupants: c.occupants,
+        fertility: layer.fertility[c.house],
+      })),
+      ruling: {
+        planets: layer.ruling.planets.map((r) => ({ role: r.role, planet: r.planet })),
+        nodeAgents: layer.ruling.nodeAgents.map((r) => ({ role: r.role, planet: r.planet })),
+        workingSet: layer.ruling.workingSet.map((r) => r.planet),
+        omittedRetrograde: layer.ruling.omittedRetrograde,
+      },
+      significators: Object.fromEntries(
+        Object.entries(layer.significators).map(([h, sig]) => [h, {
+          levels: sig.levels.map((l) => ({ level: l.level, rule: l.rule, planets: l.planets })),
+          rejectedRetrograde: sig.rejectedRetrograde,
+        }])
+      ),
+      // Signification only — the promise verdict is a prediction and stays out.
+      promises: Object.fromEntries(
+        Object.entries(layer.promises).map(([k, r]) => [k, r ? {
+          house: r.house,
+          subLord: r.subLord,
+          signifies: r.signifies,
+          matterHouses: r.matterHouses,
+          detrimentalHouses: r.detrimentalHouses,
+          hitsMatter: r.hitsMatter,
+          hitsDetrimental: r.hitsDetrimental,
+          fertility: r.fertility,
+        } : null])
+      ),
+      interlinks: layer.interlinks,
+      nodeAgents: layer.nodeAgents,
+      fertility: layer.fertility,
+    };
   }, {});
 
   // --- Double transit and argala --------------------------------------------
