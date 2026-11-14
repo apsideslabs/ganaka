@@ -25,6 +25,7 @@ import { fourStepForAll } from '@/lib/kp/four-step';
 import { calculateKpAspects } from '@/lib/kp/aspects';
 import { housesSignified } from '@/lib/kp/significators';
 import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
+import { siddhanticResiduals } from '@/lib/astronomy/siddhantic';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -116,6 +117,8 @@ export interface GanakaChartExport {
   mrityuBhaga: Record<string, unknown>;
   /** Nakṣatra nāḍī for the Moon and Lagna. */
   nadi: Record<string, unknown>;
+  /** Sūrya Siddhānta against the modern ephemeris, graha by graha. */
+  siddhanticResiduals: Array<Record<string, unknown>>;
   /** The Navatara chakra. */
   navatara: Record<string, unknown>;
   /** KP aspects — graha to graha, graha to cusp, and rasi drishti. */
@@ -428,6 +431,15 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       note: n.note,
     };
   }, {});
+
+  const residuals = safe(() => {
+    const modern: Record<string, number> = {};
+    for (const [k, v] of Object.entries(chart.planets as any)) {
+      const lon = (v as any)?.siderealLongitude;
+      if (typeof lon === 'number') modern[k] = lon;
+    }
+    return siddhanticResiduals(chart.meta.julianDay, modern);
+  }, []);
 
   const navatara = safe(() => {
     const n = calculateNavaTara(chart);
@@ -781,7 +793,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
-    avasthas, mrityuBhaga, nadi, navatara, kpAspects, kpFourStep,
+    avasthas, mrityuBhaga, nadi, navatara, siddhanticResiduals: residuals, kpAspects, kpFourStep,
   };
 }
 
