@@ -201,6 +201,10 @@ export interface PanchangaResult {
     dayDuration: string;
     nightDuration: string;
     dayDurationGhatis: string;
+    /** True when the Sun never sets — sunrise and sunset are not real events. */
+    polarDay?: boolean;
+    /** True when the Sun never rises. */
+    polarNight?: boolean;
     nightDurationGhatis: string;
     sunriseJD: number;
     sunsetJD: number;
