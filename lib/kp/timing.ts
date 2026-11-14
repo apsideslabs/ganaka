@@ -1,43 +1,67 @@
 /**
- * KP — timing: the ruling planets against the running daśā.
+ * KP — timing.
  *
- * KP's fourth step: "Examine the Vimśottarī daśā sequence and relevant transits
- * for a supported timing period." A matter is treated as ripe when the daśā lord,
- * the antardaśā lord, or one of the cusp's significators appears among the ruling
- * planets at the moment of judgement.
+ * The promise is settled by the cuspal sub lord; timing is settled by the daśā
+ * chain. The delivery test is stricter than "is the lord a significator", and the
+ * first version got it wrong by testing only that. From KP practice:
  *
- * This is the step that turns a promise into a window, and it is why KP pairs the
- * ruling planets with the daśā chain rather than reading either alone.
+ *   "A period delivers a promised matter when its Maha, Antar and Pratyantar
+ *    lords jointly signify all the houses the matter requires, each lord
+ *    contributing at least one different house. For marriage that means 2, 7 and
+ *    11 covered between them. The Maha lord must signify at least one."
+ *
+ * So a period qualifies when the three lords between them cover the whole house
+ * group, each supplying a different house — not when any one of them happens to
+ * be a significator. A chain of three lords that all signify only the 7th has
+ * not covered 2, 7 and 11 and does not deliver a marriage.
+ *
+ * Transits are subordinate: they narrow a delivering period to a window, and a
+ * transit disagreement never turns a promised matter into a denied one.
  */
 import type { JyotishaChart, PlanetId } from '../jyotisha/types';
 import { GRAHA_PROPERTIES } from '../jyotisha/constants';
 import type { RulingPlanetsResult } from './ruling-planets';
 import type { SignificatorsResult } from './significators';
+import type { KpCusp } from './cusps';
+import { housesSignified } from './significators';
 
-export interface KpTimingWindow {
+export interface KpPeriodLord {
   level: 'mahā' | 'antara' | 'pratyantara';
   lord: PlanetId;
   lordName: string;
   from: string;
   to: string;
-  /** True when this lord is one of the ruling planets. */
+  /** The houses this lord signifies. */
+  signifies: number[];
+  /** Which of the matter's houses it covers. */
+  covers: number[];
   isRulingPlanet: boolean;
-  /** True when this lord is a significator of the house under question. */
-  isSignificator: boolean;
-  /** True when both — the strongest KP signal. */
-  ripe: boolean;
+}
+
+export interface KpTimingWindow {
+  from: string;
+  to: string;
+  lords: KpPeriodLord[];
+  /** Houses of the matter the three lords cover between them. */
+  covered: number[];
+  /** Houses of the matter left uncovered. */
+  missing: number[];
+  /** True when the group is fully covered, each lord contributing one. */
+  delivers: boolean;
+  /** True when every delivering lord is also a ruling planet of the moment. */
+  strong: boolean;
 }
 
 export interface KpTimingResult {
   house: number;
-  /** The period running now. */
+  matterHouses: number[];
+  /** The chain running now. */
   current: KpTimingWindow | null;
-  /** Upcoming periods whose lord is both a ruling planet and a significator. */
-  ripeWindows: KpTimingWindow[];
+  /** Upcoming windows inside the current mahādaśā that deliver. */
+  windows: KpTimingWindow[];
   note: string;
 }
 
-/** The running chain from the chart's Viṃśottarī tree. */
 function runningChain(chart: JyotishaChart, now: Date): any[] {
   const tree: any[] = (chart.vimshottari as any)?.tree ?? [];
   const chain: any[] = [];
@@ -55,60 +79,112 @@ function runningChain(chart: JyotishaChart, now: Date): any[] {
   return chain;
 }
 
+const LEVELS: Array<KpPeriodLord['level']> = ['mahā', 'antara', 'pratyantara'];
+
+function toLord(
+  chart: JyotishaChart,
+  cusps: KpCusp[],
+  node: any,
+  i: number,
+  matterHouses: number[],
+  rpSet: Set<PlanetId>
+): KpPeriodLord {
+  const lord = (node.lord ?? node.lordKey) as PlanetId;
+  const signifies = housesSignified(chart, cusps, lord);
+  return {
+    level: LEVELS[i] ?? 'pratyantara',
+    lord,
+    lordName: GRAHA_PROPERTIES[lord]?.name ?? node.lordName ?? String(lord),
+    from: String(node.startDate ?? ''),
+    to: String(node.endDate ?? ''),
+    signifies,
+    covers: signifies.filter((h) => matterHouses.includes(h)),
+    isRulingPlanet: rpSet.has(lord),
+  };
+}
+
 /**
- * Cross the ruling planets with the daśā chain for one house.
+ * The delivery test: the three lords must cover the whole house group between
+ * them, each contributing a different house.
+ */
+function judge(lords: KpPeriodLord[], matterHouses: number[]): KpTimingWindow {
+  const covered = new Set<number>();
+  const seen = new Set<number>();
+  let distinctContributions = 0;
+
+  for (const l of lords) {
+    let contributed = false;
+    for (const h of l.covers) {
+      covered.add(h);
+      if (!seen.has(h)) { seen.add(h); contributed = true; }
+    }
+    if (contributed) distinctContributions++;
+  }
+
+  const missing = matterHouses.filter((h) => !covered.has(h));
+  const maha = lords[0];
+  const delivers =
+    missing.length === 0 &&
+    distinctContributions >= Math.min(3, matterHouses.length) &&
+    !!maha && maha.covers.length > 0;
+
+  return {
+    from: lords[0]?.from ?? '',
+    to: lords[lords.length - 1]?.to ?? '',
+    lords,
+    covered: [...covered].sort((a, b) => a - b),
+    missing,
+    delivers,
+    strong: delivers && lords.every((l) => l.isRulingPlanet || l.covers.length === 0),
+  };
+}
+
+/**
+ * Cross the ruling planets with the daśā chain for one matter.
  */
 export function kpTiming(
   chart: JyotishaChart,
+  cusps: KpCusp[],
   ruling: RulingPlanetsResult,
   significators: SignificatorsResult,
   house: number,
+  matterHouses: number[],
   now: Date = new Date()
 ): KpTimingResult {
   const rpSet = new Set<PlanetId>(ruling.distinct);
-  const sigSet = new Set<PlanetId>(significators.ranked.map((r) => r.planet));
-
   const chain = runningChain(chart, now);
-  const levels: Array<KpTimingWindow['level']> = ['mahā', 'antara', 'pratyantara'];
 
-  const toWindow = (node: any, i: number): KpTimingWindow => {
-    const lord = (node.lord ?? node.lordKey) as PlanetId;
-    const isRp = rpSet.has(lord);
-    const isSig = sigSet.has(lord);
-    return {
-      level: levels[i] ?? 'pratyantara',
-      lord,
-      lordName: GRAHA_PROPERTIES[lord]?.name ?? node.lordName ?? String(lord),
-      from: String(node.startDate ?? ''),
-      to: String(node.endDate ?? ''),
-      isRulingPlanet: isRp,
-      isSignificator: isSig,
-      ripe: isRp && isSig,
-    };
-  };
+  const currentLords = chain.map((n, i) => toLord(chart, cusps, n, i, matterHouses, rpSet));
+  const current = currentLords.length ? judge(currentLords, matterHouses) : null;
 
-  const windows = chain.map(toWindow);
-  const current = windows[0] ?? null;
-
-  // Ripe windows: the running chain first, then the antardaśās of the current
-  // mahādaśā that would qualify later.
-  const ripe: KpTimingWindow[] = windows.filter((w) => w.ripe);
-
-  const mahadasha = chain[0];
-  if (mahadasha?.subPeriods) {
-    for (const sub of mahadasha.subPeriods) {
-      const w = toWindow(sub, 1);
-      if (w.ripe && new Date(w.from).getTime() >= now.getTime()) ripe.push(w);
+  // Walk the antardaśās of the running mahādaśā and keep the delivering ones.
+  const windows: KpTimingWindow[] = [];
+  const maha = chain[0];
+  if (maha?.subPeriods) {
+    for (const antar of maha.subPeriods) {
+      const antarLord = toLord(chart, cusps, antar, 1, matterHouses, rpSet);
+      const pratys: any[] = antar.subPeriods ?? [];
+      if (pratys.length === 0) {
+        const w = judge([currentLords[0] ?? antarLord, antarLord], matterHouses);
+        if (w.delivers) windows.push(w);
+        continue;
+      }
+      for (const praty of pratys) {
+        const pratyLord = toLord(chart, cusps, praty, 2, matterHouses, rpSet);
+        const w = judge([currentLords[0] ?? antarLord, antarLord, pratyLord], matterHouses);
+        if (w.delivers) windows.push(w);
+      }
     }
   }
 
   return {
     house,
+    matterHouses,
     current,
-    ripeWindows: ripe.slice(0, 12),
+    windows: windows.slice(0, 24),
     note:
-      'A period is treated as ripe when its lord is both a ruling planet of the moment and a ' +
-      'significator of the house under question. KP uses this as a timing signal, not a promise — ' +
-      'the cuspal sub lord still decides whether the matter is promised at all.',
+      'A period delivers only when the mahā, antara and pratyantara lords between them cover the ' +
+      'whole house group, each supplying a different house, with the mahā lord signifying at least ' +
+      'one. Transits narrow a delivering period to a window; they never overturn a promise.',
   };
 }
