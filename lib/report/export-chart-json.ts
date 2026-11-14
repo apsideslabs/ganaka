@@ -22,6 +22,9 @@ import { calculateKpLayer } from '@/lib/kp';
 import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
 import { calculateNadi } from '@/lib/jyotisha/nadi';
 import { fourStepForAll } from '@/lib/kp/four-step';
+import { calculateKpAspects } from '@/lib/kp/aspects';
+import { housesSignified } from '@/lib/kp/significators';
+import { calculateNavaTara } from '@/lib/jyotisha/navatara';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -113,6 +116,10 @@ export interface GanakaChartExport {
   mrityuBhaga: Record<string, unknown>;
   /** Nakṣatra nāḍī for the Moon and Lagna. */
   nadi: Record<string, unknown>;
+  /** The Navatara chakra. */
+  navatara: Record<string, unknown>;
+  /** KP aspects — graha to graha, graha to cusp, and rasi drishti. */
+  kpAspects: Record<string, unknown>;
   /** The KP four-step check for every matter. */
   kpFourStep: Record<string, unknown>;
   /** The KP layer: ruling planets, significators and the cusp promise. */
@@ -419,6 +426,31 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       lagna: { nakshatra: n.lagnaNakshatra, number: n.lagnaNumber, nadi: n.lagnaNadi },
       distribution: n.distribution,
       note: n.note,
+    };
+  }, {});
+
+  const navatara = safe(() => {
+    const n = calculateNavaTara(chart);
+    return {
+      janmaNakshatra: n.janmaNakshatra, janmaNumber: n.janmaNumber,
+      cycle: n.cycle.map((c) => ({ tara: c.tara.name, nature: c.tara.nature, nakshatras: c.nakshatras.map((x) => x.name) })),
+      rows: n.rows.map((r) => ({ nakshatra: r.nakshatraName, tara: r.tara.name })),
+      note: n.note,
+    };
+  }, {});
+
+  const kpAspects = safe(() => {
+    const layer = calculateKpLayer(chart);
+    const a = calculateKpAspects(chart, layer.cusps, (id) => housesSignified(chart, layer.cusps, id));
+    return {
+      planetAspects: a.planetAspects.map((x) => ({
+        from: x.from, to: x.to, kind: x.kind, separation: x.separation, applying: x.applying, benefic: x.benefic,
+      })),
+      cuspAspects: a.cuspAspects.map((x) => ({
+        from: x.from, cusp: x.cusp, kind: x.kind, separation: x.separation, benefic: x.benefic, carries: x.carries,
+      })),
+      rasiAspects: a.rasiAspects,
+      note: a.note,
     };
   }, {});
 
@@ -744,7 +776,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
-    avasthas, mrityuBhaga, nadi, kpFourStep,
+    avasthas, mrityuBhaga, nadi, navatara, kpAspects, kpFourStep,
   };
 }
 
