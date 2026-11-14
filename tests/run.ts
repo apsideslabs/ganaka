@@ -37,6 +37,7 @@ import { calculateKpLayer } from '../lib/kp';
 import { generateClassicalChartIndications } from '../lib/jyotisha/indications';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
+import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode } from '../lib/astronomy/siddhantic';
 import { fertilityOf } from '../lib/kp/constants';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
@@ -1470,6 +1471,49 @@ console.log('\n== KP tables and caching ==');
   const e: any = buildChartExport(natal, { dashaDepth: 2 });
   check('JSON carries the KP planet table', e.kp.planets?.length === 9);
   check('JSON carries the KP dasha table', Array.isArray(e.kp.dasha) && e.kp.dasha.length > 9);
+}
+
+/* ------------------------------------------ SURYA SIDDHANTA MODE */
+
+console.log('\n== Surya Siddhanta mode ==');
+{
+  const birth: any = FIXTURES[0].birth;
+  const drik: any = calculateFullJyotishaChart(birth);
+  const ss: any = calculateFullJyotishaChart({ ...birth, ephemerisMode: 'surya_siddhanta' });
+
+  check('the mode is recorded in meta', ss.meta.ephemerisMode === 'surya_siddhanta');
+  check('drik is the default', drik.meta.ephemerisMode === 'drik');
+
+  // The two modes must produce different positions and must not share a cache entry.
+  check('the two modes differ', drik.planets.sun.siderealLongitude !== ss.planets.sun.siderealLongitude);
+
+  // Siddhantic sidereal year is the text's own value.
+  check('the siddhantic sidereal year is 365.2587565',
+    Math.abs(SS_SIDEREAL_YEAR - 365.2587565) < 1e-6, SS_SIDEREAL_YEAR.toFixed(7));
+
+  // Kali epoch: every mean planet at 0 except the Moon's apode and node.
+  check('at the Kali epoch the mean Sun is at 0 degrees',
+    Math.abs(suryaSiddhantaSun(KALI_EPOCH_JD, false).meanLongitude) < 0.01,
+    suryaSiddhantaSun(KALI_EPOCH_JD, false).meanLongitude.toFixed(3));
+  check('at the Kali epoch the node sits at 180 degrees',
+    Math.abs(((suryaSiddhantaNode(KALI_EPOCH_JD, false) % 360) + 360) % 360 - 180) < 0.01,
+    suryaSiddhantaNode(KALI_EPOCH_JD, false).toFixed(3));
+
+  // Validated accuracy envelope — the numbers the UI banner states.
+  const sunErr = Math.abs(((ss.planets.sun.siderealLongitude - drik.planets.sun.siderealLongitude + 540) % 360) - 180);
+  check('the siddhantic Sun stays within 0.5 degrees of the modern Sun', sunErr < 0.5, `${sunErr.toFixed(2)}°`);
+
+  const rahuErr = Math.abs(((ss.planets.rahu.siderealLongitude - drik.planets.rahu.siderealLongitude + 540) % 360) - 180);
+  check('the siddhantic Rahu stays within 5 degrees of the modern node', rahuErr < 5, `${rahuErr.toFixed(2)}°`);
+
+  // The planets are known to be out; the test records the envelope so a future
+  // fix that improves them is visible rather than silent.
+  const marsErr = Math.abs(((ss.planets.mars.siderealLongitude - drik.planets.mars.siderealLongitude + 540) % 360) - 180);
+  check('the siddhantic Mars error is recorded, not hidden', marsErr > 1, `${marsErr.toFixed(2)}°`);
+
+  // Positions must be valid longitudes in both modes.
+  check('siddhantic positions are all in range',
+    Object.values(ss.planets).every((p: any) => p.siderealLongitude >= 0 && p.siderealLongitude < 360));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
