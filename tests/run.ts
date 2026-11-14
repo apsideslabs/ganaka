@@ -1195,6 +1195,40 @@ console.log('\n== Exports carry calculation, not prediction ==');
   }
 }
 
+/* --------------------------------------------- KP ON PLACIDUS CUSPS */
+
+console.log('\n== KP uses Placidus cusps ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // KP is defined on Placidus. The layer must give the same answer whatever
+  // house system the chart itself was cast with, and it must not be the
+  // whole-sign answer.
+  const whole: any = calculateFullJyotishaChart({ ...(FIXTURES[0].birth as any), houseSystem: 'equal_whole' });
+  const plac: any = calculateFullJyotishaChart({ ...(FIXTURES[0].birth as any), houseSystem: 'placidus' });
+
+  const prWhole: any = evaluateCuspPromise(whole, 7, [2, 7, 11], [1, 6, 10]);
+  const prPlac: any = evaluateCuspPromise(plac, 7, [2, 7, 11], [1, 6, 10]);
+
+  check('cusp sub lord is identical under either chart house system',
+    prWhole.subLord === prPlac.subLord, `${prWhole.subLord} vs ${prPlac.subLord}`);
+
+  // And it must actually differ from the naive whole-sign cusp reading, or the
+  // test proves nothing. On this chart the 7th cusp is 45° by sign.
+  const wholeSignCusp = (whole.bhavas[6] as any).madhyaDegree;
+  const placidusCusp = (plac.bhavas[6] as any).madhyaDegree;
+  check('the two house systems really do place the 7th cusp differently',
+    Math.abs(wholeSignCusp - placidusCusp) > 1,
+    `${wholeSignCusp} vs ${placidusCusp.toFixed(2)}`);
+
+  // Significators must also come from Placidus occupants.
+  const sigWhole = calculateSignificators(whole, 7);
+  const sigPlac = calculateSignificators(plac, 7);
+  check('significators agree across chart house systems',
+    JSON.stringify(sigWhole.map((l) => l.planets)) === JSON.stringify(sigPlac.map((l) => l.planets)));
+  check('significators still produce four levels', sigPlac.length === 4);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
