@@ -36,6 +36,14 @@ export interface PlatformSettings {
    *                 commented, and the lineage Kāmarūpa's own almanac cites.
    */
   ashtakavargaRecension: 'parashara' | 'varahamihira';
+  /**
+   * Which gaṇita computes the planetary positions.
+   *
+   *   drik            VSOP87 / ELP2000, the modern observational ephemeris.
+   *   surya_siddhanta the classical method. EXPERIMENTAL — see the warning in
+   *                   the settings dialog before switching to it.
+   */
+  ephemerisMode: 'drik' | 'surya_siddhanta';
 }
 
 export type VargaSetMode = 'standard' | 'extended';
@@ -90,6 +98,7 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   dinaManaUnit: 'both',
   defaultChartStyle: 'north',
   ashtakavargaRecension: 'parashara',
+  ephemerisMode: 'drik',
 };
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
