@@ -69,9 +69,9 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     hour,
     minute,
     second = 0,
-    latitude,
-    longitude,
-    timezoneOffsetHours,
+    latitude: rawLatitude,
+    longitude: rawLongitude,
+    timezoneOffsetHours: rawTimezone,
     locationName,
     ayanamshaType = 'lahiri',
     customAyanamshaValue = 0,
@@ -81,10 +81,55 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
     nodeType = 'mean',
   } = input;
 
+  /**
+   * Input validation.
+   *
+   * These used to pass straight through. A latitude of 91°, a longitude of 400°
+   * or an hour of 25 all produced a chart that looked completely normal and was
+   * entirely wrong — the worst possible failure mode, because nothing signals it.
+   * Values are now clamped to their legal ranges and every clamp is recorded in
+   * `meta.warnings` so a caller can surface it rather than trusting the chart.
+   */
+  const warnings: string[] = [];
+
+  const clamp = (v: number, lo: number, hi: number, name: string): number => {
+    if (!Number.isFinite(v)) {
+      warnings.push(`${name} was not a number; used ${lo}.`);
+      return lo;
+    }
+    if (v < lo || v > hi) {
+      const c = Math.max(lo, Math.min(hi, v));
+      warnings.push(`${name} ${v} is outside ${lo}…${hi}; clamped to ${c}.`);
+      return c;
+    }
+    return v;
+  };
+
+  const latitude = clamp(rawLatitude, -90, 90, 'latitude');
+  // Longitude is circular, so normalise rather than clamp — 400° is −40°.
+  let longitude = Number.isFinite(rawLongitude) ? ((rawLongitude % 360) + 540) % 360 - 180 : 0;
+  if (!Number.isFinite(rawLongitude)) warnings.push('longitude was not a number; used 0.');
+  else if (rawLongitude < -180 || rawLongitude > 180) {
+    warnings.push(`longitude ${rawLongitude} is outside −180…180; normalised to ${longitude.toFixed(4)}.`);
+  }
+  const timezoneOffsetHours = clamp(rawTimezone, -12, 14, 'timezone');
+
+  const safeHour = clamp(hour, 0, 23, 'hour');
+  const safeMinute = clamp(minute, 0, 59, 'minute');
+  const safeSecond = clamp(second, 0, 59, 'second');
+
+  const monthDays = [31, (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 29 : 28,
+    31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const safeMonth = clamp(month, 1, 12, 'month');
+  const safeDay = clamp(day, 1, monthDays[safeMonth - 1] ?? 31, 'day');
+  if (safeDay !== day) {
+    warnings.push(`day ${day} does not exist in month ${safeMonth} of ${year}; clamped to ${safeDay}.`);
+  }
+
   // 1. Julian Day (Universal Time)
-  const decimalHours = hour + minute / 60.0 + second / 3600.0;
+  const decimalHours = safeHour + safeMinute / 60.0 + safeSecond / 3600.0;
   const utDecimalHours = decimalHours - timezoneOffsetHours;
-  const jd = calculateJulianDay(year, month, day, utDecimalHours);
+  const jd = calculateJulianDay(year, safeMonth, safeDay, utDecimalHours);
 
   // 2. Ayanāṃśa
   const ayanamsha = calculateAyanamsha(jd, ayanamshaType, customAyanamshaValue);
@@ -344,6 +389,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       // convention a Rāhu that is 1°45′ out is indistinguishable from one that
       // is right, and the daśā balance moves with it.
       nodeType: (nodeType ?? 'mean'),
+      warnings,
       jaiminiScheme: (jaiminiScheme ?? '7_karaka'),
       birthDetails: {
         year,
