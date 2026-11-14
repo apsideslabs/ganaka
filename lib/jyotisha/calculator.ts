@@ -7,6 +7,7 @@
 import { calculateJulianDay, toDMS, normalizeDegrees } from '../astronomy/julian';
 import { calculateAyanamsha, formatAyanamsha, AyanamshaType } from '../astronomy/ayanamsha';
 import { calculateAllPlanets, calculateSolarTimes, getSunDetailsAtJD, PlanetId } from '../astronomy/ephemeris';
+import { suryaSiddhantaPositions } from '../astronomy/siddhantic';
 import { calculateAscendant, calculateMidheaven, calculateHouses } from './houses';
 import { calculateDignity, checkCombustion, calculateAspects } from './dignity';
 import { calculatePanchanga } from './panchanga';
@@ -56,6 +57,23 @@ export interface CalculationInput {
    */
   nodeType?: 'mean' | 'true';
   jaiminiScheme?: '7_karaka' | '8_karaka';
+  /**
+   * Which gaṇita computes the positions.
+   *
+   *   'drik'            VSOP87 / ELP2000 — the modern observational ephemeris.
+   *                     This is the default and the only mode that should drive
+   *                     a chart today.
+   *   'surya_siddhanta' the classical method: mean longitude from the text's
+   *                     revolution counts, then manda and śīghra epicycles.
+   *
+   * ⚠ The siddhāntic mode is EXPERIMENTAL and incomplete. Its Sun is accurate to
+   * 0.2° and its Moon, Rāhu and Saturn land within 5°, but the mean motions of
+   * Mars, Mercury, Jupiter and Venus carry 23–123 revolutions per Mahāyuga of
+   * error that only the pañcāṅga bīja tables can correct — until those are
+   * supplied, those four grahas are 13°–45° from the sky. Do not read a chart
+   * cast in this mode as a chart of the sky.
+   */
+  ephemerisMode?: 'drik' | 'surya_siddhanta';
 }
 
 
@@ -81,6 +99,7 @@ function cacheKey(input: CalculationInput): string {
     input.ayanamshaType ?? 'lahiri', input.customAyanamshaValue ?? 0,
     input.houseSystem ?? 'equal_whole', input.jaiminiScheme ?? '7_karaka',
     input.ashtakavargaRecension ?? 'parashara', input.nodeType ?? 'mean',
+    input.ephemerisMode ?? 'drik',
   ].join('|');
 }
 
@@ -95,6 +114,25 @@ export function clearChartCache(): void {
  * Memoised on the input signature; the returned object is shared, so callers
  * must treat it as immutable.
  */
+/**
+ * Adapt the siddhāntic longitudes to the shape `calculateAllPlanets` returns.
+ *
+ * Sūrya Siddhānta is nirāyaṇa by construction — its longitudes are already
+ * sidereal, so no ayanāṃśa is subtracted here. Speeds are taken from the modern
+ * ephemeris because the siddhāntic texts give mean motions, not the instantaneous
+ * speed the rest of the engine expects for retrogradation.
+ */
+function siddhanticPlanetPositions(jd: number): any {
+  const ss = suryaSiddhantaPositions(jd, false);
+  const modern = calculateAllPlanets(jd, 'lahiri', 0);
+  const out: any = {};
+  for (const [id, lon] of Object.entries(ss)) {
+    const base: any = (modern as any)[id] ?? {};
+    out[id] = { ...base, siderealLongitude: lon, tropicalLongitude: lon };
+  }
+  return out;
+}
+
 export function calculateFullJyotishaChart(input: CalculationInput): JyotishaChart {
   const key = cacheKey(input);
   const hit = chartCache.get(key);
@@ -126,6 +164,7 @@ function computeChart(input: CalculationInput): JyotishaChart {
     jaiminiScheme = '7_karaka',
     ashtakavargaRecension = 'parashara',
     nodeType = 'mean',
+    ephemerisMode = 'drik',
   } = input;
 
   /**
@@ -183,7 +222,9 @@ function computeChart(input: CalculationInput): JyotishaChart {
   const ayanamshaFormatted = formatAyanamsha(ayanamsha);
 
   // 3. Ephemeris (Planetary positions & speeds)
-  const rawPlanets = calculateAllPlanets(jd, ayanamshaType, customAyanamshaValue);
+  const rawPlanets = ephemerisMode === 'surya_siddhanta'
+    ? siddhanticPlanetPositions(jd)
+    : calculateAllPlanets(jd, ayanamshaType, customAyanamshaValue);
 
   // 3a. Node convention. Both nodes are already computed; this decides which
   // one the rest of the chart is built from. Done here, before houses,
@@ -436,6 +477,7 @@ function computeChart(input: CalculationInput): JyotishaChart {
       // convention a Rāhu that is 1°45′ out is indistinguishable from one that
       // is right, and the daśā balance moves with it.
       nodeType: (nodeType ?? 'mean'),
+      ephemerisMode,
       warnings,
       jaiminiScheme: (jaiminiScheme ?? '7_karaka'),
       birthDetails: {
