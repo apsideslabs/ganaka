@@ -1041,7 +1041,7 @@ console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
 
   // Exports must carry everything the workspace shows.
   const e: any = buildChartExport(binay, { dashaDepth: 3 });
-  for (const k of ['avakahada', 'transits', 'indications', 'matchingData', 'kp', 'argala', 'eclipses', 'bhavaChalit']) {
+  for (const k of ['avakahada', 'transits', 'matchingData', 'kp', 'argala', 'eclipses', 'bhavaChalit']) {
     check(`JSON carries ${k}`, e[k] != null && Object.keys(e[k]).length > 0);
   }
 }
@@ -1147,6 +1147,52 @@ console.log('\n== Input validation & polar geometry ==');
   // Warnings must survive into the export.
   const e: any = buildChartExport(badLat, { dashaDepth: 1 });
   check('JSON carries the input warnings', Array.isArray(e.calculation.warnings) && e.calculation.warnings.length > 0);
+}
+
+/* ------------------------------------------- NO PREDICTION IN THE EXPORTS */
+
+console.log('\n== Exports carry calculation, not prediction ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+
+  check('no indications section', !('indications' in e));
+
+  // Yogas and doṣas stay as detections; their interpretation does not.
+  check('yogas are still exported', Array.isArray(e.chart.yogas) && e.chart.yogas.length > 0);
+  check('yoga effects prose is stripped',
+    e.chart.yogas.every((y: any) => !('effects' in y)));
+  check('yogas keep their source and verse',
+    e.chart.yogas.every((y: any) => typeof y.chapterAndVerse === 'string' && y.chapterAndVerse.length > 0));
+
+  check('doshas are still exported',
+    Array.isArray(e.chart.doshas.evaluatedDoshas) && e.chart.doshas.evaluatedDoshas.length > 0);
+  check('dosha remedies are stripped',
+    e.chart.doshas.evaluatedDoshas.every((d: any) => !('remedies' in d)));
+  check('dosha effects prose is stripped',
+    e.chart.doshas.evaluatedDoshas.every((d: any) => !('classicalEffects' in d)));
+  check('doshas keep their formation status',
+    e.chart.doshas.evaluatedDoshas.every((d: any) => typeof d.formationStatus === 'string'));
+
+  // The KP layer reports signification, not a promise verdict.
+  const promiseKeys = Object.keys(e.kp.promises || {});
+  check('KP matters are exported', promiseKeys.length > 0);
+  check('KP promise verdicts are stripped',
+    promiseKeys.every((k: string) => {
+      const v = e.kp.promises[k];
+      return v == null || (!('promise' in v) && !('reading' in v));
+    }), JSON.stringify(promiseKeys));
+
+  // A blunt sweep: no predictive phrasing anywhere in the document.
+  const blob = JSON.stringify(e);
+  // 'destiny' is deliberately absent from this list: it appears in the D60
+  // varga's own description ("seed of destiny"), which names what the division
+  // signifies rather than predicting anything.
+  const forbidden = ['will happen', 'you will', 'the native will', 'fructifies',
+                     'predicts', 'forecast', 'guaranteed'];
+  for (const phrase of forbidden) {
+    check(`the export contains no "${phrase}"`, !blob.toLowerCase().includes(phrase));
+  }
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
