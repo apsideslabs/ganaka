@@ -1083,9 +1083,10 @@ ${Object.values(chartData.planets)
           <span className="w-1.5 h-1.5 rounded-full bg-[#8C2D19] mt-1.5 shrink-0" />
           <p className="text-[11px] text-slate-700 leading-relaxed">
             <strong className="font-semibold">Sūrya Siddhānta mode.</strong> Every position on this
-            page comes from the classical gaṇita, not the modern ephemeris. The Sun is accurate to
-            0.2°, and the Moon and Rāhu to about 4°. Mars, Mercury, Jupiter and Venus are 13°–45°
-            from the sky until the pañcāṅga bīja tables are applied. Read this as a traditional
+            page comes from the classical gaṇita with the documented bīja corrections, not the
+            modern ephemeris. The Sun is within 0.2°, Saturn 1°, Rāhu 2° and the Moon 4° of the
+            sky; Jupiter is 11° out, and Mars and Mercury remain 26° and 45° out because the
+            documented bīja does not carry revolution counts that large. Read this as a traditional
             chart, not a chart of the sky.
           </p>
         </div>
