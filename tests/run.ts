@@ -33,9 +33,12 @@ import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
 import { findEclipses } from '../lib/astronomy/eclipses';
 import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
+import { calculateKpLayer } from '../lib/kp';
+import { fertilityOf } from '../lib/kp/constants';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
-import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '../lib/jyotisha/kp';
+import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS, buildKpCusps } from '../lib/jyotisha/kp';
+import { RASHIS } from '../lib/jyotisha/constants';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
 import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
@@ -949,8 +952,12 @@ console.log('\n== KP layer ==');
   const sigs = calculateSignificators(natal, 7);
   check('significators produce four levels', sigs.length === 4, String(sigs.length));
   check('the house owner is the level-4 significator', sigs[3].planets.length === 1);
-  const owner = (natal.bhavas[6] as any).rashiLord ?? (natal.bhavas[6] as any).lord;
-  check('level 4 is exactly the owner', sigs[3].planets[0] === owner, `${sigs[3].planets[0]} vs ${owner}`);
+  // KP reads the cusp lord from the Placidus cusp, not from the whole-sign
+  // bhava — the two differ, which is the whole point of the KP layer.
+  const kpCusp7 = buildKpCusps(natal)[6];
+  const owner = RASHIS[kpCusp7.rashi].lord;
+  check('level 4 is exactly the Placidus cusp lord', sigs[3].planets[0] === owner,
+    `${sigs[3].planets[0]} vs ${owner}`);
 
   // The promise rule must be internally consistent with its own house lists.
   const pr: any = evaluateCuspPromise(natal, 7, KP_MATTERS.marriage.matter, KP_MATTERS.marriage.detrimental);
@@ -1227,6 +1234,85 @@ console.log('\n== KP uses Placidus cusps ==');
   check('significators agree across chart house systems',
     JSON.stringify(sigWhole.map((l) => l.planets)) === JSON.stringify(sigPlac.map((l) => l.planets)));
   check('significators still produce four levels', sigPlac.length === 4);
+}
+
+/* ------------------------------------------------------ FULL KP ENGINE */
+
+console.log('\n== Full KP engine ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const layer = calculateKpLayer(natal);
+
+  check('twelve Placidus cusps', layer.cusps.length === 12, String(layer.cusps.length));
+  check('every cusp carries four KP lords',
+    layer.cusps.every((c) => c.lords.signLord && c.lords.starLord && c.lords.subLord && c.lords.subSubLord));
+  check('cusps are strictly increasing in arc',
+    layer.cusps.every((c, i) => {
+      const next = layer.cusps[(i + 1) % 12].longitude;
+      const arc = ((next - c.longitude) % 360 + 360) % 360;
+      return arc > 0 && arc < 180;
+    }));
+
+  // Every cusp must be assigned a fertility class.
+  check('every cusp has a fertility class',
+    Object.keys(layer.fertility).length === 12 &&
+    Object.values(layer.fertility).every((f) => ['fruitful', 'semi-fruitful', 'barren'].includes(f as string)));
+
+  // KP's sign classes.
+  check('Cancer, Scorpio and Pisces are fruitful',
+    [4, 8, 12].every((r) => fertilityOf(r as any) === 'fruitful'));
+  check('Aries, Gemini, Leo and Virgo are barren',
+    [1, 3, 5, 6].every((r) => fertilityOf(r as any) === 'barren'));
+  check('Taurus, Libra, Capricorn and Sagittarius are semi-fruitful',
+    [2, 7, 9, 10].every((r) => fertilityOf(r as any) === 'semi-fruitful'));
+
+  // Significators: four levels for every house, retrograde rejections tracked.
+  check('significators cover twelve houses', Object.keys(layer.significators).length === 12);
+  check('every house has four levels',
+    Object.values(layer.significators).every((s) => s.levels.length === 4));
+  check('the ranked list never exceeds the level union',
+    Object.values(layer.significators).every((s) => s.ranked.length <= 9));
+
+  // Ruling planets: five classic roles, plus working set and omissions.
+  check('five classic ruling planets', layer.ruling.planets.length === 5);
+  check('the working set is never larger than base plus nodes',
+    layer.ruling.workingSet.length <= 5 + layer.ruling.nodeAgents.length);
+  check('omitted grahas are reported', Array.isArray(layer.ruling.omittedRetrograde));
+
+  // Node agency: every node maps to a real graha.
+  check('node agents map to real grahas',
+    layer.nodeAgents.every((n) => typeof n.agentOf === 'string' && n.agentOf !== n.node));
+
+  // Interlinks reference real houses.
+  check('interlinks stay within 1-12',
+    layer.interlinks.every((l) => l.fromHouse >= 1 && l.fromHouse <= 12 && l.intoHouse >= 1 && l.intoHouse <= 12));
+  check('an interlink never points at its own house',
+    layer.interlinks.every((l) => l.fromHouse !== l.intoHouse));
+
+  // Promises cover every matter and carry a fertility class.
+  check('every matter is evaluated',
+    Object.keys(layer.promises).length === Object.keys(KP_MATTERS).length);
+  check('promises carry the cusp fertility',
+    Object.values(layer.promises).every((p: any) => !p || typeof p.fertility === 'string'));
+
+  // Retrograde sub lord defers the promise rather than granting it.
+  const retro = Object.values(layer.promises).find((p: any) => p?.subLordRetrograde);
+  check('a retrograde sub lord is marked',
+    !retro || retro.promise === 'promised-when-direct' || retro.promise !== 'promised',
+    retro ? String(retro.promise) : 'none in this chart');
+
+  // Timing covers every matter.
+  check('timing is produced for every matter',
+    Object.keys(layer.timing).length === Object.keys(KP_MATTERS).length);
+
+  // The export carries the whole layer.
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  check('JSON carries the KP cusps', e.kp.cusps?.length === 12);
+  check('JSON carries KP interlinks', Array.isArray(e.kp.interlinks));
+  check('JSON carries the KP fertility map', Object.keys(e.kp.fertility || {}).length === 12);
+  check('JSON carries node agents', Array.isArray(e.kp.nodeAgents));
+  check('JSON KP promises still omit the verdict',
+    Object.values(e.kp.promises || {}).every((p: any) => !p || !('promise' in p)));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
