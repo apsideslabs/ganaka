@@ -12,6 +12,8 @@
 
 import type { JyotishaChart } from './types';
 import { NAKSHATRA_NADI } from './nadi';
+import { calculateAllPlanets } from '../astronomy/ephemeris';
+import { calculateJulianDay } from '../astronomy/julian';
 
 export type TaraNature = 'auspicious' | 'inauspicious' | 'mixed';
 
@@ -123,5 +125,56 @@ export function calculateNavaTara(
       'Counted from the janma nakṣatra in nine repeating steps. Each tārā holds three nakṣatras, ' +
       'and the three most difficult — Vipat, Pratyak and Naidhana — are avoided for beginnings. ' +
       'The chakra is fixed at birth; what changes is which nakṣatra the day falls in.',
+  };
+}
+
+/** The Moon's nakṣatra at an arbitrary instant, 1–27. */
+export function nakshatraAt(jdUt: number, ayanamshaType: any = 'lahiri'): number {
+  const planets: any = calculateAllPlanets(jdUt, ayanamshaType, 0);
+  const lon = Number(planets?.moon?.siderealLongitude ?? 0);
+  return Math.floor(lon / (360 / 27)) + 1;
+}
+
+export interface TaraToday {
+  date: string;
+  nakshatraNumber: number;
+  nakshatraName: string;
+  taraNumber: number;
+  tara: Tara;
+  /** True when the tārā favours beginning something. */
+  favourable: boolean;
+  guidance: string;
+}
+
+/**
+ * Which tārā is in force on a given date for a given janma nakṣatra.
+ *
+ * The chakra is fixed at birth; what changes day to day is the Moon's nakṣatra,
+ * and therefore which of the nine is in force. Computed at local noon so the
+ * answer does not flip as the Moon crosses a boundary during the day.
+ */
+export function taraToday(
+  janmaNumber: number,
+  when: Date = new Date(),
+  latitude = 0,
+  longitude = 0,
+  timezoneOffsetHours = 0,
+  ayanamshaType: any = 'lahiri'
+): TaraToday {
+  const jd = calculateJulianDay(
+    when.getFullYear(), when.getMonth() + 1, when.getDate(),
+    12 - timezoneOffsetHours, 0, 0
+  );
+  const nak = nakshatraAt(jd, ayanamshaType);
+  const t = taraFor(janmaNumber, nak);
+  const tara = TARAS[t - 1];
+  return {
+    date: when.toISOString().slice(0, 10),
+    nakshatraNumber: nak,
+    nakshatraName: NAKSHATRA_NADI[nak - 1]?.name ?? '',
+    taraNumber: t,
+    tara,
+    favourable: tara.nature === 'auspicious',
+    guidance: tara.guidance,
   };
 }
