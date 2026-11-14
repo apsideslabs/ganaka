@@ -7,6 +7,7 @@ import { PlanetId, calculateAllPlanets } from '../astronomy/ephemeris';
 import { calculateJulianDay } from '../astronomy/julian';
 import { AyanamshaType } from '../astronomy/ayanamsha';
 import { RashiNumber, CalculatedPlanet } from './types';
+import { kaksyaOf } from '../ashtakavarga/ashtakavarga';
 import { RASHIS, GRAHA_PROPERTIES } from './constants';
 
 export interface TransitPlanetStatus {
@@ -57,13 +58,17 @@ export function calculateCurrentTransits(
   natalMoonRashi: RashiNumber,
   natalLagnaRashi: RashiNumber,
   ayanamshaType: AyanamshaType = 'lahiri',
-  transitDate: Date = new Date()
+  transitDate: Date = new Date(),
+  /** The natal aṣṭakavarga, so each transit carries its kakṣyā bindu. */
+  ashtakavarga?: { bav?: Record<string, { bindusByRashi?: number[] }>; sav?: { bindusByRashi?: number[] } }
 ): {
   transitDateStr: string;
   transitJD: number;
   rawPlanets: any;
   planets: TransitPlanetStatus[];
   sadeSati: SadeSatiStatus;
+  /** Each transiting graha's kakṣyā, so a transit can be placed inside its sign. */
+  kaksyas: Array<{ graha: string; rashiNumber: number; kakshaId: string; kakshaName: string; from: number; to: number; bindu: number | null; sav: number | null }>;
 } {
   const tYear = transitDate.getUTCFullYear();
   const tMonth = transitDate.getUTCMonth() + 1;
@@ -213,6 +218,22 @@ export function calculateCurrentTransits(
       ashtamaShani: ashtama,
       dhairyaDescription: dhairyaDesc,
     },
+    // Every transiting graha's kakṣyā, with the bindu that division carries.
+    kaksyas: transitPlanets.map((tp) => {
+      const k = kaksyaOf(tp.transitLongitude);
+      const bav = ashtakavarga?.bav?.[tp.id]?.bindusByRashi;
+      const sav = ashtakavarga?.sav?.bindusByRashi;
+      return {
+        graha: tp.id,
+        rashiNumber: tp.transitRashi,
+        kakshaId: k.kakshaId,
+        kakshaName: k.kakshaName,
+        from: k.from,
+        to: k.to,
+        bindu: Array.isArray(bav) ? bav[tp.transitRashi - 1] ?? null : null,
+        sav: Array.isArray(sav) ? sav[tp.transitRashi - 1] ?? null : null,
+      };
+    }),
   };
 }
 
