@@ -721,7 +721,26 @@ export const WorkspaceClient: React.FC = () => {
 
   // Professional View Settings
   const [showWorkspaceSettings, setShowWorkspaceSettings] = useState<boolean>(false);
-  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>('north');
+  /**
+   * Chart style, seeded from settings.
+   *
+   * This was hard-coded to 'north', so the workspace setting and the platform
+   * default both did nothing — you could choose South Indian anywhere in the app
+   * and the main kuṇḍalī still opened as North. Workspace setting wins, platform
+   * default is the fallback.
+   */
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'east'>(() => {
+    if (typeof window === 'undefined') return 'north';
+    try {
+      const ws = JSON.parse(localStorage.getItem('ganaka_workspace_settings_v1') || '{}');
+      const st = ws?.chartStyle;
+      if (st === 'north' || st === 'south' || st === 'east') return st;
+      const pf = JSON.parse(localStorage.getItem('ganaka_platform_settings_v1') || '{}');
+      const ps = pf?.defaultChartStyle;
+      if (ps === 'north' || ps === 'south' || ps === 'east') return ps;
+    } catch { /* fall through */ }
+    return 'north';
+  });
   const [dualViewMode, setDualViewMode] = useState<boolean>(false);
   const [dualSecondaryVarga, setDualSecondaryVarga] = useState<VargaId>('D9');
 
