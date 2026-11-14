@@ -44,7 +44,7 @@ import { housesSignified } from '../lib/kp/significators';
 import { calculateNavaTara, taraFor, taraToday } from '../lib/jyotisha/navatara';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
-import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode } from '../lib/astronomy/siddhantic';
+import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode, bijaCorrections, siddhanticResiduals } from '../lib/astronomy/siddhantic';
 import { fertilityOf } from '../lib/kp/constants';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
@@ -1708,6 +1708,47 @@ console.log('\n== Tara today ==');
     if (n < 1 || n > 27) inRange = false;
   }
   check('the Moon nakshatra stays within 1-27 across a year', inRange);
+}
+
+/* ------------------------------------------- SIDDHANTIC BIJA CORRECTIONS */
+
+console.log('\n== Surya Siddhanta bija ==');
+{
+  const birth: any = FIXTURES[0].birth;
+  const drik: any = calculateFullJyotishaChart(birth);
+  const ss: any = calculateFullJyotishaChart({ ...birth, ephemerisMode: 'surya_siddhanta' });
+
+  // The documented bīja values, from Burgess.
+  const b = bijaCorrections();
+  const byBody = Object.fromEntries(b.map((x) => [x.body, x]));
+  check('Mercury carries -16 revolutions', byBody.mercury?.delta === -16, String(byBody.mercury?.delta));
+  check('Venus carries -12 revolutions', byBody.venus?.delta === -12);
+  check('Jupiter carries -8 revolutions', byBody.jupiter?.delta === -8);
+  check('Saturn carries +12 revolutions', byBody.saturn?.delta === +12);
+  check('the Moon node carries +4', byBody.moonNode?.delta === +4);
+  check('the Moon apogee carries -4', byBody.moonApogee?.delta === -4);
+  check('Mars carries no bīja', byBody.mars?.delta === 0);
+  check('the Sun carries no bīja', byBody.sun?.delta === 0);
+
+  // The mode now uses the bīja counts, so Saturn should land within a degree.
+  const modern: Record<string, number> = {};
+  for (const [k, v] of Object.entries(drik.planets as any)) modern[k] = (v as any).siderealLongitude;
+  const res = siddhanticResiduals(drik.meta.julianDay, modern);
+  check('the residuals cover eight bodies', res.length === 8, String(res.length));
+
+  const sat = res.find((r) => r.body === 'saturn');
+  check('Saturn lands within 2 degrees on the bīja counts', Math.abs(sat?.delta ?? 99) < 2,
+    `${sat?.delta}°`);
+  const sun = res.find((r) => r.body === 'sun');
+  check('the Sun stays within 1 degree', Math.abs(sun?.delta ?? 99) < 1, `${sun?.delta}°`);
+
+  // And the two that remain wrong are recorded, not hidden.
+  const mer = res.find((r) => r.body === 'mercury');
+  check('Mercury is still recorded as wrong', mer?.verdict === 'wrong', `${mer?.delta}°`);
+  const mars = res.find((r) => r.body === 'mars');
+  check('Mars is still recorded as wrong', mars?.verdict === 'wrong', `${mars?.delta}°`);
+
+  check('the siddhantic mode differs from drik', ss.planets.sun.siderealLongitude !== drik.planets.sun.siderealLongitude);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
