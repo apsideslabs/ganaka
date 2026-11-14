@@ -15,9 +15,10 @@
 import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateKpLayer, KP_MATTERS, type KpLayer } from '@/lib/kp';
+import { fourStepCheck, type FourStepResult } from '@/lib/kp/four-step';
 import {
   Compass, ListOrdered, Target, ShieldCheck, Clock, Link2, Info, ChevronRight,
-  Orbit, CalendarRange,
+  Orbit, CalendarRange, ListChecks,
 } from 'lucide-react';
 import { KpChart } from './kp/KpChart';
 import { KpMark } from './kp/KpMark';
@@ -26,7 +27,7 @@ interface KPPanelProps {
   chart: JyotishaChart;
 }
 
-type Tab = 'chart' | 'cusps' | 'planets' | 'significators' | 'ruling' | 'promise' | 'timing' | 'dasha';
+type Tab = 'chart' | 'cusps' | 'planets' | 'significators' | 'ruling' | 'promise' | 'timing' | 'dasha' | 'fourstep';
 
 const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { id: 'chart', label: 'Chart', icon: Orbit },
@@ -36,6 +37,7 @@ const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ classNam
   { id: 'ruling', label: 'Ruling Planets', icon: Target },
   { id: 'promise', label: 'Promise', icon: ShieldCheck },
   { id: 'timing', label: 'Timing', icon: Clock },
+  { id: 'fourstep', label: '4-Step Check', icon: ListChecks },
   { id: 'dasha', label: 'Daśā', icon: CalendarRange },
 ];
 
@@ -98,6 +100,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
   const promise = kp.promises[matter];
   const timing = kp.timing[matter];
   const matterDef = KP_MATTERS[matter];
+  const fourStep: FourStepResult | null = fourStepCheck(chart, kp, matter);
 
   const promiseCounts = Object.values(kp.promises).reduce(
     (acc: Record<string, number>, p: any) => {
@@ -535,6 +538,73 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── 4-step check ───────────────────────────────────────── */}
+      {tab === 'fourstep' && (
+        <div className="space-y-5">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
+            <SectionHead right={
+              <select aria-label="Matter for the four-step check" value={matter} onChange={(e) => setMatter(e.target.value)}
+                className="px-3 py-2 text-[13px] border border-slate-300 rounded-lg bg-white text-slate-700">
+                {Object.entries(KP_MATTERS).map(([k, m]) => (
+                  <option key={k} value={k}>{m.label}</option>
+                ))}
+              </select>
+            }>The four-step check</SectionHead>
+
+            <p className="text-[13px] text-slate-500 mb-6 leading-relaxed">
+              Promise first, then significators, then the ruling planets, then timing. The order is
+              the procedure — a matter refused at step 1 is not rescued by a good daśā at step 4.
+            </p>
+
+            {fourStep ? (
+              <>
+                <div className="space-y-3">
+                  {fourStep.steps.map((st) => {
+                    const ink =
+                      st.verdict === 'yes' ? 'border-emerald-200 bg-emerald-50/60'
+                        : st.verdict === 'partial' ? 'border-amber-200 bg-amber-50/50'
+                          : st.verdict === 'no' ? 'border-[#8C2D19]/25 bg-[#8C2D19]/[0.04]'
+                            : 'border-slate-200 bg-slate-50';
+                    const badge =
+                      st.verdict === 'yes' ? 'bg-emerald-600 text-white'
+                        : st.verdict === 'partial' ? 'bg-amber-500 text-white'
+                          : st.verdict === 'no' ? 'bg-[#8C2D19] text-white'
+                            : 'bg-slate-400 text-white';
+                    return (
+                      <div key={st.step} className={`rounded-xl border p-5 ${ink}`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-mono text-[12px] font-bold ${badge}`}>
+                            {st.step}
+                          </span>
+                          <span className="text-[14px] font-semibold text-slate-900">{st.title}</span>
+                          <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 ml-auto">{st.verdict}</span>
+                        </div>
+                        <p className="text-[12px] text-slate-500 mb-1.5">{st.question}</p>
+                        <p className="text-[13px] text-slate-800 leading-relaxed">{st.finding}</p>
+                        {st.evidence.length > 0 && (
+                          <ul className="mt-2.5 space-y-0.5">
+                            {st.evidence.map((e, i) => (
+                              <li key={i} className="text-[12px] font-mono text-slate-500">{e}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 rounded-xl border-2 border-[#8C2D19]/25 bg-[#8C2D19]/[0.045] p-5">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">Conclusion</div>
+                  <p className="text-[14px] text-slate-900 leading-relaxed">{fourStep.conclusion}</p>
+                </div>
+              </>
+            ) : (
+              <p className="text-[13px] text-slate-400">No reading for this matter.</p>
             )}
           </div>
         </div>
