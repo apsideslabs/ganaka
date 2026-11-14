@@ -19,6 +19,9 @@ import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateKpLayer } from '@/lib/kp';
+import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
+import { calculateNadi } from '@/lib/jyotisha/nadi';
+import { fourStepForAll } from '@/lib/kp/four-step';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -104,6 +107,14 @@ export interface GanakaChartExport {
   transits: Record<string, unknown>;
   /** Lunar data used by the marriage-matching bridge. */
   matchingData: Record<string, unknown>;
+  /** The five avasthā sets, per graha. */
+  avasthas: Record<string, unknown>;
+  /** Mṛtyu Bhāga — the fateful degrees, both recensions. */
+  mrityuBhaga: Record<string, unknown>;
+  /** Nakṣatra nāḍī for the Moon and Lagna. */
+  nadi: Record<string, unknown>;
+  /** The KP four-step check for every matter. */
+  kpFourStep: Record<string, unknown>;
   /** The KP layer: ruling planets, significators and the cusp promise. */
   kp: Record<string, unknown>;
   /** Jupiter–Saturn double transit as of the export date. */
@@ -385,6 +396,40 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   }, {});
 
   const matchingData = safe(() => extractLunarData(chart), {});
+
+  // --- Avasthās, mṛtyu bhāga, nāḍī, four-step -------------------------------
+  const avasthas = safe(() => {
+    const out: Record<string, unknown> = {};
+    for (const [id, p] of Object.entries(chart.planets as any)) {
+      const av = (p as any)?.avasthas;
+      if (av) out[id] = av;
+    }
+    return out;
+  }, {});
+
+  const mrityuBhaga = safe(() => {
+    const r = calculateMrityuBhaga(chart);
+    return { recension: r.recension, rows: r.rows, affected: r.affected.map((a) => a.body), note: r.note };
+  }, {});
+
+  const nadi = safe(() => {
+    const n = calculateNadi(chart);
+    return {
+      moon: { nakshatra: n.moonNakshatra, number: n.moonNumber, nadi: n.moonNadi },
+      lagna: { nakshatra: n.lagnaNakshatra, number: n.lagnaNumber, nadi: n.lagnaNadi },
+      distribution: n.distribution,
+      note: n.note,
+    };
+  }, {});
+
+  const kpFourStep = safe(() => {
+    const layer = calculateKpLayer(chart);
+    return fourStepForAll(chart, layer).map((r) => ({
+      matter: r.matter, house: r.house, outcome: r.outcome,
+      steps: r.steps.map((s) => ({ step: s.step, title: s.title, verdict: s.verdict, finding: s.finding })),
+      conclusion: r.conclusion,
+    }));
+  }, []);
 
   // --- KP layer -------------------------------------------------------------
   const kp = safe(() => {
@@ -699,6 +744,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
+    avasthas, mrityuBhaga, nadi, kpFourStep,
   };
 }
 
