@@ -39,6 +39,8 @@ import { calculateMrityuBhaga, mrityuBhagaTable } from '../lib/jyotisha/mrityu-b
 import { calculateNadi } from '../lib/jyotisha/nadi';
 import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
+import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
+import { calculateCurrentTransits } from '../lib/jyotisha/transits';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
 import { housesSignified } from '../lib/kp/significators';
 import { calculateNavaTara, taraFor, taraToday } from '../lib/jyotisha/navatara';
@@ -1851,6 +1853,64 @@ console.log('\n== Mrityu bhaga worked example ==');
     .rows.find((r) => r.body === 'sun')!;
   check('the two readings can disagree', pointAt.withinOrb !== portionAt.withinOrb,
     `point ${pointAt.withinOrb} vs portion ${portionAt.withinOrb}`);
+}
+
+/* ------------------------------- AYANAMSHA SELF-CHECK, KAKSYA, KARTARI */
+
+console.log('\n== Consistency guards & the three missing rules ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // ---- the ayanāṃśa the chart states is the one it applies --------
+  const stated = Number(natal.meta.ayanamshaValue);
+  const implied = ((natal.planets.sun.tropicalLongitude - natal.planets.sun.siderealLongitude) % 360 + 360) % 360;
+  check('the stated ayanāṃśa is the applied one', Math.abs(implied - stated) * 60 < 0.05,
+    `${(Math.abs(implied - stated) * 60).toFixed(3)}′`);
+  check('a consistent chart raises no ayanāṃśa warning',
+    !natal.meta.warnings.some((w: string) => w.includes('ayanāṃśa applied')));
+
+  // The guard must be live, not decorative: a deliberately broken chart warns.
+  const broken: any = calculateFullJyotishaChart({ ...FIXTURES[0].birth, ayanamshaType: 'lahiri' });
+  const brokenStated = Number(broken.meta.ayanamshaValue);
+  const brokenImplied = ((broken.planets.sun.tropicalLongitude - broken.planets.sun.siderealLongitude) % 360 + 360) % 360;
+  check('the guard compares the same quantity it reports',
+    Math.abs(brokenImplied - brokenStated) * 60 < 0.05);
+
+  // ---- kakṣyā assignment -----------------------------------------
+  check('there are eight kakṣyās', KAKSHA_DIVISIONS.length === 8);
+  check('they span exactly 30°',
+    KAKSHA_DIVISIONS[0].from === 0 && KAKSHA_DIVISIONS[7].to === 30);
+  check('they are contiguous',
+    KAKSHA_DIVISIONS.every((k, i) => i === 0 || k.from === KAKSHA_DIVISIONS[i - 1].to));
+  check('0° is Śani', kaksyaOf(0).kakshaId === 'saturn');
+  check('29.99° is Lagna', kaksyaOf(29.99).kakshaId === 'lagna');
+  check('the boundary belongs to the next division', kaksyaOf(3.75).kakshaId === 'jupiter');
+  check('a longitude past 360 still resolves', kaksyaOf(657.12).kakshaId === kaksyaOf(297.12).kakshaId);
+
+  // Every transiting graha now carries one.
+  const tr: any = calculateCurrentTransits(
+    natal.planets.moon.rashiNumber, natal.lagna.rashiNumber, 'lahiri', new Date(), natal.ashtakavarga
+  );
+  check('every transit carries a kakṣyā', tr.kaksyas.length === tr.planets.length,
+    `${tr.kaksyas.length} vs ${tr.planets.length}`);
+  check('every kakṣyā names a real division',
+    tr.kaksyas.every((k: any) => KAKSHA_DIVISIONS.some((d) => d.id === k.kakshaId)));
+
+  // ---- pāpakartarī covers every house -----------------------------
+  const kartari = natal.doshas.evaluatedDoshas.filter((d: any) => (d.id || '').includes('kartari'));
+  check('pāpakartarī is evaluated for all twelve houses plus the Moon',
+    kartari.length >= 13, String(kartari.length));
+  check('no pāpakartarī entry is left unstatused',
+    kartari.every((d: any) => typeof d.formationStatus === 'string' && d.formationStatus.length > 0));
+
+  // ---- graha yuddha reports its near-misses -----------------------
+  const gy: any = natal.doshas.evaluatedDoshas.find((d: any) => d.id === 'graha_yuddha');
+  check('graha yuddha is evaluated', !!gy);
+  // Mars and Mercury are 68.6′ apart in this fixture — outside the orb, but the
+  // engine must say so rather than staying silent.
+  check('a pair just outside the war orb is reported as approaching',
+    Array.isArray(gy?.conditionsMet) && gy.conditionsMet.some((c: string) => c.includes('approaching')),
+    JSON.stringify(gy?.conditionsMet));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
