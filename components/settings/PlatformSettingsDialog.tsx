@@ -31,6 +31,7 @@ import {
   subscribeToSettings,
 } from '@/lib/settings/settings-storage';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
+import { AlertTriangle } from 'lucide-react';
 import { CITIES_DATABASE, CityLocation, searchLocations } from '@/lib/astronomy/coordinates';
 import { formatPlaceRegion, formatUtcOffset } from '@/lib/format-place';
 import { useCitySearch } from '@/hooks/use-city-search';
@@ -310,6 +311,54 @@ export function PlatformSettingsDialog({
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {/* 1. AYANAMSHA TAB */}
             {activeTab === 'ayanamsha' && (
+              <>
+                <div className="mb-5 p-4 rounded-xl border border-[#8C2D19]/25 bg-[#8C2D19]/[0.04]">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-[#8C2D19] mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-xs font-semibold text-slate-900 mb-1">Gaṇita — which method computes the positions</div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed mb-3">
+                        <strong>Dṛk</strong> uses the modern observational ephemeris (VSOP87 / ELP2000).
+                        <strong> Sūrya Siddhānta</strong> uses the classical mean motions and epicycles.
+                        Changing this reloads the platform from the home page, so no chart is ever
+                        computed from a mixture of the two.
+                      </p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          { id: 'drik', name: 'Dṛk Gaṇita — modern ephemeris', desc: 'VSOP87 / ELP2000. Matches the sky to arcseconds. This is what every chart should be cast in.', tag: 'Recommended', ok: true },
+                          { id: 'surya_siddhanta', name: 'Sūrya Siddhānta — classical method', desc: 'EXPERIMENTAL. The Sun is accurate to 0.2°, the Moon and Rāhu to about 4°. Mars, Mercury, Jupiter and Venus are 13°–45° from the sky because the pañcāṅga bīja tables are not yet applied. Do not read a chart cast this way as a chart of the sky.', tag: 'Experimental', ok: false },
+                        ].map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => {
+                              if (settings.ephemerisMode === m.id) return;
+                              updateSettings({ ephemerisMode: m.id as 'drik' | 'surya_siddhanta' });
+                              // Hard reload: the whole platform must be rebuilt from
+                              // one ephemeris, never a mixture.
+                              setTimeout(() => { window.location.href = '/'; }, 120);
+                            }}
+                            className={`text-left p-3 rounded-lg border transition-all ${
+                              settings.ephemerisMode === m.id
+                                ? 'border-[#8C2D19] bg-white shadow-xs'
+                                : 'border-slate-200 bg-white/60 hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`w-3 h-3 rounded-full border-2 ${settings.ephemerisMode === m.id ? 'border-[#8C2D19] bg-[#8C2D19]' : 'border-slate-300'}`} />
+                              <span className="text-xs font-semibold text-slate-900">{m.name}</span>
+                              <span className={`text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded ${m.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-[#8C2D19]/10 text-[#8C2D19]'}`}>
+                                {m.tag}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 leading-relaxed mt-1 ml-5">{m.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               <div className="space-y-5 animate-in fade-in duration-150">
                 <div className="p-3.5 bg-blue-50/60 border border-blue-200/70 rounded-xl flex items-start gap-3">
                   <Info className="w-4 h-4 text-blue-700 mt-0.5 shrink-0" />
@@ -412,6 +461,7 @@ export function PlatformSettingsDialog({
                   </div>
                 </div>
               </div>
+              </>
             )}
 
             {/* 2. LOCATION & TIME TAB */}
