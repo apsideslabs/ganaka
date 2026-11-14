@@ -16,9 +16,11 @@ import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateKpLayer, KP_MATTERS, type KpLayer } from '@/lib/kp';
 import { fourStepCheck, type FourStepResult } from '@/lib/kp/four-step';
+import { calculateKpAspects } from '@/lib/kp/aspects';
+import { housesSignified } from '@/lib/kp/significators';
 import {
   Compass, ListOrdered, Target, ShieldCheck, Clock, Link2, Info, ChevronRight,
-  Orbit, CalendarRange, ListChecks,
+  Orbit, CalendarRange, ListChecks, Zap,
 } from 'lucide-react';
 import { KpChart } from './kp/KpChart';
 import { KpMark } from './kp/KpMark';
@@ -27,7 +29,7 @@ interface KPPanelProps {
   chart: JyotishaChart;
 }
 
-type Tab = 'chart' | 'cusps' | 'planets' | 'significators' | 'ruling' | 'promise' | 'timing' | 'dasha' | 'fourstep';
+type Tab = 'chart' | 'cusps' | 'planets' | 'significators' | 'ruling' | 'promise' | 'timing' | 'dasha' | 'fourstep' | 'aspects';
 
 const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { id: 'chart', label: 'Chart', icon: Orbit },
@@ -38,6 +40,7 @@ const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ classNam
   { id: 'promise', label: 'Promise', icon: ShieldCheck },
   { id: 'timing', label: 'Timing', icon: Clock },
   { id: 'fourstep', label: '4-Step Check', icon: ListChecks },
+  { id: 'aspects', label: 'Aspects', icon: Zap },
   { id: 'dasha', label: 'Daśā', icon: CalendarRange },
 ];
 
@@ -101,6 +104,10 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
   const timing = kp.timing[matter];
   const matterDef = KP_MATTERS[matter];
   const fourStep: FourStepResult | null = fourStepCheck(chart, kp, matter);
+  const aspects = useMemo(
+    () => calculateKpAspects(chart, kp.cusps, (id) => housesSignified(chart, kp.cusps, id)),
+    [chart, kp]
+  );
 
   const promiseCounts = Object.values(kp.promises).reduce(
     (acc: Record<string, number>, p: any) => {
@@ -610,6 +617,111 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         </div>
       )}
 
+      {/* ── aspects ────────────────────────────────────────────── */}
+      {tab === 'aspects' && (
+        <div className="space-y-5">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
+            <div className="rounded-xl border-2 border-[#8C2D19]/25 bg-[#8C2D19]/[0.045] p-5 mb-6">
+              <div className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">The cardinal rule</div>
+              <p className="text-[13px] text-slate-800 leading-relaxed">
+                Aspects support or suppress a signification — they never override the cuspal
+                sub lord. A graha aspecting a cusp gains a secondary link to that house; it does
+                not become a primary significator, and it cannot reverse a denial.
+              </p>
+            </div>
+
+            <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">{aspects.planetAspects.length} aspects</span>}>
+              Graha to graha
+            </SectionHead>
+            {aspects.planetAspects.length === 0 ? (
+              <p className="text-[13px] text-slate-400">No degree aspects within orb.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="bg-slate-50/70">
+                      <Th>From</Th><Th>Aspect</Th><Th>To</Th><Th>Separation</Th><Th>Orb</Th><Th>Motion</Th><Th>Nature</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {aspects.planetAspects.map((a, i) => (
+                      <tr key={i} className="border-t border-slate-100 hover:bg-slate-50/50">
+                        <td className="py-2.5 px-3 text-slate-800 font-medium">{a.fromName}</td>
+                        <td className="py-2.5 px-3 text-slate-600 capitalize">{a.kind}</td>
+                        <td className="py-2.5 px-3 text-slate-800">{a.toName}</td>
+                        <td className="py-2.5 px-3 font-mono tabular-nums text-slate-600">{a.separation}°</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-400">±{a.orb}°</td>
+                        <td className="py-2.5 px-3 text-[11px] text-slate-500">{a.applying ? 'applying' : 'separating'}</td>
+                        <td className="py-2.5 px-3">
+                          <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${
+                            a.benefic ? 'bg-emerald-50 text-emerald-700' : 'bg-[#8C2D19]/10 text-[#8C2D19]'
+                          }`}>{a.benefic ? 'benefic' : 'malefic'}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-7 py-4 border-b border-slate-100">
+              <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">the half whole-sign dṛṣṭi cannot express</span>}>
+                Graha to cusp · {aspects.cuspAspects.length}
+              </SectionHead>
+            </div>
+            <div className="overflow-x-auto max-h-[26rem] overflow-y-auto">
+              <table className="w-full text-[13px]">
+                <thead className="sticky top-0 bg-white">
+                  <tr className="bg-slate-50/90">
+                    <Th>Graha</Th><Th>Aspect</Th><Th>Cusp</Th><Th>Sep.</Th><Th>Carries</Th><Th>Nature</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {aspects.cuspAspects.map((a, i) => (
+                    <tr key={i} className="border-t border-slate-100 hover:bg-slate-50/50">
+                      <td className="py-2 px-3 text-slate-800 font-medium">{a.fromName}</td>
+                      <td className="py-2 px-3 text-slate-600 capitalize">{a.kind}</td>
+                      <td className="py-2 px-3 font-mono text-slate-700">H{a.cusp} <span className="text-slate-400 text-[11px]">{a.cuspLongitude.toFixed(1)}°</span></td>
+                      <td className="py-2 px-3 font-mono tabular-nums text-slate-600">{a.separation}°</td>
+                      <td className="py-2 px-3 font-mono text-[12px] text-slate-500">{a.carries.join(',') || '—'}</td>
+                      <td className="py-2 px-3">
+                        <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${
+                          a.benefic ? 'bg-emerald-50 text-emerald-700' : 'bg-[#8C2D19]/10 text-[#8C2D19]'
+                        }`}>{a.benefic ? 'benefic' : 'malefic'}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-7 py-4 border-b border-slate-100">
+              <SectionHead>Rāśi dṛṣṭi · whole sign</SectionHead>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 divide-x divide-slate-100">
+              {aspects.rasiAspects.map((a, i) => (
+                <div key={i} className="px-5 py-2 flex items-center gap-2.5 text-[13px] border-b border-slate-100">
+                  <span className="text-slate-800 w-16 shrink-0">{a.fromName}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+                  <span className="font-mono text-slate-600 flex-1">house {a.house}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full ${a.benefic ? 'bg-emerald-500' : 'bg-[#8C2D19]'}`} />
+                </div>
+              ))}
+            </div>
+            <div className="px-7 py-4 bg-slate-50/60 border-t border-slate-100">
+              <p className="text-[12px] text-slate-500 leading-relaxed">
+                All grahas aspect the 7th; Mars adds the 4th and 8th, Jupiter the 5th and 9th,
+                Saturn the 3rd and 10th — taught by Krishnamurti himself in KP Reader 1.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── dasha ──────────────────────────────────────────────── */}
       {tab === 'dasha' && (
         <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
@@ -653,7 +765,8 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
       <div className="flex gap-3 bg-slate-50 border border-slate-200/80 rounded-2xl px-6 py-4">
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p className="text-[12px] text-slate-500 leading-relaxed">
-          {tab === 'ruling' ? kp.ruling.note
+          {tab === 'aspects' ? aspects.note
+            : tab === 'ruling' ? kp.ruling.note
             : tab === 'timing' ? timing?.note ?? 'Cuspal interlinks chain one house to another through the star lords.'
               : tab === 'promise' ? 'The cuspal sub lord settles whether a matter is promised; everything else refines timing and texture. A birth chart gives retrogression no weight — that is a horary rule.'
                 : tab === 'significators' ? 'Ranked strongest first: a graha in the star of a house occupant outranks the occupant itself, which outranks a graha in the cusp lord\u2019s star, which outranks the cusp lord.'
