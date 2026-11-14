@@ -216,3 +216,80 @@ export function calculateCurrentTransits(
   };
 }
 
+
+/**
+ * Jupiter–Saturn double transit (K.N. Rao's formulation).
+ *
+ * A major life event does not manifest unless transiting Jupiter and transiting
+ * Saturn both activate the relevant house or its lord — by occupation or by
+ * aspect — inside a daśā that also supports it. Jupiter aspects the 5th, 7th and
+ * 9th from itself; Saturn the 3rd, 7th and 10th.
+ *
+ * This is what stops the annual Jupiter crossing of the 7th being read as an
+ * annual marriage: one planet moving is not the marker, two moving together is.
+ */
+export interface DoubleTransitHouse {
+  /** House counted from the natal lagna. */
+  house: number;
+  /** True when transiting Jupiter occupies or aspects it. */
+  jupiterActivates: boolean;
+  /** True when transiting Saturn occupies or aspects it. */
+  saturnActivates: boolean;
+  /** True when both do — the double transit proper. */
+  active: boolean;
+  /** How each planet reaches the house. */
+  detail: string;
+}
+
+const JUPITER_ASPECTS = [5, 7, 9];
+const SATURN_ASPECTS = [3, 7, 10];
+
+function housesActivated(occupyingHouse: number, aspectOffsets: number[]): number[] {
+  const set = new Set<number>([occupyingHouse]);
+  for (const off of aspectOffsets) {
+    set.add(((occupyingHouse - 1 + off - 1) % 12) + 1);
+  }
+  return [...set];
+}
+
+/**
+ * Which houses carry a double transit on the given date.
+ */
+export function calculateDoubleTransit(
+  natalLagnaRashi: RashiNumber,
+  transitDate: Date = new Date(),
+  ayanamshaType: AyanamshaType = 'lahiri'
+): { transitDateStr: string; houses: DoubleTransitHouse[]; activeHouses: number[] } {
+  const t = calculateCurrentTransits(
+    natalLagnaRashi, natalLagnaRashi, ayanamshaType, transitDate
+  );
+
+  const jup = t.planets.find((p) => p.id === 'jupiter');
+  const sat = t.planets.find((p) => p.id === 'saturn');
+  if (!jup || !sat) return { transitDateStr: t.transitDateStr, houses: [], activeHouses: [] };
+
+  const jupHouses = new Set(housesActivated(jup.houseFromNatalLagna, JUPITER_ASPECTS));
+  const satHouses = new Set(housesActivated(sat.houseFromNatalLagna, SATURN_ASPECTS));
+
+  const houses: DoubleTransitHouse[] = [];
+  for (let h = 1; h <= 12; h++) {
+    const j = jupHouses.has(h);
+    const s = satHouses.has(h);
+    houses.push({
+      house: h,
+      jupiterActivates: j,
+      saturnActivates: s,
+      active: j && s,
+      detail: [
+        j ? (jup.houseFromNatalLagna === h ? 'Jupiter occupies' : 'Jupiter aspects') : '',
+        s ? (sat.houseFromNatalLagna === h ? 'Saturn occupies' : 'Saturn aspects') : '',
+      ].filter(Boolean).join('; ') || 'neither',
+    });
+  }
+
+  return {
+    transitDateStr: t.transitDateStr,
+    houses,
+    activeHouses: houses.filter((x) => x.active).map((x) => x.house),
+  };
+}
