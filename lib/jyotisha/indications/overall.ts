@@ -220,7 +220,7 @@ export function buildOverallReading(
     { label: 'Moon', value: `${plain(g.moonSign)} · ${plain(g.moonNakshatra)}` },
     { label: 'Sun', value: plain(g.sunSign) },
     { label: 'Ātmakāraka', value: plain(g.atmakaraka) },
-    { label: 'Amatyakāraka', value: plain(g.amatyakāraka) },
+    { label: 'Amatyakāraka', value: plain(g.amatyakaraka) },
     { label: 'Strongest by ṣaḍbala', value: plain(g.strongestPlanetByShadbala) },
     { label: 'Element', value: plain(g.dominantElement) },
     { label: 'Guṇa', value: plain(g.dominantGuna) },
