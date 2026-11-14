@@ -4,7 +4,7 @@
  */
 
 import { PlanetId } from '../astronomy/ephemeris';
-import { DoshaDefinition } from './dosha-types';
+import { DoshaDefinition, DoshaEvaluationResult } from './dosha-types';
 import {
   NATURAL_MALEFICS,
   NATURAL_BENEFICS,
@@ -189,7 +189,7 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
    * checked two of twelve and left the other ten silently unexamined, which
    * reads as "no affliction" rather than "not looked at".
    */
-  ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => ({
+  ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h): DoshaDefinition => ({
     id: `papa_kartari_house_${h}`,
     name: `Pāpa Kartarī of House ${h}`,
     sanskritName: `पापकर्तरी भाव ${h}`,
@@ -207,7 +207,7 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
     },
     definition: `Malefics occupy both the house before and the house after house ${h}, scissoring it.`,
     classicalEffects: `The matters of house ${h} are obstructed, and its significations are cut off at both ends.`,
-    evaluate: (ctx: any) => {
+    evaluate: (ctx): DoshaEvaluationResult => {
       const { isPapaKartari, prevMalefics, nextMalefics } = checkPapaKartari(h, ctx.planets);
       if (!isPapaKartari) {
         return {
