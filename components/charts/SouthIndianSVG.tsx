@@ -117,9 +117,15 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
   return (
     <svg
       ref={svgRef}
+      // Required for a standalone export: without the namespace a saved .svg is
+      // not recognised as SVG by strict parsers (cairosvg, Illustrator, print
+      // pipelines), and every label renders as tofu boxes.
+      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 600 600"
       className="w-full h-full select-none"
-      style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision' }}
+      // textRendering:geometricPrecision disables font shaping in several SVG
+      // consumers, which is the other half of the tofu problem on export.
+      style={{ shapeRendering: 'geometricPrecision' }}
     >
       <defs>
         {/* Clip paths for all 12 boxes with 2px inner inset */}
@@ -154,17 +160,17 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
       <rect x="150" y="150" width="300" height="300" fill="#F8FAFC" stroke="#334155" strokeWidth="1.8" />
       <circle cx="300" cy="300" r="110" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 3" />
 
-      <text x="300" y="268" textAnchor="middle" dominantBaseline="central" fill="#0F172A" className="text-[17px] font-serif font-bold">
+      <text x="300" y="268" textAnchor="middle" dominantBaseline="central" fill="#0F172A" fontSize="17" fontFamily="Georgia, serif" fontWeight="700">
         {centerTitle || 'Rāśi Cakra'}
       </text>
-      <text x="300" y="292" textAnchor="middle" dominantBaseline="central" fill="#475569" className="text-[12px] font-sans font-medium">
+      <text x="300" y="292" textAnchor="middle" dominantBaseline="central" fill="#475569" fontSize="12" fontFamily="system-ui, sans-serif" fontWeight="500">
         {centerSubtitle || 'South Indian Format (Fixed Rāśi)'}
       </text>
-      <text x="300" y="320" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" className="text-[12px] font-mono font-bold">
+      <text x="300" y="320" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" fontSize="12" fontFamily="ui-monospace, monospace" fontWeight="700">
         Lagna: {RASHI_DATA[lagnaRashi].sanskrit} ({RASHI_DATA[lagnaRashi].english})
       </text>
       {lagnaDegreeStr && (
-        <text x="300" y="340" textAnchor="middle" dominantBaseline="central" fill="#64748B" className="text-[11px] font-mono font-medium">
+        <text x="300" y="340" textAnchor="middle" dominantBaseline="central" fill="#64748B" fontSize="11" fontFamily="ui-monospace, monospace" fontWeight="500">
           {lagnaDegreeStr}
         </text>
       )}
@@ -229,10 +235,10 @@ export const SouthIndianSVG: React.FC<SouthIndianSVGProps> = ({
                 y={by + 18}
                 dominantBaseline="central"
                 fill="#334155"
-                className="text-[12px] font-serif font-bold"
+                fontSize="12" fontFamily="Georgia, serif" fontWeight="700"
               >
                 {RASHI_DATA[rashiNum].sanskrit}
-                <tspan className="text-[14px] font-serif font-bold fill-[#334155]">
+                <tspan fontSize="14" fontFamily="Georgia, serif" fontWeight="700" fill="#334155">
                   {' '}{rashiNum}
                 </tspan>
               </text>
