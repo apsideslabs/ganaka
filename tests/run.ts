@@ -39,6 +39,10 @@ import { calculateMrityuBhaga, mrityuBhagaTable } from '../lib/jyotisha/mrityu-b
 import { calculateNadi } from '../lib/jyotisha/nadi';
 import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
+import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
+import { buildKpCusps } from '../lib/kp/cusps';
+import { housesSignified } from '../lib/kp/significators';
+import { calculateNavaTara, taraFor } from '../lib/jyotisha/navatara';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
 import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode } from '../lib/astronomy/siddhantic';
@@ -1614,6 +1618,62 @@ console.log('\n== Sukhma bindu & the KP four-step ==');
     d1.summary.mitra !== d9.summary.mitra ||
     d1.summary.shatru !== d9.summary.shatru,
     `${JSON.stringify(d1.summary)} vs ${JSON.stringify(d9.summary)}`);
+}
+
+/* ------------------------------------------- KP ASPECTS & NAVATARA */
+
+console.log('\n== KP aspects & Navatara chakra ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const cusps = buildKpCusps(natal);
+  const asp = calculateKpAspects(natal, cusps, (id) => housesSignified(natal, cusps, id));
+
+  check('planet aspects are found', asp.planetAspects.length > 0, String(asp.planetAspects.length));
+  check('cusp aspects are found', asp.cuspAspects.length > 0, String(asp.cuspAspects.length));
+  check('every aspect is within its orb',
+    asp.planetAspects.every((a) => {
+      const target = { conjunction: 0, sextile: 60, square: 90, trine: 120, opposition: 180 }[a.kind];
+      return Math.abs(a.separation - target) <= a.orb + 0.01;
+    }));
+  check('cusp aspects land on real cusps',
+    asp.cuspAspects.every((a) => a.cusp >= 1 && a.cusp <= 12));
+  check('a cusp aspect records what the graha carries',
+    asp.cuspAspects.every((a) => Array.isArray(a.carries)));
+
+  // The aspect nature is fixed by the graha, not read from the chart.
+  check('Jupiter is always benefic in aspect', isAspectBenefic('jupiter'));
+  check('Saturn is always malefic in aspect', !isAspectBenefic('saturn'));
+  check('the Sun is always malefic in aspect', !isAspectBenefic('sun'));
+
+  // Rāśi dṛṣṭi: the Parashari special aspects Krishnamurti taught.
+  check('Mars aspects 4, 7 and 8', JSON.stringify(RASI_ASPECTS.mars) === '[4,7,8]');
+  check('Jupiter aspects 5, 7 and 9', JSON.stringify(RASI_ASPECTS.jupiter) === '[5,7,9]');
+  check('Saturn aspects 3, 7 and 10', JSON.stringify(RASI_ASPECTS.saturn) === '[3,7,10]');
+  check('every graha aspects the 7th', Object.values(RASI_ASPECTS).every((v) => v.includes(7)));
+  check('rasi aspects reference real houses',
+    asp.rasiAspects.every((a) => a.house >= 1 && a.house <= 12));
+
+  // ---- Navatara ---------------------------------------------------
+  const nt = calculateNavaTara(natal);
+  check('the chakra has nine taras', nt.cycle.length === 9);
+  check('every tara holds exactly three nakshatras',
+    nt.cycle.every((c) => c.nakshatras.length === 3));
+  check('all 27 nakshatras are covered', nt.rows.length === 27);
+  check('each nakshatra maps to a tara 1-9',
+    nt.rows.every((r) => r.taraNumber >= 1 && r.taraNumber <= 9));
+
+  // The janma nakshatra is always tara 1.
+  check('the janma nakshatra is tara 1',
+    taraFor(nt.janmaNumber, nt.janmaNumber) === 1);
+  check('nine steps from janma returns to tara 1',
+    taraFor(nt.janmaNumber, ((nt.janmaNumber - 1 + 9) % 27) + 1) === 1);
+  check('the cycle repeats every nine',
+    nt.rows.every((r, i) => r.taraNumber === nt.rows[(i + 9) % 27].taraNumber));
+
+  // The three harshest taras are Vipat, Pratyak and Naidhana.
+  check('the inauspicious taras are 3, 5 and 7',
+    JSON.stringify(nt.cycle.filter((c) => c.tara.nature === 'inauspicious').map((c) => c.tara.number)) === '[3,5,7]');
+  check('five taras are auspicious', nt.favourable.length === 5);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
