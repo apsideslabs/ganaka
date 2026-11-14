@@ -132,12 +132,29 @@ export function calculateBhavaBala(
   const bhavas = chart.bhavas as unknown as BhavaCusp[];
   if (!bhavas || bhavas.length < 12) return {};
 
-  // Reference angles. With the whole-sign house system these are the sign
-  // midpoints; with Sripati or Placidus they are the real cusps.
-  const ascendant = bhavas[0].midDegree;
-  const fourth = bhavas[3].midDegree;
-  const seventh = bhavas[6].midDegree;
-  const tenth = bhavas[9].midDegree;
+  /**
+   * Reference angles: the four kendras themselves.
+   *
+   * BPHS 27.26 names the ascendant, the descendant, the meridian and the nadir —
+   * the real points, not the centres of the houses that carry them. Reading them
+   * off the bhāva madhyas is exact only under Sripati, where the cusp IS the
+   * madhya; under whole-sign houses it put the meridian and nadir out by eight
+   * degrees on this chart, which is 2.7 virūpas on every bhāva in those two
+   * groups. The chart's own angles are used when present.
+   */
+  const angles: any = (chart as any).angles ?? {};
+  const ascendant = typeof chart.lagna?.siderealLongitude === 'number'
+    ? chart.lagna.siderealLongitude
+    : bhavas[0].midDegree;
+  const seventh = typeof angles.descendant === 'number'
+    ? angles.descendant
+    : bhavas[6].midDegree;
+  const tenth = typeof angles.mc === 'number'
+    ? angles.mc
+    : bhavas[9].midDegree;
+  const fourth = typeof angles.ic === 'number'
+    ? angles.ic
+    : bhavas[3].midDegree;
 
   const refLon = {
     ascendant,
