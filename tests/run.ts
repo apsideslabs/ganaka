@@ -1093,6 +1093,62 @@ console.log('\n== Against Swiss Ephemeris (geometric, Lahiri) ==');
   check('the Sun residual stays under 30 arcsec', sunD < 30, `${sunD.toFixed(2)}"`);
 }
 
+/* --------------------------------------------- INPUT VALIDATION & POLAR */
+
+console.log('\n== Input validation & polar geometry ==');
+{
+  const base = { year: 2009, month: 3, day: 3, hour: 12, minute: 0, second: 0,
+                 latitude: 26.6, longitude: 91.1, timezoneOffsetHours: 5.5, locationName: 'x' };
+
+  const clean: any = calculateFullJyotishaChart(base as any);
+  check('a clean chart records no warnings', (clean.meta.warnings ?? []).length === 0);
+
+  // Invalid inputs must be clamped and reported, never passed through silently.
+  const badLat: any = calculateFullJyotishaChart({ ...base, latitude: 91 } as any);
+  check('latitude beyond 90 is clamped', badLat.meta.warnings.length === 1 &&
+    badLat.meta.warnings[0].includes('latitude'), JSON.stringify(badLat.meta.warnings));
+
+  const badLon: any = calculateFullJyotishaChart({ ...base, longitude: 400 } as any);
+  check('longitude beyond 180 is normalised', badLon.meta.warnings.length === 1 &&
+    badLon.meta.warnings[0].includes('longitude'), JSON.stringify(badLon.meta.warnings));
+
+  const badDay: any = calculateFullJyotishaChart({ ...base, month: 2, day: 30 } as any);
+  check('a non-existent day is clamped', badDay.meta.warnings.some((w: string) => w.includes('day')),
+    JSON.stringify(badDay.meta.warnings));
+
+  const badHour: any = calculateFullJyotishaChart({ ...base, hour: 25 } as any);
+  check('an impossible hour is clamped', badHour.meta.warnings.some((w: string) => w.includes('hour')),
+    JSON.stringify(badHour.meta.warnings));
+
+  const badTz: any = calculateFullJyotishaChart({ ...base, timezoneOffsetHours: 20 } as any);
+  check('a timezone beyond +14 is clamped', badTz.meta.warnings.some((w: string) => w.includes('timezone')));
+
+  // Polar day/night must be flagged rather than printed as a fake sunrise.
+  const polarDay: any = calculateFullJyotishaChart({
+    year: 2000, month: 6, day: 21, hour: 12, minute: 0, second: 0,
+    latitude: 78.2, longitude: 15.6, timezoneOffsetHours: 1, locationName: 'Svalbard',
+  });
+  check('polar day is flagged', polarDay.panchanga.sunTimes.polarDay === true);
+  check('polar day has no polar-night flag', polarDay.panchanga.sunTimes.polarNight === false);
+
+  const polarNight: any = calculateFullJyotishaChart({
+    year: 2000, month: 12, day: 21, hour: 12, minute: 0, second: 0,
+    latitude: 78.2, longitude: 15.6, timezoneOffsetHours: 1, locationName: 'Svalbard',
+  });
+  check('polar night is flagged', polarNight.panchanga.sunTimes.polarNight === true);
+
+  const assam: any = calculateFullJyotishaChart({
+    year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'Jalah',
+  });
+  check('an ordinary chart is neither polar day nor night',
+    assam.panchanga.sunTimes.polarDay === false && assam.panchanga.sunTimes.polarNight === false);
+
+  // Warnings must survive into the export.
+  const e: any = buildChartExport(badLat, { dashaDepth: 1 });
+  check('JSON carries the input warnings', Array.isArray(e.calculation.warnings) && e.calculation.warnings.length > 0);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
