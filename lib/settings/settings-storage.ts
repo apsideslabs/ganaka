@@ -139,13 +139,23 @@ export function getWorkspaceSettings(): WorkspaceSettings {
   if (typeof window === 'undefined') return DEFAULT_WORKSPACE_SETTINGS;
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.WORKSPACE);
-    const platAyan = getPlatformSettings().defaultAyanamsha;
+    const plat = getPlatformSettings();
+    const platAyan = plat.defaultAyanamsha;
+    // The platform's chart style seeds the workspace one, so choosing South
+    // Indian in Platform Settings is honoured by the workspace rather than
+    // sitting there doing nothing.
+    const platStyle = plat.defaultChartStyle;
     if (!stored) {
-      return { ...DEFAULT_WORKSPACE_SETTINGS, ayanamsha: platAyan || DEFAULT_WORKSPACE_SETTINGS.ayanamsha };
+      return {
+        ...DEFAULT_WORKSPACE_SETTINGS,
+        ayanamsha: platAyan || DEFAULT_WORKSPACE_SETTINGS.ayanamsha,
+        chartStyle: platStyle || DEFAULT_WORKSPACE_SETTINGS.chartStyle,
+      };
     }
     const parsed = JSON.parse(stored);
     const ayanamsha = parsed.ayanamsha || platAyan || DEFAULT_WORKSPACE_SETTINGS.ayanamsha;
-    return { ...DEFAULT_WORKSPACE_SETTINGS, ...parsed, ayanamsha };
+    const chartStyle = parsed.chartStyle || platStyle || DEFAULT_WORKSPACE_SETTINGS.chartStyle;
+    return { ...DEFAULT_WORKSPACE_SETTINGS, ...parsed, ayanamsha, chartStyle };
   } catch (err) {
     console.warn('Failed to parse workspace settings from localStorage', err);
     return DEFAULT_WORKSPACE_SETTINGS;
