@@ -91,6 +91,10 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** Bhāva Chalita — the same grahas placed by bhāva cusp rather than by sign. */
+  bhavaChalit: Record<string, unknown>;
+  /** The local sky: midheaven, imum coeli and descendant. */
+  angles: Record<string, unknown>;
   /** Saṃhitā: eclipses across a ten-year window around the chart date. */
   eclipses: Record<string, unknown>;
   /** Graha dṛṣṭi — which houses each graha aspects. */
@@ -311,6 +315,29 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
 
+  // --- Bhāva Chalita and the local angles -----------------------------------
+  const bhavaChalit = safe(() => {
+    const bc: any = (chart as any).bhavaChalit;
+    if (!bc) return {};
+    return {
+      system: bc.system,
+      summary: bc.summary,
+      note: bc.note,
+      entries: bc.entries.map((e: any) => ({
+        planet: e.planet,
+        rashiHouse: e.rashiHouse,
+        chalitHouse: e.chalitHouse,
+        shifted: e.shifted,
+        degreeInBhava: e.degreeInBhava,
+        bhavaMid: e.bhavaMid,
+        fromMid: e.fromMid,
+      })),
+      bhavas: bc.bhavas,
+    };
+  }, {});
+
+  const angles = safe(() => (chart as any).angles ?? {}, {});
+
   // --- Saṃhitā: eclipses ----------------------------------------------------
   const eclipses = safe(() => {
     const bd = chart.meta.birthDetails;
@@ -509,7 +536,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   return {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
-    drishti, sudarshana, eclipses,
+    drishti, sudarshana, eclipses, bhavaChalit, angles,
   };
 }
 
