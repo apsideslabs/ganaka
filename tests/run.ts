@@ -1631,8 +1631,9 @@ console.log('\n== KP aspects & Navatara chakra ==');
   check('cusp aspects are found', asp.cuspAspects.length > 0, String(asp.cuspAspects.length));
   check('every aspect is within its orb',
     asp.planetAspects.every((a) => {
-      const target = { conjunction: 0, sextile: 60, square: 90, trine: 120, opposition: 180 }[a.kind];
-      return Math.abs(a.separation - target) <= a.orb + 0.01;
+      const target: Record<string, number> = { conjunction: 0, sextile: 60, square: 90, trine: 120, opposition: 180, rasi: 0 };
+      const t = target[a.kind] ?? 0;
+      return Math.abs(a.separation - t) <= a.orb + 0.01;
     }));
   check('cusp aspects land on real cusps',
     asp.cuspAspects.every((a) => a.cusp >= 1 && a.cusp <= 12));
