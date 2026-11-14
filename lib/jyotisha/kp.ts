@@ -21,7 +21,29 @@ import { GRAHA_PROPERTIES, NAKSHATRAS, RASHIS } from './constants';
 import { calculateKPPosition } from './sphutas';
 import { calculateAllPlanets } from '../astronomy/ephemeris';
 import { calculateJulianDay, normalizeDegrees } from '../astronomy/julian';
-import { calculateAscendant } from './houses';
+import { calculateAscendant, calculateHouses } from './houses';
+
+
+/**
+ * Placidus cusps for KP.
+ *
+ * KP is defined on Placidus cusps — a cusp is a calculated degree, not a sign
+ * boundary, and the whole sub-lord reading depends on that degree. Reading the
+ * chart's own `bhavas` silently produced non-KP answers whenever the chart was
+ * cast with whole-sign houses: on the Binay chart the 7th cusp sits at 45° by
+ * whole sign but 60.85° by Placidus, and the two fall in different sub-lords
+ * (Jupiter against Mercury). Everything here is computed from Placidus directly
+ * so the KP layer is correct regardless of what the rest of the app is set to.
+ */
+function placidusBhavas(chart: JyotishaChart): any[] {
+  const positions: Record<string, { siderealLongitude: number }> = {};
+  for (const [id, p] of Object.entries(chart.planets as any)) {
+    positions[id] = { siderealLongitude: (p as any).siderealLongitude };
+  }
+  const lagna = chart.lagna.siderealLongitude;
+  const mc = Number((chart as any).angles?.mc ?? ((lagna + 270) % 360));
+  return calculateHouses(lagna, mc, 'placidus' as any, positions as any) as any[];
+}
 
 export interface RulingPlanet {
   /** Which of the five roles produced it. */
@@ -118,7 +140,7 @@ export interface SignificatorLevel {
  */
 export function calculateSignificators(chart: JyotishaChart, house: number): SignificatorLevel[] {
   const planets = chart.planets as any;
-  const bhavas = chart.bhavas as any[];
+  const bhavas = placidusBhavas(chart);
   const bhava = bhavas?.[house - 1];
   if (!bhava) return [];
 
@@ -207,7 +229,7 @@ export function evaluateCuspPromise(
   matterHouses: number[],
   detrimentalHouses: number[]
 ): CuspPromiseResult | null {
-  const bhava = (chart.bhavas as any[])?.[house - 1];
+  const bhava = placidusBhavas(chart)?.[house - 1];
   if (!bhava) return null;
 
   const cuspLon = bhava.madhyaDegree ?? bhava.midDegree;
@@ -215,6 +237,10 @@ export function evaluateCuspPromise(
 
   const kp = calculateKPPosition(cuspLon);
   const subLord = kp.subLord;
+
+  // Computed once — calling placidusBhavas inside the loop below rebuilt the
+  // whole house set for every planet and made the panel hang.
+  const placidus = placidusBhavas(chart);
 
   // What the sub lord signifies: houses it occupies, owns, and reaches by star.
   const signifies = new Set<number>();
@@ -229,7 +255,7 @@ export function evaluateCuspPromise(
       if (RASHIS[r as RashiNumber]?.lord === id) signifies.add(r);
     }
     // And the house whose sign it rules in this chart.
-    const ownedBhava = (chart.bhavas as any[])?.findIndex(
+    const ownedBhava = placidus.findIndex(
       (b: any) => (b.rashiLord || b.lord) === id
     );
     if (ownedBhava != null && ownedBhava >= 0) signifies.add(ownedBhava + 1);
