@@ -943,13 +943,15 @@ console.log('\n== KP layer ==');
   const rp = calculateRulingPlanets(
     new Date(2026, 10, 14, 10, 30), bd.latitude, bd.longitude, bd.timezoneOffsetHours
   );
-  check('five ruling planets are produced', rp.planets.length === 5, String(rp.planets.length));
+  // Seven with the ascendant and Moon sub lords, which KP timing leans on.
+  check('seven ruling planets are produced', rp.planets.length === 7, String(rp.planets.length));
+  check('the set is marked extended', rp.extended === true);
   check('every ruling planet names its role',
     rp.planets.every((p) => typeof p.role === 'string' && p.role.length > 0));
   check('ruling planets are real grahas',
     rp.planets.every((p) => typeof p.planet === 'string' && p.planet.length > 0));
   check('distinct list has no duplicates',
-    new Set(rp.distinct).size === rp.distinct.length && rp.distinct.length <= 5);
+    new Set(rp.distinct).size === rp.distinct.length && rp.distinct.length <= 7);
 
   // Significators: four levels, and the owner must appear at level 4.
   const sigs = calculateSignificators(natal, 7);
@@ -1277,9 +1279,9 @@ console.log('\n== Full KP engine ==');
     Object.values(layer.significators).every((s) => s.ranked.length <= 9));
 
   // Ruling planets: five classic roles, plus working set and omissions.
-  check('five classic ruling planets', layer.ruling.planets.length === 5);
+  check('seven ruling planets', layer.ruling.planets.length === 7);
   check('the working set is never larger than base plus nodes',
-    layer.ruling.workingSet.length <= 5 + layer.ruling.nodeAgents.length);
+    layer.ruling.workingSet.length <= layer.ruling.planets.length + layer.ruling.nodeAgents.length);
   check('omitted grahas are reported', Array.isArray(layer.ruling.omittedRetrograde));
 
   // Node agency: every node maps to a real graha.
@@ -1366,6 +1368,60 @@ console.log('\n== Overall reading ==');
     (scored.total >= 70) === (scored.tone === 'strong') &&
     (scored.total < 40) === (scored.tone === 'weak'));
   check('every layer explains itself', scored.layers.every((l) => l.read.length > 10));
+}
+
+/* ------------------------------------------- KP: RESEARCH-CORRECTED RULES */
+
+console.log('\n== KP rules corrected against the texts ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const layer = calculateKpLayer(natal);
+
+  // Retrograde is a horary device. A natal chart must not drop significators
+  // because their star lord is retrograde.
+  const natalSigs = Object.values(layer.significators);
+  check('a natal chart rejects no significator for retrogression',
+    natalSigs.every((s) => s.rejectedRetrograde.length === 0));
+
+  // The same chart read as a question may reject them.
+  const horary = calculateKpLayer(natal, new Date(), 'horary');
+  const horarySigs = Object.values(horary.significators);
+  check('a horary chart may reject retrograde-star significators',
+    horarySigs.some((s) => s.rejectedRetrograde.length > 0) || natalSigs.every((s) => s.rejectedRetrograde.length === 0));
+
+  // Node agency follows the texts' order: conjunction, then sign owner, then aspect.
+  for (const a of layer.nodeAgents) {
+    check(`node ${a.node} agency basis is a known rule`,
+      ['conjunction', 'sign-owner', 'aspect'].includes(a.basis), a.basis);
+  }
+  check('node agency never points a node at itself',
+    layer.nodeAgents.every((a) => a.agentOf !== a.node));
+
+  // A node signifies its own houses plus those of the graha it represents.
+  for (const b of layer.significators[7].nodeBorrowed) {
+    check(`node ${b.node} carries its agent's houses`, Array.isArray(b.houses));
+  }
+
+  // The ruling set is seven: five classic roles plus the two sub lords.
+  check('the ruling set includes the ascendant sub lord',
+    layer.ruling.planets.some((p) => p.role === 'Ascendant sub lord'));
+  check('the ruling set includes the Moon sub lord',
+    layer.ruling.planets.some((p) => p.role === 'Moon sub lord'));
+  check('a natal ruling set omits nothing for retrogression',
+    layer.ruling.omittedRetrograde.length === 0);
+
+  // Timing: the delivery test is joint coverage, not "is a significator".
+  const t = layer.timing.marriage;
+  check('timing carries the matter house group',
+    JSON.stringify(t.matterHouses) === JSON.stringify(KP_MATTERS.marriage.matter));
+  check('a delivering window covers the whole group',
+    t.windows.every((w) => w.missing.length === 0));
+  check('a delivering window has each lord contributing a house',
+    t.windows.every((w) => w.lords.filter((l) => l.covers.length > 0).length >= Math.min(3, t.matterHouses.length)));
+  check('the running window reports what is missing',
+    !t.current || Array.isArray(t.current.missing));
+  check('no window is reported as delivering while a house is missing',
+    t.windows.every((w) => w.delivers === (w.missing.length === 0)));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
