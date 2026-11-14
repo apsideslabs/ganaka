@@ -140,6 +140,21 @@ const BHAVA_METADATA = [
  * - 'sripati': Classical Śrīpati Bhāva Madhya and Sandhi
  * - 'placidus' / 'kp': Krishnamurti Paddhati (Placidus semi-arc with sub-lords)
  */
+
+/**
+ * Midpoint of two ecliptic longitudes along the short arc.
+ *
+ * A plain arithmetic mean is wrong whenever the pair straddles 0°. The Sripati
+ * cusps used to do `(344.3 + 14.3) / 2 = 179.3` where the true midpoint is
+ * 359.3, which produced a house spanning 210° and swept up every planet in the
+ * zodiac. Any cusp pair crossing the equinox needs this.
+ */
+function midAngle(a: number, b: number): number {
+  let delta = normalizeDegrees(b - a);
+  if (delta > 180) delta -= 360;
+  return normalizeDegrees(a + delta / 2);
+}
+
 export function calculateHouses(
   siderealLagna: number,
   siderealMC: number,
@@ -234,9 +249,10 @@ export function calculateHouses(
       const prevMid = midPoints[h === 1 ? 12 : h - 1];
       const nextMid = midPoints[h === 12 ? 1 : h + 1];
 
-      // Sandhi is midpoint between two Bhāva Madhyas
-      const startDeg = normalizeDegrees((prevMid + mid) / 2);
-      const endDeg = normalizeDegrees((mid + nextMid) / 2);
+      // Sandhi is the midpoint between two Bhāva Madhyas, taken along the
+      // short arc so a pair straddling 0° does not fold the house inside out.
+      const startDeg = midAngle(prevMid, mid);
+      const endDeg = midAngle(mid, nextMid);
 
       const rashiNum = (Math.floor(mid / 30) + 1) as RashiNumber;
       const dms = toDMS(mid);
