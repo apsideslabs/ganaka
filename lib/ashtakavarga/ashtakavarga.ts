@@ -301,3 +301,67 @@ export function calculateAshtakavarga(
   };
 }
 
+
+/* --------------------------------------------------- KAKṢYĀ OF A TRANSIT */
+
+/** The eight kakṣyās, 3°45′ each, in the order the prastāra uses. */
+export const KAKSHA_DIVISIONS: Array<{ id: string; name: string; from: number; to: number }> = [
+  { id: 'saturn', name: 'Śani', from: 0, to: 3.75 },
+  { id: 'jupiter', name: 'Guru', from: 3.75, to: 7.5 },
+  { id: 'mars', name: 'Maṅgala', from: 7.5, to: 11.25 },
+  { id: 'sun', name: 'Sūrya', from: 11.25, to: 15 },
+  { id: 'venus', name: 'Śukra', from: 15, to: 18.75 },
+  { id: 'mercury', name: 'Budha', from: 18.75, to: 22.5 },
+  { id: 'moon', name: 'Candra', from: 22.5, to: 26.25 },
+  { id: 'lagna', name: 'Lagna', from: 26.25, to: 30 },
+];
+
+export interface KakshaPosition {
+  /** Which of the eight divisions the degree falls in. */
+  kakshaId: string;
+  kakshaName: string;
+  from: number;
+  to: number;
+  /** How far into the division, 0–1. */
+  progress: number;
+}
+
+/**
+ * The kakṣyā a longitude occupies inside its sign.
+ *
+ * The eight divisions were already tabulated for the prastāra grid, but nothing
+ * ever assigned one to a transiting graha — so a transit could not be placed
+ * inside its sign, only inside the sign. This is that assignment.
+ */
+export function kaksyaOf(siderealLongitude: number): KakshaPosition {
+  const deg = ((siderealLongitude % 30) + 30) % 30;
+  const d = KAKSHA_DIVISIONS.find((k) => deg >= k.from && deg < k.to) ?? KAKSHA_DIVISIONS[7];
+  return {
+    kakshaId: d.id,
+    kakshaName: d.name,
+    from: d.from,
+    to: d.to,
+    progress: Number(((deg - d.from) / (d.to - d.from)).toFixed(4)),
+  };
+}
+
+/**
+ * The bindu a transiting graha's kakṣyā carries, from the SAV table of the sign
+ * it occupies. This is the number a transit reading turns on: a graha in a
+ * kakṣyā with no bindu gives nothing, whatever else it promises.
+ */
+export function kaksyaBindus(
+  ashtakavarga: { bav?: Record<string, { bindusByRashi?: number[] }>; sav?: { bindusByRashi?: number[] } },
+  graha: string,
+  rashiNumber: number,
+  siderealLongitude: number
+): { kaksha: KakshaPosition; bindu: number | null; sav: number | null } {
+  const kaksha = kaksyaOf(siderealLongitude);
+  const bav = ashtakavarga?.bav?.[graha]?.bindusByRashi;
+  const sav = ashtakavarga?.sav?.bindusByRashi;
+  return {
+    kaksha,
+    bindu: Array.isArray(bav) ? bav[rashiNumber - 1] ?? null : null,
+    sav: Array.isArray(sav) ? sav[rashiNumber - 1] ?? null : null,
+  };
+}
