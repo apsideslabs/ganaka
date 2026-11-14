@@ -53,6 +53,8 @@ export interface GanakaChartExport {
     /** Mean or true lunar node — the checklist requires this be recorded. */
     nodeType: 'mean' | 'true';
     jaiminiScheme: '7_karaka' | '8_karaka';
+    /** Inputs that were clamped or normalised; empty when the chart is clean. */
+    warnings: string[];
     julianDay: number;
     engineVersion: string;
     calculatedAt: string;
