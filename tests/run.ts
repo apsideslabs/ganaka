@@ -1046,6 +1046,53 @@ console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
   }
 }
 
+/* ------------------------------------- SWISS EPHEMERIS REFERENCE VALUES */
+
+console.log('\n== Against Swiss Ephemeris (geometric, Lahiri) ==');
+{
+  // These numbers come from swe.calc_ut with FLG_TRUEPOS|FLG_SIDEREAL|SIDM_LAHIRI,
+  // computed outside this codebase. They are the external authority: if a change
+  // to the VSOP87 tables, the ayanāṃśa or the node handling moves a graha by more
+  // than a few arcseconds, these fail.
+  const SE = {
+    'Binay 2009': {
+      birth: { year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
+               latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5 },
+      ayanamsha: 23.985186591,
+      lagna: 224.394441,
+      planets: { sun: 319.3283, moon: 42.0442, mars: 297.1198, mercury: 298.2630,
+                 jupiter: 289.3090, venus: 351.2926, saturn: 144.7903, rahu: 283.7032 },
+    },
+    '1990': {
+      birth: { year: 1990, month: 1, day: 1, hour: 12, minute: 0, second: 0,
+               latitude: 13.08, longitude: 80.27, timezoneOffsetHours: 5.5 },
+      ayanamsha: null, lagna: null, planets: null,
+    },
+  };
+
+  const b = SE['Binay 2009'];
+  const c: any = calculateFullJyotishaChart(b.birth as any);
+
+  check('ayanāṃśa matches Swiss Ephemeris within 1 arcsec',
+    Math.abs(c.meta.ayanamshaValue - b.ayanamsha) * 3600 < 1,
+    `${((c.meta.ayanamshaValue - b.ayanamsha) * 3600).toFixed(2)}"`);
+
+  check('lagna matches Swiss Ephemeris within 30 arcsec',
+    Math.abs(c.lagna.siderealLongitude - b.lagna) * 3600 < 30,
+    `${((c.lagna.siderealLongitude - b.lagna) * 3600).toFixed(2)}"`);
+
+  for (const [id, want] of Object.entries(b.planets)) {
+    const got = (c.planets as any)[id].siderealLongitude;
+    const d = Math.abs(got - (want as number)) * 3600;
+    check(`${id} matches Swiss Ephemeris within 30 arcsec`, d < 30, `${d.toFixed(2)}"`);
+  }
+
+  // The Sun carries the largest residual — it is the VSOP87 truncation, and it
+  // must stay small or the whole chart shifts.
+  const sunD = Math.abs(c.planets.sun.siderealLongitude - b.planets.sun) * 3600;
+  check('the Sun residual stays under 30 arcsec', sunD < 30, `${sunD.toFixed(2)}"`);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
