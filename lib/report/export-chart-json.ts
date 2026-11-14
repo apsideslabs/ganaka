@@ -24,7 +24,7 @@ import { calculateNadi } from '@/lib/jyotisha/nadi';
 import { fourStepForAll } from '@/lib/kp/four-step';
 import { calculateKpAspects } from '@/lib/kp/aspects';
 import { housesSignified } from '@/lib/kp/significators';
-import { calculateNavaTara } from '@/lib/jyotisha/navatara';
+import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -435,6 +435,11 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       janmaNakshatra: n.janmaNakshatra, janmaNumber: n.janmaNumber,
       cycle: n.cycle.map((c) => ({ tara: c.tara.name, nature: c.tara.nature, nakshatras: c.nakshatras.map((x) => x.name) })),
       rows: n.rows.map((r) => ({ nakshatra: r.nakshatraName, tara: r.tara.name })),
+      today: (() => {
+        const b: any = (chart.meta as any)?.birthDetails ?? {};
+        const t = taraToday(n.janmaNumber, new Date(), Number(b.latitude ?? 0), Number(b.longitude ?? 0), Number(b.timezoneOffsetHours ?? 0), (chart.meta as any)?.ayanamshaType);
+        return { date: t.date, nakshatra: t.nakshatraName, tara: t.tara.name, nature: t.tara.nature, favourable: t.favourable };
+      })(),
       note: n.note,
     };
   }, {});
