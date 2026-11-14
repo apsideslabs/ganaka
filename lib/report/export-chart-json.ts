@@ -194,6 +194,8 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       houseSystem: chart.meta.houseSystem,
       nodeType: (chart.meta as any).nodeType ?? 'mean',
       jaiminiScheme: (chart.meta as any).jaiminiScheme ?? '7_karaka',
+      // Inputs that were clamped or normalised. Empty when the chart is clean.
+      warnings: ((chart.meta as any).warnings ?? []) as string[],
       julianDay: chart.meta.julianDay,
       engineVersion: chart.meta.engineVersion,
       calculatedAt: chart.meta.calculatedAt,
