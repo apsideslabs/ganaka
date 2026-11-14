@@ -133,8 +133,8 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
       if (!isPapaKartari) {
         return {
           isPresent: false,
-          formationStatus: 'Not Formed',
-          severity: 'Low',
+          formationStatus: 'Not Formed' as const,
+          severity: 'Low' as const,
           conditionsMet: [],
           exceptionsApplied: [],
           involvedPlanets: [],
@@ -221,8 +221,8 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
       }
       return {
         isPresent: true,
-        formationStatus: 'Formed',
-        severity: 'Moderate',
+        formationStatus: 'Formed' as const,
+        severity: 'Moderate' as const,
         conditionsMet: [
           `House ${h === 1 ? 12 : h - 1} occupied by natural malefic(s): ${prevMalefics.join(', ').toUpperCase()}`,
           `House ${h === 12 ? 1 : h + 1} occupied by natural malefic(s): ${nextMalefics.join(', ').toUpperCase()}`,
