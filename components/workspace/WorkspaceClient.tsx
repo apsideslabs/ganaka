@@ -726,6 +726,21 @@ export const WorkspaceClient: React.FC = () => {
   const [dualSecondaryVarga, setDualSecondaryVarga] = useState<VargaId>('D9');
 
   const [ayanamshaType, setAyanamshaType] = useState<AyanamshaType>(() => init.ayan);
+  /**
+   * Which gaṇita computes the positions, read from platform settings.
+   *
+   * Read once on mount and never toggled here: the settings dialog writes the
+   * value and then hard-reloads, so a workspace can never hold a chart built
+   * from one ephemeris while the rest of the app expects another.
+   */
+  const [ephemerisMode] = useState<'drik' | 'surya_siddhanta'>(() => {
+    if (typeof window === 'undefined') return 'drik';
+    try {
+      const raw = localStorage.getItem('ganaka_platform_settings');
+      const parsed = raw ? JSON.parse(raw) : null;
+      return parsed?.ephemerisMode === 'surya_siddhanta' ? 'surya_siddhanta' : 'drik';
+    } catch { return 'drik'; }
+  });
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
@@ -845,7 +860,7 @@ export const WorkspaceClient: React.FC = () => {
   // inputs are debounced: typing settles first, then one chart is built. The
   // calculator memoises on the input signature as well, so returning to a
   // previous set of values is free.
-  const birthSignature = `${year}-${month}-${day}-${hour}-${minute}-${second}|${selectedCity.latitude},${selectedCity.longitude},${selectedCity.timezoneOffsetHours}|${selectedCity.name}|${ayanamshaType}|${houseSystem}`;
+  const birthSignature = `${year}-${month}-${day}-${hour}-${minute}-${second}|${selectedCity.latitude},${selectedCity.longitude},${selectedCity.timezoneOffsetHours}|${selectedCity.name}|${ayanamshaType}|${houseSystem}|${ephemerisMode}`;
   const settledBirth = useDebouncedValue(birthSignature, 220);
 
   const chartData: JyotishaChart = useMemo(() => {
@@ -862,6 +877,7 @@ export const WorkspaceClient: React.FC = () => {
       locationName: selectedCity.name,
       ayanamshaType,
       houseSystem,
+      ephemerisMode,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settledBirth]);
@@ -1032,6 +1048,19 @@ ${Object.values(chartData.planets)
 
   return (
     <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-6 space-y-6 text-slate-900">
+      {ephemerisMode === 'surya_siddhanta' && (
+        <div className="px-4 py-3 rounded-xl border border-[#8C2D19]/30 bg-[#8C2D19]/[0.05] flex items-start gap-2.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#8C2D19] mt-1.5 shrink-0" />
+          <p className="text-[11px] text-slate-700 leading-relaxed">
+            <strong className="font-semibold">Sūrya Siddhānta mode.</strong> Every position on this
+            page comes from the classical gaṇita, not the modern ephemeris. The Sun is accurate to
+            0.2°, and the Moon and Rāhu to about 4°. Mars, Mercury, Jupiter and Venus are 13°–45°
+            from the sky until the pañcāṅga bīja tables are applied. Read this as a traditional
+            chart, not a chart of the sky.
+          </p>
+        </div>
+      )}
+
       {/* 1. PROFESSIONAL EXECUTIVE HEADER & ASTRONOMICAL COMMAND DECK */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
