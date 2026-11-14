@@ -31,6 +31,7 @@ import { findBrahmaGraha, calculateSthiraDasha } from '../lib/dashas/jaimini-sth
 import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../lib/varshaphala/tajika-dashas';
 import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
+import { findEclipses } from '../lib/astronomy/eclipses';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
 import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
@@ -740,6 +741,58 @@ console.log('\n== Pañcadhā maitrī & attributes ==');
   check('Sudarśana names the active house',
     e.sudarshana.dasha?.house >= 1 && e.sudarshana.dasha?.house <= 12,
     String(e.sudarshana.dasha?.house));
+}
+
+/* ------------------------------------------------------------- ECLIPSES */
+
+console.log('\n== Saṃhitā — eclipses ==');
+{
+  const got = findEclipses({
+    from: { year: 2009, month: 6, day: 1 },
+    to: { year: 2010, month: 8, day: 1 },
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
+  });
+
+  // The five real eclipses in that window. Dates are local to IST, so the
+  // 31 Dec 2009 lunar eclipse appears on 1 Jan 2010.
+  const want = [
+    ['solar', 2009, 7, 22],
+    ['lunar', 2010, 1, 1],
+    ['solar', 2010, 1, 15],
+    ['lunar', 2010, 6, 26],
+    ['solar', 2010, 7, 12],
+  ];
+  for (const [kind, y, m, d] of want as any[]) {
+    const hit = got.find((e) => e.kind === kind && e.date.year === y && e.date.month === m && e.date.day === d);
+    check(`${kind} eclipse on ${d}-${m}-${y} is found`, !!hit,
+      got.map((e) => `${e.kind}:${e.date.day}/${e.date.month}/${e.date.year}`).join(' '));
+  }
+
+  check('no spurious eclipses in a clean window', got.length === want.length, String(got.length));
+
+  // The July 2009 eclipse was total — the Moon sat almost on the ecliptic.
+  const jul09 = got.find((e) => e.kind === 'solar' && e.date.month === 7 && e.date.year === 2009);
+  check('the July 2009 eclipse is deep', !!jul09 && jul09.depth > 0.9, String(jul09?.depth));
+  check('the July 2009 eclipse was above the horizon in Assam', !!jul09 && jul09.aboveHorizon);
+
+  // The July 2010 total eclipse was not visible from India.
+  const jul10 = got.find((e) => e.kind === 'solar' && e.date.month === 7 && e.date.year === 2010);
+  check('the July 2010 eclipse is below the horizon in Assam', !!jul10 && !jul10.aboveHorizon);
+
+  // Syzygy times must be accurate to a couple of minutes: the July 2009 new
+  // moon fell at 08:05 IST and the January 2010 full moon at 00:43 IST.
+  check('July 2009 syzygy lands on 08:0x IST',
+    !!jul09 && jul09.date.hour === 8 && Math.abs(jul09.date.minute - 4) <= 3,
+    jul09 ? `${jul09.date.hour}:${jul09.date.minute}` : 'missing');
+  const jan10 = got.find((e) => e.kind === 'lunar' && e.date.month === 1 && e.date.year === 2010);
+  check('January 2010 syzygy lands on 00:4x IST',
+    !!jan10 && jan10.date.hour === 0 && Math.abs(jan10.date.minute - 43) <= 3,
+    jan10 ? `${jan10.date.hour}:${jan10.date.minute}` : 'missing');
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  check('JSON carries the eclipse list', Array.isArray(e.eclipses?.events) && e.eclipses.events.length > 0);
+  check('JSON states the eclipse method', typeof e.eclipses?.method === 'string' && e.eclipses.method.length > 40);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
