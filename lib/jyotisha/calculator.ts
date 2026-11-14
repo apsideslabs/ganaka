@@ -58,10 +58,57 @@ export interface CalculationInput {
   jaiminiScheme?: '7_karaka' | '8_karaka';
 }
 
+
+/**
+ * Result cache.
+ *
+ * A full chart costs about 130 ms — the VSOP87 series and the ṣaḍbala work
+ * dominate. The workspace recomputes on every change to the birth fields, and
+ * the panels remount whenever a tab is reopened, so the same chart was being
+ * built over and over for identical inputs. This memoises on the input
+ * signature, so a repeat call is free.
+ *
+ * Bounded, because a long session with a lot of typing would otherwise hold
+ * every intermediate chart. Oldest entry is dropped first.
+ */
+const CHART_CACHE_LIMIT = 24;
+const chartCache = new Map<string, JyotishaChart>();
+
+function cacheKey(input: CalculationInput): string {
+  return [
+    input.year, input.month, input.day, input.hour, input.minute, input.second ?? 0,
+    input.latitude, input.longitude, input.timezoneOffsetHours,
+    input.ayanamshaType ?? 'lahiri', input.customAyanamshaValue ?? 0,
+    input.houseSystem ?? 'equal_whole', input.jaiminiScheme ?? '7_karaka',
+    input.ashtakavargaRecension ?? 'parashara', input.nodeType ?? 'mean',
+  ].join('|');
+}
+
+/** Clear the cache — used by tests that need a cold run. */
+export function clearChartCache(): void {
+  chartCache.clear();
+}
+
 /**
  * Computes a full JyotishaChart structure with 100% mathematical fidelity.
+ *
+ * Memoised on the input signature; the returned object is shared, so callers
+ * must treat it as immutable.
  */
 export function calculateFullJyotishaChart(input: CalculationInput): JyotishaChart {
+  const key = cacheKey(input);
+  const hit = chartCache.get(key);
+  if (hit) return hit;
+  const chart = computeChart(input);
+  if (chartCache.size >= CHART_CACHE_LIMIT) {
+    const oldest = chartCache.keys().next().value;
+    if (oldest !== undefined) chartCache.delete(oldest);
+  }
+  chartCache.set(key, chart);
+  return chart;
+}
+
+function computeChart(input: CalculationInput): JyotishaChart {
   const {
     year,
     month,
