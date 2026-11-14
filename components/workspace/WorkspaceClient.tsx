@@ -13,6 +13,11 @@ import { CITIES_DATABASE, CityLocation, searchLocations, formatDMS } from '../..
 import { useCitySearch } from '../../hooks/use-city-search';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '../../lib/astronomy/ayanamsha';
 import { calculateFullJyotishaChart } from '../../lib/jyotisha/calculator';
+import { useDebouncedValue } from '../../hooks/use-debounced-value';
+import { KpMark } from './kp/KpMark';
+
+/** The KP card carries its own mark rather than a generic icon. */
+const KpIcon = ({ className }: { className?: string }) => <KpMark size={16} className={className} />;
 import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
@@ -505,10 +510,10 @@ const NAV_DOMAINS: NavDomain[] = [
     id: 'kp_astrology',
     name: 'KP Astrology (कृष्णमूर्ति)',
     shortName: 'KP',
-    icon: Target,
+    icon: KpIcon,
     description: 'Placidus cusps, sub-lords, significators, ruling planets and the cuspal promise — a complete KP workspace reading the chart already loaded',
     subTabs: [
-      { id: 'kp', name: 'KP — Krishnamurti Paddhati', shortName: 'KP Workspace', icon: Target, badge: 'Full engine' },
+      { id: 'kp', name: 'KP — Krishnamurti Paddhati', shortName: 'KP Workspace', icon: KpIcon, badge: 'Full engine' },
     ],
   },
   {
@@ -834,7 +839,15 @@ export const WorkspaceClient: React.FC = () => {
   // Filtered Locations (curated + full GeoNames index, incl. Indian villages)
   const locationResults = useCitySearch(locationQuery, 40, 15);
 
-  // Compute Full Jyotisha Chart
+  // Compute Full Jyotisha Chart.
+  //
+  // The birth fields are controlled inputs and a chart costs ~130 ms, so the
+  // inputs are debounced: typing settles first, then one chart is built. The
+  // calculator memoises on the input signature as well, so returning to a
+  // previous set of values is free.
+  const birthSignature = `${year}-${month}-${day}-${hour}-${minute}-${second}|${selectedCity.latitude},${selectedCity.longitude},${selectedCity.timezoneOffsetHours}|${selectedCity.name}|${ayanamshaType}|${houseSystem}`;
+  const settledBirth = useDebouncedValue(birthSignature, 220);
+
   const chartData: JyotishaChart = useMemo(() => {
     return calculateFullJyotishaChart({
       year,
@@ -850,7 +863,8 @@ export const WorkspaceClient: React.FC = () => {
       ayanamshaType,
       houseSystem,
     });
-  }, [year, month, day, hour, minute, second, selectedCity, ayanamshaType, houseSystem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settledBirth]);
 
   // Determine which domain is currently active
   const currentDomain = useMemo(() => {
