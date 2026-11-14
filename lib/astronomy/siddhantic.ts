@@ -116,24 +116,44 @@ const R2D = 180 / Math.PI;
 /**
  * Bīja correction.
  *
- * The revolution counts are adjusted so the mean motions track observation
- * rather than drifting. The coefficients below are the classical ones, applied
- * as a fraction of the Mahāyuga count: the text's own remedy for the drift
- * documented in the header.
+ * The documented integer corrections to the revolution counts, from Burgess's
+ * Sūrya Siddhānta translation: "the planetary revolutions were further changed
+ * thus … According to Dīkṣita these new corrections were introduced by the
+ * author of the Makaranda tables."
+ *
+ *   Moon's apogee  −4     Moon's node  +4
+ *   Mercury       −16     Venus        −12
+ *   Mars            0     Jupiter       −8
+ *   Saturn        +12
+ *
+ * ⚠ THESE DO NOT CLOSE THE GAP, AND THE MODULE SAYS SO RATHER THAN PRETENDING.
+ * One revolution per Mahāyuga is 0.4258° today, so the largest correction here
+ * moves a graha by about 6.8° — while raw Kali-epoch Sūrya Siddhānta is 45° out
+ * on Mercury. The bīja refines the Makaranda tables *from their own epoch*
+ * (Śaka 1400 / 1478 CE); it was never meant to repair five thousand years of
+ * drift from the Kali epoch. Offered because it is documented and real, not
+ * because it fixes anything on its own.
  */
-export interface BijaOptions {
-  /** Apply the bīja correction to the mean motions. */
-  enabled: boolean;
-}
+const BIJA_REVOLUTIONS: Record<string, number> = {
+  sun: 0, moon: 0, moonApogee: -4, moonNode: +4,
+  mars: 0, mercury: -16, jupiter: -8, venus: -12, saturn: +12,
+};
 
-/** Revolutions of a body per Mahāyuga, with the optional bīja applied. */
+/** Revolutions of a body per Mahāyuga, with the documented bīja applied. */
 function revolutionsOf(body: keyof typeof REVOLUTIONS, bija: boolean): number {
   const base = REVOLUTIONS[body];
   if (!bija) return base;
-  // The bīja trims the accumulated excess. Expressed per Mahāyuga it is the
-  // drift over one Mahāyuga at the rate measured against the modern year.
-  const excessPerYear = (SS_SIDEREAL_YEAR - 365.256363) / 365.256363;
-  return base * (1 - excessPerYear);
+  return base + (BIJA_REVOLUTIONS[body] ?? 0);
+}
+
+/** The bīja table, for display. */
+export function bijaCorrections(): Array<{ body: string; base: number; delta: number; corrected: number }> {
+  return (Object.keys(REVOLUTIONS) as Array<keyof typeof REVOLUTIONS>).map((b) => ({
+    body: b,
+    base: REVOLUTIONS[b],
+    delta: BIJA_REVOLUTIONS[b] ?? 0,
+    corrected: REVOLUTIONS[b] + (BIJA_REVOLUTIONS[b] ?? 0),
+  }));
 }
 
 /** Ahargaṇa — days elapsed since the Kali epoch, to the given instant. */
@@ -339,3 +359,35 @@ export const SURYA_SIDDHANTA_NOTE =
   'and śīghra epicycle corrections. Its sidereal year is 207 s longer than the ' +
   'modern one, so raw positions drift about 12° from the sky by 2026 — the text\'s ' +
   'own bīja correction exists for exactly this and is offered as an option.';
+
+/**
+ * The siddhāntic positions against the modern ones, graha by graha.
+ *
+ * The residual is the honest measure of what this mode can and cannot do, and it
+ * belongs in front of the reader rather than in a footnote. As of the bīja-
+ * corrected counts the Sun, Saturn, Rāhu and the Moon land within about 4°,
+ * Jupiter within 11°, and Mars and Mercury remain 26° and 45° out — those two
+ * need revolution counts the documented bīja does not carry.
+ */
+export function siddhanticResiduals(
+  jdUt: number,
+  modern: Record<string, number>,
+  bija = true
+): Array<{ body: string; siddhantic: number; modern: number; delta: number; verdict: string }> {
+  const ss = suryaSiddhantaPositions(jdUt, bija);
+  const out: Array<{ body: string; siddhantic: number; modern: number; delta: number; verdict: string }> = [];
+  for (const body of ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu']) {
+    const m = modern[body];
+    if (typeof m !== 'number' || typeof ss[body] !== 'number') continue;
+    const delta = ((ss[body] - m + 540) % 360) - 180;
+    const a = Math.abs(delta);
+    out.push({
+      body,
+      siddhantic: Number(ss[body].toFixed(2)),
+      modern: Number(m.toFixed(2)),
+      delta: Number(delta.toFixed(2)),
+      verdict: a < 1 ? 'exact' : a < 5 ? 'close' : a < 15 ? 'loose' : 'wrong',
+    });
+  }
+  return out;
+}
