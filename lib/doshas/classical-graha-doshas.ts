@@ -195,8 +195,8 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
     sanskritName: `पापकर्तरी भाव ${h}`,
     transliteration: `Bhāva ${h} Pāpa Kartarī Doṣa`,
     alternateNames: [`House ${h} Scissor Affliction`],
-    category: 'Graha Afflictions',
-    subcategory: 'Hemming Affliction',
+    category: 'Graha Afflictions' as const,
+    subcategory: 'Hemming Affliction' as const,
     classicalStatus: 'Directly Classical' as const,
     primarySource: {
       text: 'Bṛhat Parāśara Horā Śāstra',
