@@ -46,8 +46,10 @@ export interface RulingPlanetsResult {
   /** The working set after nodes are added and retrograde grahas removed. */
   workingSet: RulingPlanet[];
   distinct: PlanetId[];
-  /** Dropped because they sit in a retrograde planet's star or sub. */
+  /** Dropped because they sit in a retrograde planet's star or sub. Horary only. */
   omittedRetrograde: PlanetId[];
+  /** True when the sub lords were included, giving the seven-planet set. */
+  extended: boolean;
   note: string;
 }
 
@@ -71,7 +73,15 @@ export function calculateRulingPlanets(
   longitude: number,
   timezoneOffsetHours: number,
   ayanamshaType: any = 'lahiri',
-  customAyanamshaValue = 0
+  customAyanamshaValue = 0,
+  /**
+   * Include the sub lords of the ascendant and the Moon, giving the seven-planet
+   * set. The five are the standard working set; many teachers extend to seven,
+   * and KP timing leans on the sub lord as the tie-breaker, so it is offered.
+   */
+  extended = true,
+  /** Natal or horary — the retrograde omission applies to a question chart only. */
+  mode: 'natal' | 'horary' = 'natal'
 ): RulingPlanetsResult {
   const localHour = when.getHours() + when.getMinutes() / 60;
   const jd = calculateJulianDay(
@@ -102,6 +112,10 @@ export function calculateRulingPlanets(
     mk('Moon sign lord', moonKP.signLord),
     mk('Day lord', dayLord),
   ];
+  if (extended) {
+    base.push(mk('Ascendant sub lord', ascKP.subLord));
+    base.push(mk('Moon sub lord', moonKP.subLord));
+  }
 
   // ---- Node agency -------------------------------------------------------
   // A node joins the set when it conjoins a ruling planet, is aspected by one,
@@ -138,6 +152,8 @@ export function calculateRulingPlanets(
   const isRetro = (id: PlanetId): boolean => planets?.[id]?.isRetrograde === true;
 
   const keep = (rp: RulingPlanet): boolean => {
+    // Natal charts ignore retrogression entirely; only a question chart omits.
+    if (mode !== 'horary') return true;
     const lon = planets?.[rp.planet]?.siderealLongitude;
     if (typeof lon !== 'number') return true;
     const { starLord, subLord } = lordsOf(lon);
@@ -159,21 +175,31 @@ export function calculateRulingPlanets(
     nodeAgents,
     planets: base,
     workingSet: planetsKept,
+    extended,
     distinct,
     omittedRetrograde: [...new Set(omitted)],
     note:
-      'The five grahas ruling the moment of judgement, extended by any node acting as an agent ' +
-      'and reduced by any graha sitting in a retrograde star or sub. KP uses them as a cross-check ' +
-      'on whether a matter is ripe, not as a promise in themselves.',
+      (extended
+        ? 'The five grahas ruling the moment, extended to seven by the ascendant and Moon sub lords, '
+        : 'The five grahas ruling the moment, ') +
+      'plus any node acting as an agent. ' +
+      (mode === 'horary'
+        ? 'In a question chart a ruling graha sitting in a retrograde star or sub is omitted. '
+        : 'A birth chart gives retrogression no weight, so nothing is omitted. ') +
+      'KP uses these as a cross-check on whether a matter is ripe, not as a promise in themselves.',
   };
 }
 
 /** Ruling planets for a natal chart's own moment. */
-export function rulingPlanetsForChart(chart: JyotishaChart): RulingPlanetsResult {
+export function rulingPlanetsForChart(
+  chart: JyotishaChart,
+  extended = true,
+  mode: 'natal' | 'horary' = 'natal'
+): RulingPlanetsResult {
   const b = chart.meta.birthDetails;
   const when = new Date(b.year, b.month - 1, b.day, b.hour, b.minute, b.second ?? 0);
   return calculateRulingPlanets(
     when, b.latitude, b.longitude, b.timezoneOffsetHours,
-    (chart.meta as any).ayanamshaType
+    (chart.meta as any).ayanamshaType, 0, extended, mode
   );
 }
