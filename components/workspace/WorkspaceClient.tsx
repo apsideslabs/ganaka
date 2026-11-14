@@ -150,6 +150,7 @@ const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.Tran
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
+const SukshmaPanel = dynamic(() => import('./SukshmaPanel').then((m) => m.SukshmaPanel), { ssr: false });
 const KPPanel = dynamic(() => import('./KPPanel').then((m) => m.KPPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
@@ -341,7 +342,7 @@ export type WorkspaceTab =
   | 'knowledge_base'
   | 'relationships'
   | 'samhita'
-  | 'kp';
+  | 'kp' | 'sukshma';
 
 interface NavDomain {
   id: string;
@@ -514,6 +515,16 @@ const NAV_DOMAINS: NavDomain[] = [
     description: 'Placidus cusps, sub-lords, significators, ruling planets and the cuspal promise — a complete KP workspace reading the chart already loaded',
     subTabs: [
       { id: 'kp', name: 'KP — Krishnamurti Paddhati', shortName: 'KP Workspace', icon: KpIcon, badge: 'Full engine' },
+    ],
+  },
+  {
+    id: 'sukshma',
+    name: 'Sūkṣma Bindu (सूक्ष्म)',
+    shortName: 'Sūkṣma',
+    icon: Sparkles,
+    description: 'The five avasthā sets, the Mṛtyu Bhāga fateful degrees in both recensions, and the nakṣatra nāḍī cycle',
+    subTabs: [
+      { id: 'sukshma', name: 'Sūkṣma Bindu — avasthā, mṛtyu bhāga, nāḍī', shortName: 'Sūkṣma', icon: Sparkles, badge: 'Fine points' },
     ],
   },
   {
@@ -2176,6 +2187,10 @@ ${Object.values(chartData.planets)
         {/* Category 11: Classical Chart Indications */}
         {activeTab === 'indications' && (
           <IndicationsPanel chart={chartData} />
+        )}
+
+        {activeTab === 'sukshma' && (
+          <SukshmaPanel chart={chartData} />
         )}
       </div>
 
