@@ -19,6 +19,7 @@ import { evaluateAllDoshas } from '../doshas/dosha-engine';
 import { calculateJaiminiFactors } from '../jaimini/jaimini-engine';
 import { calculatePlanetaryAvasthas } from './sphutas';
 import { calculateBhavaChalit } from './bhava-chalit';
+import { calculateHouseArgalas } from './argala';
 import { calculateRelationshipMatrix, calculateDispositorRelations } from './relationships';
 import { calculateNatalAttributes } from './attributes';
 import { calculateSpecialPoints } from './special-lagnas';
@@ -384,6 +385,17 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   // JSON and the PDF had no way to show it.
   const bhavaChalit = calculateBhavaChalit(baseChartForDoshas as any, 'sripati');
   (baseChartForDoshas as any).bhavaChalit = bhavaChalit;
+
+  // Argala was computed by its own module and never attached, so the Jaimini
+  // intervention layer reached neither the workspace nor the exports.
+  try {
+    (baseChartForDoshas as any).argala = calculateHouseArgalas(
+      (baseChartForDoshas as any).lagna.rashiNumber,
+      (baseChartForDoshas as any).planets
+    );
+  } catch {
+    (baseChartForDoshas as any).argala = null;
+  }
   (baseChartForDoshas as any).relationships = relationships;
   (baseChartForDoshas as any).dispositorRelations = dispositorRelations;
   (baseChartForDoshas as any).attributes = attributes;
