@@ -55,6 +55,16 @@ export interface SolarTimes {
   nightDurationFormatted: string;
   equationOfTimeMinutes: number;
   sunDeclinationDeg: number;
+  /**
+   * True when the Sun never sets (polar day) or never rises (polar night) at
+   * this latitude and date. In those cases sunrise and sunset are not real
+   * events: the hour angle is clamped to 180° or 0° and both stamps collapse to
+   * the same clock time. Anything keyed on sunrise — the vāra, the pañcāṅga
+   * day, the horā sequence — is therefore degenerate and should be read from
+   * solar noon instead.
+   */
+  polarDay?: boolean;
+  polarNight?: boolean;
 }
 
 const DEG2RAD = Math.PI / 180.0;
@@ -604,6 +614,7 @@ function getHourAngleForAltitude(latDeg: number, decDeg: number, targetAltDeg: n
   const cosH = (Math.sin(altRad) - Math.sin(latRad) * Math.sin(decRad)) / (Math.cos(latRad) * Math.cos(decRad));
 
   if (cosH >= 1.0) return 0.0; // Sun never reaches this altitude (polar night)
+
   if (cosH <= -1.0) return 180.0; // Sun never goes below this altitude (polar day)
 
   return Math.acos(cosH) * RAD2DEG;
@@ -676,6 +687,12 @@ export function calculateSolarTimes(
   const dayLengthHours = Math.max(0, (exactSunsetJD - exactSunriseJD) * 24.0);
   const nightLengthHours = Math.max(0, 24.0 - dayLengthHours);
 
+  // Polar day/night: the Sun's hour angle was clamped, so sunrise and sunset are
+  // not real events and both stamps collapse to the same clock time. Flagged so
+  // a caller can say so instead of printing a meaningless "sunrise 11:59 PM".
+  const polarDay = dayLengthHours >= 23.99;
+  const polarNight = dayLengthHours <= 0.01;
+
   return {
     sunriseJD: exactSunriseJD,
     sunsetJD: exactSunsetJD,
@@ -693,6 +710,8 @@ export function calculateSolarTimes(
     nightDurationFormatted: formatDurationHours(nightLengthHours),
     equationOfTimeMinutes: noonSun.eotMinutes,
     sunDeclinationDeg: noonSun.dec,
+    polarDay,
+    polarNight,
   };
 }
 
