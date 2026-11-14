@@ -28,6 +28,7 @@ import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
 import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
+import { findEclipses } from '@/lib/astronomy/eclipses';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -675,6 +676,7 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Yogas', desc: 'Classical combinations detected in the chart' },
   { title: 'Daśā Systems', desc: 'All sixteen systems and the period running now' },
   { title: 'Dṛṣṭi & Sudarśana', desc: 'Graha aspects by house, and the three annual rings' },
+  { title: 'Saṃhitā — Grahaṇa', desc: 'Eclipses across the decade, with the Moon’s latitude at each syzygy' },
   { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
@@ -744,6 +746,17 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
     const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
     return calculateSudarshanaChakra(chart as any, { yearOfLife });
   });
+  const eclipses: any[] = safe(() => {
+    const y = bd.year;
+    return findEclipses({
+      from: { year: y, month: 1, day: 1 },
+      to: { year: y + 10, month: 12, day: 31 },
+      latitude: bd.latitude, longitude: bd.longitude,
+      timezoneOffsetHours: bd.timezoneOffsetHours,
+      ayanamshaType: (chart.meta as any).ayanamshaType,
+      maxResults: 40,
+    });
+  }) || [];
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -1278,10 +1291,39 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         )}
       </Page>
 
+      {/* ------------------------------------------------ samhita: eclipses */}
+      {eclipses.length > 0 && (
+        <Page size="A4" style={S.page} wrap>
+          <RunningHead chapter="Saṃhitā — Grahaṇa" identity={identity} />
+          <ChapterTitle num={13}>Saṃhitā — Grahaṇa</ChapterTitle>
+          <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+            Eclipses across the decade from the birth year, found by bisecting the Sun–Moon
+            elongation and testing the Moon’s ecliptic latitude at each syzygy. Dates are local
+            to the birth place.
+          </Text>
+          <Table
+            cols={[
+              { label: 'Type', width: 12 },
+              { label: 'Moment', width: 30 },
+              { label: 'Moon latitude', width: 18, align: 'right' },
+              { label: 'Depth', width: 14, align: 'right' },
+              { label: 'Here', width: 26 },
+            ]}
+            rows={eclipses.map((e: any) => [
+              e.kind === 'solar' ? 'Solar' : 'Lunar',
+              e.label,
+              `${e.moonLatitude.toFixed(2)}° / ${e.limit}°`,
+              `${(e.depth * 100).toFixed(0)}%`,
+              e.aboveHorizon ? 'Above horizon' : 'Below horizon',
+            ])}
+          />
+        </Page>
+      )}
+
       {/* ------------------------------------------------ relationships & attributes */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Relationships & Attributes" identity={identity} />
-        <ChapterTitle num={13}>Relationships &amp; Attributes</ChapterTitle>
+        <ChapterTitle num={14}>Relationships &amp; Attributes</ChapterTitle>
 
         {dispositorRelations.length > 0 && (
           <>
@@ -1366,7 +1408,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle num={14}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={15}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
