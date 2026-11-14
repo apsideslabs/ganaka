@@ -222,7 +222,7 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
       return {
         isPresent: true,
         formationStatus: 'Formed' as const,
-        severity: 'Moderate' as const,
+        severity: 'Medium' as const,
         conditionsMet: [
           `House ${h === 1 ? 12 : h - 1} occupied by natural malefic(s): ${prevMalefics.join(', ').toUpperCase()}`,
           `House ${h === 12 ? 1 : h + 1} occupied by natural malefic(s): ${nextMalefics.join(', ').toUpperCase()}`,
