@@ -4,7 +4,7 @@
  * classical Parāśari, Jaimini, and Sūrya Siddhānta calculation rules.
  */
 
-import { calculateJulianDay, toDMS } from '../astronomy/julian';
+import { calculateJulianDay, toDMS, normalizeDegrees } from '../astronomy/julian';
 import { calculateAyanamsha, formatAyanamsha, AyanamshaType } from '../astronomy/ayanamsha';
 import { calculateAllPlanets, calculateSolarTimes, getSunDetailsAtJD, PlanetId } from '../astronomy/ephemeris';
 import { calculateAscendant, calculateMidheaven, calculateHouses } from './houses';
@@ -18,6 +18,7 @@ import { detectAllYogas } from '../yogas/yoga-engine';
 import { evaluateAllDoshas } from '../doshas/dosha-engine';
 import { calculateJaiminiFactors } from '../jaimini/jaimini-engine';
 import { calculatePlanetaryAvasthas } from './sphutas';
+import { calculateBhavaChalit } from './bhava-chalit';
 import { calculateRelationshipMatrix, calculateDispositorRelations } from './relationships';
 import { calculateNatalAttributes } from './attributes';
 import { calculateSpecialPoints } from './special-lagnas';
@@ -131,6 +132,13 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   // 4. Ascendant (Lagna) & Midheaven (MC)
   const lagna = calculateAscendant(jd, latitude, longitude, ayanamshaType, customAyanamshaValue);
   const mc = calculateMidheaven(jd, longitude, ayanamshaType, customAyanamshaValue);
+  // The MC, IC and descendant were computed and then dropped, so nothing could
+  // reproduce the local sky or build unequal houses from the true midheaven.
+  const angles = {
+    mc: Number(mc.toFixed(4)),
+    ic: Number(normalizeDegrees(mc + 180).toFixed(4)),
+    descendant: Number(normalizeDegrees(lagna.siderealLongitude + 180).toFixed(4)),
+  };
 
   // 5. Bhāvas (Houses)
   const planetaryPositionsForHouses: Record<PlanetId, { siderealLongitude: number }> = {} as any;
@@ -350,6 +358,7 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
       },
     },
     lagna,
+    angles,
     planets: calculatedPlanets,
     bhavas,
     panchanga,
@@ -370,6 +379,11 @@ export function calculateFullJyotishaChart(input: CalculationInput): JyotishaCha
   const relationships = calculateRelationshipMatrix(baseChartForDoshas as any);
   const dispositorRelations = calculateDispositorRelations(baseChartForDoshas as any);
   const attributes = calculateNatalAttributes(baseChartForDoshas as any);
+  // The chalita reading: the same grahas placed by bhāva cusp rather than by
+  // sign. It was computed inside a panel and never reached the chart, so the
+  // JSON and the PDF had no way to show it.
+  const bhavaChalit = calculateBhavaChalit(baseChartForDoshas as any, 'sripati');
+  (baseChartForDoshas as any).bhavaChalit = bhavaChalit;
   (baseChartForDoshas as any).relationships = relationships;
   (baseChartForDoshas as any).dispositorRelations = dispositorRelations;
   (baseChartForDoshas as any).attributes = attributes;
