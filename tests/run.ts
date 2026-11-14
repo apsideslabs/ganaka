@@ -33,6 +33,8 @@ import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
 import { findEclipses } from '../lib/astronomy/eclipses';
 import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
+import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
+import { calculateDoubleTransit } from '../lib/jyotisha/transits';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
 import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
@@ -852,6 +854,76 @@ console.log('\n== Saṃhitā — eclipses ==');
   const e: any = buildChartExport(natal, { dashaDepth: 3 });
   check('JSON carries the eclipse list', Array.isArray(e.eclipses?.events) && e.eclipses.events.length > 0);
   check('JSON states the eclipse method', typeof e.eclipses?.method === 'string' && e.eclipses.method.length > 40);
+}
+
+/* --------------------------------------- PREDICTION CHECKLIST COMPLIANCE */
+
+console.log('\n== Practitioner checklist ==');
+{
+  // 1. BAV totals are fixed by the tables — a free check on any calculator.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const want: any = { sun: 48, moon: 49, mars: 39, mercury: 54, jupiter: 56, venus: 52, saturn: 39 };
+  const got: any = {};
+  for (const [p, o] of Object.entries(natal.ashtakavarga.bav) as any) got[p] = o.totalBindus;
+  check('every BAV total matches the published table',
+    Object.keys(want).every((k) => got[k] === want[k]), JSON.stringify(got));
+  check('SAV totals exactly 337', natal.ashtakavarga.sav.total === 337);
+
+  // 2. Shadbala required minimums: the common set.
+  const req: any = {};
+  for (const [p, o] of Object.entries(natal.shadbala) as any) req[p] = o.requiredRupas;
+  check('required shadbala matches the common set',
+    req.sun === 5 && req.moon === 6 && req.mars === 5 && req.mercury === 7 &&
+    req.jupiter === 6.5 && req.venus === 5.5 && req.saturn === 5,
+    JSON.stringify(req));
+  check('every graha carries a shadbala ratio',
+    Object.values(natal.shadbala).every((o: any) => typeof o.ratio === 'number' && o.ratio > 0));
+
+  // 3. Vimshopaka: four schemes, each weighting exactly twenty.
+  for (const [name, w] of Object.entries(VIMSHOPAKA_SCHEMES)) {
+    const sum = Object.values(w as any).reduce((a: any, b: any) => a + b, 0);
+    check(`vimshopaka ${name} weights total twenty`, Math.abs(sum - 20) < 1e-9, String(sum));
+  }
+  const vim = calculateVimshopakaBala(natal.vargas) as any[];
+  check('vimshopaka covers seven grahas', vim.length === 7);
+  check('vimshopaka scores stay within 0-20',
+    vim.every((v) => [v.shadvargaScore, v.saptavargaScore, v.dashavargaScore, v.shodashavargaScore]
+      .every((s) => s >= 0 && s <= 20)));
+  // The four schemes must be independently computed, not scaled copies.
+  check('the four schemes give genuinely different scores',
+    vim.some((v) => new Set([v.shadvargaScore, v.saptavargaScore, v.dashavargaScore, v.shodashavargaScore]).size > 1));
+  check('vimshopaka carries a band and a named grade',
+    vim.every((v) => typeof v.band === 'string' && typeof v.namedGrade === 'string'));
+  check('the band ladder matches the published cuts',
+    vimshopakaBand(4.9).band === 'Incapable' && vimshopakaBand(9.9).band === 'Some good' &&
+    vimshopakaBand(14.9).band === 'Middling' && vimshopakaBand(15).band === 'Wholly favourable');
+  check('atipurna sits at 17.5 and above', vimshopakaBand(17.5).namedGrade === 'Atipūrṇa');
+  check('atihina sits below 2.5', vimshopakaBand(2.4).namedGrade === 'Atihīna');
+
+  // 4. All five avastha sets.
+  const sets = Object.keys(natal.planets.sun.avasthas || {});
+  for (const k of ['baladi', 'jagradadi', 'deeptadi', 'lajjitadi', 'sayanadi']) {
+    check(`avastha set ${k} is present`, sets.includes(k), sets.join(','));
+  }
+  check('every graha carries all five avasthas',
+    Object.values(natal.planets).every((p: any) =>
+      ['baladi', 'jagradadi', 'deeptadi', 'lajjitadi', 'sayanadi'].every((k) => !!p.avasthas?.[k])));
+
+  // 5. Double transit: two planets, one house.
+  const dt = calculateDoubleTransit(natal.lagna.rashiNumber, new Date(2026, 10, 14));
+  check('double transit covers twelve houses', dt.houses.length === 12);
+  check('a house is active only when both planets reach it',
+    dt.houses.every((h) => h.active === (h.jupiterActivates && h.saturnActivates)));
+
+  // 6. Argala is attached with its obstruction.
+  check('argala is attached to the chart', Array.isArray(natal.argala) && natal.argala.length > 0);
+  check('every argala names its virodha house',
+    natal.argala.every((a: any) => typeof a.virodhaHouse === 'number'));
+
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  check('JSON carries the double transit', !!e.doubleTransit?.houses?.length);
+  check('JSON carries argala', Array.isArray(e.argala) && e.argala.length > 0);
+  check('JSON vimshopaka carries the band', !!e.vimshopaka?.[0]?.band);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
