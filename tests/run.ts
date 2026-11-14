@@ -35,6 +35,10 @@ import { findEclipses } from '../lib/astronomy/eclipses';
 import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
 import { calculateKpLayer } from '../lib/kp';
 import { generateClassicalChartIndications } from '../lib/jyotisha/indications';
+import { calculateMrityuBhaga, mrityuBhagaTable } from '../lib/jyotisha/mrityu-bhaga';
+import { calculateNadi } from '../lib/jyotisha/nadi';
+import { fourStepForAll } from '../lib/kp/four-step';
+import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { scoreDomain } from '../lib/jyotisha/reading/five-layer';
 import { SS_SIDEREAL_YEAR, KALI_EPOCH_JD, suryaSiddhantaSun, suryaSiddhantaNode } from '../lib/astronomy/siddhantic';
@@ -1530,6 +1534,86 @@ console.log('\n== Chart styles ==');
   for (const st of styles) {
     check(`"${st}" is an accepted chart style`, allowed.has(st));
   }
+}
+
+/* --------------------------------- AVASTHA, MRITYU BHAGA, NADI, 4-STEP */
+
+console.log('\n== Sukhma bindu & the KP four-step ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // ---- Mṛtyu Bhāga ------------------------------------------------
+  const mb = calculateMrityuBhaga(natal);
+  check('mrityu bhaga covers the lagna and nine grahas', mb.rows.length >= 10, String(mb.rows.length));
+  check('every row names a critical degree 1-30',
+    mb.rows.every((r) => r.criticalDegree >= 1 && r.criticalDegree <= 30));
+  check('every row carries an orb', mb.rows.every((r) => r.orbMinutes > 0));
+  check('within-orb rows are exactly those inside the orb',
+    mb.rows.every((r) => r.withinOrb === (Math.abs(r.deltaMinutes) <= r.orbMinutes)));
+
+  // The two recensions must differ on the Moon and agree elsewhere.
+  const mb2 = calculateMrityuBhaga(natal, 'phaladipika');
+  const moonJ = mb.rows.find((r) => r.body === 'moon');
+  const moonP = mb2.rows.find((r) => r.body === 'moon');
+  check('the Moon differs between recensions', !!moonJ && !!moonP && moonJ.criticalDegree !== moonP.criticalDegree,
+    `${moonJ?.criticalDegree} vs ${moonP?.criticalDegree}`);
+  const sunJ = mb.rows.find((r) => r.body === 'sun');
+  const sunP = mb2.rows.find((r) => r.body === 'sun');
+  check('the Sun agrees between recensions', sunJ?.criticalDegree === sunP?.criticalDegree);
+
+  const tbl = mrityuBhagaTable();
+  check('the table lists every body', tbl.length === 11, String(tbl.length));
+  check('only the Moon is flagged as differing',
+    tbl.filter((r) => r.differs).map((r) => r.body).join(',') === 'moon',
+    tbl.filter((r) => r.differs).map((r) => r.body).join(','));
+
+  // ---- Nāḍī -------------------------------------------------------
+  const nadi = calculateNadi(natal);
+  check('nadi distribution is nine each',
+    nadi.distribution.adi === 9 && nadi.distribution.madhya === 9 && nadi.distribution.antya === 9);
+  check('the table lists 27 nakshatras', nadi.table.length === 27);
+  check('Ashvini is Adi', nadi.table[0].nadi === 'adi');
+  check('Revati is Antya', nadi.table[26].nadi === 'antya');
+  check('the cycle repeats every three',
+    nadi.table.every((n, i) => n.nadi === nadi.table[i % 3].nadi));
+  check('the Moon nadi is a real nadi', ['adi', 'madhya', 'antya'].includes(nadi.moonNadi));
+  check('the Lagna nadi is a real nadi', ['adi', 'madhya', 'antya'].includes(nadi.lagnaNadi));
+  // Field-name trap: the lagna carries nakshatraNumber, a graha nakshatraIndex.
+  check('the lagna nakshatra number is in range', nadi.lagnaNumber >= 1 && nadi.lagnaNumber <= 27,
+    String(nadi.lagnaNumber));
+
+  // ---- KP four-step ----------------------------------------------
+  const layer = calculateKpLayer(natal);
+  const fs = fourStepForAll(natal, layer);
+  check('the four-step runs for every matter', fs.length === Object.keys(KP_MATTERS).length);
+  check('every result has exactly four steps', fs.every((r) => r.steps.length === 4));
+  check('the steps are numbered in order',
+    fs.every((r) => r.steps.map((s) => s.step).join('') === '1234'));
+  check('every step carries a finding', fs.every((r) => r.steps.every((s) => s.finding.length > 10)));
+  check('every result carries a conclusion', fs.every((r) => r.conclusion.length > 20));
+
+  // The chain must honour its own order: a denied promise is not rescued by timing.
+  const denied = fs.find((r) => r.steps[0].verdict === 'no');
+  if (denied) {
+    check('a denied promise stays denied whatever the timing',
+      denied.outcome === 'denied', denied.outcome);
+  } else {
+    check('no denied matter in this fixture (ordering test skipped)', true);
+  }
+  check('an outcome is always one of the four',
+    fs.every((r) => ['promised-and-timed', 'promised-untimed', 'denied', 'inconclusive'].includes(r.outcome)));
+
+  // ---- Relationship varga ----------------------------------------
+  const d1 = calculateRelationshipMatrix(natal, 'D1');
+  const d9 = calculateRelationshipMatrix(natal, 'D9');
+  check('both vargas produce the full pair set', d1.pairs.length === d9.pairs.length && d1.pairs.length > 0);
+  check('natural friendship is varga-independent',
+    d1.pairs.every((p, i) => p.natural === d9.pairs[i].natural));
+  check('the temporal reading does change with the varga',
+    d1.summary.adhiMitra !== d9.summary.adhiMitra ||
+    d1.summary.mitra !== d9.summary.mitra ||
+    d1.summary.shatru !== d9.summary.shatru,
+    `${JSON.stringify(d1.summary)} vs ${JSON.stringify(d9.summary)}`);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
