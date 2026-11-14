@@ -333,7 +333,7 @@ export function PlatformSettingsDialog({
                             type="button"
                             onClick={() => {
                               if (settings.ephemerisMode === m.id) return;
-                              updateSettings({ ephemerisMode: m.id as 'drik' | 'surya_siddhanta' });
+                              updateSetting('ephemerisMode', m.id as 'drik' | 'surya_siddhanta');
                               // Hard reload: the whole platform must be rebuilt from
                               // one ephemeris, never a mixture.
                               setTimeout(() => { window.location.href = '/'; }, 120);
