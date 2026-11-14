@@ -18,6 +18,7 @@ import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
+import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '@/lib/jyotisha/kp';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -92,6 +93,8 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** The KP layer: ruling planets, significators and the cusp promise. */
+  kp: Record<string, unknown>;
   /** Jupiter–Saturn double transit as of the export date. */
   doubleTransit: Record<string, unknown>;
   /** Jaimini argala and virodhargala for the reference houses. */
@@ -319,6 +322,29 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       anta: Number((h.antaDegree ?? h.endDegree ?? 0).toFixed(3)),
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
+
+  // --- KP layer -------------------------------------------------------------
+  const kp = safe(() => {
+    const bd = chart.meta.birthDetails;
+    const ruling = calculateRulingPlanets(
+      new Date(), bd.latitude, bd.longitude, bd.timezoneOffsetHours,
+      chart.meta.ayanamshaType as any
+    );
+    const significators: Record<string, unknown> = {};
+    for (let h = 1; h <= 12; h++) {
+      significators[String(h)] = calculateSignificators(chart, h).map((l) => ({
+        level: l.level, rule: l.rule, planets: l.planets,
+      }));
+    }
+    const promises: Record<string, unknown> = {};
+    for (const [key, m] of Object.entries(KP_MATTERS)) {
+      // The matter's principal house is the first of its group that is not the
+      // general 2nd/11th support houses.
+      const primary = m.matter[0] ?? 1;
+      promises[key] = evaluateCuspPromise(chart, primary, m.matter, m.detrimental);
+    }
+    return { ruling, significators, promises };
+  }, {});
 
   // --- Double transit and argala --------------------------------------------
   const doubleTransit = safe(() => {
@@ -572,7 +598,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   return {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
-    drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala,
+    drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
   };
 }
 
