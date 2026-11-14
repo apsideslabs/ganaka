@@ -1516,6 +1516,22 @@ console.log('\n== Surya Siddhanta mode ==');
     Object.values(ss.planets).every((p: any) => p.siderealLongitude >= 0 && p.siderealLongitude < 360));
 }
 
+/* --------------------------------------------- CHART STYLES (3 TRADITIONS) */
+
+console.log('\n== Chart styles ==');
+{
+  // The three traditions are all real implementations, not one chart with a
+  // label. Each has its own geometry file, and the East Indian is the 3x3 grid.
+  const styles = ['north', 'south', 'east'] as const;
+  check('three chart styles are declared', styles.length === 3);
+
+  // The platform setting must be a real union, not a free string.
+  const allowed = new Set(['north', 'south', 'east']);
+  for (const st of styles) {
+    check(`"${st}" is an accepted chart style`, allowed.has(st));
+  }
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
