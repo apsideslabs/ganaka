@@ -502,15 +502,33 @@ const NAV_DOMAINS: NavDomain[] = [
     ],
   },
   {
+    id: 'kp_astrology',
+    name: 'KP Astrology (कृष्णमूर्ति)',
+    shortName: 'KP',
+    icon: Target,
+    description: 'Placidus cusps, sub-lords, significators, ruling planets and the cuspal promise — a complete KP workspace reading the chart already loaded',
+    subTabs: [
+      { id: 'kp', name: 'KP — Krishnamurti Paddhati', shortName: 'KP Workspace', icon: Target, badge: 'Full engine' },
+    ],
+  },
+  {
     id: 'maitri',
     name: 'Relationships & Attributes',
     shortName: 'Maitrī',
     icon: Users,
     description: 'Pañcadhā maitrī between the grahas, dispositor readings, and the favourable number, colour, day and gem',
     subTabs: [
-      { id: 'kp', name: 'KP — Krishnamurti Paddhati (उप-लग्न)', shortName: 'KP', icon: Target, badge: 'Sub-lords' },
-      { id: 'samhita', name: 'Saṃhitā — Grahaṇa (ग्रहण)', shortName: 'Saṃhitā', icon: Eclipse, badge: 'Eclipses' },
       { id: 'relationships', name: 'Relationships & Attributes (मैत्री)', shortName: 'Maitrī', icon: Users, badge: 'Pañcadhā' },
+    ],
+  },
+  {
+    id: 'samhita',
+    name: 'Saṃhitā & Mundane',
+    shortName: 'Saṃhitā',
+    icon: Eclipse,
+    description: 'Eclipses across the decade, with the Moon’s ecliptic latitude at each syzygy',
+    subTabs: [
+      { id: 'samhita', name: 'Saṃhitā — Grahaṇa (ग्रहण)', shortName: 'Saṃhitā', icon: Eclipse, badge: 'Eclipses' },
     ],
   },
   {
