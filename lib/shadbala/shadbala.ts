@@ -23,8 +23,17 @@ import { GRAHA_PROPERTIES } from '../jyotisha/constants';
 import { normalizeDegrees } from '../astronomy/julian';
 
 /** Standard minimum required Rūpas per BPHS. */
+/**
+ * Required minimum ṣaḍbala per graha, in rūpas.
+ *
+ * The common set printed across the manuals is Sun 5, Moon 6, Mars 5, Mercury 7,
+ * Jupiter 6.5, Venus 5.5, Saturn 5; Phaladeepika gives the Sun 6. This table had
+ * the Sun at 6.5, which is neither — and because the ratio is total ÷ required, a
+ * Sun at 6.5 rūpas was being reported as merely meeting its minimum when it
+ * actually exceeds the common requirement by thirty per cent.
+ */
 export const REQUIRED_SHADBALA_RUPAS: Record<PlanetId, number> = {
-  sun: 6.5,
+  sun: 5.0,
   moon: 6.0,
   mars: 5.0,
   mercury: 7.0,
