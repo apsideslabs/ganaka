@@ -25,6 +25,7 @@ import { calculateKPPosition } from '../jyotisha/sphutas';
 import type { KpCusp } from './cusps';
 import { cuspLord } from './cusps';
 import { fertilityOf } from './constants';
+import { housesSignified } from './significators';
 
 export type CuspPromise = 'promised' | 'promised-when-direct' | 'denied' | 'mixed' | 'undetermined';
 
@@ -46,54 +47,6 @@ export interface CuspPromiseResult {
 }
 
 /**
- * Which houses a graha signifies, by KP's links.
- *
- * Occupation (the house whose arc holds it), ownership (the cusp whose sign it
- * rules) and the star link (the houses signified by its star lord).
- */
-function housesSignifiedBy(
-  chart: JyotishaChart,
-  cusps: KpCusp[],
-  id: PlanetId
-): number[] {
-  const out = new Set<number>();
-  const p: any = (chart.planets as any)?.[id];
-  if (!p) return [];
-
-  // Occupation — by cusp boundary, not by sign.
-  const lon = p.siderealLongitude;
-  for (let i = 0; i < 12; i++) {
-    const start = cusps[i].longitude;
-    const end = cusps[(i + 1) % 12].longitude;
-    const inside = start < end ? lon >= start && lon < end : lon >= start || lon < end;
-    if (inside) { out.add(cusps[i].house); break; }
-  }
-
-  // Ownership — the cusp whose sign this graha rules.
-  for (const c of cusps) {
-    if (cuspLord(c) === id) out.add(c.house);
-  }
-
-  // Star link — whatever the star lord signifies by occupation/ownership.
-  const star = calculateKPPosition(lon).starLord;
-  if (star !== id) {
-    const sp: any = (chart.planets as any)?.[star];
-    if (sp) {
-      const slon = sp.siderealLongitude;
-      for (let i = 0; i < 12; i++) {
-        const start = cusps[i].longitude;
-        const end = cusps[(i + 1) % 12].longitude;
-        const inside = start < end ? slon >= start && slon < end : slon >= start || slon < end;
-        if (inside) { out.add(cusps[i].house); break; }
-      }
-      for (const c of cusps) if (cuspLord(c) === star) out.add(c.house);
-    }
-  }
-
-  return [...out].sort((a, b) => a - b);
-}
-
-/**
  * Evaluate the promise on one cusp for one matter.
  */
 export function evaluateCuspPromise(
@@ -109,7 +62,7 @@ export function evaluateCuspPromise(
   const subLord = cusp.lords.subLord;
   const subLordRetrograde = (chart.planets as any)?.[subLord]?.isRetrograde === true;
 
-  const signifies = housesSignifiedBy(chart, cusps, subLord);
+  const signifies = housesSignified(chart, cusps, subLord);
   const hitsMatter = signifies.filter((h) => matterHouses.includes(h));
   const hitsDetrimental = signifies.filter((h) => detrimentalHouses.includes(h));
 
