@@ -544,12 +544,12 @@ const NAV_DOMAINS: NavDomain[] = [
   },
   {
     id: 'indications',
-    name: 'Chart Indications',
-    shortName: 'Indications',
+    name: 'Overall Reading',
+    shortName: 'Reading',
     icon: Sparkles,
-    description: 'Evidence-based classical chart indications across 12 major life domains (BPHS, Phaladīpikā, Sārāvalī)',
+    description: 'The chart read as a whole — who the person is, how they make their way, who they share life with, and their footing',
     subTabs: [
-      { id: 'indications', name: 'Classical Chart Indications (फल विवेक)', shortName: '12 Life Domains', icon: Sparkles, badge: '12 Domains' },
+      { id: 'indications', name: 'Overall Reading (समग्र फल)', shortName: 'Overall', icon: Sparkles, badge: 'One reading' },
     ],
   },
 ];
