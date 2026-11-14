@@ -40,7 +40,6 @@ import { calculateNadi } from '../lib/jyotisha/nadi';
 import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
-import { buildKpCusps } from '../lib/kp/cusps';
 import { housesSignified } from '../lib/kp/significators';
 import { calculateNavaTara, taraFor } from '../lib/jyotisha/navatara';
 import { buildOverallReading } from '../lib/jyotisha/indications/overall';
