@@ -419,7 +419,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
 
   const mrityuBhaga = safe(() => {
     const r = calculateMrityuBhaga(chart);
-    return { recension: r.recension, rows: r.rows, affected: r.affected.map((a) => a.body), note: r.note };
+    return { recension: r.recension, interpretation: r.interpretation, rows: r.rows, affected: r.affected.map((a) => a.body), note: r.note };
   }, {});
 
   const nadi = safe(() => {
