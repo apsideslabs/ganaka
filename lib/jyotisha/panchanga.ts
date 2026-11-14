@@ -1196,6 +1196,10 @@ export function calculatePanchanga(
       dayDuration: `${Math.floor(dayLengthHours)}h ${Math.round((dayLengthHours % 1) * 60)}m`,
       nightDuration: `${Math.floor(nightLengthHours)}h ${Math.round((nightLengthHours % 1) * 60)}m`,
       dayDurationGhatis: `${dayGhatiInt} Ghatis ${dayPalaInt} Palas`,
+      // Polar day/night: sunrise and sunset are not real events, so the clock
+      // stamps above are degenerate. Carried through so a panel can say so.
+      polarDay: (sunTimes as any).polarDay === true,
+      polarNight: (sunTimes as any).polarNight === true,
       nightDurationGhatis: `${nightGhatiInt} Ghatis ${nightPalaInt} Palas`,
       sunriseJD: sunTimes.sunriseJD,
       sunsetJD: sunTimes.sunsetJD,
