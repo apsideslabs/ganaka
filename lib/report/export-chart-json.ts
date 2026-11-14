@@ -16,6 +16,7 @@ import { calculateBhavaBala } from '@/lib/shadbala/bhava-bala';
 import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
 import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
+import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -90,6 +91,8 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** Saṃhitā: eclipses across a ten-year window around the chart date. */
+  eclipses: Record<string, unknown>;
   /** Graha dṛṣṭi — which houses each graha aspects. */
   drishti: Record<string, unknown>;
   /** Sudarśana Cakra — the three rings and the annual house. */
@@ -308,6 +311,33 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
 
+  // --- Saṃhitā: eclipses ----------------------------------------------------
+  const eclipses = safe(() => {
+    const bd = chart.meta.birthDetails;
+    const y = bd.year;
+    const list = findEclipses({
+      from: { year: y, month: 1, day: 1 },
+      to: { year: y + 10, month: 12, day: 31 },
+      latitude: bd.latitude,
+      longitude: bd.longitude,
+      timezoneOffsetHours: bd.timezoneOffsetHours,
+      ayanamshaType: chart.meta.ayanamshaType as any,
+      maxResults: 60,
+    });
+    return {
+      method: ECLIPSE_METHOD_NOTE,
+      events: list.map((e) => ({
+        kind: e.kind,
+        jd: Number(e.jd.toFixed(6)),
+        label: e.label,
+        moonLatitude: e.moonLatitude,
+        limit: e.limit,
+        depth: e.depth,
+        aboveHorizon: e.aboveHorizon,
+      })),
+    };
+  }, {});
+
   // --- Dṛṣṭi matrix and Sudarśana -------------------------------------------
   const drishti = safe(() => {
     const byPlanet: Record<string, number[]> = {};
@@ -479,7 +509,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   return {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
-    drishti, sudarshana,
+    drishti, sudarshana, eclipses,
   };
 }
 
