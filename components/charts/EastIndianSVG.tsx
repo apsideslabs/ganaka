@@ -20,6 +20,15 @@ interface EastIndianSVGProps {
   svgRef?: React.Ref<SVGSVGElement>;
   centerTitle?: string;
   centerSubtitle?: string;
+  /**
+   * Which writing system the rāśi labels use.
+   *
+   * The chart used to hard-code Bengali, so the platform's script preference did
+   * nothing and an exported SVG showed tofu boxes on any machine without a
+   * Bengali font. `iast` is the default because it renders everywhere; the
+   * Bengali and Devanagari forms are still one prop away.
+   */
+  script?: 'iast' | 'devanagari' | 'bengali' | 'english';
 }
 
 export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
@@ -32,6 +41,7 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
   svgRef,
   centerTitle,
   centerSubtitle,
+  script = 'iast',
 }) => {
   // 12 Chambers Polygon & Geometry in 600x600 viewBox
   // 4 Cardinal Squares (200x200):
@@ -48,6 +58,27 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
   // Sign 9 (Sagittarius): Bottom-Right Upper
   // Sign 11 (Aquarius): Top-Right Lower
   // Sign 12 (Pisces): Top-Right Upper
+  /** The rāśi label in the requested writing system, with a safe fallback. */
+  const rashiLabel = (n: RashiNumber): string => {
+    const d = RASHI_DATA[n];
+    if (script === 'bengali') return d.bengali || d.sanskrit;
+    if (script === 'devanagari') return (d as any).devanagari || d.sanskrit;
+    if (script === 'english') return d.english;
+    return d.sanskrit;
+  };
+
+  /**
+   * Font stack for the labels. An Indic-capable family is named first so a
+   * Bengali or Devanagari label has a chance of rendering, with the generic
+   * sans-serif behind it.
+   */
+  const labelFont =
+    script === 'bengali'
+      ? "Noto Sans Bengali, sans-serif"
+      : script === 'devanagari'
+        ? "Noto Sans Devanagari, sans-serif"
+        : "Georgia, serif";
+
   const chamberPolygons: Record<RashiNumber, string> = {
     1: '200,0 400,0 400,200 200,200',
     2: '0,0 200,0 200,200',
@@ -302,9 +333,15 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
   return (
     <svg
       ref={svgRef}
+      // Required for a standalone export: without the namespace a saved .svg is
+      // not recognised as SVG by strict parsers (cairosvg, Illustrator, print
+      // pipelines), and every label renders as tofu boxes.
+      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 600 600"
       className="w-full h-full select-none"
-      style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision' }}
+      // textRendering:geometricPrecision disables font shaping in several SVG
+      // consumers, which is the other half of the tofu problem on export.
+      style={{ shapeRendering: 'geometricPrecision' }}
     >
       <defs>
         {/* Clip paths for all 12 chambers to physically seal boundaries */}
@@ -345,17 +382,18 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
       <rect x="200" y="200" width="200" height="200" fill="#F8FAFC" stroke="#334155" strokeWidth="1.8" />
       <circle cx="300" cy="300" r="75" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 3" />
 
-      <text x="300" y="278" textAnchor="middle" dominantBaseline="central" fill="#0F172A" className="text-[16px] font-serif font-bold">
-        {centerTitle || 'পূর্ব ভারতীয় চক্র'}
+      <text x="300" y="278" textAnchor="middle" dominantBaseline="central" fill="#0F172A" fontSize="16" fontFamily="Georgia, serif" fontWeight="700">
+        {centerTitle || (script === 'bengali' ? 'পূর্ব ভারতীয় চক্র' : 'East Indian Chart')}
       </text>
-      <text x="300" y="298" textAnchor="middle" dominantBaseline="central" fill="#475569" className="text-[11.5px] font-sans font-medium">
+      <text x="300" y="298" textAnchor="middle" dominantBaseline="central" fill="#475569" fontSize="11.5" fontFamily="system-ui, sans-serif" fontWeight="500">
         {centerSubtitle || 'East Indian (Bengali/Mithila)'}
       </text>
-      <text x="300" y="322" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" className="text-[11.5px] font-mono font-bold">
-        লগ্ন: {RASHI_DATA[lagnaRashi].bengali} ({RASHI_DATA[lagnaRashi].sanskrit})
+      <text x="300" y="322" textAnchor="middle" dominantBaseline="central" fill="#8C2D19" fontSize="11.5" fontFamily="ui-monospace, monospace" fontWeight="700">
+        {script === 'bengali' ? 'লগ্ন:' : script === 'devanagari' ? 'लग्न:' : 'Lagna:'}{' '}
+        {rashiLabel(lagnaRashi)} ({RASHI_DATA[lagnaRashi].english})
       </text>
       {lagnaDegreeStr && (
-        <text x="300" y="338" textAnchor="middle" dominantBaseline="central" fill="#64748B" className="text-[10px] font-mono font-medium">
+        <text x="300" y="338" textAnchor="middle" dominantBaseline="central" fill="#64748B" fontSize="10" fontFamily="ui-monospace, monospace" fontWeight="500">
           {lagnaDegreeStr}
         </text>
       )}
@@ -380,7 +418,6 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
             <polygon
               points={chamberPolygons[rashiNum]}
               fill={isSelected ? '#EFF6FF' : isLagna ? '#FEF2F2' : '#FFFFFF'}
-              className="hover:fill-[#F1F5F9] transition-colors"
               stroke="#334155"
               strokeWidth="1.5"
             />
@@ -394,17 +431,19 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                 textAnchor={header.anchor}
                 dominantBaseline="central"
                 fill="#334155"
-                className="text-[11.5px] font-serif font-bold"
+                fontSize="11.5" fontFamily={labelFont} fontWeight="700"
               >
-                {RASHI_DATA[rashiNum].bengali}
-                <tspan className="text-[11px] font-sans font-semibold fill-[#CFC6B8]"> · </tspan>
-                <tspan className="text-[14px] font-serif font-bold fill-[#334155]">{rashiNum}</tspan>
-                <tspan className="text-[11px] font-sans font-semibold fill-[#CFC6B8]"> · </tspan>
-                <tspan className="text-[11px] font-mono font-bold fill-[#8A8175]">
+                {rashiLabel(rashiNum)}
+                <tspan fontSize="11" fontFamily={labelFont} fontWeight="600" fill="#CFC6B8"> · </tspan>
+                <tspan fontSize="14" fontFamily="Georgia, serif" fontWeight="700" fill="#334155">{rashiNum}</tspan>
+                <tspan fontSize="11" fontFamily="system-ui, sans-serif" fontWeight="600" fill="#CFC6B8"> · </tspan>
+                <tspan fontSize="11" fontFamily="ui-monospace, monospace" fontWeight="700" fill="#8A8175">
                   H{houseNum}
                 </tspan>
                 {isLagna && (
-                  <tspan className="text-[10px] font-sans font-extrabold fill-[#DC2626]"> · লগ্ন</tspan>
+                  <tspan fontSize="10" fontFamily="system-ui, sans-serif" fontWeight="800" fill="#DC2626">
+                    {' · '}{script === 'bengali' ? 'লগ্ন' : script === 'devanagari' ? 'लग्न' : 'Lagna'}
+                  </tspan>
                 )}
               </text>
 
@@ -421,7 +460,7 @@ export const EastIndianSVG: React.FC<EastIndianSVGProps> = ({
                       y={pos.y}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontFamily="system-ui, -apple-system, sans-serif"
+                      fontFamily="system-ui, sans-serif"
                       fontSize={planetFontSize}
                       fontWeight="700"
                       fill={planetFill}
