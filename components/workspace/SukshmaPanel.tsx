@@ -12,18 +12,20 @@ import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateMrityuBhaga, mrityuBhagaTable, type MrityuRecension } from '@/lib/jyotisha/mrityu-bhaga';
 import { calculateNadi, NADI_INFO } from '@/lib/jyotisha/nadi';
-import { Info, Sparkles, Skull, Waves } from 'lucide-react';
+import { calculateNavaTara } from '@/lib/jyotisha/navatara';
+import { Info, Sparkles, Skull, Waves, Star } from 'lucide-react';
 
 interface Props {
   chart: JyotishaChart;
 }
 
-type Tab = 'avasthas' | 'mrityu' | 'nadi';
+type Tab = 'avasthas' | 'mrityu' | 'nadi' | 'navatara';
 
 const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
   { id: 'avasthas', label: 'Avasthās', icon: Sparkles },
   { id: 'mrityu', label: 'Mṛtyu Bhāga', icon: Skull },
   { id: 'nadi', label: 'Nakṣatra Nāḍī', icon: Waves },
+  { id: 'navatara', label: 'Navatāra Chakra', icon: Star },
 ];
 
 const SETS: Array<{ key: string; label: string; blurb: string }> = [
@@ -52,6 +54,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
   const mrityu = useMemo(() => calculateMrityuBhaga(chart, recension), [chart, recension]);
   const nadi = useMemo(() => calculateNadi(chart), [chart]);
   const table = useMemo(() => mrityuBhagaTable(), []);
+  const navatara = useMemo(() => calculateNavaTara(chart), [chart]);
 
   const planets = useMemo(() => {
     const out: Array<{ id: string; name: string; av: any }> = [];
@@ -270,6 +273,66 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
         </div>
       )}
 
+      {/* ── navatāra ─────────────────────────────────────────── */}
+      {tab === 'navatara' && (
+        <div className="space-y-5">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
+            <SectionHead right={
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                janma · {navatara.janmaNakshatra} #{navatara.janmaNumber}
+              </span>
+            }>The nine tārās</SectionHead>
+
+            <div className="space-y-2.5">
+              {navatara.cycle.map(({ tara, nakshatras }) => (
+                <div key={tara.number}
+                  className={`flex items-start gap-4 p-4 rounded-xl border ${
+                    tara.nature === 'auspicious' ? 'bg-emerald-50/50 border-emerald-200/70'
+                      : tara.nature === 'inauspicious' ? 'bg-[#8C2D19]/[0.045] border-[#8C2D19]/20'
+                        : 'bg-amber-50/40 border-amber-200/70'
+                  }`}>
+                  <span className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-mono text-[12px] font-bold ${
+                    tara.nature === 'auspicious' ? 'bg-emerald-600 text-white'
+                      : tara.nature === 'inauspicious' ? 'bg-[#8C2D19] text-white'
+                        : 'bg-amber-500 text-white'
+                  }`}>{tara.number}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-[14px] font-semibold text-slate-900">{tara.name}</span>
+                      <span className="text-[12px] text-slate-500">{tara.sanskrit} · {tara.meaning}</span>
+                    </div>
+                    <div className="text-[12px] text-slate-600 mt-1">{tara.guidance}</div>
+                    <div className="text-[12px] text-slate-500 mt-1.5 font-mono">
+                      {nakshatras.map((n) => n.name).join(' · ')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-7 py-4 border-b border-slate-100"><SectionHead>All 27 nakṣatras</SectionHead></div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 divide-x divide-slate-100">
+              {navatara.rows.map((r) => (
+                <div key={r.nakshatraNumber} className="px-5 py-2 flex items-center gap-2.5 text-[13px] border-b border-slate-100">
+                  <span className="font-mono text-slate-300 w-6 text-[11px]">{r.nakshatraNumber}</span>
+                  <span className="text-slate-700 flex-1">{r.nakshatraName}</span>
+                  <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${
+                    r.tara.nature === 'auspicious' ? 'bg-emerald-50 text-emerald-700'
+                      : r.tara.nature === 'inauspicious' ? 'bg-[#8C2D19]/10 text-[#8C2D19]'
+                        : 'bg-amber-50 text-amber-700'
+                  }`}>{r.tara.name}</span>
+                </div>
+              ))}
+            </div>
+            <div className="px-7 py-4 bg-slate-50/60 border-t border-slate-100">
+              <p className="text-[12px] text-slate-500 leading-relaxed">{navatara.note}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-3 bg-slate-50 border border-slate-200/80 rounded-2xl px-6 py-4">
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p className="text-[12px] text-slate-500 leading-relaxed">
@@ -277,7 +340,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
             ? 'The five avasthā sets answer different questions — age, alertness, dignity, shame and rest — and are read together, never one alone.'
             : tab === 'mrityu'
               ? mrityu.note
-              : nadi.note}
+              : tab === 'nadi' ? nadi.note : navatara.note}
         </p>
       </div>
     </div>
