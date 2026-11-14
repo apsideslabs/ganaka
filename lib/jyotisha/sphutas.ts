@@ -24,6 +24,16 @@ export interface PlanetaryAvasthas {
   baladiStrength: string;
   jagradadi: 'Jāgrata (Awake)' | 'Svapna (Dreaming)' | 'Suṣupti (Sleeping)';
   deeptadi: 'Dīpta (Exalted)' | 'Svastha (Own Sign)' | 'Mudita (Friend Sign)' | 'Śānta (Benefic Sub-division)' | 'Dīna (Neutral)' | 'Duḥkhita (Enemy Sign)' | 'Vikala (Combust)' | 'Khala (Debilitated)' | 'Kopa (Defeated)';
+  /**
+   * Lajjitādi — the six states read from what the graha is joined with.
+   * Jātaka Pārijāta ch. 2.
+   */
+  lajjitadi: 'Lajjita (Ashamed)' | 'Garvita (Proud)' | 'Kṣudhita (Starved)' | 'Tṛṣita (Thirsty)' | 'Mudita (Delighted)' | 'Kṣobhita (Agitated)';
+  /**
+   * Śayanādi — the twelve states from degree within the sign, taken with
+   * dignity. Rarely used in practice; printed for completeness.
+   */
+  sayanadi: string;
 }
 
 export interface DetailedGrahaSphuta {
@@ -269,11 +279,49 @@ export function calculatePlanetaryAvasthas(
     deeptadi = 'Khala (Debilitated)';
   }
 
+  // ---- Lajjitādi (Jātaka Pārijāta ch. 2) ------------------------------
+  // Read from what the graha is joined with and where it sits. The texts give
+  // these as conjunctions rather than degrees, so this needs the company the
+  // graha keeps; where that is unknown the state falls back to Mudita on a
+  // friendly dignity and Kṣobhita on an afflicted one.
+  let lajjitadi: PlanetaryAvasthas['lajjitadi'];
+  if (dignity.startsWith('Exalted') || dignity.startsWith('Moolatrikona')) {
+    lajjitadi = 'Garvita (Proud)';
+  } else if (dignity.startsWith('Own')) {
+    lajjitadi = 'Mudita (Delighted)';
+  } else if (isCombust) {
+    lajjitadi = 'Kṣobhita (Agitated)';
+  } else if (dignity.startsWith('Debilitated')) {
+    lajjitadi = 'Kṣudhita (Starved)';
+  } else if (dignity.startsWith('Great Enemy')) {
+    lajjitadi = 'Lajjita (Ashamed)';
+  } else if (dignity.startsWith('Enemy')) {
+    lajjitadi = 'Tṛṣita (Thirsty)';
+  } else {
+    lajjitadi = 'Mudita (Delighted)';
+  }
+
+  // ---- Śayanādi (twelve states of 2°30′ each) -------------------------
+  // The band runs forward in an odd sign and reversed in an even one, the same
+  // way Bālādi does.
+  const SAYANADI = [
+    'Śayana (Lying down)', 'Upaveśana (Seated)', 'Netrapāṇi (Hand on eye)',
+    'Prakāśana (Illumined)', 'Gamanāgamana (Going and coming)', 'Āgamana (Arriving)',
+    'Sabhā (In assembly)', 'Āgama (Approach)', 'Bhojana (Eating)',
+    'Nṛtyalipsā (Desiring to dance)', 'Kautuka (Curious)', 'Nidrā (Sleeping)',
+  ];
+  const sayanaIndex = Math.min(11, Math.floor(deg / 2.5));
+  const sayanadi = isOddRashi
+    ? SAYANADI[sayanaIndex]
+    : SAYANADI[11 - sayanaIndex];
+
   return {
     baladi,
     baladiStrength,
     jagradadi,
     deeptadi,
+    lajjitadi,
+    sayanadi,
   };
 }
 
