@@ -31,6 +31,8 @@ import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
+import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
+import { generateClassicalChartIndications } from '@/lib/jyotisha/indications';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -680,6 +682,7 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Dṛṣṭi & Sudarśana', desc: 'Graha aspects by house, and the three annual rings' },
   { title: 'Saṃhitā — Grahaṇa', desc: 'Eclipses across the decade, with the Moon’s latitude at each syzygy' },
   { title: 'KP Layer', desc: 'Ruling planets of the moment, and the sub-lord promise for each matter' },
+  { title: 'Gochara & Indications', desc: 'Current transits with vedha and sāḍhe sātī, and the classical indications by domain' },
   { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
@@ -771,6 +774,12 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       const r: any = evaluateCuspPromise(chart as any, primary, m.matter, m.detrimental);
       return r ? { ...r, label: m.label } : null;
     }).filter(Boolean)) || [];
+  const gochar: any = safe(() => calculateCurrentTransits(
+    (chart.planets as any).moon.rashiNumber,
+    chart.lagna.rashiNumber,
+    (chart.meta as any).ayanamshaType
+  ));
+  const indications: any = safe(() => generateClassicalChartIndications(chart as any));
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -1444,10 +1453,72 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         </Page>
       )}
 
+      {/* ------------------------------------------------ gochara & indications */}
+      {gochar && (
+        <Page size="A4" style={S.page} wrap>
+          <RunningHead chapter="Gochara & Indications" identity={identity} />
+          <ChapterTitle num={15}>Gochara &amp; Indications</ChapterTitle>
+          <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+            {`Transits as of ${gochar.transitDateStr}, read from the natal Moon as Indian practice does. ` +
+             `A transit is the trigger, never the promise — it is judged against the running daśā and the natal strength.`}
+          </Text>
+
+          <SubTitle>Current Transits</SubTitle>
+          <Table
+            cols={[
+              { label: 'Graha', width: 16 },
+              { label: 'Rāśi', width: 20 },
+              { label: 'From Moon', width: 12, align: 'center' },
+              { label: 'From Lagna', width: 13, align: 'center' },
+              { label: 'Favourable', width: 13, align: 'center' },
+              { label: 'Vedha', width: 26 },
+            ]}
+            rows={(gochar.planets || []).map((p: any) => [
+              GRAHA[p.id]?.name || p.id,
+              p.transitRashiName,
+              String(p.houseFromNatalMoon),
+              String(p.houseFromNatalLagna),
+              p.isBeneficTransitFromMoon ? 'yes' : 'no',
+              p.hasVedhaObstruction
+                ? `obstructed from house ${p.vedhaHouse}`
+                : '—',
+            ])}
+          />
+
+          <SubTitle>Sāḍhe Sātī</SubTitle>
+          <Text style={{ fontSize: 7.6, color: INK, marginBottom: 6 }}>
+            {gochar.sadeSati?.isActive
+              ? `Active — ${gochar.sadeSati.phase}. Saturn transits the ${gochar.sadeSati.saturnNatalHouseFromMoon}th from the natal Moon.`
+              : `Not active. Saturn transits the ${gochar.sadeSati?.saturnNatalHouseFromMoon}th from the natal Moon.`}
+          </Text>
+
+          {indications && Object.keys(indications).length > 0 && (
+            <>
+              <SubTitle>Classical Indications</SubTitle>
+              <Text style={{ fontSize: 7.2, color: MUTED, marginBottom: 5 }}>
+                Each domain below is assembled from the rules that fired, not from a free-text forecast.
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                {Object.entries(indications).slice(0, 12).map(([k, v]: any) => (
+                  <View key={k} style={{ width: '50%', marginBottom: 3 }}>
+                    <Text style={{ fontSize: 7.2, color: INK }}>
+                      {`${clean(k.replace(/_/g, ' '))}: `}
+                      <Text style={{ color: MUTED }}>
+                        {typeof v === 'string' ? clean(v).slice(0, 90) : (v?.summary ? clean(String(v.summary)).slice(0, 90) : '—')}
+                      </Text>
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+        </Page>
+      )}
+
       {/* ------------------------------------------------ relationships & attributes */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Relationships & Attributes" identity={identity} />
-        <ChapterTitle num={15}>Relationships &amp; Attributes</ChapterTitle>
+        <ChapterTitle num={16}>Relationships &amp; Attributes</ChapterTitle>
 
         {dispositorRelations.length > 0 && (
           <>
@@ -1532,7 +1603,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle num={16}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={17}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
