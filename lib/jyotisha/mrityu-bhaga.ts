@@ -14,6 +14,16 @@
  *
  * Orb, from the medical-astrology usage: the Ascendant within 1°, the Sun, Moon
  * and Mercury within 40′, and the rest within 30′.
+ *
+ * ⚠ THERE IS NO MAKARANDA OR GRAHALĀGHAVA RECENSION TO ADD. Both are gaṇita
+ * works, not phalita: the Makarandasāriṇī's tables are the ending moments of
+ * tithi and yoga, the mean longitudes, the mandaphala, the equation of
+ * conjunction, solar ingress, declination, lunar latitude and the angular
+ * diameters for eclipses — and the Grahalāghava is a computation text on mean
+ * motion and trigonometry. Neither carries these degrees. Every text that does —
+ * Jātaka Pārijāta, Sarvārtha Cintāmaṇi, Sārāvalī, Phaladīpikā, Hora Sāra, Bṛhat
+ * Prajāpatya, Kausika Hora — converges on the same table apart from the Moon and
+ * a single Lagna cell. That convergence is the finding, not a gap in the search.
  */
 
 import type { JyotishaChart, PlanetId, RashiNumber } from './types';
