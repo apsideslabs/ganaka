@@ -17,6 +17,7 @@ import { calculatePhala } from '@/lib/jyotisha/phala-advanced';
 import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
+import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -91,6 +92,10 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** Jupiter–Saturn double transit as of the export date. */
+  doubleTransit: Record<string, unknown>;
+  /** Jaimini argala and virodhargala for the reference houses. */
+  argala: Array<Record<string, unknown>>;
   /** Bhāva Chalita — the same grahas placed by bhāva cusp rather than by sign. */
   bhavaChalit: Record<string, unknown>;
   /** The local sky: midheaven, imum coeli and descendant. */
@@ -315,6 +320,34 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
 
+  // --- Double transit and argala --------------------------------------------
+  const doubleTransit = safe(() => {
+    const r = calculateDoubleTransit(
+      chart.lagna.rashiNumber,
+      new Date(),
+      chart.meta.ayanamshaType as any
+    );
+    return {
+      date: r.transitDateStr,
+      activeHouses: r.activeHouses,
+      houses: r.houses,
+      note:
+        'A major event needs transiting Jupiter and Saturn to activate the same house — Jupiter ' +
+        'by the 5th, 7th or 9th from itself, Saturn by the 3rd, 7th or 10th.',
+    };
+  }, {});
+
+  const argala = safe(() =>
+    ((chart as any).argala || []).map((a: any) => ({
+      house: a.houseFromLagna,
+      type: a.argalaType,
+      planets: a.argalaPlanets,
+      virodhaHouse: a.virodhaHouse,
+      virodhaPlanets: a.virodhaPlanets,
+      obstructed: a.isObstructed,
+      status: a.status,
+    })), []);
+
   // --- Bhāva Chalita and the local angles -----------------------------------
   const bhavaChalit = safe(() => {
     const bc: any = (chart as any).bhavaChalit;
@@ -416,6 +449,9 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       dashavarga: Number(x.dashavargaScore?.toFixed?.(3) ?? 0),
       shodashavarga: Number(x.shodashavargaScore?.toFixed?.(3) ?? 0),
       percentageRating: x.percentageRating,
+      band: x.band,
+      namedGrade: x.namedGrade,
+      reading: x.reading,
     }));
   }, []);
 
@@ -536,7 +572,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   return {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
-    drishti, sudarshana, eclipses, bhavaChalit, angles,
+    drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala,
   };
 }
 
