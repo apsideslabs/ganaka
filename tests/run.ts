@@ -35,6 +35,7 @@ import { findEclipses } from '../lib/astronomy/eclipses';
 import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
+import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '../lib/jyotisha/kp';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
 import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
@@ -924,6 +925,52 @@ console.log('\n== Practitioner checklist ==');
   check('JSON carries the double transit', !!e.doubleTransit?.houses?.length);
   check('JSON carries argala', Array.isArray(e.argala) && e.argala.length > 0);
   check('JSON vimshopaka carries the band', !!e.vimshopaka?.[0]?.band);
+}
+
+/* ------------------------------------------------------------- KP LAYER */
+
+console.log('\n== KP layer ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const bd = natal.meta.birthDetails;
+
+  const rp = calculateRulingPlanets(
+    new Date(2026, 10, 14, 10, 30), bd.latitude, bd.longitude, bd.timezoneOffsetHours
+  );
+  check('five ruling planets are produced', rp.planets.length === 5, String(rp.planets.length));
+  check('every ruling planet names its role',
+    rp.planets.every((p) => typeof p.role === 'string' && p.role.length > 0));
+  check('ruling planets are real grahas',
+    rp.planets.every((p) => typeof p.planet === 'string' && p.planet.length > 0));
+  check('distinct list has no duplicates',
+    new Set(rp.distinct).size === rp.distinct.length && rp.distinct.length <= 5);
+
+  // Significators: four levels, and the owner must appear at level 4.
+  const sigs = calculateSignificators(natal, 7);
+  check('significators produce four levels', sigs.length === 4, String(sigs.length));
+  check('the house owner is the level-4 significator', sigs[3].planets.length === 1);
+  const owner = (natal.bhavas[6] as any).rashiLord ?? (natal.bhavas[6] as any).lord;
+  check('level 4 is exactly the owner', sigs[3].planets[0] === owner, `${sigs[3].planets[0]} vs ${owner}`);
+
+  // The promise rule must be internally consistent with its own house lists.
+  const pr: any = evaluateCuspPromise(natal, 7, KP_MATTERS.marriage.matter, KP_MATTERS.marriage.detrimental);
+  check('cusp promise returns a verdict', !!pr && typeof pr.promise === 'string');
+  check('promise verdict follows the house groups',
+    (pr.promise === 'promised' && pr.hitsMatter.length > 0 && pr.hitsDetrimental.length === 0) ||
+    (pr.promise === 'denied' && pr.hitsMatter.length === 0 && pr.hitsDetrimental.length > 0) ||
+    (pr.promise === 'mixed' && pr.hitsMatter.length > 0 && pr.hitsDetrimental.length > 0) ||
+    (pr.promise === 'undetermined' && pr.hitsMatter.length === 0 && pr.hitsDetrimental.length === 0),
+    JSON.stringify({ p: pr.promise, m: pr.hitsMatter, d: pr.hitsDetrimental }));
+  check('the marriage group is 2, 7, 11 against 1, 6, 10',
+    JSON.stringify(KP_MATTERS.marriage.matter) === '[2,7,11]' &&
+    JSON.stringify(KP_MATTERS.marriage.detrimental) === '[1,6,10]');
+
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  check('JSON carries the KP layer', !!e.kp && !!e.kp.ruling);
+  check('JSON KP carries significators for twelve houses',
+    Object.keys(e.kp.significators || {}).length === 12);
+  check('JSON KP carries the promise verdicts',
+    Object.keys(e.kp.promises || {}).length === Object.keys(KP_MATTERS).length);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
