@@ -881,7 +881,7 @@ console.log('\n== Practitioner checklist ==');
 
   // 3. Vimshopaka: four schemes, each weighting exactly twenty.
   for (const [name, w] of Object.entries(VIMSHOPAKA_SCHEMES)) {
-    const sum = Object.values(w as any).reduce((a: any, b: any) => a + b, 0);
+    const sum = Object.values(w as Record<string, number>).reduce((a, b) => a + b, 0) as number;
     check(`vimshopaka ${name} weights total twenty`, Math.abs(sum - 20) < 1e-9, String(sum));
   }
   const vim = calculateVimshopakaBala(natal.vargas) as any[];
