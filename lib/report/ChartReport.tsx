@@ -912,6 +912,30 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
           })}
         />
 
+        <SubTitle>Bhāva Chalita</SubTitle>
+        <Text style={{ fontSize: 7.2, color: MUTED, marginBottom: 5 }}>
+          The same grahas placed by bhāva cusp rather than by sign. A graha marked with a shift
+          sits in a different house once the unequal cusps are used — the reading changes with it.
+        </Text>
+        <Table
+          cols={[
+            { label: 'Graha', width: 18 },
+            { label: 'Rāśi house', width: 15, align: 'center' },
+            { label: 'Bhāva house', width: 16, align: 'center' },
+            { label: 'Shift', width: 11, align: 'center' },
+            { label: 'Degrees into bhāva', width: 22, align: 'right' },
+            { label: 'From crest', width: 18, align: 'right' },
+          ]}
+          rows={(((chart as any).bhavaChalit?.entries) || []).map((e: any) => [
+            GRAHA[e.planet]?.name || e.planet,
+            String(e.rashiHouse),
+            String(e.chalitHouse),
+            e.shifted ? '◆' : '—',
+            `${e.degreeInBhava.toFixed(2)}°`,
+            `${e.fromMid > 0 ? '+' : ''}${e.fromMid.toFixed(2)}°`,
+          ])}
+        />
+
         <SubTitle>Bhāva Lords &amp; Occupants</SubTitle>
         <Table
           cols={[
