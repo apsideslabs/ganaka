@@ -21,7 +21,6 @@ import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '@/lib/jyotisha/kp';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
-import { generateClassicalChartIndications } from '@/lib/jyotisha/indications';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
@@ -80,8 +79,8 @@ export interface GanakaChartExport {
     vimshottari: JyotishaChart['vimshottari'];
     ashtakavarga: JyotishaChart['ashtakavarga'];
     shadbala: JyotishaChart['shadbala'];
-    yogas: JyotishaChart['yogas'];
-    doshas: JyotishaChart['doshas'];
+    yogas: Array<Record<string, unknown>>;
+    doshas: Record<string, unknown>;
     jaimini: JyotishaChart['jaimini'];
     specialPoints: JyotishaChart['specialPoints'];
   };
@@ -103,8 +102,6 @@ export interface GanakaChartExport {
   avakahada: Record<string, unknown>;
   /** Gochara — current transits, vedha, sāḍhe sātī. */
   transits: Record<string, unknown>;
-  /** Classical chart indications by life domain. */
-  indications: Record<string, unknown>;
   /** Lunar data used by the marriage-matching bridge. */
   matchingData: Record<string, unknown>;
   /** The KP layer: ruling planets, significators and the cusp promise. */
@@ -135,6 +132,20 @@ export interface GanakaChartExport {
   tajika: Record<string, unknown> | null;
   /** Praśna sphuṭas for the birth moment, without an arudha direction. */
   prashna: Record<string, unknown>;
+}
+
+/**
+ * Strip the interpretation from a detected yoga or doṣa.
+ *
+ * The detection — which combination formed, from which verse, on what
+ * conditions — is a calculation and stays. The `effects` prose and the
+ * `remedies` prescriptions are the prediction layer and do not belong in a
+ * chart document, which reports what the chart contains rather than what it
+ * means.
+ */
+function stripPrediction<T extends Record<string, any>>(item: T): Record<string, any> {
+  const { effects, classicalEffects, remedies, ...rest } = item;
+  return rest;
 }
 
 /** Deep, JSON-safe copy: drops functions and undefined, keeps Dates as ISO. */
@@ -182,9 +193,11 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       url: 'https://apsideslabs.github.io/ganaka/',
       scope: 'calculation',
       note:
-        'Computed positions and classical classifications only. This document ' +
-        'contains no predictions or remedies; interpretation belongs to the ' +
-        'reader or to a separate prediction system.',
+        'Computed positions and classical classifications only. Yogas and doshas ' +
+        'are reported as detections — which combination formed, from which verse, ' +
+        'on what conditions — without their effects prose or remedies. This ' +
+        'document contains no predictions and no remedies; interpretation belongs ' +
+        'to the reader or to a separate prediction system.',
     },
     generatedAt: new Date().toISOString(),
     dashaDepth: depth,
@@ -205,7 +218,9 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
     summary: {
       lagnaRashi: chart.lagna.rashiName,
       lagnaDegree: chart.lagna.degreeStr,
-      moonNakshatra: `${chart.lagna.nakshatraName} pada ${chart.lagna.pada}`,
+      // This read the LAGNA's nakshatra and labelled it the Moon's, so the
+      // summary reported Anurādhā for a chart whose Moon sits in Rohiṇī.
+      moonNakshatra: `${(chart.planets as any).moon.nakshatraName} pada ${(chart.planets as any).moon.pada}`,
       vargaCount: Object.keys(chart.vargas || {}).length,
       yogaCount: (chart.yogas || []).length,
       doshaCount: ((chart.doshas as any)?.evaluatedDoshas || []).length,
@@ -223,8 +238,11 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       vimshottari: plain(vimshottari),
       ashtakavarga: plain(chart.ashtakavarga),
       shadbala: plain(chart.shadbala),
-      yogas: plain(chart.yogas),
-      doshas: plain(chart.doshas),
+      yogas: plain((chart.yogas || []).map(stripPrediction)),
+      doshas: plain({
+        ...(chart.doshas as any),
+        evaluatedDoshas: ((chart.doshas as any)?.evaluatedDoshas || []).map(stripPrediction),
+      }),
       jaimini: plain(chart.jaimini),
       specialPoints: plain(chart.specialPoints),
     },
@@ -339,7 +357,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
 
-  // --- Avakahāda, gochara, indications, matching ----------------------------
+  // --- Avakahāda, gochara and matching ----------------------------
   const avakahada = safe(() => calculateAvakahadaChakra(chart), {});
 
   const transits = safe(() => {
@@ -366,7 +384,6 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
-  const indications = safe(() => generateClassicalChartIndications(chart), {});
   const matchingData = safe(() => extractLunarData(chart), {});
 
   // --- KP layer -------------------------------------------------------------
@@ -387,7 +404,21 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       // The matter's principal house is the first of its group that is not the
       // general 2nd/11th support houses.
       const primary = m.matter[0] ?? 1;
-      promises[key] = evaluateCuspPromise(chart, primary, m.matter, m.detrimental);
+      // Only the signification is exported, not the promise verdict or its
+      // prose: which houses the sub lord touches is a calculation, whether the
+      // matter fructifies is a prediction and belongs outside this document.
+      const r: any = evaluateCuspPromise(chart, primary, m.matter, m.detrimental);
+      promises[key] = r
+        ? {
+            house: r.house,
+            subLord: r.subLord,
+            signifies: r.signifies,
+            matterHouses: r.matterHouses,
+            detrimentalHouses: r.detrimentalHouses,
+            hitsMatter: r.hitsMatter,
+            hitsDetrimental: r.hitsDetrimental,
+          }
+        : null;
     }
     return { ruling, significators, promises };
   }, {});
@@ -645,7 +676,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
-    avakahada, transits, indications, matchingData,
+    avakahada, transits, matchingData,
   };
 }
 
