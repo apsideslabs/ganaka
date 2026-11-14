@@ -1566,8 +1566,10 @@ console.log('\n== Sukhma bindu & the KP four-step ==');
 
   const tbl = mrityuBhagaTable();
   check('the table lists every body', tbl.length === 11, String(tbl.length));
-  check('only the Moon is flagged as differing',
-    tbl.filter((r) => r.differs).map((r) => r.body).join(',') === 'moon',
+  // The Moon differs across the board; the Lagna differs at a single cell
+  // (Gemini 21 in Kausika Hora against 22 elsewhere).
+  check('the Moon and the Lagna are flagged as differing',
+    tbl.filter((r) => r.differs).map((r) => r.body).sort().join(',') === 'ascendant,moon',
     tbl.filter((r) => r.differs).map((r) => r.body).join(','));
 
   // ---- Nāḍī -------------------------------------------------------
@@ -1749,6 +1751,60 @@ console.log('\n== Surya Siddhanta bija ==');
   check('Mars is still recorded as wrong', mars?.verdict === 'wrong', `${mars?.delta}°`);
 
   check('the siddhantic mode differs from drik', ss.planets.sun.siderealLongitude !== drik.planets.sun.siderealLongitude);
+}
+
+/* ------------------------------------- MRITYU BHAGA: SOURCES & READING */
+
+console.log('\n== Mrityu bhaga sources ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const tbl = mrityuBhagaTable();
+  const byBody = Object.fromEntries(tbl.map((r) => [r.body, r]));
+
+  // A real structural invariant from Jataka Parijata: Venus is the exact mirror
+  // of Jupiter across the twelve signs. If either row is transcribed wrongly,
+  // this breaks.
+  check('Venus is the mirror of Jupiter',
+    JSON.stringify(byBody.venus.jataka) === JSON.stringify([...byBody.jupiter.jataka].reverse()),
+    JSON.stringify(byBody.venus.jataka));
+
+  // Only the Moon and the Lagna differ between the two recensions.
+  const differing = tbl.filter((r) => r.differs).map((r) => r.body).sort();
+  check('the Moon and the Lagna are the only differing rows',
+    JSON.stringify(differing) === '["ascendant","moon"]', JSON.stringify(differing));
+
+  // Kausika Hora gives Gemini 21 where Jataka Parijata gives 22.
+  check('the Lagna differs only at Gemini',
+    byBody.ascendant.jataka[2] === 22 && byBody.ascendant.phaladipika[2] === 21,
+    `${byBody.ascendant.jataka[2]} vs ${byBody.ascendant.phaladipika[2]}`);
+
+  // Every row is twelve signs of a real degree.
+  check('every row is twelve degrees within the sign',
+    tbl.every((r) => r.jataka.length === 12 && r.jataka.every((d) => d >= 1 && d <= 30)));
+
+  // ---- the two readings of "the nth degree" -----------------------
+  const portion = calculateMrityuBhaga(natal, 'jataka_parijata', 'portion');
+  const point = calculateMrityuBhaga(natal, 'jataka_parijata', 'point');
+
+  check('the portion reading bands span exactly one degree',
+    portion.rows.every((r) => Math.abs((r.bandTo - r.bandFrom) - 1) < 1e-6));
+  check('the portion band ends on the critical degree',
+    portion.rows.every((r) => Math.abs(r.bandTo - r.criticalDegree) < 1e-6));
+  check('the point reading bands are centred on the degree',
+    point.rows.every((r) => Math.abs((r.bandFrom + r.bandTo) / 2 - r.criticalDegree) < 1e-6));
+
+  // The two readings must agree on membership most of the time, but the portion
+  // reading is the one that never runs past the sign boundary.
+  check('the portion band never leaves the sign',
+    portion.rows.every((r) => r.bandFrom >= 0 && r.bandTo <= 30));
+  check('the interpretation is recorded on the result',
+    portion.interpretation === 'portion' && point.interpretation === 'point');
+
+  // A graha sitting exactly on the critical degree is inside the portion band
+  // (it is the upper edge) — the classical reading is half-open.
+  const exact = portion.rows.find((r) => Math.abs(r.degreeInRashi - r.criticalDegree) < 0.01);
+  if (exact) check('a graha exactly on the degree is inside the band', exact.withinOrb);
+  else check('no graha exactly on its degree in this fixture (edge test skipped)', true);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
