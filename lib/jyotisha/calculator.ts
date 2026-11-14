@@ -122,10 +122,10 @@ export function clearChartCache(): void {
  * ephemeris because the siddhāntic texts give mean motions, not the instantaneous
  * speed the rest of the engine expects for retrogradation.
  */
-function siddhanticPlanetPositions(jd: number): any {
+function siddhanticPlanetPositions(jd: number): Record<string, { siderealLongitude: number; [k: string]: unknown }> {
   const ss = suryaSiddhantaPositions(jd, false);
   const modern = calculateAllPlanets(jd, 'lahiri', 0);
-  const out: any = {};
+  const out: Record<string, { siderealLongitude: number; [k: string]: unknown }> = {};
   for (const [id, lon] of Object.entries(ss)) {
     const base: any = (modern as any)[id] ?? {};
     out[id] = { ...base, siderealLongitude: lon, tropicalLongitude: lon };
@@ -276,7 +276,7 @@ function computeChart(input: CalculationInput): JyotishaChart {
 
   // 5. Bhāvas (Houses)
   const planetaryPositionsForHouses: Record<PlanetId, { siderealLongitude: number }> = {} as any;
-  for (const [pId, pData] of Object.entries(rawPlanets)) {
+  for (const [pId, pData] of Object.entries(rawPlanets as Record<string, { siderealLongitude: number }>)) {
     // The ephemeris carries both nodes; the chart carries only the chosen one,
     // which is already in `rahu`/`ketu`. Keeping the alternate here would give
     // a house and a varga to a graha that is not in the chart.
