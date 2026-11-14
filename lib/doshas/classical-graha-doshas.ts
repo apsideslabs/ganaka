@@ -39,6 +39,12 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
     evaluate: (ctx) => {
       const taraGrahas: PlanetId[] = ['mars', 'mercury', 'jupiter', 'venus', 'saturn'];
       const pairs: Array<{ p1: PlanetId; p2: PlanetId; dist: number }> = [];
+      /**
+       * Pairs that come close without reaching the 1° war orb. Recorded so a
+       * reader sees "approaching" rather than nothing — two tārā grahas 8′
+       * outside the orb is not a war, but it is not silence either.
+       */
+      const approaching: Array<{ p1: PlanetId; p2: PlanetId; dist: number }> = [];
 
       for (let i = 0; i < taraGrahas.length; i++) {
         for (let j = i + 1; j < taraGrahas.length; j++) {
@@ -48,6 +54,8 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
             const dist = getAngularDistance(p1.siderealLongitude, p2.siderealLongitude);
             if (dist <= 1.0) {
               pairs.push({ p1: taraGrahas[i], p2: taraGrahas[j], dist });
+            } else if (dist <= 2.0) {
+              approaching.push({ p1: taraGrahas[i], p2: taraGrahas[j], dist });
             }
           }
         }
@@ -75,13 +83,18 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
         };
       }
 
+      // No war, but say so explicitly when a pair is closing on the orb.
       return {
         isPresent: false,
         formationStatus: 'Not Formed',
         severity: 'Low',
-        conditionsMet: [],
+        conditionsMet: approaching.length
+          ? approaching.map(
+              (a) => `${a.p1} and ${a.p2} in the same sign, ${(a.dist * 60).toFixed(1)}′ apart — outside the 1°00′ war orb but approaching it.`
+            )
+          : [],
         exceptionsApplied: [],
-        involvedPlanets: [],
+        involvedPlanets: approaching.flatMap((a) => [a.p1, a.p2]),
       };
     },
   },
@@ -168,6 +181,57 @@ export const CLASSICAL_GRAHA_DOSHAS: DoshaDefinition[] = [
       };
     },
   },
+  /**
+   * Pāpa Kartarī for every house, not just the Lagna and the Moon.
+   *
+   * The classical affliction is not special to houses 1 and 2 — any bhāva hemmed
+   * between malefics in the houses either side is scissored. The earlier build
+   * checked two of twelve and left the other ten silently unexamined, which
+   * reads as "no affliction" rather than "not looked at".
+   */
+  ...[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => ({
+    id: `papa_kartari_house_${h}`,
+    name: `Pāpa Kartarī of House ${h}`,
+    sanskritName: `पापकर्तरी भाव ${h}`,
+    transliteration: `Bhāva ${h} Pāpa Kartarī Doṣa`,
+    alternateNames: [`House ${h} Scissor Affliction`],
+    category: 'Graha Afflictions',
+    subcategory: 'Hemming Affliction',
+    classicalStatus: 'Directly Classical' as const,
+    primarySource: {
+      text: 'Bṛhat Parāśara Horā Śāstra',
+      sanskritTextName: 'बृहत्पाराशर होराशास्त्रम्',
+      chapter: `Ch. on Pāpa Kartarī`,
+      verseOrShloka: 'BPHS, the hemming of a bhāva',
+      supportingSources: ['Phaladīpikā', 'Sārāvalī'],
+    },
+    definition: `Malefics occupy both the house before and the house after house ${h}, scissoring it.`,
+    classicalEffects: `The matters of house ${h} are obstructed, and its significations are cut off at both ends.`,
+    evaluate: (ctx: any) => {
+      const { isPapaKartari, prevMalefics, nextMalefics } = checkPapaKartari(h, ctx.planets);
+      if (!isPapaKartari) {
+        return {
+          isPresent: false,
+          formationStatus: 'Not Formed',
+          severity: 'Low',
+          conditionsMet: [],
+          exceptionsApplied: [],
+          involvedPlanets: [],
+        };
+      }
+      return {
+        isPresent: true,
+        formationStatus: 'Formed',
+        severity: 'Moderate',
+        conditionsMet: [
+          `House ${h === 1 ? 12 : h - 1} occupied by natural malefic(s): ${prevMalefics.join(', ').toUpperCase()}`,
+          `House ${h === 12 ? 1 : h + 1} occupied by natural malefic(s): ${nextMalefics.join(', ').toUpperCase()}`,
+        ],
+        exceptionsApplied: [],
+        involvedPlanets: [...prevMalefics, ...nextMalefics],
+      };
+    },
+  })),
   {
     id: 'papa_kartari_moon',
     name: 'Pāpa Kartarī of Moon (Candra Bandhana)',
