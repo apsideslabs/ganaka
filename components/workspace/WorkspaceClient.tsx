@@ -72,6 +72,7 @@ import {
   Search,
   Users,
   Eclipse,
+  Target,
 } from 'lucide-react';
 
 
@@ -141,6 +142,10 @@ const AspectsPanel = dynamic(() => import('./AspectsPanel').then((m) => m.Aspect
   loading: () => <PanelSkeleton />,
 });
 const TransitsPanel = dynamic(() => import('./TransitsPanel').then((m) => m.TransitsPanel), {
+  ssr: false,
+  loading: () => <PanelSkeleton />,
+});
+const KPPanel = dynamic(() => import('./KPPanel').then((m) => m.KPPanel), {
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
@@ -330,7 +335,8 @@ export type WorkspaceTab =
   | 'time_sensitivity'
   | 'knowledge_base'
   | 'relationships'
-  | 'samhita';
+  | 'samhita'
+  | 'kp';
 
 interface NavDomain {
   id: string;
@@ -502,6 +508,7 @@ const NAV_DOMAINS: NavDomain[] = [
     icon: Users,
     description: 'Pañcadhā maitrī between the grahas, dispositor readings, and the favourable number, colour, day and gem',
     subTabs: [
+      { id: 'kp', name: 'KP — Krishnamurti Paddhati (उप-लग्न)', shortName: 'KP', icon: Target, badge: 'Sub-lords' },
       { id: 'samhita', name: 'Saṃhitā — Grahaṇa (ग्रहण)', shortName: 'Saṃhitā', icon: Eclipse, badge: 'Eclipses' },
       { id: 'relationships', name: 'Relationships & Attributes (मैत्री)', shortName: 'Maitrī', icon: Users, badge: 'Pañcadhā' },
     ],
@@ -1956,6 +1963,10 @@ ${Object.values(chartData.planets)
             lagnaLongitude={chartData.lagna.siderealLongitude}
             initialHouseSystem={houseSystem}
           />
+        )}
+
+        {activeTab === 'kp' && (
+          <KPPanel chart={chartData} />
         )}
 
         {activeTab === 'samhita' && (
