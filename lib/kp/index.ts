@@ -61,21 +61,25 @@ export interface KpLayer {
  *
  * One call, no birth-data entry — the chart already carries everything KP needs.
  */
-export function calculateKpLayer(chart: JyotishaChart, now: Date = new Date()): KpLayer {
+export function calculateKpLayer(
+  chart: JyotishaChart,
+  now: Date = new Date(),
+  mode: 'natal' | 'horary' = 'natal'
+): KpLayer {
   const cusps = buildKpCusps(chart);
 
   const significators: Record<number, SignificatorsResult> = {};
   for (let h = 1; h <= 12; h++) {
-    significators[h] = significatorsOf(chart, cusps, h);
+    significators[h] = significatorsOf(chart, cusps, h, mode);
   }
 
-  const ruling = rulingPlanetsForChart(chart);
+  const ruling = rulingPlanetsForChart(chart, true, mode);
 
   const promises: Record<string, CuspPromiseResult | null> = {};
   const timing: Record<string, KpTimingResult> = {};
   for (const [key, m] of Object.entries(KP_MATTERS)) {
     promises[key] = evaluateCuspPromise(chart, cusps, m.primary, m.matter, m.detrimental);
-    timing[key] = kpTiming(chart, ruling, significators[m.primary], m.primary, now);
+    timing[key] = kpTiming(chart, cusps, ruling, significators[m.primary], m.primary, m.matter, now);
   }
 
   const fertility: Record<number, string> = {};
