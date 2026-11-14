@@ -26,7 +26,7 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
   const reading = useMemo(() => {
     try {
       const report = generateClassicalChartIndications(chart);
-      return buildOverallReading(report);
+      return buildOverallReading(report, chart);
     } catch (e) {
       console.warn('Overall reading failed', e);
       return null;
@@ -56,13 +56,45 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
         </p>
       </div>
 
+      {/* how the reading is weighed */}
+      <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-6 py-4">
+        <p className="text-[11px] text-slate-500 leading-relaxed">{reading.method}</p>
+      </div>
+
       {/* the four movements */}
       {reading.movements.map((m) => (
         <div key={m.title} className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-[#8C2D19] mb-3">
-            {m.title}
-          </h3>
-          <p className="text-sm leading-relaxed text-slate-700">{m.body}</p>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h3 className="text-[10px] font-mono uppercase tracking-widest text-[#8C2D19]">
+              {m.title}
+            </h3>
+            <span className={`text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+              m.activation === 'active'
+                ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                : m.activation === 'dormant'
+                  ? 'text-slate-500 border-slate-200 bg-slate-50'
+                  : 'text-amber-700 border-amber-200 bg-amber-50'
+            }`}>
+              {m.activation === 'active' ? 'activated now' : m.activation === 'dormant' ? 'dormant' : 'partly open'}
+            </span>
+          </div>
+          <p className="text-sm leading-relaxed text-slate-700 mb-4">{m.body}</p>
+          <div className="flex flex-wrap gap-2">
+            {m.scores.map((sc) => (
+              <span
+                key={sc.id}
+                title={sc.layers.map((l) => `${l.name} ${(l.score * 100).toFixed(0)} — ${l.read}`).join('\n')}
+                className={`text-[10px] font-mono px-2 py-1 rounded-md border ${
+                  sc.tone === 'strong' ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                    : sc.tone === 'favourable' ? 'text-teal-700 border-teal-200 bg-teal-50'
+                      : sc.tone === 'mixed' ? 'text-amber-700 border-amber-200 bg-amber-50'
+                        : 'text-[#8C2D19] border-[#8C2D19]/20 bg-[#8C2D19]/5'
+                }`}
+              >
+                {sc.label.split('&')[0].trim()} {sc.total}
+              </span>
+            ))}
+          </div>
         </div>
       ))}
 
@@ -83,18 +115,22 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
         </dl>
       </div>
 
-      {/* honesty about thin ground, in reading language rather than rule language */}
-      {reading.thinGrounds.length > 0 && (
-        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-6 py-4">
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            This reading stands on firmer classical ground in some areas than others.
-            {' '}
-            {reading.thinGrounds.join(' and ')}
-            {' '}
-            {reading.thinGrounds.length === 1 ? 'rests' : 'rest'} on fewer verified
-            configurations than the rest, so treat those parts of the reading as the
-            softest.
-          </p>
+      {/* what to hold lightly, and what is merely dormant */}
+      {(reading.thinnest.length > 0 || reading.strongButDormant.length > 0) && (
+        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl px-6 py-4 space-y-2">
+          {reading.thinnest.length > 0 && (
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              <span className="font-semibold text-slate-600">Hold lightly:</span>{' '}
+              {reading.thinnest.join(', ')} — the thinnest ground in this chart.
+            </p>
+          )}
+          {reading.strongButDormant.length > 0 && (
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              <span className="font-semibold text-slate-600">Strong but dormant:</span>{' '}
+              {reading.strongButDormant.join(', ')} — well supported in the chart, but the
+              running period does not open them yet.
+            </p>
+          )}
         </div>
       )}
     </div>
