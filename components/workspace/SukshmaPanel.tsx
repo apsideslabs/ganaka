@@ -12,7 +12,7 @@ import React, { useMemo, useState } from 'react';
 import type { JyotishaChart } from '@/lib/jyotisha/types';
 import { calculateMrityuBhaga, mrityuBhagaTable, type MrityuRecension } from '@/lib/jyotisha/mrityu-bhaga';
 import { calculateNadi, NADI_INFO } from '@/lib/jyotisha/nadi';
-import { calculateNavaTara } from '@/lib/jyotisha/navatara';
+import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { Info, Sparkles, Skull, Waves, Star } from 'lucide-react';
 
 interface Props {
@@ -55,6 +55,17 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
   const nadi = useMemo(() => calculateNadi(chart), [chart]);
   const table = useMemo(() => mrityuBhagaTable(), []);
   const navatara = useMemo(() => calculateNavaTara(chart), [chart]);
+  const today = useMemo(() => {
+    const b: any = (chart.meta as any)?.birthDetails ?? {};
+    return taraToday(
+      navatara.janmaNumber,
+      new Date(),
+      Number(b.latitude ?? 0),
+      Number(b.longitude ?? 0),
+      Number(b.timezoneOffsetHours ?? 0),
+      (chart.meta as any)?.ayanamshaType
+    );
+  }, [navatara.janmaNumber, chart]);
 
   const planets = useMemo(() => {
     const out: Array<{ id: string; name: string; av: any }> = [];
@@ -282,6 +293,24 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
                 janma · {navatara.janmaNakshatra} #{navatara.janmaNumber}
               </span>
             }>The nine tārās</SectionHead>
+
+            <div className={`rounded-xl border-2 p-5 mb-6 ${
+              today.favourable ? 'border-emerald-300 bg-emerald-50/60' : 'border-[#8C2D19]/30 bg-[#8C2D19]/[0.05]'
+            }`}>
+              <div className="flex items-baseline justify-between gap-3 flex-wrap mb-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Today · {today.date}</span>
+                <span className="text-[11px] text-slate-500">
+                  Moon in <span className="font-medium text-slate-700">{today.nakshatraName}</span>
+                </span>
+              </div>
+              <div className={`font-serif text-2xl font-semibold ${today.favourable ? 'text-emerald-800' : 'text-[#8C2D19]'}`}>
+                {today.tara.name}
+              </div>
+              <div className="text-[13px] text-slate-600 mt-1">
+                Tārā {today.taraNumber} of 9 · {today.tara.nature}
+              </div>
+              <p className="text-[13px] text-slate-700 mt-2 leading-relaxed">{today.guidance}</p>
+            </div>
 
             <div className="space-y-2.5">
               {navatara.cycle.map(({ tara, nakshatras }) => (
