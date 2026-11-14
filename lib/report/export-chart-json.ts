@@ -19,6 +19,10 @@ import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses, ECLIPSE_METHOD_NOTE } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, calculateSignificators, evaluateCuspPromise, KP_MATTERS } from '@/lib/jyotisha/kp';
+import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
+import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
+import { generateClassicalChartIndications } from '@/lib/jyotisha/indications';
+import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { nakshatraAt, vedhaFor } from '@/lib/jyotisha/sarvatobhadra';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
@@ -93,6 +97,14 @@ export interface GanakaChartExport {
   sayana: Array<Record<string, unknown>>;
   /** Bhāva spaṣṭa — the aadi / madhya / anta of all twelve houses. */
   bhavaSpasht: Array<Record<string, unknown>>;
+  /** Avakahāda Cakra — nāmākṣara, paya, yoni, gaṇa, nāḍī, gotra. */
+  avakahada: Record<string, unknown>;
+  /** Gochara — current transits, vedha, sāḍhe sātī. */
+  transits: Record<string, unknown>;
+  /** Classical chart indications by life domain. */
+  indications: Record<string, unknown>;
+  /** Lunar data used by the marriage-matching bridge. */
+  matchingData: Record<string, unknown>;
   /** The KP layer: ruling planets, significators and the cusp promise. */
   kp: Record<string, unknown>;
   /** Jupiter–Saturn double transit as of the export date. */
@@ -322,6 +334,36 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       anta: Number((h.antaDegree ?? h.endDegree ?? 0).toFixed(3)),
       madhyaStr: h.madhyaDMS ?? h.midDegreeStr ?? '',
     })), []);
+
+  // --- Avakahāda, gochara, indications, matching ----------------------------
+  const avakahada = safe(() => calculateAvakahadaChakra(chart), {});
+
+  const transits = safe(() => {
+    const t: any = calculateCurrentTransits(
+      (chart.planets as any).moon.rashiNumber,
+      chart.lagna.rashiNumber,
+      chart.meta.ayanamshaType as any
+    );
+    return {
+      date: t.transitDateStr,
+      planets: t.planets.map((p: any) => ({
+        id: p.id,
+        rashi: p.transitRashi,
+        rashiName: p.transitRashiName,
+        degreeInRashi: p.transitDegreeInRashi,
+        houseFromMoon: p.houseFromNatalMoon,
+        houseFromLagna: p.houseFromNatalLagna,
+        isBenefic: p.isBeneficTransitFromMoon,
+        vedhaHouse: p.vedhaHouse,
+        obstructed: p.hasVedhaObstruction,
+        obstructingPlanets: p.obstructingPlanets,
+      })),
+      sadeSati: t.sadeSati,
+    };
+  }, {});
+
+  const indications = safe(() => generateClassicalChartIndications(chart), {});
+  const matchingData = safe(() => extractLunarData(chart), {});
 
   // --- KP layer -------------------------------------------------------------
   const kp = safe(() => {
@@ -599,6 +641,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
+    avakahada, transits, indications, matchingData,
   };
 }
 
