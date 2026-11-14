@@ -34,6 +34,8 @@ import { buildChartExport } from '../lib/report/export-chart-json';
 import { findEclipses } from '../lib/astronomy/eclipses';
 import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
 import { calculateKpLayer } from '../lib/kp';
+import { generateClassicalChartIndications } from '../lib/jyotisha/indications';
+import { buildOverallReading } from '../lib/jyotisha/indications/overall';
 import { fertilityOf } from '../lib/kp/constants';
 import { VIMSHOPAKA_SCHEMES, vimshopakaBand } from '../lib/jyotisha/vimshopaka';
 import { calculateDoubleTransit } from '../lib/jyotisha/transits';
@@ -1313,6 +1315,38 @@ console.log('\n== Full KP engine ==');
   check('JSON carries node agents', Array.isArray(e.kp.nodeAgents));
   check('JSON KP promises still omit the verdict',
     Object.values(e.kp.promises || {}).every((p: any) => !p || !('promise' in p)));
+}
+
+/* -------------------------------------------------- OVERALL READING */
+
+console.log('\n== Overall reading ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const report = generateClassicalChartIndications(natal);
+  const reading = buildOverallReading(report);
+
+  check('the reading has a headline', reading.headline.length > 20);
+  check('the reading has four movements at most', reading.movements.length > 0 && reading.movements.length <= 4,
+    String(reading.movements.length));
+  check('every movement carries prose', reading.movements.every((m) => m.body.length > 30));
+  check('the at-a-glance block is populated', reading.atAGlance.length >= 5);
+  check('every at-a-glance value is non-empty',
+    reading.atAGlance.every((f) => f.value.trim().length > 0));
+
+  // The reading must not leak the rule layer it was composed from.
+  const blob = [reading.headline, ...reading.movements.map((m) => m.body)].join(' ');
+  check('no rule citations survive in the prose', !/classical[^.]*rules/i.test(blob), blob.slice(0, 120));
+  check('no "no canonical configuration" note survives',
+    !/canonical configuration/i.test(blob));
+  check('no dangling copula ends a sentence', !/\s(?:is|are|was|were)\s*[.;]/.test(blob));
+  check('no Devanagari gloss survives in the prose', !/[\u0900-\u097F]/.test(blob));
+
+  // It is one reading, not twelve — the prose must not enumerate domains.
+  check('the prose is shorter than twelve domain summaries',
+    blob.length < 3000, `${blob.length} chars`);
+
+  check('thin-ground domains are named, not listed as rules',
+    Array.isArray(reading.thinGrounds));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
