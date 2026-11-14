@@ -30,6 +30,7 @@ import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
+import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
 const INK = '#1B1B1F';
@@ -678,6 +679,7 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Daśā Systems', desc: 'All sixteen systems and the period running now' },
   { title: 'Dṛṣṭi & Sudarśana', desc: 'Graha aspects by house, and the three annual rings' },
   { title: 'Saṃhitā — Grahaṇa', desc: 'Eclipses across the decade, with the Moon’s latitude at each syzygy' },
+  { title: 'KP Layer', desc: 'Ruling planets of the moment, and the sub-lord promise for each matter' },
   { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
 ];
@@ -761,6 +763,14 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const doubleTransit: any = safe(() =>
     calculateDoubleTransit(chart.lagna.rashiNumber, new Date(), (chart.meta as any).ayanamshaType));
   const argalaList: any[] = ((chart as any).argala || []);
+  const kpRuling: any = safe(() => calculateRulingPlanets(
+    new Date(), bd.latitude, bd.longitude, bd.timezoneOffsetHours, (chart.meta as any).ayanamshaType));
+  const kpPromises: any[] = safe(() =>
+    Object.entries(KP_MATTERS).map(([key, m]: any) => {
+      const primary = m.matter[0] ?? 1;
+      const r: any = evaluateCuspPromise(chart as any, primary, m.matter, m.detrimental);
+      return r ? { ...r, label: m.label } : null;
+    }).filter(Boolean)) || [];
   const formedYogas: any[] = ((chart.yogas as any[]) || []).filter(
     (y: any) => y && (y.isPresent !== false)
   );
@@ -1394,10 +1404,50 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
         </Page>
       )}
 
+      {/* ------------------------------------------------ KP layer */}
+      {kpRuling && (
+        <Page size="A4" style={S.page} wrap>
+          <RunningHead chapter="KP Layer" identity={identity} />
+          <ChapterTitle num={14}>KP Layer</ChapterTitle>
+          <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+            Krishnamurti Paddhati reads Placidus cusps and nakṣatra sub-division. It is a separate
+            framework, kept here on its own terms rather than mixed into the Parāśarī judgements.
+          </Text>
+
+          <SubTitle>Ruling Planets of the Moment</SubTitle>
+          <Table
+            cols={[{ label: 'Role', width: 55 }, { label: 'Graha', width: 45 }]}
+            rows={kpRuling.planets.map((p: any) => [p.role, p.planetName])}
+          />
+
+          {kpPromises.length > 0 && (
+            <>
+              <SubTitle>Sub-lord Promise by Matter</SubTitle>
+              <Table
+                cols={[
+                  { label: 'Matter', width: 20 },
+                  { label: 'Cusp', width: 8, align: 'center' },
+                  { label: 'Sub lord', width: 18 },
+                  { label: 'Signifies', width: 22 },
+                  { label: 'Promise', width: 32 },
+                ]}
+                rows={kpPromises.map((p: any) => [
+                  p.label,
+                  String(p.house),
+                  p.subLordName,
+                  p.signifies.join(', '),
+                  p.promise,
+                ])}
+              />
+            </>
+          )}
+        </Page>
+      )}
+
       {/* ------------------------------------------------ relationships & attributes */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Relationships & Attributes" identity={identity} />
-        <ChapterTitle num={14}>Relationships &amp; Attributes</ChapterTitle>
+        <ChapterTitle num={15}>Relationships &amp; Attributes</ChapterTitle>
 
         {dispositorRelations.length > 0 && (
           <>
@@ -1482,7 +1532,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       {/* ------------------------------------------------ doshas / jaimini */}
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
-        <ChapterTitle num={15}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+        <ChapterTitle num={16}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
