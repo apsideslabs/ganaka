@@ -1,65 +1,65 @@
 /**
  * Overall reading.
  *
- * The domain evaluators answer twelve separate questions. This composes them into
- * one reading — the chart's disposition as a whole, in four movements: who the
- * person is, how they make their way, who they share life with, and the inner and
- * physical footing. Nothing here is a new judgement; every clause comes from a
- * domain's own synthesised summary.
+ * The domain evaluators answer twelve separate questions; this composes them into
+ * one reading, and it does so on a number rather than on a sentence. Each domain
+ * is first scored across the five layers (see `five-layer.ts`), then the reading
+ * is written from those scores: a strong domain is described as standing on firm
+ * ground and the layer that carried it is named, a weak one is described as thin
+ * and the layer that dragged it is named.
  *
- * Deliberately deterministic: no model, no generation. Reordering or editing the
- * prose below changes the reading, so it is kept short and literal.
+ * Two things are kept apart on purpose, because conflating them is the commonest
+ * error in a chart reading:
+ *
+ *   STRENGTH   — can this domain deliver at all, from its own chart?
+ *   ACTIVATION — does the running daśā open it now?
+ *
+ * A house can be strong and dormant, or weak and currently activated. Both are
+ * said plainly.
+ *
+ * Deterministic: no model, no generation. Every clause traces to a scored layer.
  */
 
 import type { ClassicalIndicationsReport, DomainId, DomainIndication } from './types';
+import { scoreAllDomains, type DomainScore, type DomainSpec } from '../reading/five-layer';
 
 export interface OverallReading {
-  /** One line naming the chart's centre of gravity. */
   headline: string;
-  /** Four movements, in order. */
-  movements: Array<{ title: string; body: string }>;
-  /** The chart facts the reading rests on. */
+  /** How the weighing works, stated so a reader can disagree with it. */
+  method: string;
+  movements: Array<{
+    title: string;
+    /** Domains rolled into this movement, strongest first. */
+    scores: DomainScore[];
+    body: string;
+    /** Whether the running period opens this movement now. */
+    activation: 'active' | 'dormant' | 'partial';
+  }>;
   atAGlance: Array<{ label: string; value: string }>;
-  /** Domains whose evaluator found no verified classical rule. */
-  thinGrounds: string[];
+  /** Domains resting on the thinnest ground. */
+  thinnest: string[];
+  /** Domains that are strong but not currently activated. */
+  strongButDormant: string[];
 }
 
-/**
- * Parentheticals worth keeping: English sign names and numeric detail. Everything
- * else in brackets is a Sanskrit gloss, and the reading should not need a
- * glossary to be read.
- */
 const KEEP_PARENTHETICAL =
   /^(Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpio|Sagittarius|Capricorn|Aquarius|Pisces|\d.*)$/i;
 
-/**
- * Strip the markup the domain summaries carry, leaving plain sentences.
- *
- * Three things go, because this panel now gives one reading rather than a rule
- * audit: parenthetical glosses, rule citations, and the evaluator's own note that
- * no rule fired.
- */
+/** Strip glosses and rule citations, leaving plain sentences. */
 function plain(s: string | undefined): string {
   if (!s) return '';
   let out = s
     .replace(/\s*\(([^)]*)\)/g, (m, inner: string) =>
       KEEP_PARENTHETICAL.test(inner.trim()) ? m : '')
-    // Rule citations. Only the citation goes, never the verb: "are established
-    // through classical Kendra-Koṇa synergies" becomes "are established", which
-    // still reads, where dropping the whole clause left a bare noun phrase.
     .replace(/\s+(?:by|under|through|from)\s+classical[^.;,]*/gi, '')
     .replace(/\s+(?:by|under|through)\s+(?:the\s+)?(?:\d+(?:st|nd|rd|th)\s+)?(?:house|bhāva)\s+rules?/gi, '')
     .replace(/\s*No direct canonical configuration[^.]*\.?/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
-
-  // A stripped clause can leave a copula dangling ("...companionship are.").
   out = out.replace(/\s+(?:is|are|was|were|be|being)\s*([.;]|$)/gi, '$1');
-
   return out;
 }
 
-/** First sentence only — the domain summaries run long. */
 function firstSentence(s: string): string {
   const p = plain(s);
   const m = p.match(/^(.{20,240}?[.!?])(\s|$)/);
@@ -67,64 +67,152 @@ function firstSentence(s: string): string {
   return first.replace(/\s+(?:is|are|was|were|be|being)\s*([.;]|$)/gi, '$1').trim();
 }
 
-/** Sentence case for a phrase used mid-sentence. */
-function lower(s: string): string {
-  const t = s.trim();
-  if (!t) return '';
-  return /[āīūṛṝḷēōṃḥśṣṭḍṇñṅĀĪŪṚŚṢṬḌṆ]/.test(t) ? t : t.toLowerCase();
+function summaryOf(d: DomainIndication | undefined): string {
+  if (!d) return '';
+  return firstSentence(d.conciseSummary || d.multiRuleSynthesis || d.coreDisposition || '');
 }
 
-/** Join sentences with correct terminal punctuation. */
 function sentence(s: string): string {
   const t = s.trim();
   if (!t) return '';
   return /[.!?]$/.test(t) ? t : `${t}.`;
 }
 
-/** Pull the summary of a domain, preferring the concise one. */
-function summaryOf(d: DomainIndication | undefined): string {
-  if (!d) return '';
-  const src = d.conciseSummary || d.multiRuleSynthesis || d.coreDisposition || '';
-  return firstSentence(src);
+function lower(s: string): string {
+  const t = s.trim();
+  if (!t) return '';
+  return /[āīūṛṝḷēōṃḥśṣṭḍṇñṅĀĪŪṚŚṢṬḌṆ]/.test(t) ? t : t.toLowerCase();
 }
 
-function dispositionOf(d: DomainIndication | undefined): string {
-  if (!d) return '';
-  return plain(d.coreDisposition ?? '');
+/** The layer that carried a domain, and the one that dragged it. */
+function bestAndWorst(score: DomainScore): { best: string; worst: string } {
+  const sorted = [...score.layers].sort((a, b) => b.score - a.score);
+  return { best: sorted[0]?.read ?? '', worst: sorted[sorted.length - 1]?.read ?? '' };
 }
 
 /**
- * Compose the overall reading.
+ * One line per domain: what the evaluator concluded, then how firmly it stands
+ * and why. Kept to a single sentence so a movement of three domains still reads
+ * as a paragraph rather than a list of verdicts.
  */
-export function buildOverallReading(report: ClassicalIndicationsReport): OverallReading {
+function describe(score: DomainScore, d: DomainIndication | undefined): string {
+  const base = summaryOf(d);
+  const { best } = bestAndWorst(score);
+
+  const qualifier =
+    score.tone === 'strong' ? 'firmly grounded'
+      : score.tone === 'favourable' ? 'reasonably supported'
+        : score.tone === 'mixed' ? 'unevenly supported'
+          : 'thinly grounded';
+
+  const why = best ? ` — ${qualifier}, because ${plain(best)}` : ` — ${qualifier}`;
+  // With no evaluator summary the label stands in, and a colon reads better
+  // than the em dash used when there is a sentence to qualify.
+  if (!base) return `${score.label}: ${qualifier}${best ? `, because ${plain(best)}` : ''}.`;
+
+  return `${base.replace(/[.!?]$/, '')}${why}.`;
+}
+
+/** The movement's own verdict, naming what carried it and what dragged it. */
+function movementVerdict(scores: DomainScore[], activation: 'active' | 'dormant' | 'partial'): string {
+  if (scores.length === 0) return '';
+  const sorted = [...scores].sort((a, b) => b.total - a.total);
+  const top = sorted[0];
+  const bottom = sorted[sorted.length - 1];
+
+  const spread = top.total - bottom.total;
+  const shape =
+    spread >= 30 ? 'uneven — one area carries the rest'
+      : spread >= 12 ? 'moderately even'
+        : 'even';
+
+  const activationLine =
+    activation === 'active' ? 'The running period opens this now.'
+      : activation === 'dormant' ? 'The running period does not open this yet, so read it as capacity rather than as present event.'
+        : 'The running period opens part of this.';
+
+  // A one- or two-point gap is noise; naming a "weaker" ground there would
+  // invent a distinction the scores do not support.
+  const contrast = top.id !== bottom.id && spread >= 10
+    ? ` ${top.label.split('&')[0].trim()} is the stronger ground (${top.total}); ${bottom.label.split('&')[0].trim()} the weaker (${bottom.total}).`
+    : '';
+
+  return `Taken together the picture is ${shape}.${contrast} ${activationLine}`;
+}
+
+/** Whether the daśā layer opens a movement now. */
+function activationOf(scores: DomainScore[]): 'active' | 'dormant' | 'partial' {
+  if (scores.length === 0) return 'partial';
+  const dashaScores = scores.map(
+    (s) => s.layers.find((l) => l.name === 'Daśā')?.score ?? 0.5
+  );
+  const avg = dashaScores.reduce((a, b) => a + b, 0) / dashaScores.length;
+  if (avg >= 0.6) return 'active';
+  if (avg <= 0.35) return 'dormant';
+  return 'partial';
+}
+
+/**
+ * Compose the overall reading from the domain report and the chart.
+ */
+export function buildOverallReading(
+  report: ClassicalIndicationsReport,
+  chart: any
+): OverallReading {
   const g = report.globalChartSummary;
   const dom = (id: DomainId) => report.domains?.[id];
 
-  const self = [dom('constitution'), dom('temperament'), dom('status')];
-  const work = [dom('career'), dom('wealth'), dom('education')];
-  const bonds = [dom('marriage'), dom('family'), dom('children')];
-  const inner = [dom('health'), dom('spirituality'), dom('life_themes')];
+  // Score every domain the report produced.
+  const specs: DomainSpec[] = (report.orderedDomainIds ?? []).map((id) => {
+    const d = report.domains?.[id];
+    return {
+      id,
+      label: d?.title ?? id,
+      house: d?.primaryBhavas?.[0] ?? 1,
+      karakas: [...new Set((d?.keyGrahas ?? []) as any)] as any,
+      vargas: d?.keyVargas ?? ['D1', 'D9'],
+    };
+  });
+  const scores = scoreAllDomains(chart, specs);
+  const byId = new Map(scores.map((s) => [s.id, s]));
 
-  const weave = (list: Array<DomainIndication | undefined>): string =>
-    list
-      .map(summaryOf)
-      .filter((s) => s.length > 0)
-      .map(sentence)
+  const pick = (ids: DomainId[]): DomainScore[] =>
+    ids.map((id) => byId.get(id)).filter((s): s is DomainScore => !!s)
+      .sort((a, b) => b.total - a.total);
+
+  const groups: Array<{ title: string; ids: DomainId[] }> = [
+    { title: 'Who they are', ids: ['constitution', 'temperament', 'status'] },
+    { title: 'How they make their way', ids: ['career', 'wealth', 'education'] },
+    { title: 'Who they share life with', ids: ['marriage', 'family', 'children'] },
+    { title: 'Footing — physical and inner', ids: ['health', 'spirituality', 'life_themes'] },
+  ];
+
+  const movements = groups.map((grp) => {
+    const gs = pick(grp.ids);
+    const activation = activationOf(gs);
+    const lines = grp.ids
+      .map((id) => {
+        const s = byId.get(id);
+        return s ? describe(s, dom(id)) : '';
+      })
+      .filter(Boolean)
       .join(' ');
+    const body = `${lines} ${movementVerdict(gs, activation)}`.trim();
+    return { title: grp.title, scores: gs, body, activation };
+  }).filter((m) => m.body.length > 0);
 
   const lagnaName = plain(g.ascendantSign).split('(')[0].trim();
   const moonName = plain(g.moonSign).split('(')[0].trim();
 
+  const strongest = [...scores].sort((a, b) => b.total - a.total)[0];
+  const weakest = [...scores].sort((a, b) => a.total - b.total)[0];
+
   const headline =
     `${lagnaName} ascendant with the Moon in ${moonName} — ` +
-    `${lower(plain(g.dominantElement))} in temperament, ${lower(plain(g.dominantGuna))} by disposition.`;
-
-  const movements = [
-    { title: 'Who they are', body: weave(self) },
-    { title: 'How they make their way', body: weave(work) },
-    { title: 'Who they share life with', body: weave(bonds) },
-    { title: 'Footing — physical and inner', body: weave(inner) },
-  ].filter((m) => m.body.length > 0);
+    `${lower(plain(g.dominantElement))} in temperament, ${lower(plain(g.dominantGuna))} by disposition. ` +
+    (strongest && weakest && strongest.id !== weakest.id
+      ? `${strongest.label.split('&')[0].trim()} is the firmest ground here; ${weakest.label.split('&')[0].trim()} the thinnest.`
+      : '');
 
   const atAGlance = [
     { label: 'Ascendant', value: plain(g.ascendantSign) },
@@ -132,18 +220,27 @@ export function buildOverallReading(report: ClassicalIndicationsReport): Overall
     { label: 'Moon', value: `${plain(g.moonSign)} · ${plain(g.moonNakshatra)}` },
     { label: 'Sun', value: plain(g.sunSign) },
     { label: 'Ātmakāraka', value: plain(g.atmakaraka) },
-    { label: 'Amatyakāraka', value: plain(g.amatyakaraka) },
+    { label: 'Amatyakāraka', value: plain(g.amatyakāraka) },
     { label: 'Strongest by ṣaḍbala', value: plain(g.strongestPlanetByShadbala) },
     { label: 'Element', value: plain(g.dominantElement) },
     { label: 'Guṇa', value: plain(g.dominantGuna) },
   ].filter((x) => x.value.length > 0);
 
-  const thinGrounds = (report.orderedDomainIds ?? [])
-    .map((id) => report.domains?.[id])
-    .filter((d): d is DomainIndication => !!d && d.hasVerifiedRule === false)
-    .map((d) => d.title);
+  const thinnest = [...scores].sort((a, b) => a.total - b.total).slice(0, 3)
+    .filter((s) => s.tone === 'weak' || s.tone === 'mixed')
+    .map((s) => s.label);
 
-  return { headline, movements, atAGlance, thinGrounds };
+  const strongButDormant = scores
+    .filter((s) => (s.tone === 'strong' || s.tone === 'favourable') &&
+      (s.layers.find((l) => l.name === 'Daśā')?.score ?? 0) <= 0.3)
+    .map((s) => s.label);
+
+  const method =
+    'Each domain is scored on five layers — the house lord 40%, its natural significator 25%, ' +
+    'the divisional chart 15%, aṣṭakavarga bindus 10%, and whether the running daśā opens it 10%. ' +
+    'The weights are a convention, not a verse; they are stated so the reading can be argued with.';
+
+  return { headline, method, movements, atAGlance, thinnest, strongButDormant };
 }
 
 /** The single paragraph form, for places that want one block of prose. */
