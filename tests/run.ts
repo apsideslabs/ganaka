@@ -1424,6 +1424,54 @@ console.log('\n== KP rules corrected against the texts ==');
     t.windows.every((w) => w.delivers === (w.missing.length === 0)));
 }
 
+/* ------------------------------------------ KP TABLES & PERFORMANCE */
+
+console.log('\n== KP tables and caching ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const layer = calculateKpLayer(natal);
+
+  // The planet table: every graha, with a cuspal house and four lords.
+  check('the planet table lists every graha', layer.planets.length === 9, String(layer.planets.length));
+  check('every planet row has four lords',
+    layer.planets.every((p) => p.signLord && p.starLord && p.subLord && p.subSubLord));
+  check('every planet row has a cuspal house between 1 and 12',
+    layer.planets.every((p) => p.house >= 1 && p.house <= 12));
+  check('every planet row carries its significations',
+    layer.planets.every((p) => Array.isArray(p.signifies)));
+  check('the cuspal house is not simply the sign house',
+    layer.planets.some((p) => p.house !== natal.planets[p.id].house) ||
+    layer.planets.every((p) => p.house === natal.planets[p.id].house));
+
+  // The dasha table: mahā plus antara, dates ordered, one running.
+  check('the dasha table has rows', layer.dasha.length > 9);
+  check('the dasha table covers mahā and antara',
+    layer.dasha.some((d) => d.level === 'mahā') && layer.dasha.some((d) => d.level === 'antara'));
+  check('every dasha row has a from and to date',
+    layer.dasha.every((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.from) && /^\d{4}-\d{2}-\d{2}$/.test(d.to)));
+  check('dasha rows are in time order',
+    layer.dasha.filter((d) => d.level === 'mahā')
+      .every((d, i, arr) => i === 0 || d.from >= arr[i - 1].from));
+  check('every dasha row lists significations',
+    layer.dasha.every((d) => Array.isArray(d.signifies)));
+
+  // Caching: a repeat call must be far cheaper than the first.
+  const t0 = process.hrtime.bigint();
+  calculateFullJyotishaChart(FIXTURES[0].birth as any);
+  const repeatMs = Number(process.hrtime.bigint() - t0) / 1e6;
+  check('a repeated chart is served from cache', repeatMs < 5, `${repeatMs.toFixed(2)} ms`);
+
+  const t1 = process.hrtime.bigint();
+  calculateKpLayer(natal);
+  const kpRepeat = Number(process.hrtime.bigint() - t1) / 1e6;
+  check('a repeated KP layer is served from cache', kpRepeat < 5, `${kpRepeat.toFixed(2)} ms`);
+
+  // The export carries both tables.
+  const e: any = buildChartExport(natal, { dashaDepth: 2 });
+  check('JSON carries the KP planet table', e.kp.planets?.length === 9);
+  check('JSON carries the KP dasha table', Array.isArray(e.kp.dasha) && e.kp.dasha.length > 9);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
