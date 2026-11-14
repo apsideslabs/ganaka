@@ -973,6 +973,79 @@ console.log('\n== KP layer ==');
     Object.keys(e.kp.promises || {}).length === Object.keys(KP_MATTERS).length);
 }
 
+/* ------------------------------------------- ENGINE CORRECTNESS (BINAY) */
+
+console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
+{
+  const binay: any = calculateFullJyotishaChart({
+    year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
+    locationName: 'Jalah, Baksa, Assam',
+  });
+
+  // Panchanga for this moment, confirmed against the printed almanac.
+  check('tithi is Saptamī (7)', binay.panchanga.tithi.number === 7, String(binay.panchanga.tithi.number));
+  check('nakshatra is Rohiṇī (4)', binay.panchanga.nakshatra.number === 4, String(binay.panchanga.nakshatra.number));
+  check('yoga is Viṣkambha (1)', binay.panchanga.yoga.number === 1, String(binay.panchanga.yoga.number));
+  check('karana is Vaṇija (14)', binay.panchanga.karana.number === 14, String(binay.panchanga.karana.number));
+  check('vāra is Maṅgalavāra (2)', binay.panchanga.vara.number === 2, String(binay.panchanga.vara.number));
+
+  // Astronomy, independently recomputed with Meeus.
+  check('Sun tropical within 30 arcsec of Meeus',
+    Math.abs(binay.planets.sun.tropicalLongitude - 343.309663) * 3600 < 30,
+    (Math.abs(binay.planets.sun.tropicalLongitude - 343.309663) * 3600).toFixed(1) + '"');
+
+  // Lagna Vṛścika, 14°23′31″.
+  check('lagna is Vṛścika', binay.lagna.rashiNumber === 8, String(binay.lagna.rashiNumber));
+  check('lagna degree is 14.39°', Math.abs((binay.lagna.siderealLongitude % 30) - 14.392) < 0.01);
+
+  // Naisargika bala is the fixed ladder 60·(7…1)/7.
+  const nai: any = {};
+  for (const [p, v] of Object.entries(binay.shadbala) as any) nai[p] = v.naisargikaBala;
+  check('naisargika bala follows the fixed order',
+    Math.abs(nai.sun - 60) < 0.01 && Math.abs(nai.moon - 51.43) < 0.01 &&
+    Math.abs(nai.venus - 42.86) < 0.01 && Math.abs(nai.jupiter - 34.29) < 0.01 &&
+    Math.abs(nai.mercury - 25.71) < 0.01 && Math.abs(nai.mars - 17.14) < 0.01 &&
+    Math.abs(nai.saturn - 8.57) < 0.01, JSON.stringify(nai));
+
+  // Bhavabala reference angles must be the real kendras, not bhāva madhyas.
+  const bb: any = calculateBhavaBala(binay);
+  check('bhāva 1 dig bala is near zero (it sits on the ascendant)',
+    bb[1].digBala < 1, bb[1].digBala.toFixed(3));
+  check('every bhāva total equals its components',
+    Object.values(bb).every((r: any) =>
+      Math.abs(r.totalVirupas - (r.digBala + r.drigAdjustment + r.adhipatiBala +
+        r.occupancyAdjustment + r.dayNightAdjustment)) < 0.2));
+
+  // SAV must equal the seven BAVs summed sign by sign.
+  const bav: any = binay.ashtakavarga.bav;
+  const sav: number[] = binay.ashtakavarga.sav.bindusByRashi;
+  let consistent = true;
+  for (let r = 0; r < 12; r++) {
+    let sum = 0;
+    for (const p of Object.keys(bav)) sum += bav[p].bindusByRashi[r];
+    if (sum !== sav[r]) consistent = false;
+  }
+  check('SAV equals the sum of the BAVs sign by sign', consistent);
+
+  // Dasha balance by hand: Moon 42.0454° in Rohiṇī, 15.34% elapsed of 10 years.
+  const moonLon = binay.planets.moon.siderealLongitude;
+  const elapsed = (moonLon - Math.floor(moonLon / (360 / 27)) * (360 / 27)) / (360 / 27);
+  const expected = 10 * (1 - elapsed);
+  check('Viṃśottarī Moon balance matches the hand calculation',
+    Math.abs(binay.vimshottari.tree[0].durationYears - expected) < 0.01,
+    `${binay.vimshottari.tree[0].durationYears} vs ${expected.toFixed(3)}`);
+
+  // D9 lagna by hand: Scorpio, 5th navāṃśa from Cancer → Scorpio.
+  check('D9 lagna is Vṛścika', binay.vargas.D9.lagnaRashi === 8, String(binay.vargas.D9.lagnaRashi));
+
+  // Exports must carry everything the workspace shows.
+  const e: any = buildChartExport(binay, { dashaDepth: 3 });
+  for (const k of ['avakahada', 'transits', 'indications', 'matchingData', 'kp', 'argala', 'eclipses', 'bhavaChalit']) {
+    check(`JSON carries ${k}`, e[k] != null && Object.keys(e[k]).length > 0);
+  }
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
@@ -1427,9 +1500,15 @@ console.log('\n== Bhāva Bala ==');
   check('1st bhāva dig bala is ~0 (stands on the ascendant)',
     bb[1].digBala < 1, bb[1].digBala.toFixed(3));
 
-  // A bhāva opposite its reference angle scores the full 60.
+  // Dig bala is arc ÷ 3, so it cannot exceed 60 and must span a wide range.
+  // Whether any single bhāva actually reaches 60 depends on the chart: with
+  // whole-sign houses the references are the real kendras, and no sign centre
+  // necessarily sits exactly opposite one.
   const maxDig = Math.max(...rows.map((r) => r.digBala));
-  check('some bhāva reaches the 60-virūpa maximum', maxDig > 59.9, maxDig.toFixed(2));
+  const minDig = Math.min(...rows.map((r) => r.digBala));
+  check('dig bala never exceeds the 60-virūpa ceiling', maxDig <= 60.001, maxDig.toFixed(2));
+  check('dig bala spans a wide range across the houses', maxDig - minDig > 40,
+    `${minDig.toFixed(1)}–${maxDig.toFixed(1)}`);
 
   check('total equals the sum of its components', rows.every((r) =>
     Math.abs(r.totalVirupas - (r.digBala + r.drigAdjustment + r.adhipatiBala +
