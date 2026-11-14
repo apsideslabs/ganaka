@@ -430,6 +430,18 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       interlinks: layer.interlinks,
       nodeAgents: layer.nodeAgents,
       fertility: layer.fertility,
+      // The KP working tables: every graha with its four lords and cuspal
+      // house, and the Viṃśottarī chain with each lord's significations.
+      planets: layer.planets.map((p) => ({
+        id: p.id, longitude: p.longitude, rashi: p.rashi, rashiName: p.rashiName,
+        degreeInRashi: p.degreeInRashi, house: p.house, nakshatra: p.nakshatra, pada: p.pada,
+        signLord: p.signLord, starLord: p.starLord, subLord: p.subLord, subSubLord: p.subSubLord,
+        retrograde: p.retrograde, signifies: p.signifies,
+      })),
+      dasha: layer.dasha.map((d) => ({
+        level: d.level, lord: d.lord, from: d.from, to: d.to,
+        isRunning: d.isRunning, signifies: d.signifies,
+      })),
     };
   }, {});
 
