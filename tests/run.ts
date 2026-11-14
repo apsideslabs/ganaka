@@ -32,6 +32,7 @@ import { calculateMudda, calculatePatyayini, calculateTajikaAspects } from '../l
 import { calculatePrashna, arudhaFromDirection } from '../lib/jyotisha/prashna';
 import { buildChartExport } from '../lib/report/export-chart-json';
 import { findEclipses } from '../lib/astronomy/eclipses';
+import { calculateBhavaChalit } from '../lib/jyotisha/bhava-chalit';
 import { assessTimeSensitivity } from '../lib/jyotisha/time-sensitivity';
 import { offsetForZone } from '../lib/astronomy/city-index';
 import { KNOWLEDGE_BASE, searchRules, getRule, knowledgeBaseSummary } from '../lib/jyotisha/knowledge-base';
@@ -741,6 +742,64 @@ console.log('\n== Pañcadhā maitrī & attributes ==');
   check('Sudarśana names the active house',
     e.sudarshana.dasha?.house >= 1 && e.sudarshana.dasha?.house <= 12,
     String(e.sudarshana.dasha?.house));
+}
+
+/* --------------------------------------------------- BHĀVA CHALITA & ANGLES */
+
+console.log('\n== Bhāva Chalita ==');
+{
+  // The cusp midpoint must be taken along the short arc. Before the fix a pair
+  // straddling 0° produced a house spanning 210° that swallowed the zodiac.
+  for (const f of FIXTURES) {
+    const c: any = calculateFullJyotishaChart(f.birth as any);
+    const bc = calculateBhavaChalit(c, 'sripati');
+    const tag = String((f.birth as any).year);
+
+    check(`[${tag}] chalit covers every graha`, bc.entries.length === 9, String(bc.entries.length));
+
+    // Every bhāva span must be under half the circle and the twelve must tile it.
+    const spans = bc.bhavas.map((b) => {
+      let d = ((b.end - b.start) % 360 + 360) % 360;
+      return d;
+    });
+    check(`[${tag}] no bhāva spans more than half the zodiac`,
+      spans.every((d) => d > 0 && d < 180), spans.map((d) => d.toFixed(0)).join(','));
+    const total = spans.reduce((a, b) => a + b, 0);
+    check(`[${tag}] the twelve bhāvas close the circle`,
+      Math.abs(total - 360) < 0.5, total.toFixed(2));
+
+    // Each graha must sit inside exactly one bhāva.
+    const counts: Record<string, number> = {};
+    for (const b of bc.bhavas) for (const p of b.occupants) counts[p] = (counts[p] ?? 0) + 1;
+    check(`[${tag}] every graha occupies exactly one bhāva`,
+      Object.values(counts).every((n) => n === 1) && Object.keys(counts).length === 9,
+      JSON.stringify(counts));
+
+    // Under whole-sign houses nothing can shift.
+    const whole = calculateBhavaChalit(c, 'equal_whole');
+    check(`[${tag}] whole-sign chalit never shifts`, whole.summary.shifted === 0);
+  }
+
+  // The 1950 chart shifts three grahas under Sripati — proof the comparison runs.
+  const c1950: any = calculateFullJyotishaChart(FIXTURES[2].birth as any);
+  const bc1950 = calculateBhavaChalit(c1950, 'sripati');
+  check('the 1950 chart shifts grahas under Sripati', bc1950.summary.shifted > 0,
+    bc1950.entries.filter((e) => e.shifted).map((e) => `${e.planet}:${e.rashiHouse}->${e.chalitHouse}`).join(' '));
+
+  // The local sky must be recorded, not thrown away.
+  check('the chart carries the midheaven', typeof c1950.angles?.mc === 'number');
+  const sep = (a: number, b: number) => ((a - b) % 360 + 360) % 360;
+  check('the descendant sits opposite the ascendant',
+    typeof c1950.angles?.descendant === 'number' &&
+    Math.abs(sep(c1950.angles.descendant, c1950.lagna.siderealLongitude) - 180) < 0.01,
+    String(sep(c1950.angles?.descendant ?? 0, c1950.lagna.siderealLongitude)));
+  check('IC is opposite the MC',
+    Math.abs(sep(c1950.angles.ic, c1950.angles.mc) - 180) < 0.01,
+    String(sep(c1950.angles.ic, c1950.angles.mc)));
+
+  const e: any = buildChartExport(c1950, { dashaDepth: 3 });
+  check('JSON carries bhavaChalit', !!e.bhavaChalit?.entries?.length);
+  check('JSON carries the local angles', typeof e.angles?.mc === 'number');
 }
 
 /* ------------------------------------------------------------- ECLIPSES */
