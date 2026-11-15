@@ -25,7 +25,7 @@
  * sufficient one: a local horizon or the edge of the penumbra can still hide an
  * event this test accepts.
  */
-import { calculateAllPlanets } from './ephemeris';
+import { calculateAllPlanets, sunMoonLongitudes } from './ephemeris';
 import { calculateSolarTimes, calculateLunarTimes } from './ephemeris';
 import { normalizeDegrees } from './julian';
 
@@ -128,9 +128,12 @@ export function findEclipses(opts: EclipseSearchOptions): EclipseEvent[] {
   if (endJD <= startJD) return [];
 
   /** Sun–Moon elongation, 0–360, where 0 is new moon and 180 is full. */
+  // Two longitudes per step, not nine bodies and their speeds. The search
+  // walks thousands of steps and bisects each syzygy forty times; computing
+  // the outer planets here cost twenty seconds per export.
   const elongation = (jd: number): number => {
-    const p: any = calculateAllPlanets(jd, ayan, custom);
-    return normalizeDegrees(p.moon.siderealLongitude - p.sun.siderealLongitude);
+    const p = sunMoonLongitudes(jd, ayan, custom);
+    return normalizeDegrees(p.moon - p.sun);
   };
 
   const events: EclipseEvent[] = [];
