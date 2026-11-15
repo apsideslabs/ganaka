@@ -56,8 +56,15 @@ export function GanakaClockPicker({
   const minuteInputRef = useRef<HTMLInputElement>(null);
   const secondInputRef = useRef<HTMLInputElement>(null);
 
-  // Internal working values (12-hour display mode by default)
-  const [is24HourMode, setIs24HourMode] = useState<boolean>(false);
+  /**
+   * 24-hour by default.
+   *
+   * The picker used to open in 12-hour mode with AM selected, so a birth at
+   * 23:51 was entered as "11:51" and silently stored as 11:51 — twelve hours
+   * out, a whole ascendant wrong. A birth time is not a clock face to be
+   * guessed at; the unambiguous form is the default and 12-hour is the option.
+   */
+  const [is24HourMode, setIs24HourMode] = useState<boolean>(true);
 
   // Draft values fallback (when value is null)
   const [draftH24, setDraftH24] = useState<number>(6);
@@ -179,6 +186,10 @@ export function GanakaClockPicker({
         if (h < 12) h += 12;
       } else if (period === 'AM') {
         if (h === 12) h = 0;
+      } else if (h > 23) {
+        // No meridiem and no valid 24-hour reading — refuse rather than guess.
+        setManualText('');
+        return;
       }
 
       applyTime(h, m, s);
