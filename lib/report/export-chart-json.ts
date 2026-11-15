@@ -199,6 +199,61 @@ export interface ExportOptions {
   dashaDepth?: number;
 }
 
+
+/* ------------------------------------------------------------------ RAW ONLY
+ *
+ * The export is a data document for a later reader — an astrologer, or a model
+ * that has to reason over it. Verses and interpretive prose are noise in that
+ * job: a śloka quoted without its commentary is not usable evidence, and a line
+ * like "middling disposition" is an opinion wearing a number's clothes.
+ *
+ * Everything computed stays. What goes is the scripture and the verdict.
+ * ------------------------------------------------------------------------ */
+
+/** Keys removed wherever they appear. */
+const STRIP_KEYS = new Set([
+  'sanskritShloka',      // the verse itself
+  'chapterAndVerse',     // verse citation
+  'verseOrShloka',
+  'sanskritTextName',
+  'sanskritTerminology',
+  'supportingSources',
+  'chapter',
+  'effects',             // yoga prediction prose
+  'classicalEffects',    // dosha prediction prose
+  'reading',             // vimshopaka interpretation
+  'dhairyaDescription',  // sade-sati prediction prose
+]);
+
+/**
+ * Recursively drop verse and interpretation keys.
+ *
+ * `primarySource` is collapsed to the bare text name: which treatise a rule
+ * comes from is provenance a reader may want; its verse number and Devanagari
+ * title are not.
+ */
+function toRaw(value: any): any {
+  if (Array.isArray(value)) return value.map(toRaw);
+  if (value === null || typeof value !== 'object') return value;
+
+  const out: Record<string, any> = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (STRIP_KEYS.has(k)) continue;
+    if (k === 'primarySource' && v && typeof v === 'object') {
+      const t = (v as any).text;
+      if (typeof t === 'string') out.sourceText = t;
+      continue;
+    }
+    out[k] = toRaw(v);
+  }
+  // The vashya group's one-line description is an interpretation; the group
+  // name beside it is the datum.
+  if (out.vashya && typeof out.vashya === 'object' && 'description' in out.vashya) {
+    delete out.vashya.description;
+  }
+  return out;
+}
+
 export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {}): GanakaChartExport {
   const bd = chart.meta.birthDetails;
   const depth = Math.max(1, opts.dashaDepth ?? 3);
@@ -212,7 +267,7 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
   const vimshottari = { ...vim, tree: slimTree, fullAstronomicalTree: undefined };
   delete vimshottari.fullAstronomicalTree;
 
-  return {
+  return toRaw({
     schema: EXPORT_SCHEMA,
     generator: {
       name: 'Ganaka',
@@ -273,7 +328,7 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       jaimini: plain(chart.jaimini),
       specialPoints: plain(chart.specialPoints),
     },
-  };
+  });
 }
 
 
@@ -850,13 +905,14 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     };
   }, {});
 
-  return {
+  // Everything the chart produced, stripped of verse and verdict.
+  return toRaw({
     bhavaBala, phala, vimshopaka, sarvatobhadra, extendedDashas, varshaphala, tajika, prashna,
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
     avasthas, mrityuBhaga, nadi, navatara, remedies, timeSensitivity, siddhanticResiduals: residuals, kpAspects, kpFourStep,
-  };
+  });
 }
 
 /**
