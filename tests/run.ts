@@ -42,6 +42,8 @@ import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
 import { calculateCurrentTransits } from '../lib/jyotisha/transits';
 import { ALL_DOSHA_DEFINITIONS } from '../lib/doshas/dosha-engine';
+import { calculateVarshaphala } from '../lib/varshaphala/varshaphala';
+import { calculatePrashna } from '../lib/jyotisha/prashna';
 import { getRemediesForDosha, NO_REMEDY_PRESCRIBED } from '../lib/doshas/classical-remedies';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
 import { housesSignified } from '../lib/kp/significators';
@@ -2051,6 +2053,54 @@ console.log('\n== No personal data in the source ==');
   check('the fixture location is neutral',
     !/binay|baghmara|baksa/i.test(String((f.birth as any)?.locationName ?? '')),
     String((f.birth as any)?.locationName));
+}
+
+/* ------------------------ THE REPORT'S DATA PATHS ACTUALLY EXIST */
+
+console.log('\n== Report chapters read real fields ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // Chapter 18 reads these exact names. 'shayanadi' does not exist — the field
+  // is 'sayanadi' — and that mistake silently rendered a column of dashes.
+  const AV_KEYS = ['baladi', 'jagradadi', 'deeptadi', 'lajjitadi', 'sayanadi'];
+  for (const id of ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn']) {
+    const av = natal.planets?.[id]?.avasthas;
+    check(`${id} has all five avasthās`, !!av && AV_KEYS.every((k) => av[k] !== undefined),
+      AV_KEYS.filter((k) => !av?.[k]).join(','));
+  }
+
+  // Chapter 19 must compute varṣaphala and praśna: neither is on the chart.
+  check('varshaphala is not stored on the chart', natal.varshaphala === undefined);
+  check('prashna is not stored on the chart', natal.prashna === undefined);
+
+  const bd: any = natal.meta.birthDetails;
+  const v: any = calculateVarshaphala(natal, {
+    yearNumber: 2, latitude: bd.latitude, longitude: bd.longitude,
+    timezoneOffsetHours: bd.timezoneOffsetHours,
+  });
+  check('varshaphala yields an annual lagna', !!v.chart?.lagna?.rashiName);
+  check('varshaphala yields a muntha', !!v.muntha?.rashiName);
+  check('varshaphala yields a varshesha lord', !!v.varshesha?.lordName);
+  check('varshaphala yields panchavargiya scores', Array.isArray(v.varshesha?.scores) && v.varshesha.scores.length === 7);
+  // The solar return is a date, not a position — the chapter renders it as one.
+  check('the solar return is a date', typeof v.solarReturn?.year === 'number' && typeof v.solarReturn?.day === 'number',
+    JSON.stringify(v.solarReturn));
+
+  const pr: any = calculatePrashna(natal);
+  for (const k of ['trisphuta', 'chatusphuta', 'panchasphuta', 'pranaSphuta', 'dehaSphuta', 'mrityuSphuta']) {
+    check(`prashna yields ${k}`, !!pr[k]?.rashiName, k);
+  }
+
+  // And the mrityu / nadi / navatara chapters.
+  const mb: any = calculateMrityuBhaga(natal);
+  check('mrityu bhaga rows carry a band', mb.rows.every((r: any) => typeof r.bandFrom === 'number' && typeof r.bandTo === 'number'));
+  const nd: any = calculateNadi(natal);
+  check('nadi carries both moon and lagna', !!nd.moonNakshatra && !!nd.lagnaNakshatra);
+  check('nadi carries the info blocks', !!nd.moonNadiInfo?.english && !!nd.lagnaNadiInfo?.english);
+  const nt: any = calculateNavaTara(natal);
+  check('navatara carries the nine taras', nt.cycle.length === 9);
+  check('navatara tara carries its number and name', !!nt.cycle[0]?.tara?.number && !!nt.cycle[0]?.tara?.name);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
