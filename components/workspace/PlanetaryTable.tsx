@@ -72,21 +72,21 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ planets, onSelec
             <h3 className="text-base font-serif font-bold text-slate-900">
               Sphuṭa Graha Sthiti (Planetary Coordinates)
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-[13px] text-slate-500">
               True Sidereal Longitudes, Dignities (Avasthās), Nakṣatra Padas, Daily Motion &amp; Aspect Rays
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono px-3 py-1 bg-white text-slate-700 border border-slate-200 rounded-lg shadow-2xs">
+          <span className="text-[13px] font-mono px-3 py-1 bg-white text-slate-700 border border-slate-200 rounded-lg shadow-2xs">
             9 Classical Grahas
           </span>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
+        <table className="w-full text-left text-[13px]">
           <thead className="bg-slate-50 text-slate-600 font-serif border-b border-slate-200 uppercase tracking-wider text-[11px]">
             <tr>
               <th className="py-3.5 px-4 font-semibold">Graha</th>
@@ -112,7 +112,7 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ planets, onSelec
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2">
                       <span className="font-serif font-bold text-slate-900 text-sm">{p.sanskritName}</span>
-                      <span className="text-xs text-slate-500 font-mono">({p.name})</span>
+                      <span className="text-[13px] text-slate-500 font-mono">({p.name})</span>
                     </div>
                   </td>
 
@@ -131,7 +131,7 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ planets, onSelec
 
                   {/* House */}
                   <td className="py-3.5 px-4 text-center">
-                    <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200/80 text-xs shadow-2xs">
+                    <span className="inline-block px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 border border-slate-200/80 text-[13px] shadow-2xs">
                       H{p.house}
                     </span>
                   </td>
@@ -172,12 +172,12 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ planets, onSelec
                   <td className="py-3.5 px-4 text-center">
                     <div className="flex items-center justify-center gap-1.5 font-mono">
                       {p.isRetrograde && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-900 rounded-md border border-amber-300 shadow-2xs" title="Vakra (Retrograde)">
+                        <span className="px-2 py-0.5 text-[12px] font-bold bg-amber-100 text-amber-900 rounded-md border border-amber-300 shadow-2xs" title="Vakra (Retrograde)">
                           (R)
                         </span>
                       )}
                       {p.isCombust && (
-                        <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-100 text-rose-900 rounded-md border border-rose-300 shadow-2xs" title="Asta (Combust)">
+                        <span className="px-2 py-0.5 text-[12px] font-bold bg-rose-100 text-rose-900 rounded-md border border-rose-300 shadow-2xs" title="Asta (Combust)">
                           (C)
                         </span>
                       )}
@@ -189,7 +189,7 @@ export const PlanetaryTable: React.FC<PlanetaryTableProps> = ({ planets, onSelec
 
                   {/* Aspects */}
                   <td className="py-3.5 px-4 text-center">
-                    <span className="font-mono text-xs font-medium text-slate-700">
+                    <span className="font-mono text-[13px] font-medium text-slate-700">
                       {p.aspectsToHouses.map((h) => `H${h}`).join(', ')}
                     </span>
                   </td>
