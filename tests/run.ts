@@ -40,6 +40,8 @@ import { calculateNadi } from '../lib/jyotisha/nadi';
 import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
+import { evaluateNeechaBhanga, evaluateAllNeechaBhanga } from '../lib/jyotisha/neechabhanga';
+import { GRAHA_PROPERTIES } from '../lib/jyotisha/constants';
 import { calculateCurrentTransits } from '../lib/jyotisha/transits';
 import { ALL_DOSHA_DEFINITIONS } from '../lib/doshas/dosha-engine';
 import { getRemediesForDosha, NO_REMEDY_PRESCRIBED } from '../lib/doshas/classical-remedies';
@@ -2293,6 +2295,106 @@ console.log('\n== Varga dignity is per-varga, not inherited from D-1 ==');
   const d9 = e.chart?.vargas?.D9?.planets?.sun;
   check('the export carries varga dignity', typeof d9?.dignity === 'string' && d9.dignity.length > 0,
     String(d9?.dignity));
+}
+
+/* --------------------- NEECHA BHANGA (PHALADIPIKA 7.26-30) */
+
+console.log('\n== Neecha bhanga ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // --- each rule fires on a constructed case ---------------------
+  // Mars debilitated in Karka, lagna Karka, Moon also Karka (collapsed ref).
+  const crafted: any = {
+    lagnaRashi: 4,
+    planets: {
+      mars: { rashiNumber: 4, house: 1 },
+      moon: { rashiNumber: 4, house: 1 },
+      sun: { rashiNumber: 1, house: 10 },
+      saturn: { rashiNumber: 7, house: 4 },
+      jupiter: { rashiNumber: 10, house: 7 },
+      venus: { rashiNumber: 2, house: 11 },
+      mercury: { rashiNumber: 6, house: 3 },
+      rahu: { rashiNumber: 11, house: 8 },
+      ketu: { rashiNumber: 5, house: 2 },
+    },
+  };
+  const craftedRes = evaluateNeechaBhanga('mars', crafted)!;
+  check('a debilitated graha is detected', !!craftedRes);
+  check('Mars in Karka is reported debilitated', craftedRes.rashiNumber === 4);
+  check('the dispositor-in-kendra rule fires',
+    craftedRes.conditions.some((c) => c.id === 'dispositor_kendra' && c.met));
+  check('the exaltation-lord-in-kendra rule fires',
+    craftedRes.conditions.some((c) => c.id === 'exaltation_lord_kendra' && c.met));
+  check('the self-in-kendra rule fires',
+    craftedRes.conditions.some((c) => c.id === 'self_kendra' && c.met));
+  check('the crafted chart is cancelled', craftedRes.cancelled);
+  check('every condition cites a Phaladipika verse',
+    craftedRes.conditions.every((c) => /^PD 7\.(26|27|28|30)$/.test(c.rule)));
+
+  // --- a graha NOT debilitated yields nothing --------------------
+  check('a graha in its own sign is not a candidate',
+    evaluateNeechaBhanga('sun', crafted) === null);
+
+  // --- the self-reference trap ----------------------------------
+  // The Moon measured from itself is always house 1. Rule 7.30 must not fire
+  // on that degenerate reading.
+  const moonInDebilitation: any = {
+    lagnaRashi: 9,
+    planets: {
+      moon: { rashiNumber: 8, house: 12 },   // Scorpio, H12 from Sagittarius
+      mars: { rashiNumber: 2, house: 6 },
+      sun: { rashiNumber: 10, house: 2 },
+      mercury: { rashiNumber: 4, house: 8 },
+      jupiter: { rashiNumber: 3, house: 7 },
+      venus: { rashiNumber: 9, house: 1 },
+      saturn: { rashiNumber: 3, house: 7 },
+      rahu: { rashiNumber: 3, house: 7 },
+      ketu: { rashiNumber: 9, house: 1 },
+    },
+  };
+  const moonRes = evaluateNeechaBhanga('moon', moonInDebilitation)!;
+  const selfKendra = moonRes.conditions.find((c) => c.id === 'self_kendra')!;
+  check('the Moon is not treated as in kendra from itself', !selfKendra.met,
+    selfKendra.detail);
+
+  // --- per-varga evaluation -------------------------------------
+  let vargaChecked = 0;
+  let anyCancelled = false;
+  for (const [vId, v] of Object.entries(natal.vargas as any)) {
+    const vv: any = v;
+    if (!vv?.planets) continue;
+    const positions = {
+      lagnaRashi: vv.lagnaRashi,
+      planets: Object.fromEntries(
+        Object.entries(vv.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+      ),
+    };
+    const res = evaluateAllNeechaBhanga(positions as any);
+    vargaChecked++;
+    for (const r of res) {
+      // Any graha reported must actually be in its debilitation sign.
+      const prop = (GRAHA_PROPERTIES as any)[r.planet];
+      check(`${vId} ${r.planet} really is in its debilitation sign`,
+        r.rashiNumber === prop.debilitationSign);
+      if (r.cancelled) anyCancelled = true;
+      // A cancelled graha must have at least one met condition with a reason.
+      if (r.cancelled) check(`${vId} ${r.planet} cancellation names its reasons`, r.reasons.length > 0);
+    }
+  }
+  check('neecha bhanga runs on every varga', vargaChecked >= 16, String(vargaChecked));
+  check('at least one varga shows a cancellation', anyCancelled);
+
+  // --- the caution the sources stress ---------------------------
+  const anyResult = evaluateAllNeechaBhanga({
+    lagnaRashi: 9,
+    planets: crafted.planets,
+  } as any)[0];
+  if (anyResult) {
+    check('a cancellation never claims a Raja Yoga',
+      !/raja yoga/i.test(anyResult.note) || /not by itself/i.test(anyResult.note),
+      anyResult.note.slice(0, 60));
+  }
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
