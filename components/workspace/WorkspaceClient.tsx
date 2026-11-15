@@ -893,7 +893,7 @@ export const WorkspaceClient: React.FC = () => {
   // inputs are debounced: typing settles first, then one chart is built. The
   // calculator memoises on the input signature as well, so returning to a
   // previous set of values is free.
-  const birthSignature = `${year}-${month}-${day}-${hour}-${minute}-${second}|${selectedCity.latitude},${selectedCity.longitude},${selectedCity.timezoneOffsetHours}|${selectedCity.name}|${ayanamshaType}|${houseSystem}|${ephemerisMode}`;
+  const birthSignature = `${year}-${month}-${day}-${hour}-${minute}-${second}|${selectedCity.latitude},${selectedCity.longitude},${selectedCity.timezoneOffsetHours}|${selectedCity.name}|${ayanamshaType}|${houseSystem}|${ephemerisMode}|${chartTitle}`;
   const settledBirth = useDebouncedValue(birthSignature, 220);
 
   const chartData: JyotishaChart = useMemo(() => {
@@ -908,6 +908,9 @@ export const WorkspaceClient: React.FC = () => {
       longitude: selectedCity.longitude,
       timezoneOffsetHours: selectedCity.timezoneOffsetHours,
       locationName: selectedCity.name,
+      // Labels the exported file so two charts in a folder are tellable apart.
+      // 'Jātaka' is the form's default placeholder, not a name.
+      personName: chartTitle && chartTitle.trim() && chartTitle.trim() !== 'Jātaka' ? chartTitle.trim() : undefined,
       ayanamshaType,
       houseSystem,
       ephemerisMode,
