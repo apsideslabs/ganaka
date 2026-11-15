@@ -774,23 +774,6 @@ export const WorkspaceClient: React.FC = () => {
   });
   const [houseSystem, setHouseSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(() => init.house);
 
-  /**
-   * Nīcabhaṅga for the birth chart — Phaladīpikā 7.26–30. Only grahas actually
-   * in their sign of debilitation appear; each states whether the cancellation
-   * forms and which conditions satisfy it.
-   */
-  const neechaBhangaD1 = useMemo(() => {
-    try {
-      const c: any = chartData;
-      if (!c?.planets) return [];
-      return evaluateAllNeechaBhanga({
-        lagnaRashi: c.lagna.rashiNumber,
-        planets: Object.fromEntries(
-          Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
-        ),
-      } as any);
-    } catch { return []; }
-  }, [chartData]);
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('kundali');
   // The report is built in memory and shown before download; nothing is saved
@@ -930,6 +913,24 @@ export const WorkspaceClient: React.FC = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settledBirth]);
+
+  /**
+   * Nīcabhaṅga for the birth chart — Phaladīpikā 7.26–30. Only grahas actually
+   * in their sign of debilitation appear; each states whether the cancellation
+   * forms and which conditions satisfy it.
+   */
+  const neechaBhangaD1 = useMemo(() => {
+    try {
+      const c: any = chartData;
+      if (!c?.planets) return [];
+      return evaluateAllNeechaBhanga({
+        lagnaRashi: c.lagna.rashiNumber,
+        planets: Object.fromEntries(
+          Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+        ),
+      } as any);
+    } catch { return []; }
+  }, [chartData]);
 
   // Determine which domain is currently active
   const currentDomain = useMemo(() => {
