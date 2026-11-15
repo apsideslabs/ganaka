@@ -1100,7 +1100,7 @@ ${Object.values(chartData.planets)
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#8C2D19] bg-[#8C2D19]/10 px-2.5 py-0.5 rounded-md border border-[#8C2D19]/20">
                 Classical Jyotiṣa Workstation
               </span>
-              <span className="text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+              <span className="text-[13px] font-mono text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
                 Ayanāṃśa: <strong className="text-slate-900">{AYANAMSHA_DEFINITIONS[ayanamshaType]?.name || ayanamshaType}</strong> ({chartData.meta.ayanamshaFormatted})
               </span>
               <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200">
@@ -1119,7 +1119,7 @@ ${Object.values(chartData.planets)
               />
             </h1>
 
-            <p className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 flex-wrap font-mono">
+            <p className="text-[13px] sm:text-sm text-slate-600 flex items-center gap-2 flex-wrap font-mono">
               <span className="font-bold text-slate-900">
                 {year}-{String(month).padStart(2, '0')}-{String(day).padStart(2, '0')}
               </span>
@@ -1239,7 +1239,7 @@ ${Object.values(chartData.planets)
               <button
                 type="button"
                 onClick={() => setPdfError('')}
-                className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19]/70 hover:text-[#8C2D19]"
+                className="text-[12px] font-mono uppercase tracking-wider text-[#8C2D19]/70 hover:text-[#8C2D19]"
               >
                 Dismiss
               </button>
@@ -1248,14 +1248,14 @@ ${Object.values(chartData.planets)
         </div>
 
         {/* 2. RECTIFICATION TIME-STEPPER & REAL-TIME CONTROLS */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-1 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-1 text-[13px]">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-mono text-slate-600 font-semibold flex items-center gap-1.5">
+            <span className="text-[13px] font-mono text-slate-600 font-semibold flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-[#8C2D19]" />
               <span>Time Rectification Stepper:</span>
             </span>
 
-            <div className="flex items-center gap-1.5 font-mono text-xs">
+            <div className="flex items-center gap-1.5 font-mono text-[13px]">
               <button
                 type="button"
                 onClick={() => shiftDateTime(-60)}
@@ -1312,7 +1312,7 @@ ${Object.values(chartData.planets)
               type="button"
               onClick={applyCurrentTime}
               disabled={isApplyingTime}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-[#8C2D19] font-semibold hover:bg-slate-100 active:scale-95 transition-all cursor-pointer shadow-2xs disabled:opacity-75"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 rounded-lg text-[#8C2D19] font-semibold hover:bg-slate-100 active:scale-95 transition-all cursor-pointer shadow-2xs disabled:opacity-75"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isApplyingTime ? 'animate-spin' : ''}`} />
               <span>{isApplyingTime ? 'Updating...' : 'Real-Time (Now)'}</span>
@@ -1321,7 +1321,7 @@ ${Object.values(chartData.planets)
             <button
               type="button"
               onClick={saveCurrentProfile}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#8C2D19] text-white rounded-lg font-semibold hover:bg-[#701E00] transition-colors cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] bg-[#8C2D19] text-white rounded-lg font-semibold hover:bg-[#701E00] transition-colors cursor-pointer shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Save Profile</span>
@@ -1336,11 +1336,11 @@ ${Object.values(chartData.planets)
               <h4 className="text-sm font-serif font-bold text-slate-900">
                 Saved Chart Profiles ({savedProfiles.length})
               </h4>
-              <span className="text-xs text-slate-500">Stored in local browser storage</span>
+              <span className="text-[13px] text-slate-500">Stored in local browser storage</span>
             </div>
 
             {savedProfiles.length === 0 ? (
-              <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500">
+              <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center text-[13px] text-slate-500">
                 No custom profiles saved yet. Click <strong className="text-[#8C2D19]">&quot;Save Profile&quot;</strong> above to store the current birth chart.
               </div>
             ) : (
@@ -1355,10 +1355,10 @@ ${Object.values(chartData.planets)
                       <span className="text-sm font-serif font-bold text-slate-900 block truncate group-hover:text-[#8C2D19]">
                         {prof.name}
                       </span>
-                      <span className="text-xs font-mono text-slate-500 block">
+                      <span className="text-[13px] font-mono text-slate-500 block">
                         {prof.year}-{String(prof.month).padStart(2, '0')}-{String(prof.day).padStart(2, '0')} • {String(prof.hour).padStart(2, '0')}:{String(prof.minute).padStart(2, '0')}
                       </span>
-                      <span className="text-xs text-slate-600 block truncate">
+                      <span className="text-[13px] text-slate-600 block truncate">
                         {prof.cityName}
                       </span>
                     </div>
@@ -1381,7 +1381,7 @@ ${Object.values(chartData.planets)
         {/* 4. COLLAPSIBLE PARAMETERS DRAWER */}
         {showParametersDrawer && (
           <div className="pt-4 border-t border-slate-100 space-y-5 animate-in fade-in duration-150">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-xs bg-slate-50/80 p-5 rounded-2xl border border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-[13px] bg-slate-50/80 p-5 rounded-2xl border border-slate-200">
               {/* Clean Date of Birth Input */}
               <div className="space-y-1.5 sm:col-span-1">
                 <GanakaDatePicker
@@ -1439,7 +1439,7 @@ ${Object.values(chartData.planets)
                       <Check className="w-3 h-3 text-emerald-600" />
                       <span>{isSavedDefaultLocation ? 'Saved as Default!' : 'Set as Default'}</span>
                     </button>
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="text-[12px] text-slate-500 font-mono">
                       {selectedCity.latitude.toFixed(2)}°, {selectedCity.longitude.toFixed(2)}°
                     </span>
                   </div>
@@ -1453,7 +1453,7 @@ ${Object.values(chartData.planets)
                       setLocationQuery(e.target.value);
                       setShowLocationDropdown(true);
                     }}
-                    className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-[#8C2D19] focus:ring-1 focus:ring-[#8C2D19] shadow-2xs"
+                    className="w-full p-2.5 pl-9 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 focus:outline-none focus:border-[#8C2D19] focus:ring-1 focus:ring-[#8C2D19] shadow-2xs"
                     placeholder="Search city (e.g. Ujjain, Varanasi, Ayodhya, Mumbai)..."
                   />
                   <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C2D19]" />
@@ -1469,7 +1469,7 @@ ${Object.values(chartData.planets)
                           setLocationQuery(loc.name);
                           setShowLocationDropdown(false);
                         }}
-                        className="px-4 py-2.5 text-xs hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors"
+                        className="px-4 py-2.5 text-[13px] hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors"
                       >
                         <div>
                           <span className="font-semibold text-slate-900">{loc.name}</span>
@@ -1477,7 +1477,7 @@ ${Object.values(chartData.planets)
                             {loc.stateOrRegion ? `${loc.stateOrRegion}, ` : ''}{loc.country} • Lat: {loc.latitude}°, Lon: {loc.longitude}°
                           </span>
                         </div>
-                        <span className="font-mono text-xs font-semibold text-[#8C2D19]">
+                        <span className="font-mono text-[13px] font-semibold text-[#8C2D19]">
                           UTC{loc.timezoneOffsetHours >= 0 ? `+${loc.timezoneOffsetHours}` : loc.timezoneOffsetHours}
                         </span>
                       </div>
@@ -1497,7 +1497,7 @@ ${Object.values(chartData.planets)
                     saveWorkspaceSettings({ ayanamsha: nextAyan });
                     savePlatformSettings({ defaultAyanamsha: nextAyan });
                   }}
-                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:border-[#8C2D19] focus:outline-none shadow-2xs"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 focus:border-[#8C2D19] focus:outline-none shadow-2xs"
                 >
                   {Object.entries(AYANAMSHA_DEFINITIONS).map(([k, def]) => (
                     <option key={k} value={k}>
@@ -1513,7 +1513,7 @@ ${Object.values(chartData.planets)
                 <select
                   value={houseSystem}
                   onChange={(e) => setHouseSystem(e.target.value as any)}
-                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:border-[#8C2D19] focus:outline-none shadow-2xs"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-[13px] font-medium text-slate-900 focus:border-[#8C2D19] focus:outline-none shadow-2xs"
                 >
                   <option value="equal_whole">Rāśi = Bhāva (Whole Sign / Parāśara)</option>
                   <option value="sripati">Śrīpati (Porphyry-Vedic Madhyas)</option>
@@ -1523,8 +1523,8 @@ ${Object.values(chartData.planets)
             </div>
 
             {/* Historical Epoch Presets */}
-            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-slate-500 text-xs font-semibold">Classical Research Presets:</span>
+            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2 text-[13px]">
+              <span className="text-slate-500 text-[13px] font-semibold">Classical Research Presets:</span>
               {PRESETS.map((preset, idx) => (
                 <GanakaButton
                   key={idx}
@@ -1543,7 +1543,7 @@ ${Object.values(chartData.planets)
         {/* 5. ASTRONOMICAL KEY METRICS STRIP */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Lagna (Ascendant)</span>
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">Lagna (Ascendant)</span>
             <span className="text-sm font-bold text-[#8C2D19] block truncate font-serif">
               {chartData.lagna.rashiName} ({chartData.lagna.degreeStr.split(' ')[0]})
             </span>
@@ -1553,7 +1553,7 @@ ${Object.values(chartData.planets)
           </div>
 
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Candra (Moon)</span>
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">Candra (Moon)</span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
               {chartData.planets.moon.rashiName} ({chartData.planets.moon.degreeStr.split(' ')[0]})
             </span>
@@ -1563,7 +1563,7 @@ ${Object.values(chartData.planets)
           </div>
 
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Sūrya (Sun)</span>
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">Sūrya (Sun)</span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
               {chartData.planets.sun.rashiName} ({chartData.planets.sun.degreeStr.split(' ')[0]})
             </span>
@@ -1573,7 +1573,7 @@ ${Object.values(chartData.planets)
           </div>
 
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Janma Tithi</span>
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">Janma Tithi</span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
               {chartData.panchanga.tithi.name}
             </span>
@@ -1583,11 +1583,11 @@ ${Object.values(chartData.planets)
           </div>
 
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold flex items-center gap-1">
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold flex items-center gap-1">
               <Sunrise className="w-3 h-3 text-[#8C2D19]" />
               <span>Sūryodaya / Asta</span>
             </span>
-            <span className="text-xs font-mono font-bold text-slate-900 block truncate">
+            <span className="text-[13px] font-mono font-bold text-slate-900 block truncate">
               {chartData.panchanga.sunTimes.sunrise} / {chartData.panchanga.sunTimes.sunset}
             </span>
             <span className="text-[11px] text-slate-600 block truncate font-serif">
@@ -1596,8 +1596,8 @@ ${Object.values(chartData.planets)
           </div>
 
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">Julian Day</span>
-            <span className="text-xs font-mono font-bold text-slate-900 block truncate">
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">Julian Day</span>
+            <span className="text-[13px] font-mono font-bold text-slate-900 block truncate">
               {chartData.meta.julianDay}
             </span>
             <span className="text-[11px] text-slate-600 block truncate font-mono">
@@ -1633,10 +1633,10 @@ ${Object.values(chartData.planets)
                     )}
                   </div>
                   <div>
-                    <span className={`text-xs font-serif font-bold block leading-snug ${isDomainActive ? 'text-white' : 'text-slate-900'}`}>
+                    <span className={`text-[13px] font-serif font-bold block leading-snug ${isDomainActive ? 'text-white' : 'text-slate-900'}`}>
                       {domain.name}
                     </span>
-                    <span className={`text-[10px] block mt-0.5 truncate ${isDomainActive ? 'text-slate-300' : 'text-slate-500'}`}>
+                    <span className={`text-[12px] block mt-0.5 truncate ${isDomainActive ? 'text-slate-300' : 'text-slate-500'}`}>
                       {domain.shortName}
                     </span>
                   </div>
@@ -1657,7 +1657,7 @@ ${Object.values(chartData.planets)
                 <button
                   key={sub.id}
                   onClick={() => setActiveTab(sub.id)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all whitespace-nowrap cursor-pointer ${
                     isSubActive
                       ? 'bg-[#8C2D19] text-white shadow-xs font-semibold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -1667,7 +1667,7 @@ ${Object.values(chartData.planets)
                   <span>{sub.name}</span>
                   {sub.badge && (
                     <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-medium ${
+                      className={`text-[12px] px-1.5 py-0.5 rounded font-mono font-medium ${
                         isSubActive
                           ? 'bg-[#701E00] text-white'
                           : 'bg-slate-200 text-slate-700'
@@ -1685,7 +1685,7 @@ ${Object.values(chartData.planets)
           <div className="flex items-center gap-3 self-end sm:self-auto">
             {activeTab === 'kundali' && (
               <>
-                <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 text-xs font-mono">
+                <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 text-[13px] font-mono">
                   <button
                     type="button"
                     onClick={() => setChartStyle('north')}
@@ -1727,7 +1727,7 @@ ${Object.values(chartData.planets)
                 <button
                   type="button"
                   onClick={() => setDualViewMode(!dualViewMode)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-semibold border transition-all cursor-pointer ${
                     dualViewMode
                       ? 'bg-[#8C2D19] text-white border-[#8C2D19] shadow-2xs'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
@@ -1741,13 +1741,13 @@ ${Object.values(chartData.planets)
             )}
 
             {/* Quick Jump Selector for all 14 calculation modules */}
-            <div className="flex items-center gap-2 text-xs text-slate-600 pl-2 border-l border-slate-200">
-              <span className="text-xs whitespace-nowrap font-medium">Jump:</span>
+            <div className="flex items-center gap-2 text-[13px] text-slate-600 pl-2 border-l border-slate-200">
+              <span className="text-[13px] whitespace-nowrap font-medium">Jump:</span>
               <select
                 value={activeTab}
                 onChange={(e) => setActiveTab(e.target.value as WorkspaceTab)}
                 aria-label="Jump to calculation module"
-                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#8C2D19]"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-[13px] text-slate-900 font-medium focus:outline-none focus:border-[#8C2D19]"
               >
                 {NAV_DOMAINS.map((dom) => (
                   <optgroup key={dom.id} label={dom.name}>
@@ -1781,11 +1781,11 @@ ${Object.values(chartData.planets)
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-600 font-semibold">Secondary Chart:</span>
+                    <span className="text-[13px] text-slate-600 font-semibold">Secondary Chart:</span>
                     <select
                       value={dualSecondaryVarga}
                       onChange={(e) => setDualSecondaryVarga(e.target.value as VargaId)}
-                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#8C2D19]"
+                      className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-[13px] font-bold text-slate-900 focus:outline-none focus:border-[#8C2D19]"
                     >
                       {Object.entries(VARGA_LABELS).map(([k, label]) => (
                         <option key={k} value={k}>
@@ -1820,7 +1820,7 @@ ${Object.values(chartData.planets)
                         style={chartStyle}
                       />
                     ) : (
-                      <div className="p-12 text-center text-xs text-slate-500">
+                      <div className="p-12 text-center text-[13px] text-slate-500">
                         Varga chart not available
                       </div>
                     )}
@@ -1849,43 +1849,43 @@ ${Object.values(chartData.planets)
                       Core Astronomical &amp; Ascendant Factors
                     </h3>
 
-                    <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="grid grid-cols-2 gap-4 text-[13px]">
                       <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-xs text-slate-500 font-medium block">Ascendant (Lagna)</span>
+                        <span className="text-[13px] text-slate-500 font-medium block">Ascendant (Lagna)</span>
                         <span className="text-base font-serif font-bold text-[#8C2D19] block">
                           {chartData.lagna.rashiName} ({chartData.lagna.degreeStr})
                         </span>
-                        <span className="text-xs text-slate-600 block mt-1 font-mono">
+                        <span className="text-[13px] text-slate-600 block mt-1 font-mono">
                           Nakṣatra: {chartData.lagna.nakshatraName} (Pada {chartData.lagna.pada})
                         </span>
                       </div>
 
                       <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-xs text-slate-500 font-medium block">Candra Rāśi (Moon Sign)</span>
+                        <span className="text-[13px] text-slate-500 font-medium block">Candra Rāśi (Moon Sign)</span>
                         <span className="text-base font-serif font-bold text-slate-900 block">
                           {chartData.planets.moon.rashiName} ({chartData.planets.moon.degreeStr})
                         </span>
-                        <span className="text-xs text-slate-600 block mt-1 font-mono">
+                        <span className="text-[13px] text-slate-600 block mt-1 font-mono">
                           {chartData.planets.moon.nakshatraName} (Pada {chartData.planets.moon.pada})
                         </span>
                       </div>
 
                       <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-xs text-slate-500 font-medium block">Sūrya Rāśi (Sun Sign)</span>
+                        <span className="text-[13px] text-slate-500 font-medium block">Sūrya Rāśi (Sun Sign)</span>
                         <span className="text-base font-serif font-bold text-slate-900 block">
                           {chartData.planets.sun.rashiName} ({chartData.planets.sun.degreeStr})
                         </span>
-                        <span className="text-xs text-slate-600 block mt-1 font-mono">
+                        <span className="text-[13px] text-slate-600 block mt-1 font-mono">
                           {chartData.planets.sun.nakshatraName} (Pada {chartData.planets.sun.pada})
                         </span>
                       </div>
 
                       <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-xs text-slate-500 font-medium block">Janma Tithi</span>
+                        <span className="text-[13px] text-slate-500 font-medium block">Janma Tithi</span>
                         <span className="text-base font-serif font-bold text-slate-900 block">
                           {chartData.panchanga.tithi.name}
                         </span>
-                        <span className="text-xs text-slate-600 block mt-1 font-mono">
+                        <span className="text-[13px] text-slate-600 block mt-1 font-mono">
                           {chartData.panchanga.tithi.paksha} Pakṣa ({chartData.panchanga.tithi.percentElapsed}%)
                         </span>
                       </div>
@@ -1894,11 +1894,11 @@ ${Object.values(chartData.planets)
                     {/* Key Dignities Highlight */}
                     <div className="pt-2 space-y-2.5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block font-serif">
+                        <span className="text-[13px] font-bold uppercase tracking-wider text-slate-600 block font-serif">
                           Planetary Essential Dignity Highlights
                         </span>
                         {/* Legend */}
-                        <div className="flex items-center gap-2 text-[10px] text-slate-500 flex-wrap">
+                        <div className="flex items-center gap-2 text-[12px] text-slate-500 flex-wrap">
                           <span className="inline-flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-[#16845B]" />
                             <span className="text-slate-600 font-medium">Exalted</span>
@@ -1917,7 +1917,7 @@ ${Object.values(chartData.planets)
                           </span>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[13px]">
                         {Object.values(chartData.planets).map((p) => {
                           const dig = p.dignity;
                           let bg = '#F2F4F7';
@@ -1972,7 +1972,7 @@ ${Object.values(chartData.planets)
                                 <span className="font-bold text-slate-900">{p.sanskritName}</span>
                               </div>
                               <span
-                                className="text-xs font-bold font-serif"
+                                className="text-[13px] font-bold font-serif"
                                 style={{ color: text }}
                               >
                                 {p.dignity.split(' ')[0]}
@@ -1985,7 +1985,7 @@ ${Object.values(chartData.planets)
                   </div>
 
                   {/* Panchanga Snapshot */}
-                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between text-xs shadow-xs">
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex items-center justify-between text-[13px] shadow-xs">
                     <div>
                       <span className="text-slate-500 block">Nitya Yoga:</span>
                       <strong className="text-slate-900 font-serif text-sm">{chartData.panchanga.yoga.name}</strong>
@@ -2053,7 +2053,7 @@ ${Object.values(chartData.planets)
             planets={chartData.planets}
             lagnaRashi={chartData.lagna.rashiNumber}
             lagnaLongitude={chartData.lagna.siderealLongitude}
-            initialHouseSystem={houseSystem}
+            initialHouseSystem={houseSystem === 'sripati' ? 'sripati' : 'equal_whole'}
           />
         )}
 
@@ -2227,23 +2227,23 @@ ${Object.values(chartData.planets)
           >
             <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-stone-200 bg-[#FCFAF6]">
               <div className="min-w-0">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-[#8C2D19] font-bold">
+                <div className="font-mono text-[12px] uppercase tracking-wider text-[#8C2D19] font-bold">
                   Report Preview
                 </div>
-                <div className="text-xs text-stone-600 truncate">{pdfPreview.name}</div>
+                <div className="text-[13px] text-stone-600 truncate">{pdfPreview.name}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <a
                   href={pdfPreview.url}
                   download={pdfPreview.name}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#73240f] transition-colors"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#8C2D19] text-white text-[13px] font-semibold hover:bg-[#73240f] transition-colors"
                 >
                   Download PDF
                 </a>
                 <button
                   type="button"
                   onClick={() => setPdfPreview(null)}
-                  className="px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+                  className="px-3 py-1.5 rounded-lg border border-stone-300 text-[13px] font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
                 >
                   Close
                 </button>
