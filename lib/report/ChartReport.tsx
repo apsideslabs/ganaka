@@ -29,6 +29,7 @@ import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
+import { buildChartExport } from '@/lib/report/export-chart-json';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
 import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
@@ -716,6 +717,58 @@ function Contents({ identity }: { identity: string }) {
 
 /* ------------------------------------------------------------------ document */
 
+/**
+ * The report's derived data, computed once per chart.
+ *
+ * Every value below used to be recomputed inside the component body, so each
+ * re-render repeated the whole set — including a decade of eclipse searching.
+ * A chart object is immutable once computed, so the bundle can be reused.
+ */
+const reportDataCache = new WeakMap<object, any>();
+
+function reportData(chart: JyotishaChart): any {
+  const hit = reportDataCache.get(chart as any);
+  if (hit) return hit;
+  const bd = chart.meta.birthDetails;
+  const safe = (fn: () => any) => { try { return fn(); } catch { return null; } };
+
+  const data: any = {
+    avakahada: safe(() => calculateAvakahadaChakra(chart)),
+    bhavaBala: safe(() => calculateBhavaBala(chart as any)),
+    phala: safe(() => calculatePhala(chart as any)),
+    vimshopaka: safe(() => calculateVimshopakaBala(chart.vargas)),
+    extended: safe(() => {
+      const birth = new Date(Date.UTC(
+        bd.year, bd.month - 1, bd.day,
+        Math.round(bd.hour - (bd.timezoneOffsetHours ?? 0)), bd.minute, bd.second
+      ));
+      return calculateAllExtendedDashas(chart as any, birth);
+    }),
+    sudarshana: safe(() => {
+      const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
+      return calculateSudarshanaChakra(chart as any, { yearOfLife });
+    }),
+    eclipses: safe(() => {
+      const fromExport: any = (buildChartExport(chart as any) as any)?.eclipses;
+      if (Array.isArray(fromExport?.events) && fromExport.events.length) return fromExport.events;
+      return findEclipses({
+        from: { year: bd.year, month: 1, day: 1 },
+        to: { year: bd.year + 10, month: 12, day: 31 },
+        latitude: bd.latitude, longitude: bd.longitude,
+        timezoneOffsetHours: bd.timezoneOffsetHours,
+        ayanamshaType: (chart.meta as any).ayanamshaType,
+        maxResults: 40,
+      });
+    }),
+    doubleTransit: safe(() =>
+      calculateDoubleTransit(chart.lagna.rashiNumber, new Date(), (chart.meta as any).ayanamshaType)),
+    kpRuling: safe(() => calculateRulingPlanets(
+      new Date(), bd.latitude, bd.longitude, bd.timezoneOffsetHours, (chart.meta as any).ayanamshaType)),
+  };
+  reportDataCache.set(chart as any, data);
+  return data;
+}
+
 export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const bd = chart.meta.birthDetails;
   const p2 = (n: number) => String(n).padStart(2, '0');
@@ -726,13 +779,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
     .join('  ·  ');
 
   const vargas = Object.values(chart.vargas || {}) as any[];
-  const av: any = (() => {
-    try {
-      return calculateAvakahadaChakra(chart);
-    } catch {
-      return null;
-    }
-  })();
+  const av: any = cached.avakahada;
   const pn: any = chart.panchanga;
   const tree: any[] = (chart.vimshottari as any)?.tree || [];
   const sav: number[] = (chart.ashtakavarga as any)?.sav?.bindusByRashi || [];
@@ -741,40 +788,19 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   // carries every section the workspace shows. Each is guarded: a failure in one
   // drops that section rather than the whole document.
   const safe = (fn: () => any) => { try { return fn(); } catch { return null; } };
-  const bhavaBala: any = safe(() => calculateBhavaBala(chart as any));
-  const phala: any = safe(() => calculatePhala(chart as any));
-  const vimshopaka: any = safe(() => calculateVimshopakaBala(chart.vargas));
-  const extended: any = safe(() => {
-    const b = chart.meta.birthDetails;
-    const birth = new Date(Date.UTC(
-      b.year, b.month - 1, b.day,
-      Math.round(b.hour - (b.timezoneOffsetHours ?? 0)), b.minute, b.second
-    ));
-    return calculateAllExtendedDashas(chart as any, birth);
-  });
+  const cached = reportData(chart);
+  const bhavaBala: any = cached.bhavaBala;
+  const phala: any = cached.phala;
+  const vimshopaka: any = cached.vimshopaka;
+  const extended: any = cached.extended;
   const dispositorRelations: any[] = ((chart as any).dispositorRelations || []);
   const relationshipSummary: any = ((chart as any).relationships?.summary) || null;
   const natalAttributes: any = ((chart as any).attributes) || null;
-  const sudarshana: any = safe(() => {
-    const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
-    return calculateSudarshanaChakra(chart as any, { yearOfLife });
-  });
-  const eclipses: any[] = safe(() => {
-    const y = bd.year;
-    return findEclipses({
-      from: { year: y, month: 1, day: 1 },
-      to: { year: y + 10, month: 12, day: 31 },
-      latitude: bd.latitude, longitude: bd.longitude,
-      timezoneOffsetHours: bd.timezoneOffsetHours,
-      ayanamshaType: (chart.meta as any).ayanamshaType,
-      maxResults: 40,
-    });
-  }) || [];
-  const doubleTransit: any = safe(() =>
-    calculateDoubleTransit(chart.lagna.rashiNumber, new Date(), (chart.meta as any).ayanamshaType));
+  const sudarshana: any = cached.sudarshana;
+  const eclipses: any[] = cached.eclipses || [];
+  const doubleTransit: any = cached.doubleTransit;
   const argalaList: any[] = ((chart as any).argala || []);
-  const kpRuling: any = safe(() => calculateRulingPlanets(
-    new Date(), bd.latitude, bd.longitude, bd.timezoneOffsetHours, (chart.meta as any).ayanamshaType));
+  const kpRuling: any = cached.kpRuling;
   const kpPromises: any[] = safe(() =>
     Object.entries(KP_MATTERS).map(([key, m]: any) => {
       const primary = m.matter[0] ?? 1;
