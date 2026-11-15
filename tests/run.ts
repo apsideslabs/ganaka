@@ -2603,6 +2603,63 @@ console.log('\n== NB vs NBRY ==');
     noNav.every((r) => r.navamsaDignity === undefined));
 }
 
+/* ------------------------ YOGA COVERAGE AGAINST THE CLASSICAL SET */
+
+console.log('\n== Yoga coverage ==');
+{
+  const all: any[] = CLASSICAL_YOGA_REGISTRY as any;
+
+  // The three categories the checklist names must all be present.
+  const nitya = 27;  // computed from Sun+Moon in the panchanga, not here
+  check('the 27 Nitya yogas are tabulated', NITYA_YOGAS.length === nitya, String(NITYA_YOGAS.length));
+  check('the Nitya list has no duplicate names',
+    new Set(NITYA_YOGAS.map((y: any) => y.name)).size === nitya);
+
+  // Nabhasa: BPHS 35 gives 32 — 3 Āśraya, 2 Dala, 20 Ākṛti, 7 Saṅkhyā.
+  const nabhasa = all.filter((y) => y.category === 'Nabhasa');
+  check('Nabhasa has exactly 32 yogas', nabhasa.length === 32, String(nabhasa.length));
+  check('all 32 Nabhasa names are distinct',
+    new Set(nabhasa.map((y) => y.name.split(' (')[0].split(' /')[0].trim())).size === 32);
+
+  // The twenty Akriti must all be there, by name.
+  const akritiNames = ['Gada', 'Sakata', 'Sringataka', 'Vihaga', 'Hala', 'Vajra', 'Yava',
+    'Kamala', 'Vapi', 'Yupa', 'Shara', 'Shakti', 'Danda', 'Nauka', 'Kuta', 'Chatra',
+    'Chapa', 'Ardhachandra', 'Chakra', 'Samudra'];
+  // Consonant skeleton: collapses transliteration variants (Capa/Chapa,
+  // Cakra/Chakra, Sringataka/Srngataka) so a spelling is not read as a gap.
+  const norm = (x: string) => x.toLowerCase().normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ch/g, 'c').replace(/sh/g, 's').replace(/th/g, 't').replace(/ph/g, 'p')
+    .replace(/[^a-z]/g, '');
+  const nabhasaNames = nabhasa.map((y) => norm(y.name + ' ' + y.id));
+  const missingAkriti = akritiNames.filter((n) => !nabhasaNames.some((x) => x.includes(norm(n))));
+  check('all twenty Akriti yogas are present', missingAkriti.length === 0, missingAkriti.join(','));
+
+  // The classical families.
+  const cats = new Set(all.map((y) => y.category));
+  for (const c of ['Nabhasa', 'Raja', 'Dhana', 'Chandra', 'Surya', 'Viparita', 'Parivartana']) {
+    check(`the ${c} family exists`, cats.has(c), [...cats].join(','));
+  }
+  check('all three Parivartana types are present',
+    all.filter((y) => y.category === 'Parivartana').length === 3,
+    String(all.filter((y) => y.category === 'Parivartana').length));
+  check('all three Viparita types are present',
+    all.filter((y) => y.category === 'Viparita').length === 3);
+  check('all five Pancha Mahapurusha yogas are present',
+    all.filter((y) => y.category === 'Pancha Mahapurusha').length === 5);
+
+  // The registry must be well-formed: unique ids, every one evaluable.
+  check('every yoga id is unique', new Set(all.map((y) => y.id)).size === all.length);
+  check('every yoga has a source and a verse',
+    all.every((y) => typeof y.sourceText === 'string' && typeof y.chapterAndVerse === 'string'));
+  check('every yoga is evaluable', all.every((y) => typeof y.evaluate === 'function'));
+  check('the registry is substantial', all.length >= 100, String(all.length));
+
+  // Nabhasa uses only the seven non-node grahas — Rahu and Ketu must not count.
+  check('the Nabhasa set is built on seven grahas',
+    !JSON.stringify(nabhasa.map((y) => y.definition)).includes('Rahu'));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
