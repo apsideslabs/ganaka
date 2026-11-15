@@ -2753,6 +2753,60 @@ console.log('\n== Export size ==');
   check('the KP layer survives', e.kp.cusps.length === 12);
 }
 
+/* --------------- BIRTH TIME IS UNAMBIGUOUS IN THE EXPORT --------- */
+
+console.log('\n== Birth time never ambiguous ==');
+{
+  const mk = (hour: number) => {
+    const c: any = calculateFullJyotishaChart({
+      year: 2009, month: 3, day: 3, hour, minute: 51, second: 24,
+      latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X',
+    });
+    return { c, b: (buildChartExport(c) as any).birth };
+  };
+
+  // The meridiem boundary is where a 12-hour reading goes wrong.
+  const cases: Array<[number, string, string]> = [
+    [0,  '00:51:24', '12:51:24 AM'],
+    [1,  '01:51:24', '01:51:24 AM'],
+    [11, '11:51:24', '11:51:24 AM'],
+    [12, '12:51:24', '12:51:24 PM'],
+    [13, '13:51:24', '01:51:24 PM'],
+    [23, '23:51:24', '11:51:24 PM'],
+  ];
+  for (const [hour, t24, t12] of cases) {
+    const { b } = mk(hour);
+    check(`hour ${hour} states time24 correctly`, b.time24 === t24, b.time24);
+    check(`hour ${hour} states time12 correctly`, b.time12 === t12, b.time12);
+    check(`hour ${hour} keeps the raw number`, b.hour === hour);
+  }
+
+  // 23:51 IST must be 18:21 UTC, not 06:21.
+  const { b: pm } = mk(23);
+  check('23:51 IST is 18:21 UTC', pm.utcInstant === '2009-03-03T18:21:24.000Z', pm.utcInstant);
+  const { b: am } = mk(11);
+  check('11:51 IST is 06:21 UTC', am.utcInstant === '2009-03-03T06:21:24.000Z', am.utcInstant);
+  check('the two are twelve hours apart',
+    Math.abs(new Date(pm.utcInstant).getTime() - new Date(am.utcInstant).getTime()) === 12 * 3600 * 1000);
+  check('the time zone is stated', pm.timeZone === 'UTC+05:30', pm.timeZone);
+
+  // And the chart itself must differ — the ascendant moves a whole sign.
+  const { c: c23 } = mk(23);
+  const { c: c11 } = mk(11);
+  check('23:51 and 11:51 give different lagna signs',
+    c23.lagna.rashiNumber !== c11.lagna.rashiNumber,
+    `${c23.lagna.rashiName} vs ${c11.lagna.rashiName}`);
+  check('23:51 gives Vṛścika for this fixture', c23.lagna.rashiName === 'Vṛścika', c23.lagna.rashiName);
+
+  // The conventions block must exist and explain the time.
+  const e: any = buildChartExport(c23);
+  check('the export carries a conventions block', !!e.conventions);
+  check('it explains the time format', /24-hour/i.test(e.conventions.time));
+  check('it states the longitudes are sidereal', /sidereal/i.test(e.conventions.longitudes));
+  check('it explains rashi numbering', /Meṣa|Aries/i.test(e.conventions.rashis));
+  check('it warns that a varga has its own houses', /varga/i.test(e.conventions.houses));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
