@@ -14,10 +14,20 @@
  *
  * Two cautions the sources are explicit about, and this module honours:
  *
- *   1. A cancellation is NOT a Rāja Yoga. Phaladīpikā files these among the
- *      rāja yogas, but a cancelled debilitation only restores the graha to
- *      working strength; whether it elevates depends on the houses it rules,
- *      its Navāṃśa, and its daśā. Nothing here claims elevation.
+ *   1. A cancellation is NOT by itself a Rāja Yoga, and the difference has a
+ *      rule. Practice — Jagannātha Horā's own guidance, and the wider
+ *      commentarial tradition — adds a precondition for the rāja grade: the
+ *      cancelled graha must LORD a kendra (1/4/7/10) or trikoṇa (5/9). A graha
+ *      that rules only duṣṭhānas (3/6/8/11/12) has its weakness repaired and
+ *      nothing more, because the houses it governs carry no rāja-yoga potential.
+ *      Two further supports are recorded: whether the graha is exalted or in its
+ *      own sign in the Navāṃśa (the tradition's most reliable single
+ *      confirmation), and how many cancellation conditions fire.
+ *
+ *      So this module returns a VERDICT — 'none', 'NB' or 'NBRY' — rather than
+ *      a bare boolean. NB is the cancellation; NBRY is the cancellation plus
+ *      the lordship that lets it be read as royal. Daśā timing is a fourth
+ *      condition and is not chart-static, so it is reported as unchecked.
  *
  *   2. When the Lagna and the Moon share a sign, a kendra from one is a kendra
  *      from the other. Counting both would inflate the tally, so the pair is
@@ -48,6 +58,14 @@ export interface NeechaBhangaResult {
   planetName: string;
   rashiNumber: RashiNumber;
   rashiName: string;
+  /**
+   * 'none'  no cancellation condition holds
+   * 'NB'    cancelled, but the graha lords no kendra or trikoṇa — the weakness
+   *         is repaired and nothing more
+   * 'NBRY'  cancelled AND the graha lords a kendra or trikoṇa, so the
+   *         cancellation can be read as a rāja yoga
+   */
+  verdict: 'none' | 'NB' | 'NBRY';
   /** True when at least one condition holds. */
   cancelled: boolean;
   /** How many distinct conditions hold — more is a firmer cancellation. */
@@ -55,6 +73,16 @@ export interface NeechaBhangaResult {
   conditions: BhangaCondition[];
   /** The conditions that actually hold, named. */
   reasons: string[];
+  /** The houses this graha rules, from the varga lagna. */
+  ruledHouses: number[];
+  /** True when it rules at least one kendra (1/4/7/10) or trikoṇa (5/9). */
+  lordsKendraOrTrikona: boolean;
+  /** Its dignity in the Navāṃśa, when D-9 is supplied. */
+  navamsaDignity?: string;
+  /** Exalted or own sign in D-9 — the tradition's strongest single confirmation. */
+  navamsaConfirmed: boolean;
+  /** The fourth condition, which is not chart-static. */
+  dashaChecked: false;
   note: string;
 }
 
@@ -86,6 +114,12 @@ export interface VargaPositions {
   lagnaRashi: number;
   /** House of each graha measured from the varga lagna. */
   moonHouse?: number;
+  /**
+   * The Navāṃśa positions, when this is a D-1 evaluation. Supplying them turns
+   * on the D-9 confirmation, which practice treats as the single most reliable
+   * check on whether a cancellation is real.
+   */
+  navamsa?: Record<string, { rashiNumber: number }>;
 }
 
 /**
@@ -232,18 +266,73 @@ export function evaluateNeechaBhanga(
 
   const reasons = conditions.filter((c) => c.met).map((c) => c.detail);
 
+  /**
+   * Which houses does this graha rule, from the varga lagna?
+   *
+   * A graha owns a house when it owns that house's sign. This is the
+   * precondition that separates a repair from a rāja yoga.
+   */
+  const ruledHouses: number[] = [];
+  for (let h = 1; h <= 12; h++) {
+    const rashiOfHouse = (((lagnaRashi - 1) + (h - 1)) % 12) + 1;
+    if (RASHIS[rashiOfHouse as RashiNumber]?.lord === planet) ruledHouses.push(h);
+  }
+  const lordsKendraOrTrikona = ruledHouses.some((h) => [1, 4, 5, 7, 9, 10].includes(h));
+
+  // Navāṃśa confirmation — exalted or own sign in D-9.
+  let navamsaDignity: string | undefined;
+  let navamsaConfirmed = false;
+  const nav = positions.navamsa?.[planet];
+  if (nav) {
+    if (nav.rashiNumber === prop.exaltationSign) {
+      navamsaDignity = 'Exalted (Ucca)';
+      navamsaConfirmed = true;
+    } else if ((prop.ownSigns ?? []).includes(nav.rashiNumber)) {
+      navamsaDignity = 'Own Sign (Swakshetra)';
+      navamsaConfirmed = true;
+    } else if (nav.rashiNumber === prop.debilitationSign) {
+      navamsaDignity = 'Debilitated (Neecha)';
+    } else {
+      navamsaDignity = 'Neither exalted nor own';
+    }
+  }
+
+  const cancelled = reasons.length > 0;
+  const verdict: 'none' | 'NB' | 'NBRY' = !cancelled
+    ? 'none'
+    : lordsKendraOrTrikona
+      ? 'NBRY'
+      : 'NB';
+
+  const note = !cancelled
+    ? 'None of the Phaladīpikā 7.26–30 conditions holds, so the debilitation stands uncancelled.'
+    : verdict === 'NBRY'
+      ? 'Cancelled, and the graha lords a kendra or trikoṇa — so the cancellation can be read as a rāja yoga. '
+        + (navamsaConfirmed
+          ? 'The Navāṃśa confirms it: the graha is ' + navamsaDignity + ' there, the tradition\'s strongest single check. '
+          : navamsaDignity
+            ? 'The Navāṃśa does not confirm it — ' + navamsaDignity + ' there — which weakens the reading. '
+            : '')
+        + 'Daśā timing is the fourth condition and is not checked here.'
+      : 'Cancelled, but this graha lords no kendra or trikoṇa — only duṣṭhānas. '
+        + 'The weakness is repaired; the houses it governs carry no rāja-yoga potential, so this is Nīcabhaṅga and not a rāja yoga.';
+
   return {
     planet,
     planetName: (prop.sanskritName as string) ?? planet,
     rashiNumber: p.rashiNumber as RashiNumber,
     rashiName: RASHIS[p.rashiNumber as RashiNumber]?.name ?? '',
-    cancelled: reasons.length > 0,
+    verdict,
+    cancelled,
     strength: reasons.length,
     conditions,
     reasons,
-    note: reasons.length === 0
-      ? 'None of the Phaladīpikā 7.26–30 conditions holds, so the debilitation stands uncancelled.'
-      : 'Cancellation restores the graha to working strength. It is not by itself a Rāja Yoga — elevation also depends on the houses it rules, its Navāṃśa and its daśā.',
+    ruledHouses,
+    lordsKendraOrTrikona,
+    navamsaDignity,
+    navamsaConfirmed,
+    dashaChecked: false,
+    note,
   };
 }
 
