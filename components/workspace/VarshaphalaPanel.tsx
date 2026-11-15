@@ -91,14 +91,14 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
             <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
             <h2 className="text-base font-serif font-bold text-slate-900">Varṣaphala — Annual Kuṇḍalī</h2>
           </div>
-          <p className="text-xs text-slate-500 max-w-2xl leading-relaxed">
+          <p className="text-[13px] text-slate-500 max-w-2xl leading-relaxed">
             The year's own chart, cast for the varṣapraveśa — the instant the Sun returns to its
             natal sidereal longitude. Tājika system, after the Tājika Nīlakaṇṭhī.
           </p>
         </div>
         <div className="flex items-end gap-3 shrink-0">
           <div>
-            <label htmlFor="varsha-year" className="block text-[9px] font-mono uppercase tracking-widest text-slate-400 mb-1">
+            <label htmlFor="varsha-year" className="block text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-1">
               Year of life
             </label>
             <input
@@ -118,16 +118,16 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
       <div className="bg-white border border-slate-200/90 rounded-2xl px-5 py-4 shadow-xs flex flex-wrap items-center gap-x-6 gap-y-2">
         <div className="flex items-center gap-2">
           <Sun className="w-4 h-4 text-[#8C2D19]" />
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Varṣapraveśa</span>
+          <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Varṣapraveśa</span>
         </div>
         <span className="font-serif font-bold text-slate-900">{returnDate}</span>
         <span className="font-mono text-sm text-slate-700">
           {pad(solarReturn.hour)}:{pad(solarReturn.minute)}:{pad(solarReturn.second)}
         </span>
-        <span className="text-xs text-slate-500">
+        <span className="text-[13px] text-slate-500">
           Sun returned to {result.natalSunLongitude.toFixed(4)}°
         </span>
-        <span className="text-[10px] font-mono text-slate-400">
+        <span className="text-[12px] font-mono text-slate-400">
           residual {result.residualArcsec.toFixed(2)}″
         </span>
       </div>
@@ -135,7 +135,7 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
       {/* ---------- the annual chart + its grahas ---------- */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             The year's kuṇḍalī
           </h3>
           <DivisionalChartDiagram
@@ -152,16 +152,16 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Grahas of the year
           </h3>
-          <table className="w-full text-xs">
+          <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-slate-200">
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Planet</th>
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Sign</th>
-                <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Degree</th>
-                <th className="text-center py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">House</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Planet</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Sign</th>
+                <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Degree</th>
+                <th className="text-center py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">House</th>
               </tr>
             </thead>
             <tbody>
@@ -172,7 +172,7 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
                   <tr key={id} className="border-b border-slate-100 last:border-0">
                     <td className="py-1.5 text-slate-700 whitespace-nowrap">
                       {GRAHA_LABEL[id] ?? id}
-                      {p.isRetrograde ? <span className="ml-1 text-[10px] text-[#8C2D19]">R</span> : null}
+                      {p.isRetrograde ? <span className="ml-1 text-[12px] text-[#8C2D19]">R</span> : null}
                     </td>
                     <td className="py-1.5 text-slate-600">{p.rashiName}</td>
                     <td className="py-1.5 text-right font-mono tabular-nums text-slate-600">{p.degreeStr}</td>
@@ -190,21 +190,21 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Compass className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Annual Lagna</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Annual Lagna</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">
             {RASHI_NAMES[annual.lagna.rashiNumber - 1]}
           </div>
-          <div className="text-xs text-slate-500 mt-0.5">{annual.lagna.degreeStr}</div>
+          <div className="text-[13px] text-slate-500 mt-0.5">{annual.lagna.degreeStr}</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Orbit className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Munthā</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Munthā</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">House {muntha.house}</div>
-          <div className="text-xs text-slate-500 mt-0.5">
+          <div className="text-[13px] text-slate-500 mt-0.5">
             in {muntha.rashiName} · natal house {muntha.natalHouse}
           </div>
         </div>
@@ -212,10 +212,10 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Award className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Varṣeśa</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Varṣeśa</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">{varshesha.lordName}</div>
-          <div className="text-xs text-slate-500 mt-0.5">
+          <div className="text-[13px] text-slate-500 mt-0.5">
             {varshesha.sanskritName} · {varshesha.scores[0].points}/25 pañcavargīya
           </div>
         </div>
@@ -223,15 +223,15 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
 
       {/* ---------- varshesha election ---------- */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
           Pañcavargīya Bala — election of the varṣeśa
         </h3>
-        <table className="w-full text-xs">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Graha</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Points</th>
-              <th className="text-left py-2 pl-4 font-mono text-[9px] uppercase tracking-wider text-slate-400 w-1/2">Strength</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Graha</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Points</th>
+              <th className="text-left py-2 pl-4 font-mono text-[11px] uppercase tracking-wider text-slate-400 w-1/2">Strength</th>
             </tr>
           </thead>
           <tbody>
@@ -260,16 +260,16 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
 
       {/* ---------- sahams ---------- */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
           Sahams — sensitive points of the year
         </h3>
-        <table className="w-full text-xs">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Saham</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Sign</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Longitude</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">House</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Saham</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Sign</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Longitude</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">House</th>
             </tr>
           </thead>
           <tbody>
