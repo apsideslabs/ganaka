@@ -15,6 +15,8 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { CLASSICAL_YOGA_REGISTRY } from '../lib/yogas/yoga-engine';
+import { NITYA_YOGAS } from '../lib/jyotisha/panchanga';
 import { calculateAshtakavarga } from '../lib/ashtakavarga/ashtakavarga';
 import { NAKSHATRA_NAMAKSHARAS, NAKSHATRA_YONIS, NAKSHATRA_RAJJUS } from '../lib/jyotisha/avakahada';
 import { calculateSudarshanaChakra, sudarshanaHouseForYear } from '../lib/jyotisha/sudarshana';
