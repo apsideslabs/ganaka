@@ -2397,6 +2397,51 @@ console.log('\n== Neecha bhanga ==');
   }
 }
 
+/* ------------- NEECHA BHANGA APPEARS ONLY WHEN DEBILITATION EXISTS */
+
+console.log('\n== Neecha bhanga presence rule ==');
+{
+  // The D-1 block must be driven by data, not always rendered.
+  const withDebilitation: any = calculateFullJyotishaChart({
+    year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X',
+  });
+  const pos = (c: any) => ({
+    lagnaRashi: c.lagna.rashiNumber,
+    planets: Object.fromEntries(
+      Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+    ),
+  });
+  const res = evaluateAllNeechaBhanga(pos(withDebilitation) as any);
+  check('a chart with a debilitated graha yields a result', res.length > 0, String(res.length));
+  check('the debilitated graha is named', res.every((r) => typeof r.planetName === 'string' && r.planetName.length > 0));
+
+  // Every reported graha really is debilitated.
+  for (const r of res) {
+    const prop = (GRAHA_PROPERTIES as any)[r.planet];
+    check(`${r.planet} is genuinely debilitated`, r.rashiNumber === prop.debilitationSign);
+  }
+
+  // Each verdict must be unambiguous: forms, or does not.
+  check('each result states a definite verdict',
+    res.every((r) => r.cancelled === (r.strength > 0)));
+  check('a cancelled graha names at least one condition',
+    res.filter((r) => r.cancelled).every((r) => r.reasons.length > 0));
+  check('an uncancelled graha names no conditions',
+    res.filter((r) => !r.cancelled).every((r) => r.reasons.length === 0));
+  check('an uncancelled graha says so plainly',
+    res.filter((r) => !r.cancelled).every((r) => /uncancelled|stands/i.test(r.note)));
+
+  // A chart where nothing is debilitated must yield an empty list, so the
+  // panel hides the block rather than showing an empty frame.
+  const noDebilitation: any = calculateFullJyotishaChart({
+    year: 1955, month: 2, day: 24, hour: 19, minute: 15, second: 0,
+    latitude: 37.7749, longitude: -122.4194, timezoneOffsetHours: -8, locationName: 'X',
+  });
+  const none = evaluateAllNeechaBhanga(pos(noDebilitation) as any);
+  check('a chart with no debilitation yields an empty list', none.length === 0, String(none.length));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
