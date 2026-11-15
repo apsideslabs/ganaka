@@ -26,6 +26,7 @@ import { calculateKpAspects } from '@/lib/kp/aspects';
 import { housesSignified } from '@/lib/kp/significators';
 import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { siddhanticResiduals } from '@/lib/astronomy/siddhantic';
+import { noRemedyReason } from '@/lib/doshas/classical-remedies';
 import { assessTimeSensitivity } from '@/lib/jyotisha/time-sensitivity';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
@@ -445,7 +446,15 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     for (const d of ((chart.doshas as any)?.evaluatedDoshas ?? [])) {
       // The workspace panel shows remedies only for doṣas that actually formed.
       if (d?.formationStatus !== 'Formed') continue;
-      if (!Array.isArray(d?.remedies) || d.remedies.length === 0) continue;
+      if (!Array.isArray(d?.remedies) || d.remedies.length === 0) {
+        // A formed doṣa with no rite is reported as such, so the absence reads
+        // as "none prescribed" rather than as an oversight.
+        const why = noRemedyReason(d.id);
+        if (why) {
+          out.push({ doshaId: d.id, doshaName: d.name, formationStatus: d.formationStatus, noRemedyPrescribed: true, reason: why });
+        }
+        continue;
+      }
       for (const r of d.remedies) {
         out.push({
           doshaId: d.id,
