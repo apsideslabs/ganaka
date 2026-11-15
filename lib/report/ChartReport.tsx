@@ -1230,21 +1230,21 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
           <RunningHead chapter="Yogas" identity={identity} />
           <ChapterTitle num={10}>Yogas</ChapterTitle>
           <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
-            {formedYogas.length} classical combinations detected. Each carries its source and
-            verse in the workspace; only the formed ones are listed here. A name marked * is
-            flagged by the engine as an unverified reading rather than a settled rule.
+            {formedYogas.length} classical combinations detected. Only the formed ones are listed.
+            A name marked * is flagged by the engine as an unverified reading rather than a
+            settled rule.
           </Text>
           <Table
             cols={[
-              { label: 'Yoga', width: 34 },
-              { label: 'Source', width: 24 },
-              { label: 'Verse', width: 20 },
-              { label: 'Strength', width: 22 },
+              { label: 'Yoga', width: 38 },
+              { label: 'Category', width: 20 },
+              { label: 'Grahas', width: 26 },
+              { label: 'Strength', width: 16 },
             ]}
             rows={formedYogas.map((y: any) => [
               `${y.name || y.id || '—'}${y.isUnverified ? ' *' : ''}`,
-              y.sourceText || '—',
-              y.chapterAndVerse || '—',
+              y.category || '—',
+              Array.isArray(y.involvedPlanets) ? y.involvedPlanets.join(', ') || '—' : '—',
               y.strengthRating || y.strength || '—',
             ])}
           />
@@ -1795,10 +1795,10 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             </Text>
             <Table
               cols={[
-                { label: 'Doṣa', width: 34 },
-                { label: 'Status', width: 18 },
+                { label: 'Doṣa', width: 38 },
+                { label: 'Status', width: 16 },
                 { label: 'Severity', width: 14 },
-                { label: 'Source', width: 34 },
+                { label: 'Grahas', width: 32 },
               ]}
               rows={(chart as any).doshas.evaluatedDoshas
                 .filter((d: any) => d.formationStatus !== 'Not Formed')
@@ -1806,8 +1806,10 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
                   d.name,
                   d.formationStatus,
                   d.severity,
-                  // The checklist asks that every result show the rule behind it.
-                  d.primarySource?.verseOrShloka || d.primarySource?.chapter || '—',
+                  // What formed it, not the verse it comes from.
+                  Array.isArray(d.involvedPlanets) && d.involvedPlanets.length
+                    ? d.involvedPlanets.join(', ')
+                    : '—',
                 ])}
             />
           </>
