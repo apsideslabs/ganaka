@@ -505,13 +505,13 @@ export function AshtakavargaPanel({
           <h2 id="ashtakavarga-main-title" className="font-serif text-xl font-bold tracking-tight text-[#2B1810]">
             Aṣṭakavarga &amp; Śodhana Bindu Architecture
           </h2>
-          <p className="font-sans text-xs text-[#6B5E51]">
+          <p className="font-sans text-[13px] text-[#6B5E51]">
             12-House Kuṇḍalī, Bhinnāṣṭakavarga (BAV), Sarvāṣṭakavarga (SAV 337), Śodhya Piṇḍa &amp; Kakshās
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-xs">
+          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-[13px]">
             <button
               onClick={() => setViewMode('chart')}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1 font-semibold transition-all ${
@@ -550,7 +550,7 @@ export function AshtakavargaPanel({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Left: Label & Dropdown Popover */}
           <div className="flex items-center gap-2.5 relative" ref={vargaDropdownRef}>
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#8C2D19] shrink-0">
+            <div className="flex items-center gap-1.5 text-[13px] font-bold uppercase tracking-wider text-[#8C2D19] shrink-0">
               <Layers className="w-4 h-4 text-[#8C2D19]" />
               <span>Divisional Chart SAV:</span>
             </div>
@@ -561,12 +561,12 @@ export function AshtakavargaPanel({
                 type="button"
                 id="btn-varga-dropdown-toggle"
                 onClick={() => setIsVargaDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#D8CEBA] bg-white text-xs font-serif font-bold text-[#2B1810] shadow-xs hover:border-[#8C2D19] transition-all cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#D8CEBA] bg-white text-[13px] font-serif font-bold text-[#2B1810] shadow-xs hover:border-[#8C2D19] transition-all cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-[#8C2D19]" />
                 <span className="text-[#8C2D19] font-mono">{activeVargaId}</span>
                 <span>— {currentVargaInfo.name} ({currentVargaInfo.sanskritName})</span>
-                <span className="text-[10px] text-[#6B5E51] font-sans font-normal border-l border-[#D8CEBA] pl-2 hidden sm:inline">
+                <span className="text-[12px] text-[#6B5E51] font-sans font-normal border-l border-[#D8CEBA] pl-2 hidden sm:inline">
                   Lagna: {RASHIS[lagnaRashi]?.sanskritName} (#{lagnaRashi})
                 </span>
                 <ChevronDown className={`w-3.5 h-3.5 text-[#8C2D19] transition-transform ${isVargaDropdownOpen ? 'rotate-180' : ''}`} />
@@ -580,7 +580,7 @@ export function AshtakavargaPanel({
                 >
                   {/* Top Item: D1 Rasi (Default / Root) */}
                   <div className="pb-2">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#7A6B5C] px-3 py-1">
+                    <div className="text-[12px] font-bold uppercase tracking-wider text-[#7A6B5C] px-3 py-1">
                       Root Natal Base (D1)
                     </div>
                     <button
@@ -592,10 +592,10 @@ export function AshtakavargaPanel({
                       }`}
                     >
                       <div>
-                        <div className="font-serif text-xs flex items-center gap-1.5">
+                        <div className="font-serif text-[13px] flex items-center gap-1.5">
                           <span className="font-mono font-bold">D1</span>
                           <span>— Rāśi (राशि)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-sans font-semibold ${
+                          <span className={`text-[12px] px-1.5 py-0.2 rounded font-sans font-semibold ${
                             activeVargaId === 'D1' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-900'
                           }`}>
                             Root Default
@@ -605,7 +605,7 @@ export function AshtakavargaPanel({
                           Physical body, general existence, life path
                         </div>
                       </div>
-                      <div className={`text-[10px] font-mono shrink-0 pl-2 ${activeVargaId === 'D1' ? 'text-white' : 'text-[#8C2D19]'}`}>
+                      <div className={`text-[12px] font-mono shrink-0 pl-2 ${activeVargaId === 'D1' ? 'text-white' : 'text-[#8C2D19]'}`}>
                         H1 = {RASHIS[allVargasData['D1']?.lagnaRashi || 1]?.sanskritName}
                       </div>
                     </button>
@@ -613,7 +613,7 @@ export function AshtakavargaPanel({
 
                   {/* All Other Divisional Charts D2 through D60 */}
                   <div className="pt-2 space-y-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#7A6B5C] px-3 py-1">
+                    <div className="text-[12px] font-bold uppercase tracking-wider text-[#7A6B5C] px-3 py-1">
                       Harmonic Divisional Charts (D2–D60)
                     </div>
                     {ALL_VARGA_IDS.filter((v) => v !== 'D1').map((vId) => {
@@ -630,10 +630,10 @@ export function AshtakavargaPanel({
                           }`}
                         >
                           <div>
-                            <div className="font-serif text-xs flex items-center gap-1.5">
+                            <div className="font-serif text-[13px] flex items-center gap-1.5">
                               <span className="font-mono font-bold">{vId}</span>
                               <span>— {vInfo.name} ({vInfo.sanskritName})</span>
-                              <span className={`text-[10px] font-mono ${isSelected ? 'text-amber-100' : 'text-slate-400'}`}>
+                              <span className={`text-[12px] font-mono ${isSelected ? 'text-amber-100' : 'text-slate-400'}`}>
                                 1/{vInfo.factor}
                               </span>
                             </div>
@@ -641,7 +641,7 @@ export function AshtakavargaPanel({
                               {vInfo.significance}
                             </div>
                           </div>
-                          <div className={`text-[10px] font-mono shrink-0 pl-2 ${isSelected ? 'text-white' : 'text-[#8C2D19]'}`}>
+                          <div className={`text-[12px] font-mono shrink-0 pl-2 ${isSelected ? 'text-white' : 'text-[#8C2D19]'}`}>
                             H1 = {RASHIS[vInfo.lagnaRashi]?.sanskritName}
                           </div>
                         </button>
@@ -664,7 +664,7 @@ export function AshtakavargaPanel({
                   type="button"
                   id={`btn-quick-varga-${vId.toLowerCase()}`}
                   onClick={() => handleSelectVarga(vId as VargaId)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-xs'
                       : 'bg-white border border-[#D8CEBA] text-[#4A3B32] hover:bg-[#F2EADC]'
@@ -673,7 +673,7 @@ export function AshtakavargaPanel({
                 >
                   <span className="font-mono font-bold">{vId}</span>
                   <span className="ml-1 font-serif text-[11px]">{def?.name}</span>
-                  {vId === 'D1' && <span className="ml-1 text-[9px] opacity-80">(Default)</span>}
+                  {vId === 'D1' && <span className="ml-1 text-[11px] opacity-80">(Default)</span>}
                 </button>
               );
             })}
@@ -681,7 +681,7 @@ export function AshtakavargaPanel({
         </div>
 
         {/* Informative Status Strip */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-[#D8CEBA]/60 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-[#D8CEBA]/60 text-[13px]">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-[#2B1810]">
               {activeVargaId === 'D1' ? 'D1 Rāśi SAV (Root Base)' : `${activeVargaId} ${currentVargaInfo.name} SAV`}:
@@ -728,13 +728,13 @@ export function AshtakavargaPanel({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#FAF6EE] p-4 rounded-xl border border-[#D8CEBA] shadow-xs">
             {/* Target Selector: SAV or Individual Planet */}
             <div className="space-y-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#7A6B5C] block">
+              <span className="text-[13px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
                 Select Ashtakavarga Target (Houses 1–12):
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   onClick={() => setChartGraha('sav')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-[13px] font-serif font-bold transition-all ${
                     chartGraha === 'sav'
                       ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-sm ring-1 ring-[#8C2D19]'
                       : 'bg-[#F2EADC] text-[#2B1810] hover:bg-[#EAE0D0]'
@@ -750,7 +750,7 @@ export function AshtakavargaPanel({
                     <button
                       key={g}
                       onClick={() => setChartGraha(g)}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-serif font-semibold transition-all ${
+                      className={`px-2.5 py-1.5 rounded-lg text-[13px] font-serif font-semibold transition-all ${
                         isSelected
                           ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-sm ring-1 ring-[#8C2D19]'
                           : 'bg-[#F2EADC] text-[#4A3B32] hover:bg-[#EAE0D0]'
@@ -765,7 +765,7 @@ export function AshtakavargaPanel({
 
             {/* Chart Style & Export Buttons */}
             <div className="flex items-center gap-2 self-start md:self-auto">
-              <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 text-xs">
+              <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 text-[13px]">
                 <button
                   onClick={() => setChartStyle('north')}
                   className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
@@ -794,7 +794,7 @@ export function AshtakavargaPanel({
 
               <button
                 onClick={() => downloadChartAsSvg(svgRef.current, `ashtakavarga-12houses-${chartGraha}-${chartStyle}`)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#D8CEBA] bg-[#FDFBF7] text-[#4A3B32] hover:bg-[#F2EADC] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold rounded-lg border border-[#D8CEBA] bg-[#FDFBF7] text-[#4A3B32] hover:bg-[#F2EADC] transition-colors"
                 title="Download Chart Vector Image"
               >
                 <Download className="w-3.5 h-3.5 text-[#8C2D19]" />
@@ -804,7 +804,7 @@ export function AshtakavargaPanel({
           </div>
 
           {/* Architectural Notice: Varga SAV Calculation & Integrity */}
-          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[13px] text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="font-bold">
                 {activeVargaId === 'D1'
@@ -828,98 +828,98 @@ export function AshtakavargaPanel({
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
             {/* Total Points */}
             <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
                 Total Score
               </span>
               <div className="font-mono text-xl font-bold text-[#8C2D19] mt-0.5">
-                {totalPoints} <span className="text-xs font-normal text-[#6B5E51]">pts</span>
+                {totalPoints} <span className="text-[13px] font-normal text-[#6B5E51]">pts</span>
               </div>
-              <span className="text-[10px] text-[#8A7968] block mt-0.5">
+              <span className="text-[12px] text-[#8A7968] block mt-0.5">
                 {chartGraha === 'sav' ? 'Out of 337 standard' : `Avg ${averagePoints.toFixed(1)} / house`}
               </span>
             </div>
 
             {/* Average Points */}
             <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
                 House Average
               </span>
               <div className="font-mono text-xl font-bold text-[#2B1810] mt-0.5">
-                {averagePoints.toFixed(1)} <span className="text-xs font-normal text-[#6B5E51]">pts</span>
+                {averagePoints.toFixed(1)} <span className="text-[13px] font-normal text-[#6B5E51]">pts</span>
               </div>
-              <span className="text-[10px] text-[#8A7968] block mt-0.5">
+              <span className="text-[12px] text-[#8A7968] block mt-0.5">
                 {chartGraha === 'sav' ? 'Baseline: 28.08 pts' : 'Baseline: ~4.0 pts'}
               </span>
             </div>
 
             {/* Highest House */}
             <div className="p-3 rounded-xl bg-[#EEF5E7] border border-[#C8D9B8]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#2D5A27] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#2D5A27] block">
                 Strongest House
               </span>
               <div className="font-serif text-sm font-bold text-[#1E6316] mt-0.5 truncate">
                 {strongestHouse ? `${strongestHouse.houseNum}${getOrdinal(strongestHouse.houseNum)} House (${strongestHouse.points} pts)` : '—'}
               </div>
-              <span className="text-[10px] text-[#2D5A27] block mt-0.5">
+              <span className="text-[12px] text-[#2D5A27] block mt-0.5">
                 {strongestHouse?.shortName}
               </span>
             </div>
 
             {/* Lowest House */}
             <div className="p-3 rounded-xl bg-[#FDF0EE] border border-[#E6BFB8]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#9C2216] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#9C2216] block">
                 Weakest House
               </span>
               <div className="font-serif text-sm font-bold text-[#A32417] mt-0.5 truncate">
                 {weakestHouse ? `${weakestHouse.houseNum}${getOrdinal(weakestHouse.houseNum)} House (${weakestHouse.points} pts)` : '—'}
               </div>
-              <span className="text-[10px] text-[#9C2216] block mt-0.5">
+              <span className="text-[12px] text-[#9C2216] block mt-0.5">
                 {weakestHouse?.shortName}
               </span>
             </div>
 
             {/* House Distribution (Green/Yellow/Red count) */}
             <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#7A6B5C] block">
                 Distribution
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-[#1E6316]">
+                <span className="inline-flex items-center gap-0.5 text-[13px] font-mono font-bold text-[#1E6316]">
                   <span className="w-2 h-2 rounded-full bg-[#16A34A]" /> {strongCount}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-[#8A5E08]">
+                <span className="inline-flex items-center gap-0.5 text-[13px] font-mono font-bold text-[#8A5E08]">
                   <span className="w-2 h-2 rounded-full bg-[#D97706]" /> {avgCount}
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-[#A32417]">
+                <span className="inline-flex items-center gap-0.5 text-[13px] font-mono font-bold text-[#A32417]">
                   <span className="w-2 h-2 rounded-full bg-[#DC2626]" /> {weakCount}
                 </span>
               </div>
-              <span className="text-[10px] text-[#8A7968] block mt-0.5">
+              <span className="text-[12px] text-[#8A7968] block mt-0.5">
                 Strong • Avg • Low
               </span>
             </div>
 
             {/* Parāśari Wealth Equation (H11 - H12) */}
             <div className="p-3 rounded-xl bg-[#F2EADC] border border-[#D8CEBA]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C2D19] block">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#8C2D19] block">
                 Dhana Balance
               </span>
               <div className={`font-mono text-base font-bold mt-0.5 ${labhaVyayaBalance >= 0 ? 'text-[#1E6316]' : 'text-[#A32417]'}`}>
                 {labhaVyayaBalance >= 0 ? `+${labhaVyayaBalance} pts surplus` : `${labhaVyayaBalance} pts deficit`}
               </div>
-              <span className="text-[10px] text-[#6B5E51] block mt-0.5">
+              <span className="text-[12px] text-[#6B5E51] block mt-0.5">
                 H11 ({h11?.points}) vs H12 ({h12?.points})
               </span>
             </div>
           </div>
 
           {/* Color Threshold Legend */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA] text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA] text-[13px]">
             <div className="flex items-center gap-1.5 font-medium text-[#4A3B32]">
               <Sparkles className="w-4 h-4 text-[#8C2D19]" />
               <span className="font-semibold">Highlight Thresholds:</span>
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
+            <div className="flex flex-wrap items-center gap-4 text-[13px] font-medium">
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-[#16A34A] ring-2 ring-[#DCF2D5]" />
                 <span className="text-[#1E6316] font-semibold">Green (Auspicious / Strong)</span>
@@ -942,7 +942,7 @@ export function AshtakavargaPanel({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* SVG Chart Column (7 cols on lg) */}
             <div className="lg:col-span-7 flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl bg-[#FAF6EE] border border-[#D8CEBA] shadow-sm">
-              <div className="w-full flex items-center justify-between mb-3 text-xs text-[#6B5E51] border-b border-[#E6DEC8] pb-2">
+              <div className="w-full flex items-center justify-between mb-3 text-[13px] text-[#6B5E51] border-b border-[#E6DEC8] pb-2">
                 <span className="font-serif font-bold text-sm text-[#2B1810]">
                   {currentChartTitle}
                 </span>
@@ -974,13 +974,13 @@ export function AshtakavargaPanel({
                 {/* Inspector Header */}
                 <div className="flex items-start justify-between gap-3 border-b border-[#E6DEC8] pb-3">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C2D19] block">
+                    <span className="text-[12px] font-bold uppercase tracking-wider text-[#8C2D19] block">
                       Active House Inspector
                     </span>
                     <h3 className="font-serif text-lg font-bold text-[#2B1810] mt-0.5">
                       {activeHouseData.houseNum}{getOrdinal(activeHouseData.houseNum)} House • {activeBhavaDef.sanskrit} Bhāva
                     </h3>
-                    <p className="text-xs text-[#6B5E51]">
+                    <p className="text-[13px] text-[#6B5E51]">
                       {activeBhavaDef.english} • Rāśi: {activeHouseData.rashiName} (Lord {activeHouseData.rashiLord})
                     </p>
                   </div>
@@ -988,7 +988,7 @@ export function AshtakavargaPanel({
                   {/* Points Badge */}
                   <div className="text-right">
                     <span
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-bold shadow-xs"
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[13px] font-mono font-bold shadow-xs"
                       style={{
                         backgroundColor: activeHouseData.statusColor.badgeBg,
                         color: activeHouseData.statusColor.text,
@@ -1001,14 +1001,14 @@ export function AshtakavargaPanel({
                       />
                       {activeHouseData.points} pts
                     </span>
-                    <span className="text-[10px] block mt-1 font-semibold capitalize" style={{ color: activeHouseData.statusColor.text }}>
+                    <span className="text-[12px] block mt-1 font-semibold capitalize" style={{ color: activeHouseData.statusColor.text }}>
                       {activeHouseData.status === 'strong' ? 'Auspicious' : activeHouseData.status === 'average' ? 'Average' : 'Low / Deficit'}
                     </span>
                   </div>
                 </div>
 
                 {/* Classical Astrological Significance & Phala */}
-                <div className="p-3.5 rounded-xl bg-[#F4EFE6] border border-[#E2D5C0] space-y-1.5 text-xs">
+                <div className="p-3.5 rounded-xl bg-[#F4EFE6] border border-[#E2D5C0] space-y-1.5 text-[13px]">
                   <div className="flex items-center gap-1.5 font-bold text-[#2B1810]">
                     <Zap className="w-3.5 h-3.5 text-[#8C2D19]" />
                     <span>Classical Significance (Parāśari):</span>
@@ -1028,7 +1028,7 @@ export function AshtakavargaPanel({
 
                 {/* Individual Planet Contribution to this House (7 Grahas) */}
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-[13px]">
                     <span className="font-bold text-[#2B1810] flex items-center gap-1.5">
                       <Layers className="w-3.5 h-3.5 text-[#8C2D19]" />
                       Planetary Contribution to {activeHouseData.houseNum}{getOrdinal(activeHouseData.houseNum)} House:
@@ -1051,14 +1051,14 @@ export function AshtakavargaPanel({
                         <div
                           key={g}
                           onClick={() => setChartGraha(g)}
-                          className={`flex items-center justify-between p-2 rounded-lg border text-xs cursor-pointer transition-all ${
+                          className={`flex items-center justify-between p-2 rounded-lg border text-[13px] cursor-pointer transition-all ${
                             chartGraha === g
                               ? 'bg-[#F2EADC] border-[#8C2D19] ring-1 ring-[#8C2D19]'
                               : 'bg-[#FAF6EE] border-[#E6DEC8] hover:bg-[#F4EFE6]'
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <span className="w-6 font-mono text-[10px] font-bold text-[#8C2D19] bg-[#F2EADC] px-1 py-0.5 rounded text-center">
+                            <span className="w-6 font-mono text-[12px] font-bold text-[#8C2D19] bg-[#F2EADC] px-1 py-0.5 rounded text-center">
                               {meta.symbol}
                             </span>
                             <span className="font-serif font-bold text-[#2B1810]">
@@ -1078,7 +1078,7 @@ export function AshtakavargaPanel({
                             </div>
 
                             <span
-                              className={`font-mono font-bold text-xs ${
+                              className={`font-mono font-bold text-[13px] ${
                                 isHigh ? 'text-[#1E6316]' : isLow ? 'text-[#A32417]' : 'text-[#8A5E08]'
                               }`}
                             >
@@ -1089,7 +1089,7 @@ export function AshtakavargaPanel({
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-[#8A7968] italic">
+                  <p className="text-[12px] text-[#8A7968] italic">
                     Click any planet row above to switch the main chart to that planet&apos;s BAV.
                   </p>
                 </div>
@@ -1108,13 +1108,13 @@ export function AshtakavargaPanel({
                   <TableIcon className="w-4 h-4 text-[#8C2D19]" />
                   12-House Aṣṭakavarga Master Ledger &amp; Graha Contribution Table
                 </h3>
-                <p className="text-xs text-[#6B5E51]">
+                <p className="text-[13px] text-[#6B5E51]">
                   Complete house-by-house tabulation with planetary bindus, sign rulers, and classical Phala
                 </p>
               </div>
 
               {/* Sorting and Filtering Controls */}
-              <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-2 text-[13px]">
                 {/* Status Filter */}
                 <div className="flex items-center gap-1 bg-[#FAF6EE] px-2.5 py-1 rounded-lg border border-[#D8CEBA]">
                   <Filter className="w-3.5 h-3.5 text-[#7A6B5C]" />
@@ -1150,7 +1150,7 @@ export function AshtakavargaPanel({
 
             {/* Table Content */}
             <div className="overflow-x-auto">
-              <table id="ashtakavarga-12houses-table" className="w-full text-left text-xs border-collapse">
+              <table id="ashtakavarga-12houses-table" className="w-full text-left text-[13px] border-collapse">
                 <thead>
                   <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-semibold">
                     <th className="py-3 px-4 text-left">House &amp; Bhāva</th>
@@ -1215,7 +1215,7 @@ export function AshtakavargaPanel({
                               border: `1px solid ${h.statusColor.badgeBorder}`,
                             }}
                           >
-                            {h.points} <span className="text-[10px] font-normal ml-0.5">pts</span>
+                            {h.points} <span className="text-[12px] font-normal ml-0.5">pts</span>
                           </span>
                         </td>
 
@@ -1246,7 +1246,7 @@ export function AshtakavargaPanel({
                                 <span
                                   key={g}
                                   title={`${meta.sanskrit} (${meta.name}) contributed ${pts} bindus`}
-                                  className={`inline-flex flex-col items-center px-1.5 py-0.5 rounded font-mono text-[10px] ${
+                                  className={`inline-flex flex-col items-center px-1.5 py-0.5 rounded font-mono text-[12px] ${
                                     isHigh
                                       ? 'bg-[#EEF5E7] text-[#1E6316] font-bold border border-[#C8D9B8]'
                                       : isLow
@@ -1254,7 +1254,7 @@ export function AshtakavargaPanel({
                                       : 'bg-[#FAF6EE] text-[#4A3B32] border border-[#D8CEBA]'
                                   }`}
                                 >
-                                  <span className="text-[8px] font-sans text-[#8A7968] uppercase">{meta.symbol}</span>
+                                  <span className="text-[11px] font-sans text-[#8A7968] uppercase">{meta.symbol}</span>
                                   <span>{pts}</span>
                                 </span>
                               );
@@ -1280,7 +1280,7 @@ export function AshtakavargaPanel({
             </div>
 
             {/* Table Footer */}
-            <div className="border-t border-[#D8CEBA] bg-[#EFE7D8] px-4 py-2.5 flex flex-wrap items-center justify-between text-xs text-[#6B5E51]">
+            <div className="border-t border-[#D8CEBA] bg-[#EFE7D8] px-4 py-2.5 flex flex-wrap items-center justify-between text-[13px] text-[#6B5E51]">
               <span>
                 Showing {processedTableHouses.length} of 12 Houses
               </span>
@@ -1303,13 +1303,13 @@ export function AshtakavargaPanel({
               <span className="font-serif text-sm font-bold text-[#2B1810]">
                 8 BAV Planetary Tables &amp; Master Sarvāṣṭakavarga (SAV)
               </span>
-              <span className="font-mono text-xs font-bold text-[#8C2D19] bg-[#F2EADC] px-2.5 py-0.5 rounded">
+              <span className="font-mono text-[13px] font-bold text-[#8C2D19] bg-[#F2EADC] px-2.5 py-0.5 rounded">
                 Total SAV Bindus: {ashtakavarga.sav.total} / 337
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table id="ashtakavarga-data-table" className="w-full text-center text-xs border-collapse">
+              <table id="ashtakavarga-data-table" className="w-full text-center text-[13px] border-collapse">
                 <thead>
                   <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                     <th className="py-2.5 px-3 text-left">Graha / Table</th>
@@ -1409,7 +1409,7 @@ export function AshtakavargaPanel({
           {/* Shodhya Pinda Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA] shadow-sm">
-              <span className="text-xs text-[#7A6B5C] block font-bold uppercase tracking-wider">Rāśi Piṇḍa</span>
+              <span className="text-[13px] text-[#7A6B5C] block font-bold uppercase tracking-wider">Rāśi Piṇḍa</span>
               <span className="text-2xl font-serif font-bold text-[#2B1810]">
                 {ashtakavarga.shodhyaPinda.rasiPinda}
               </span>
@@ -1417,7 +1417,7 @@ export function AshtakavargaPanel({
             </div>
 
             <div className="p-4 rounded-xl bg-[#FAF6EE] border border-[#D8CEBA] shadow-sm">
-              <span className="text-xs text-[#7A6B5C] block font-bold uppercase tracking-wider">Graha Piṇḍa</span>
+              <span className="text-[13px] text-[#7A6B5C] block font-bold uppercase tracking-wider">Graha Piṇḍa</span>
               <span className="text-2xl font-serif font-bold text-[#2B1810]">
                 {ashtakavarga.shodhyaPinda.grahaPinda}
               </span>
@@ -1425,7 +1425,7 @@ export function AshtakavargaPanel({
             </div>
 
             <div className="p-4 rounded-xl bg-[#F2EADC] border border-[#D8CEBA] shadow-sm">
-              <span className="text-xs text-[#8C2D19] block font-bold uppercase tracking-wider">Total Śodhya Piṇḍa</span>
+              <span className="text-[13px] text-[#8C2D19] block font-bold uppercase tracking-wider">Total Śodhya Piṇḍa</span>
               <span className="text-2xl font-serif font-bold text-[#8C2D19]">
                 {ashtakavarga.shodhyaPinda.totalShodhyaPinda}
               </span>
@@ -1446,18 +1446,18 @@ export function AshtakavargaPanel({
                 <h3 className="font-serif text-base font-bold text-[#2B1810]">
                   Prastārāṣṭakavarga (8 Kakṣā Sub-divisions per Sign)
                 </h3>
-                <p className="text-xs text-[#7A6B5C]">
+                <p className="text-[13px] text-[#7A6B5C]">
                   Each Rāśi of 30° is divided into 8 Kakṣās of 3°45′ each, ruled in fixed sequence: Saturn → Lagna.
                 </p>
               </div>
 
               {/* Graha selector */}
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-[#7A6B5C] font-semibold">Select Planet:</span>
+                <span className="text-[13px] text-[#7A6B5C] font-semibold">Select Planet:</span>
                 <select
                   value={selectedKakshaGraha}
                   onChange={(e) => setSelectedKakshaGraha(e.target.value)}
-                  className="rounded-md border border-[#D8CEBA] bg-[#FDFBF7] px-3 py-1 font-serif text-xs font-bold text-[#8C2D19] focus:outline-none"
+                  className="rounded-md border border-[#D8CEBA] bg-[#FDFBF7] px-3 py-1 font-serif text-[13px] font-bold text-[#8C2D19] focus:outline-none"
                 >
                   {grahas.map((g) => (
                     <option key={g} value={g}>
@@ -1470,7 +1470,7 @@ export function AshtakavargaPanel({
 
             {/* Kaksha Matrix Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-center text-xs border-collapse">
+              <table className="w-full text-center text-[13px] border-collapse">
                 <thead>
                   <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                     <th className="py-2.5 px-3 text-left">Kakṣā Lord</th>
@@ -1493,7 +1493,7 @@ export function AshtakavargaPanel({
                         <td className="py-2 px-3 text-left font-serif font-bold text-[#2B1810]">
                           {k.name}
                         </td>
-                        <td className="py-2 px-2 text-left font-mono text-[10px] text-[#7A6B5C]">
+                        <td className="py-2 px-2 text-left font-mono text-[12px] text-[#7A6B5C]">
                           {k.span}
                         </td>
                         {row.map((val: number, idx: number) => (
