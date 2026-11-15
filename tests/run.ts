@@ -2235,6 +2235,66 @@ console.log('\n== Export carries no verse and no verdict ==');
   check('the varga set is present', Object.keys(e.chart.vargas || {}).length >= 16);
 }
 
+/* -------------------- EACH VARGA CARRIES ITS OWN DIGNITY */
+
+console.log('\n== Varga dignity is per-varga, not inherited from D-1 ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // Every varga graha must carry a dignity string.
+  let missing = 0;
+  for (const [vId, v] of Object.entries(natal.vargas as any)) {
+    for (const [pId, p] of Object.entries((v as any).planets || {})) {
+      if (!(p as any).dignity) missing++;
+    }
+  }
+  check('every varga graha carries a dignity', missing === 0, `${missing} missing`);
+
+  // It must be a real dignity name.
+  const VALID = ['Exalted (Ucca)', 'Debilitated (Neecha)', 'Moolatrikona',
+    'Own Sign (Swakshetra)', 'Great Friend (Adhi Mitra)', 'Friend (Mitra)',
+    'Neutral (Sama)', 'Enemy (Shatru)', 'Great Enemy (Adhi Shatru)'];
+  check('every dignity is one of the nine grades',
+    Object.values(natal.vargas as any).every((v: any) =>
+      Object.values(v.planets || {}).every((p: any) => VALID.includes(p.dignity))));
+
+  // The whole point: dignity must VARY across vargas. If it were copied from
+  // D-1 every varga would read the same.
+  const sunDignities = Object.values(natal.vargas as any)
+    .map((v: any) => v.planets?.sun?.dignity)
+    .filter(Boolean);
+  check('the Sun has more than one dignity across the vargas',
+    new Set(sunDignities).size > 1, [...new Set(sunDignities)].join(' | '));
+
+  // And the D-1 varga must agree with the D-1 chart, or the mapping is broken.
+  const d1Sun = natal.vargas.D1?.planets?.sun;
+  check('D-1 varga dignity matches the D-1 chart dignity',
+    d1Sun?.dignity === natal.planets.sun.dignity,
+    `${d1Sun?.dignity} vs ${natal.planets.sun.dignity}`);
+  check('D-1 varga rashi matches the D-1 chart rashi',
+    d1Sun?.rashiNumber === natal.planets.sun.rashiNumber);
+
+  // Exaltation in a varga must follow the varga's own sign, not D-1's.
+  // Find any graha exalted somewhere other than where it is in D-1.
+  let foundCrossVarga = false;
+  for (const [vId, v] of Object.entries(natal.vargas as any)) {
+    if (vId === 'D1') continue;
+    for (const [pId, p] of Object.entries((v as any).planets || {})) {
+      const d = (p as any).dignity;
+      if (d === 'Exalted (Ucca)' && (natal.planets as any)[pId]?.dignity !== 'Exalted (Ucca)') {
+        foundCrossVarga = true;
+      }
+    }
+  }
+  check('a graha can be exalted in one varga and not in D-1', foundCrossVarga);
+
+  // The export must carry it too.
+  const e: any = buildChartExport(natal, { dashaDepth: 1 });
+  const d9 = e.chart?.vargas?.D9?.planets?.sun;
+  check('the export carries varga dignity', typeof d9?.dignity === 'string' && d9.dignity.length > 0,
+    String(d9?.dignity));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
