@@ -168,11 +168,11 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             <h3 className="text-base font-serif font-bold text-[#2A241A]">
               Classical Yogas
             </h3>
-            <span className="px-2 py-0.5 text-xs font-mono font-medium rounded-full bg-[#FAF5EE] text-[#8B2500] border border-[#E8DFC8]">
+            <span className="px-2 py-0.5 text-[13px] font-mono font-medium rounded-full bg-[#FAF5EE] text-[#8B2500] border border-[#E8DFC8]">
               {formedNatalYogas.length} Natal Formations
             </span>
           </div>
-          <p className="text-xs text-[#7A7060] mt-0.5">
+          <p className="text-[13px] text-[#7A7060] mt-0.5">
             Deterministic classical Horā combinations evaluated against planetary positions and dignities
           </p>
         </div>
@@ -180,7 +180,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
         {/* Mode Toggle & Search Bar */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Main Mode Toggle: Normal vs Advanced Mode */}
-          <div className="flex items-center p-0.5 bg-[#F5F0E6] border border-[#E6DEC9] rounded-lg text-xs">
+          <div className="flex items-center p-0.5 bg-[#F5F0E6] border border-[#E6DEC9] rounded-lg text-[13px]">
             <button
               onClick={() => setMode('normal')}
               className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 ${
@@ -213,7 +213,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
               placeholder="Search yogas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 bg-[#FAF8F5] border border-[#E0D7C6] rounded-lg text-xs text-[#2A241A] placeholder-[#9A8D7A] focus:outline-none focus:border-[#8B2500] w-40 sm:w-48"
+              className="pl-8 pr-3 py-1.5 bg-[#FAF8F5] border border-[#E0D7C6] rounded-lg text-[13px] text-[#2A241A] placeholder-[#9A8D7A] focus:outline-none focus:border-[#8B2500] w-40 sm:w-48"
             />
             {searchQuery && (
               <button
@@ -237,7 +237,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 onClick={() => setSelectedCategory('All')}
-                className={`px-3 py-1 text-xs rounded-full transition-all ${
+                className={`px-3 py-1 text-[13px] rounded-full transition-all ${
                   selectedCategory === 'All'
                     ? 'bg-[#8B2500] text-white font-semibold shadow-xs'
                     : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -251,7 +251,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3 py-1 text-xs rounded-full transition-all ${
+                    className={`px-3 py-1 text-[13px] rounded-full transition-all ${
                       selectedCategory === cat
                         ? 'bg-[#8B2500] text-white font-semibold shadow-xs'
                         : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -271,7 +271,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                 <div key={category} className="space-y-3">
                   {/* Category Header */}
                   <div className="flex items-center justify-between border-b border-[#F0ECE1] pb-1.5">
-                    <h4 className="font-serif font-bold text-xs uppercase tracking-wider text-[#73634F]">
+                    <h4 className="font-serif font-bold text-[13px] uppercase tracking-wider text-[#73634F]">
                       {category} Yogas ({items.length})
                     </h4>
                   </div>
@@ -281,15 +281,15 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                     {items.map((y) => (
                       <div
                         key={y.id}
-                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] hover:border-[#D6C7AE] hover:shadow-xs transition-all flex flex-col justify-between gap-3 text-xs"
+                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] hover:border-[#D6C7AE] hover:shadow-xs transition-all flex flex-col justify-between gap-3 text-[13px]"
                       >
                         {/* Title & Status */}
                         <div className="space-y-1">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] uppercase font-bold tracking-wider text-[#8A7C68]">
+                            <span className="text-[12px] uppercase font-bold tracking-wider text-[#8A7C68]">
                               {y.category}
                             </span>
-                            <span className="inline-flex items-center gap-1 text-emerald-800 font-semibold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[10px]">
+                            <span className="inline-flex items-center gap-1 text-emerald-800 font-semibold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[12px]">
                               <ShieldCheck className="w-2.5 h-2.5 text-emerald-700" />
                               FORMED
                             </span>
@@ -298,7 +298,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                             {y.name}
                           </h5>
                           {y.sanskritName && (
-                            <p className="text-xs text-[#8B2500] font-serif">
+                            <p className="text-[13px] text-[#8B2500] font-serif">
                               {y.sanskritName}
                             </p>
                           )}
@@ -308,7 +308,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                         <div className="pt-2 border-t border-[#F2ECE0] flex items-center justify-end">
                           <button
                             onClick={() => setModalYoga({ yoga: y })}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#8B2500] hover:text-[#5E1800] transition-colors py-0.5"
+                            className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#8B2500] hover:text-[#5E1800] transition-colors py-0.5"
                           >
                             <span>View details</span>
                             <ArrowRight className="w-3 h-3" />
@@ -321,7 +321,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-xs text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
+            <div className="text-center py-12 text-[13px] text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
               {searchQuery
                 ? `No formed yogas match "${searchQuery}" in category ${selectedCategory}.`
                 : 'No classical yogas formed under the selected filter.'}
@@ -339,7 +339,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           <div className="flex flex-wrap items-center gap-1.5 border-b border-[#F0ECE1] pb-3">
             <button
               onClick={() => setAdvancedTab('activation')}
-              className={`px-3.5 py-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-[13px] rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 advancedTab === 'activation'
                   ? 'bg-[#2A241A] text-white shadow-xs font-semibold'
                   : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -350,7 +350,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             </button>
             <button
               onClick={() => setAdvancedTab('qualification')}
-              className={`px-3.5 py-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-[13px] rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 advancedTab === 'qualification'
                   ? 'bg-[#2A241A] text-white shadow-xs font-semibold'
                   : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -361,7 +361,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             </button>
             <button
               onClick={() => setAdvancedTab('conflicts')}
-              className={`px-3.5 py-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-[13px] rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 advancedTab === 'conflicts'
                   ? 'bg-[#2A241A] text-white shadow-xs font-semibold'
                   : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -372,7 +372,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             </button>
             <button
               onClick={() => setAdvancedTab('vargas')}
-              className={`px-3.5 py-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-[13px] rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 advancedTab === 'vargas'
                   ? 'bg-[#2A241A] text-white shadow-xs font-semibold'
                   : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -388,7 +388,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           {/* --------------------------------------------------------------------- */}
           {advancedTab === 'activation' && (
             <div className="space-y-4">
-              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-xs text-[#5C4E3D] space-y-1">
+              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-[13px] text-[#5C4E3D] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#2A241A]">
                   <Clock className="w-3.5 h-3.5 text-[#8B2500]" />
                   <span>Classical Daśā Activation Analysis</span>
@@ -406,22 +406,22 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                     return (
                       <div
                         key={y.id}
-                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-3 text-xs"
+                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-3 text-[13px]"
                       >
                         {/* Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F0ECE1] pb-2">
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-serif font-bold text-sm text-[#2A241A]">{y.name}</h4>
-                              <span className="text-[10px] text-[#8B2500] font-serif">{y.sanskritName}</span>
+                              <span className="text-[12px] text-[#8B2500] font-serif">{y.sanskritName}</span>
                             </div>
-                            <span className="text-[10px] text-[#8A7C68] uppercase tracking-wider font-semibold">
+                            <span className="text-[12px] text-[#8A7C68] uppercase tracking-wider font-semibold">
                               {y.category} • FORMED
                             </span>
                           </div>
                           <button
                             onClick={() => setModalYoga({ yoga: y })}
-                            className="inline-flex items-center gap-1 text-xs text-[#8B2500] hover:text-[#5E1800] font-medium"
+                            className="inline-flex items-center gap-1 text-[13px] text-[#8B2500] hover:text-[#5E1800] font-medium"
                           >
                             <span>View analysis</span>
                             <ArrowRight className="w-3 h-3" />
@@ -430,7 +430,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
                         {/* Activation Periods */}
                         <div className="space-y-2">
-                          <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                          <div className="flex items-center gap-1 text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                             <Clock className="w-3 h-3 text-[#8B2500]" />
                             <span>Activation / Relevant Period:</span>
                           </div>
@@ -442,7 +442,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                   activation.calculatedPeriods.map((p, pIdx) => (
                                     <div
                                       key={pIdx}
-                                      className={`p-2 rounded-lg border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 ${
+                                      className={`p-2 rounded-lg border text-[13px] flex flex-col sm:flex-row sm:items-center justify-between gap-1 ${
                                         p.isCurrent
                                           ? 'bg-amber-50/90 border-amber-300 text-[#733E0A]'
                                           : 'bg-white border-[#E8E1D3] text-[#4A3E31]'
@@ -451,12 +451,12 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                       <span className="font-medium">{p.label}</span>
                                       <div className="flex items-center gap-2">
                                         {p.startDate && p.endDate && (
-                                          <span className="font-mono text-[10px] text-[#7A6E5D]">
+                                          <span className="font-mono text-[12px] text-[#7A6E5D]">
                                             {p.startDate} → {p.endDate}
                                           </span>
                                         )}
                                         {p.isCurrent && (
-                                          <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-200 text-amber-900">
+                                          <span className="text-[11px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-200 text-amber-900">
                                             Current
                                           </span>
                                         )}
@@ -464,18 +464,18 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                     </div>
                                   ))
                                 ) : (
-                                  <div className="p-2 rounded-lg bg-white border border-[#E8E1D3] text-xs font-medium text-[#4A3E31]">
+                                  <div className="p-2 rounded-lg bg-white border border-[#E8E1D3] text-[13px] font-medium text-[#4A3E31]">
                                     {activation.relevantPeriodsText}
                                   </div>
                                 )}
                               </div>
                             ) : (
-                              <div className="p-2 rounded-lg bg-[#FAF8F5] border border-[#EBE4D7] text-xs text-[#7A7060] italic pl-2.5">
+                              <div className="p-2 rounded-lg bg-[#FAF8F5] border border-[#EBE4D7] text-[13px] text-[#7A7060] italic pl-2.5">
                                 Classical activation rule not specified in the available source.
                               </div>
                             )
                           ) : (
-                            <div className="text-xs text-[#7A7060] italic">
+                            <div className="text-[13px] text-[#7A7060] italic">
                               Calculated Daśā data not available.
                             </div>
                           )}
@@ -502,7 +502,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8 text-xs text-[#8A7D6B]">
+                <div className="text-center py-8 text-[13px] text-[#8A7D6B]">
                   No formed yogas available for activation analysis.
                 </div>
               )}
@@ -514,7 +514,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           {/* --------------------------------------------------------------------- */}
           {advancedTab === 'qualification' && (
             <div className="space-y-4">
-              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-xs text-[#5C4E3D] space-y-1">
+              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-[13px] text-[#5C4E3D] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#2A241A]">
                   <Scale className="w-3.5 h-3.5 text-emerald-800" />
                   <span>Classical Strength & Qualitative Evaluation</span>
@@ -532,22 +532,22 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                     return (
                       <div
                         key={y.id}
-                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-3 text-xs"
+                        className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-3 text-[13px]"
                       >
                         {/* Card Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F0ECE1] pb-2">
                           <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-serif font-bold text-sm text-[#2A241A]">{y.name}</h4>
-                              <span className="text-[10px] text-[#8B2500] font-serif">{y.sanskritName}</span>
+                              <span className="text-[12px] text-[#8B2500] font-serif">{y.sanskritName}</span>
                             </div>
-                            <span className="text-[10px] text-[#8A7C68] uppercase tracking-wider font-semibold">
+                            <span className="text-[12px] text-[#8A7C68] uppercase tracking-wider font-semibold">
                               {y.category} • FORMED
                             </span>
                           </div>
                           <button
                             onClick={() => setModalYoga({ yoga: y })}
-                            className="inline-flex items-center gap-1 text-xs text-[#8B2500] hover:text-[#5E1800] font-medium"
+                            className="inline-flex items-center gap-1 text-[13px] text-[#8B2500] hover:text-[#5E1800] font-medium"
                           >
                             <span>View qualification</span>
                             <ArrowRight className="w-3 h-3" />
@@ -556,21 +556,21 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
                         {/* Participating Grahas Dignity Breakdown */}
                         <div className="space-y-2">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                          <div className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                             Participating Graha Qualifications
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                             {qual.participatingGrahas.map((g, gIdx) => (
                               <div
                                 key={gIdx}
-                                className="p-2.5 rounded-lg bg-white border border-[#E8DFC8] space-y-1 text-xs"
+                                className="p-2.5 rounded-lg bg-white border border-[#E8DFC8] space-y-1 text-[13px]"
                               >
                                 <div className="flex items-center justify-between">
                                   <span className="font-serif font-bold text-[#2A241A] uppercase text-[11px]">
                                     {g.planetName}
                                   </span>
                                   <span
-                                    className={`px-1.5 py-0.2 rounded text-[10px] font-semibold ${
+                                    className={`px-1.5 py-0.2 rounded text-[12px] font-semibold ${
                                       g.dignity === 'Exalted' || g.dignity === 'Moolatrikona' || g.dignity === 'Own Sign'
                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                                         : g.dignity === 'Debilitated'
@@ -581,10 +581,10 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                     {g.dignity}
                                   </span>
                                 </div>
-                                <div className="text-[10px] text-[#7A6E5D]">
+                                <div className="text-[12px] text-[#7A6E5D]">
                                   {g.rashiName} (House {g.house})
                                 </div>
-                                <div className="space-y-0.5 pt-1 text-[10px] text-[#5C4E3D]">
+                                <div className="space-y-0.5 pt-1 text-[12px] text-[#5C4E3D]">
                                   {g.qualitativeNotes.map((note, nIdx) => (
                                     <div key={nIdx} className="leading-tight">
                                       • {note}
@@ -598,14 +598,14 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
                         {/* Bhanga Presence if applicable */}
                         {qual.bhangaPresent && qual.bhangaDescription && (
-                          <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-300 text-xs space-y-1 text-[#733E0A]">
+                          <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-300 text-[13px] space-y-1 text-[#733E0A]">
                             <div className="font-bold flex items-center gap-1">
                               <Sparkles className="w-3 h-3 text-amber-700" />
                               <span>Classical Bhaṅga / Modification Present</span>
                             </div>
                             <p className="text-[11px] leading-relaxed">{qual.bhangaDescription}</p>
                             {qual.bhangaSource && (
-                              <div className="text-[10px] text-[#8C531B] italic">
+                              <div className="text-[12px] text-[#8C531B] italic">
                                 Source: {qual.bhangaSource}
                               </div>
                             )}
@@ -622,7 +622,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8 text-xs text-[#8A7D6B]">
+                <div className="text-center py-8 text-[13px] text-[#8A7D6B]">
                   No formed yogas available for qualification analysis.
                 </div>
               )}
@@ -634,7 +634,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           {/* --------------------------------------------------------------------- */}
           {advancedTab === 'conflicts' && (
             <div className="space-y-4">
-              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-xs text-[#5C4E3D] space-y-1">
+              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-[13px] text-[#5C4E3D] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#2A241A]">
                   <GitFork className="w-3.5 h-3.5 text-blue-800" />
                   <span>Conflicting & Overlapping Combinations Analysis</span>
@@ -649,7 +649,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   {interactions.map((inter, idx) => (
                     <div
                       key={idx}
-                      className={`border rounded-xl p-4 space-y-3 text-xs ${
+                      className={`border rounded-xl p-4 space-y-3 text-[13px] ${
                         inter.classicalPrecedenceEstablished
                           ? 'bg-[#FCFAF7] border-[#E8DFC8]'
                           : 'bg-[#FAF8F5] border-[#E2DACB]'
@@ -661,13 +661,13 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                           <span className="font-serif font-bold text-sm text-[#2A241A]">
                             {inter.yogaA.name}
                           </span>
-                          <span className="text-[10px] text-[#8A7C68] font-bold">vs</span>
+                          <span className="text-[12px] text-[#8A7C68] font-bold">vs</span>
                           <span className="font-serif font-bold text-sm text-[#2A241A]">
                             {inter.yogaB.name}
                           </span>
                         </div>
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${
+                          className={`text-[12px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${
                             inter.interactionType === 'Cancellation'
                               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                               : inter.interactionType === 'Temporal Separation'
@@ -681,29 +681,29 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
                       {/* Classical Rule / Status */}
                       <div className="space-y-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                        <div className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                           {inter.classicalPrecedenceEstablished
                             ? 'Classical Precedence Principle'
                             : 'Textual Precedence Status'}
                         </div>
-                        <p className="text-xs text-[#3E3427] font-medium leading-relaxed">
+                        <p className="text-[13px] text-[#3E3427] font-medium leading-relaxed">
                           {inter.classicalRule}
                         </p>
                       </div>
 
                       {/* Result Description */}
                       <div className="space-y-1">
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                        <div className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                           Analytical Result
                         </div>
-                        <p className="text-xs text-[#524634] leading-relaxed p-2.5 rounded-lg bg-white border border-[#EAE3D5]">
+                        <p className="text-[13px] text-[#524634] leading-relaxed p-2.5 rounded-lg bg-white border border-[#EAE3D5]">
                           {inter.resultDescription}
                         </p>
                       </div>
 
                       {/* Source Citation */}
                       {inter.sourceText && (
-                        <div className="flex items-center gap-1 text-[10px] text-[#7A6E5D] pt-1 border-t border-[#F0ECE1]">
+                        <div className="flex items-center gap-1 text-[12px] text-[#7A6E5D] pt-1 border-t border-[#F0ECE1]">
                           <BookOpen className="w-3 h-3 text-[#8B2500]" />
                           <span>Source: {inter.sourceText}</span>
                         </div>
@@ -712,7 +712,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-10 text-xs text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
+                <div className="text-center py-10 text-[13px] text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
                   No direct conflicting or overlapping classical formations identified among the formed Yogas in this chart.
                 </div>
               )}
@@ -724,7 +724,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           {/* --------------------------------------------------------------------- */}
           {advancedTab === 'vargas' && (
             <div className="space-y-4">
-              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-xs text-[#5C4E3D] space-y-1">
+              <div className="p-3 bg-[#FAF8F5] border border-[#EAE3D5] rounded-lg text-[13px] text-[#5C4E3D] space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-[#2A241A]">
                   <Layers className="w-3.5 h-3.5 text-purple-800" />
                   <span>Divisional Chart (Ṣoḍaśavarga) Yoga Formations</span>
@@ -738,7 +738,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
               <div className="flex items-center gap-2 border-b border-[#F0ECE1] pb-2">
                 <button
                   onClick={() => setVargaSubView('single')}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+                  className={`px-3 py-1 text-[13px] rounded-lg font-medium transition-all ${
                     vargaSubView === 'single'
                       ? 'bg-[#2A241A] text-white font-semibold shadow-xs'
                       : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -748,7 +748,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                 </button>
                 <button
                   onClick={() => setVargaSubView('cross')}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
+                  className={`px-3 py-1 text-[13px] rounded-lg font-medium transition-all ${
                     vargaSubView === 'cross'
                       ? 'bg-[#2A241A] text-white font-semibold shadow-xs'
                       : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -766,7 +766,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       <button
                         key={v.id}
                         onClick={() => setSelectedVarga(v.id)}
-                        className={`px-3 py-1 text-xs rounded-lg transition-all ${
+                        className={`px-3 py-1 text-[13px] rounded-lg transition-all ${
                           selectedVarga === v.id
                             ? 'bg-[#8B2500] text-white font-semibold shadow-xs'
                             : 'bg-[#FAF8F5] text-[#6A5E4E] border border-[#EAE3D5] hover:bg-[#F2ECE0]'
@@ -778,9 +778,9 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                   </div>
 
                   {/* Selected Varga Context Banner */}
-                  <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#E8DFC8] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#E8DFC8] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[13px]">
                     <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-[#8A7C68]">
+                      <span className="text-[12px] uppercase font-bold tracking-wider text-[#8A7C68]">
                         Selected Divisional Chart
                       </span>
                       <h4 className="font-serif font-bold text-sm text-[#2A241A]">
@@ -788,7 +788,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       </h4>
                       <p className="text-[11px] text-[#7A6E5D]">{vargaResult.vargaSignificance}</p>
                     </div>
-                    <span className="px-2.5 py-1 text-xs font-mono font-bold rounded-lg bg-white border border-[#E0D5C1] text-[#8B2500] shrink-0">
+                    <span className="px-2.5 py-1 text-[13px] font-mono font-bold rounded-lg bg-white border border-[#E0D5C1] text-[#8B2500] shrink-0">
                       {vargaResult.formedYogas.length} Formations in {vargaResult.vargaId}
                     </span>
                   </div>
@@ -799,15 +799,15 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       {vargaResult.formedYogas.map((y) => (
                         <div
                           key={y.id}
-                          className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] hover:border-[#D6C7AE] hover:shadow-xs transition-all flex flex-col justify-between gap-3 text-xs"
+                          className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] hover:border-[#D6C7AE] hover:shadow-xs transition-all flex flex-col justify-between gap-3 text-[13px]"
                         >
                           {/* Header */}
                           <div className="space-y-1">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8A7C68]">
+                              <span className="text-[12px] uppercase font-bold tracking-wider text-[#8A7C68]">
                                 {y.category} • {vargaResult.vargaId}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-purple-800 font-semibold px-2 py-0.5 rounded bg-purple-50 border border-purple-200 text-[10px]">
+                              <span className="inline-flex items-center gap-1 text-purple-800 font-semibold px-2 py-0.5 rounded bg-purple-50 border border-purple-200 text-[12px]">
                                 <ShieldCheck className="w-2.5 h-2.5 text-purple-700" />
                                 FORMED
                               </span>
@@ -816,7 +816,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                               {y.name}
                             </h5>
                             {y.sanskritName && (
-                              <p className="text-xs text-[#8B2500] font-serif">
+                              <p className="text-[13px] text-[#8B2500] font-serif">
                                 {y.sanskritName}
                               </p>
                             )}
@@ -831,7 +831,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                   vargaContext: { id: vargaResult.vargaId, name: vargaResult.vargaName },
                                 })
                               }
-                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#8B2500] hover:text-[#5E1800] transition-colors py-0.5"
+                              className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#8B2500] hover:text-[#5E1800] transition-colors py-0.5"
                             >
                               <span>View details</span>
                               <ArrowRight className="w-3 h-3" />
@@ -841,7 +841,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-10 text-xs text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
+                    <div className="text-center py-10 text-[13px] text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
                       No classical Yogas formed in {vargaResult.vargaName} ({vargaResult.vargaId}).
                     </div>
                   )}
@@ -849,7 +849,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
               ) : (
                 /* Cross-Varga Recurrence View */
                 <div className="space-y-3">
-                  <div className="p-3 bg-[#FAF6EE] border border-[#E8DFC8] rounded-lg text-xs text-[#5C4E3D] space-y-1">
+                  <div className="p-3 bg-[#FAF6EE] border border-[#E8DFC8] rounded-lg text-[13px] text-[#5C4E3D] space-y-1">
                     <span className="font-bold text-[#2A241A]">Cross-Divisional Harmonic Recurrence</span>
                     <p className="text-[11px] text-[#7A6E5D]">
                       Lists classical Yogas and their presence across the primary divisional charts (D1, D9, D10, D2, D3, D7, D12). Recurrence is shown strictly factually without arbitrary numerical score scaling.
@@ -861,7 +861,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       {crossVargaRecurrences.map((rec) => (
                         <div
                           key={rec.yogaId}
-                          className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-2 text-xs"
+                          className="border border-[#EAE3D5] rounded-xl p-4 bg-[#FCFAF7] space-y-2 text-[13px]"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#F0ECE1] pb-2">
                             <div>
@@ -870,23 +870,23 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                                   {rec.yogaName}
                                 </h4>
                                 {rec.sanskritName && (
-                                  <span className="text-xs text-[#8B2500] font-serif">{rec.sanskritName}</span>
+                                  <span className="text-[13px] text-[#8B2500] font-serif">{rec.sanskritName}</span>
                                 )}
                               </div>
-                              <span className="text-[10px] text-[#8A7C68] uppercase tracking-wider font-semibold">
+                              <span className="text-[12px] text-[#8A7C68] uppercase tracking-wider font-semibold">
                                 {rec.category} • Present in {rec.recurrenceCount} chart context{rec.recurrenceCount > 1 ? 's' : ''}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {rec.formedInD1 && (
-                                <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-semibold">
+                                <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[12px] font-semibold">
                                   D1 (Rāśi)
                                 </span>
                               )}
                               {rec.recurringVargas.map((v, vIdx) => (
                                 <span
                                   key={vIdx}
-                                  className="px-2 py-0.5 rounded bg-purple-50 border border-purple-200 text-purple-800 text-[10px] font-semibold"
+                                  className="px-2 py-0.5 rounded bg-purple-50 border border-purple-200 text-purple-800 text-[12px] font-semibold"
                                 >
                                   {v.vargaId}
                                 </span>
@@ -900,7 +900,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-10 text-xs text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
+                    <div className="text-center py-10 text-[13px] text-[#8A7D6B] border border-dashed border-[#E0D7C6] rounded-xl bg-[#FAF8F5] p-6">
                       No cross-varga recurrences calculated.
                     </div>
                   )}
@@ -920,13 +920,13 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
           onClick={() => setModalYoga(null)}
         >
           <div
-            className="bg-white border border-[#DCD3C1] rounded-2xl max-w-lg w-full max-h-[88vh] overflow-y-auto shadow-xl p-6 space-y-5 text-xs text-[#3A3022]"
+            className="bg-white border border-[#DCD3C1] rounded-2xl max-w-lg w-full max-h-[88vh] overflow-y-auto shadow-xl p-6 space-y-5 text-[13px] text-[#3A3022]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-[#F0ECE1] pb-3 gap-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                   {modalYoga.vargaContext
                     ? `${modalYoga.vargaContext.name} (${modalYoga.vargaContext.id}) • ${modalYoga.yoga.category} Yoga`
                     : `${modalYoga.yoga.category} Yoga`}
@@ -952,7 +952,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             {/* Formation Status & Required Conditions Met */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                   Formation Status
                 </span>
                 <span className="inline-flex items-center gap-1 text-emerald-800 font-semibold px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[11px]">
@@ -962,10 +962,10 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
               </div>
 
               <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D5] space-y-1.5">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[#73634F]">
+                <div className="text-[12px] font-bold uppercase tracking-wider text-[#73634F]">
                   Required Conditions Verified
                 </div>
-                <ul className="space-y-1.5 text-xs text-[#4A3E31]">
+                <ul className="space-y-1.5 text-[13px] text-[#4A3E31]">
                   {modalYoga.yoga.conditionsMet.map((cond, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="text-emerald-700 font-bold leading-none mt-0.5">✓</span>
@@ -978,7 +978,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
             {/* Unverified / Late Medieval Provenance Note */}
             {modalYoga.yoga.isUnverified && (
-              <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-300 text-xs text-[#7A440A] space-y-1">
+              <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-300 text-[13px] text-[#7A440A] space-y-1">
                 <div className="font-bold flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-700" />
                   <span>Scholastic Provenance Note</span>
@@ -993,7 +993,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             {/* Participating Astrological Factors */}
             {modalYoga.yoga.involvedPlanets && modalYoga.yoga.involvedPlanets.length > 0 && (
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                   Participating Grahas
                 </span>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -1012,10 +1012,10 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             {/* Classical Shloka Citation */}
             {modalYoga.yoga.sanskritShloka && (
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                   Classical Shloka
                 </span>
-                <div className="p-3 rounded-xl bg-[#FFFDF9] border border-[#E8DFC8] font-serif text-xs text-[#524433] leading-relaxed italic">
+                <div className="p-3 rounded-xl bg-[#FFFDF9] border border-[#E8DFC8] font-serif text-[13px] text-[#524433] leading-relaxed italic">
                   &ldquo;{modalYoga.yoga.sanskritShloka}&rdquo;
                 </div>
               </div>
@@ -1023,16 +1023,16 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
 
             {/* Classical Interpretation / Effects */}
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7C68]">
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#8A7C68]">
                 Classical Phala (Interpretation)
               </span>
-              <p className="text-xs text-[#4A3E31] leading-relaxed p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D5]">
+              <p className="text-[13px] text-[#4A3E31] leading-relaxed p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D5]">
                 {modalYoga.yoga.effects}
               </p>
             </div>
 
             {/* Canonical Reference Source */}
-            <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#E8DFC8] flex items-center justify-between text-xs text-[#6A5D4B]">
+            <div className="p-3 rounded-xl bg-[#FAF6EE] border border-[#E8DFC8] flex items-center justify-between text-[13px] text-[#6A5D4B]">
               <div className="flex items-center gap-1.5">
                 <BookOpen className="w-3.5 h-3.5 text-[#8B2500] shrink-0" />
                 <span className="font-semibold text-[#2A241A]">Canonical Reference:</span>
@@ -1044,7 +1044,7 @@ export const YogasPanel: React.FC<YogasPanelProps> = ({ yogas, chart }) => {
             <div className="pt-2 border-t border-[#F0ECE1] flex justify-end">
               <button
                 onClick={() => setModalYoga(null)}
-                className="px-4 py-1.5 bg-[#2A241A] hover:bg-[#42392B] text-white rounded-lg text-xs font-medium transition-colors"
+                className="px-4 py-1.5 bg-[#2A241A] hover:bg-[#42392B] text-white rounded-lg text-[13px] font-medium transition-colors"
               >
                 Close
               </button>
