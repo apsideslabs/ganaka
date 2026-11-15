@@ -41,7 +41,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
             <Award className="w-5 h-5 text-[#8B2500]" />
             <span>Planetary Strength &amp; Potency Analytics</span>
           </h3>
-          <p className="text-xs text-[#7A7060]">
+          <p className="text-[13px] text-[#7A7060]">
             Classical Śaḍbala (6-Fold Potency) and Parāśari Viṃśopakā Bala (20-Point Ṣoḍaśavarga Balance).
           </p>
         </div>
@@ -50,7 +50,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
           <button
             type="button"
             onClick={() => setActiveSubTab('shadbala')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'shadbala'
                 ? 'bg-[#8B2500] text-white shadow-2xs'
                 : 'text-[#6A5E4E] hover:text-[#1A1A1A]'
@@ -61,7 +61,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
           <button
             type="button"
             onClick={() => setActiveSubTab('vimshopaka')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'vimshopaka'
                 ? 'bg-[#8B2500] text-white shadow-2xs'
                 : 'text-[#6A5E4E] hover:text-[#1A1A1A]'
@@ -76,7 +76,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
       {activeSubTab === 'shadbala' && (
         <div className="space-y-4">
           <div className="overflow-x-auto border border-[#EBE4D7] rounded-lg">
-            <table className="w-full text-center text-xs">
+            <table className="w-full text-center text-[13px]">
               <thead className="bg-[#FAF8F5] text-[#5A4E3C] font-serif border-b border-[#EBE4D7] text-[11px] uppercase tracking-wider">
                 <tr>
                   <th className="py-3 px-3 text-left">Graha</th>
@@ -119,7 +119,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
                       <td className="py-2.5 px-2 font-mono text-[#7A6E5C]">{comp.requiredRupas}</td>
                       <td className="py-2.5 px-2">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-mono font-bold ${
                             isStrong
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                               : 'bg-amber-100 text-amber-900 border border-amber-300'
@@ -144,7 +144,7 @@ export const ShadbalaPanel: React.FC<ShadbalaPanelProps> = ({ shadbala, vargas }
       {activeSubTab === 'vimshopaka' && (
         <div className="space-y-4">
           <div className="overflow-x-auto border border-[#EBE4D7] rounded-lg">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-[13px]">
               <thead className="bg-[#FAF8F5] text-[#5A4E3C] font-serif border-b border-[#EBE4D7] text-[11px]">
                 <tr>
                   <th className="py-3 px-3">Graha</th>
