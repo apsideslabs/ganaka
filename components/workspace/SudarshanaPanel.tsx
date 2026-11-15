@@ -111,19 +111,19 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
             <h2 className="text-base font-serif font-bold text-slate-900">Sudarśana Cakra</h2>
           </div>
-          <p className="text-xs text-slate-500 max-w-xl leading-relaxed">
+          <p className="text-[13px] text-slate-500 max-w-xl leading-relaxed">
             Three rings of twelve houses, counted from the Lagna, the Moon and the Sun, read
             together. The signs do not move between rings — only the house number changes with
             the reference.
           </p>
-          <p className="text-[10px] font-mono text-slate-400 mt-1">
+          <p className="text-[12px] font-mono text-slate-400 mt-1">
             BPHS ch. 74 (सुदर्शनचक्रफलाध्याय)
           </p>
         </div>
 
         <div className="flex items-end gap-3 shrink-0">
           <div>
-            <label className="block text-[9px] font-mono uppercase tracking-widest text-slate-400 mb-1">
+            <label className="block text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-1">
               Year of life
             </label>
             <input
@@ -135,7 +135,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             />
           </div>
           <div className="pb-1">
-            <div className="text-[9px] font-mono uppercase tracking-widest text-slate-400 mb-1">
+            <div className="text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-1">
               Active house
             </div>
             <div className="text-2xl font-serif font-bold text-[#8C2D19] leading-none">
@@ -150,7 +150,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex gap-3">
           <div className="text-amber-500 text-sm leading-none pt-0.5">▲</div>
           <div>
-            <p className="text-xs text-amber-900 font-semibold">Not authoritative for this chart</p>
+            <p className="text-[13px] text-amber-900 font-semibold">Not authoritative for this chart</p>
             <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
               {chakra.inapplicableReason}
             </p>
@@ -161,7 +161,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* ---------- the dial ---------- */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-2">
             The three rings
           </h3>
 
@@ -295,10 +295,10 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
               return (
                 <div key={ref} className="flex items-center gap-1.5">
                   <span className="w-2.5 h-[2px] rounded" style={{ background: st.colour }} />
-                  <span className="text-[10px] font-mono" style={{ color: st.colour }}>
+                  <span className="text-[12px] font-mono" style={{ color: st.colour }}>
                     {st.label}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400">
+                  <span className="text-[12px] font-mono text-slate-400">
                     {ring.referenceRashiName}
                   </span>
                 </div>
@@ -309,20 +309,20 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
 
         {/* ---------- the three-fold table ---------- */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Each graha in three houses
           </h3>
 
-          <table className="w-full text-xs border-collapse">
+          <table className="w-full text-[13px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200">
-                <th className="text-left py-2 pl-1 font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                <th className="text-left py-2 pl-1 font-mono text-[11px] uppercase tracking-wider text-slate-400">
                   Graha
                 </th>
                 {(['lagna', 'moon', 'sun'] as SudarshanaReference[]).map((r) => (
                   <th
                     key={r}
-                    className="text-center py-2 font-mono text-[9px] uppercase tracking-wider"
+                    className="text-center py-2 font-mono text-[11px] uppercase tracking-wider"
                     style={{ color: RING[r].colour }}
                   >
                     {RING[r].label}
@@ -359,7 +359,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             </tbody>
           </table>
 
-          <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">
+          <p className="text-[12px] text-slate-400 mt-3 leading-relaxed">
             Filled cells mark the house active in year {year}. A graha keeps its sign in every
             ring; only the house number changes with the reference (BPHS 74.6).
           </p>
@@ -369,10 +369,10 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
       {/* ---------- the active house read across the three rings ---------- */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
         <div className="flex items-baseline justify-between mb-3">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500">
             House {activeHouse} in all three rings
           </h3>
-          <span className="text-[10px] font-mono text-slate-400">year {year}</span>
+          <span className="text-[12px] font-mono text-slate-400">year {year}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -383,7 +383,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             return (
               <div key={ref} className="border border-slate-200 rounded-xl p-3.5">
                 <div
-                  className="text-[9px] font-mono uppercase tracking-widest mb-1.5"
+                  className="text-[11px] font-mono uppercase tracking-widest mb-1.5"
                   style={{ color: st.colour }}
                 >
                   from {st.label}
@@ -391,7 +391,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
                 <div className="text-sm font-serif text-slate-800">
                   house {cell.house} · sign {cell.rashi}
                 </div>
-                <div className="text-xs mt-1.5 min-h-[18px]">
+                <div className="text-[13px] mt-1.5 min-h-[18px]">
                   {cell.planets.length ? (
                     <span className="font-semibold text-slate-700">
                       {cell.planets.map((p) => GRAHA[p] ?? p).join(' · ')}
@@ -405,7 +405,7 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
           })}
         </div>
 
-        <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">{chakra.dasha?.note}</p>
+        <p className="text-[12px] text-slate-400 mt-3 leading-relaxed">{chakra.dasha?.note}</p>
       </div>
     </div>
   );
