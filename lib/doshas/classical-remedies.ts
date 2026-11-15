@@ -439,6 +439,7 @@ export const CLASSICAL_REMEDIES_DATABASE: VerifiedClassicalRemedy[] = [
 
   /* ---- added from the sources directly, not inferred ---- */
   {
+    id: 'abhukta_mula_shanti',
     doshaId: 'abhukta_mula',
     title: 'Abhukta Mūla Śānti',
     sanskritTitle: 'अभुक्त मूल शान्ति',
@@ -457,6 +458,7 @@ export const CLASSICAL_REMEDIES_DATABASE: VerifiedClassicalRemedy[] = [
     },
   },
   {
+    id: 'gandanta_go_dana',
     doshaId: 'lagna_gandanta',
     title: 'Gaṇḍānta Go-dāna',
     sanskritTitle: 'गण्डान्त गोदान',
@@ -475,6 +477,7 @@ export const CLASSICAL_REMEDIES_DATABASE: VerifiedClassicalRemedy[] = [
     },
   },
   {
+    id: 'vishti_bhadra_janma_shanti',
     doshaId: 'vishti_bhadra_janma',
     title: 'Viṣṭi / Bhadrā Śānti',
     sanskritTitle: 'विष्टि भद्रा शान्ति',
