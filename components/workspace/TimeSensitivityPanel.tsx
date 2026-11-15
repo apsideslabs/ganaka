@@ -56,7 +56,7 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
           <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
           <h2 className="text-base font-serif font-bold text-slate-900">Birth-Time Sensitivity</h2>
         </div>
-        <p className="text-xs text-slate-500 max-w-3xl leading-relaxed">
+        <p className="text-[13px] text-slate-500 max-w-3xl leading-relaxed">
           The chart is recomputed at the recorded time and at the same time ± your stated
           uncertainty. Every row below is a real comparison, not an estimate. A birth time rounded
           to the nearest five minutes moves the ascendant about a degree, which is enough to change
@@ -65,7 +65,7 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
       </div>
 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex items-center gap-3 flex-wrap">
-        <label htmlFor="ts-min" className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+        <label htmlFor="ts-min" className="text-[12px] font-mono uppercase tracking-wider text-slate-400">
           Recorded time ±
         </label>
         <input
@@ -77,8 +77,8 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
           onChange={(e) => setMinutes(Math.max(1, Math.min(120, Number(e.target.value) || 5)))}
           className="w-20 px-2.5 py-1.5 text-sm font-mono border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#8C2D19]/40"
         />
-        <span className="text-xs text-slate-500">minutes</span>
-        <span className={`ml-auto inline-flex items-center gap-1.5 text-xs font-semibold ${report.isStable ? 'text-emerald-700' : 'text-[#8C2D19]'}`}>
+        <span className="text-[13px] text-slate-500">minutes</span>
+        <span className={`ml-auto inline-flex items-center gap-1.5 text-[13px] font-semibold ${report.isStable ? 'text-emerald-700' : 'text-[#8C2D19]'}`}>
           {report.isStable
             ? <><CheckCircle2 className="w-4 h-4" /> stable</>
             : <><AlertTriangle className="w-4 h-4" /> {report.unstable.length} output{report.unstable.length === 1 ? '' : 's'} move</>}
@@ -90,7 +90,7 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Lagna sign changes in</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Lagna sign changes in</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">
             {report.minutesToLagnaChange != null ? `${report.minutesToLagnaChange} min` : '—'}
@@ -99,7 +99,7 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Moon nakṣatra changes in</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Moon nakṣatra changes in</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">
             {report.minutesToNakshatraChange != null
@@ -110,7 +110,7 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-[#8C2D19]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">Daśā balance shift</span>
+            <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">Daśā balance shift</span>
           </div>
           <div className="font-serif text-lg font-bold text-slate-900">
             {report.dashaBalanceShiftYears < 1
@@ -123,16 +123,16 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
       {/* what moves */}
       {report.unstable.length > 0 && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs overflow-x-auto">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Outputs that move across ±{report.uncertaintyMinutes} minutes
           </h3>
-          <table className="w-full text-xs">
+          <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-slate-200">
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Output</th>
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">−{report.uncertaintyMinutes} min</th>
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Recorded</th>
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">+{report.uncertaintyMinutes} min</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Output</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">−{report.uncertaintyMinutes} min</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Recorded</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">+{report.uncertaintyMinutes} min</th>
               </tr>
             </thead>
             <tbody>
@@ -151,12 +151,12 @@ export const TimeSensitivityPanel: React.FC<TimeSensitivityPanelProps> = ({ char
 
       {/* what holds */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-2">
           Outputs that hold
         </h3>
         <div className="flex flex-wrap gap-1.5">
           {report.stable.map((s) => (
-            <span key={s} className="px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-[10px] text-slate-600">
+            <span key={s} className="px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-[12px] text-slate-600">
               {s}
             </span>
           ))}
