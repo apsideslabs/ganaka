@@ -684,6 +684,9 @@ const CHAPTERS: Array<{ title: string; desc: string }> = [
   { title: 'Gochara', desc: 'Current transits with vedha and sāḍhe sātī, read from the natal Moon' },
   { title: 'Relationships & Attributes', desc: 'Pañcadhā maitrī, dispositors, favourable number, colour, day, gem' },
   { title: 'Doṣas, Jaimini & Sphuṭas', desc: 'Doṣa status, chara kārakas, ārūḍhas, upagrahas' },
+  { title: 'Sūkṣma Bindu', desc: 'The five avasthā sets, Mṛtyu Bhāga degrees, nakṣatra nāḍī and the Navatāra chakra' },
+  { title: 'Varṣaphala & Praśna', desc: 'The annual chart with muntha and varṣeśa, and the horary positions' },
+  { title: 'Remedies', desc: 'Classical śānti and parihāra for the doṣas actually formed' },
 ];
 
 function Contents({ identity }: { identity: string }) {
@@ -1582,6 +1585,164 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
       <Page size="A4" style={S.page} wrap>
         <RunningHead chapter="Doṣas & Jaimini" identity={identity} />
         <ChapterTitle num={17}>Doṣas, Jaimini &amp; Sphuṭas</ChapterTitle>
+
+      {/* ------------------------------------------------ sūkṣma bindu */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Sūkṣma Bindu" identity={identity} />
+        <ChapterTitle num={18}>Sūkṣma Bindu</ChapterTitle>
+        <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+          The fine points: the five avasthā sets that land on every graha, the Mṛtyu Bhāga
+          fateful degrees, the nakṣatra nāḍī cycle and the Navatāra chakra.
+        </Text>
+
+        <SubTitle>Planetary Avasthās</SubTitle>
+        <Table
+          cols={[
+            { label: 'Graha', width: 18 },
+            { label: 'Bālādi', width: 16 },
+            { label: 'Jāgradādi', width: 18 },
+            { label: 'Dīptādi', width: 20 },
+            { label: 'Lajjitādi', width: 16 },
+            { label: 'Śayanādi', width: 16 },
+          ]}
+          rows={PLANETS.slice(0, 7).map((id) => {
+            const av: any = (chart.planets as any)?.[id]?.avasthas || {};
+            const cut = (v: any) => String(v ?? '—').replace(/\s*\(.*\)\s*$/, '');
+            return [
+              GRAHA[id].name, cut(av.baladi), cut(av.jagradadi),
+              cut(av.deeptadi), cut(av.lajjitadi), cut(av.shayanadi),
+            ];
+          })}
+        />
+
+        <SubTitle>Mṛtyu Bhāga</SubTitle>
+        {(() => {
+          const mb: any = calculateMrityuBhaga(chart as any);
+          return (
+            <>
+              <Text style={{ fontSize: 7, color: MUTED, marginBottom: 5 }}>
+                The fateful degree of each body in the sign it occupies. A graha inside its band
+                has its significations exposed to crisis — not by itself a prediction of death.
+              </Text>
+              <Table
+                cols={[
+                  { label: 'Body', width: 20 },
+                  { label: 'Rāśi', width: 20 },
+                  { label: 'Degree', width: 16, align: 'right' },
+                  { label: 'Band', width: 16, align: 'right' },
+                  { label: 'Status', width: 18 },
+                ]}
+                rows={mb.rows.map((r: any) => [
+                  r.bodyName, r.rashiName, `${r.degreeInRashi.toFixed(2)}°`,
+                  `${r.bandFrom.toFixed(0)}–${r.bandTo.toFixed(0)}°`,
+                  r.withinOrb ? 'In band' : 'Outside',
+                ])}
+              />
+            </>
+          );
+        })()}
+
+        <SubTitle>Nakṣatra Nāḍī &amp; Navatāra</SubTitle>
+        {(() => {
+          const nd: any = calculateNadi(chart as any);
+          const nt: any = calculateNavaTara(chart as any);
+          return (
+            <Table
+              cols={[
+                { label: 'Reading', width: 34 },
+                { label: 'Value', width: 66 },
+              ]}
+              rows={[
+                ['Moon nakṣatra', `${nd.moonNakshatra} (#${nd.moonNumber}) — ${nd.moonNadiInfo.english} · ${nd.moonNadiInfo.dosha}`],
+                ['Lagna nakṣatra', `${nd.lagnaNakshatra} (#${nd.lagnaNumber}) — ${nd.lagnaNadiInfo.english}`],
+                ['Janma nakṣatra', `${nt.janmaNakshatra} (#${nt.janmaNumber})`],
+                ...nt.cycle.map((c: any) => [
+                  `Tārā ${c.tara.number} · ${c.tara.name}`,
+                  c.nakshatras.map((n: any) => n.name).join(' · '),
+                ]),
+              ]}
+            />
+          );
+        })()}
+      </Page>
+
+      {/* ------------------------------------------------ varsha & prashna */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Varṣaphala & Praśna" identity={identity} />
+        <ChapterTitle num={19}>Varṣaphala &amp; Praśna</ChapterTitle>
+        <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 8 }}>
+          The annual chart — muntha, varṣeśa and the Tājika daśās — and the horary positions.
+        </Text>
+        {(() => {
+          const v: any = (chart as any).varshaphala;
+          if (!v) return <Text style={{ fontSize: 7.4, color: MUTED }}>No annual chart available.</Text>;
+          return (
+            <Table
+              cols={[{ label: 'Item', width: 40 }, { label: 'Value', width: 60 }]}
+              rows={[
+                ['Year', String(v.year ?? v.varshaYear ?? '—')],
+                ['Muntha', String(v.muntha?.rashiName ?? v.muntha ?? '—')],
+                ['Varṣeśa', String(v.varshesha?.name ?? v.varshesha ?? '—')],
+                ['Lagna', String(v.lagna?.rashiName ?? v.lagnaRashi ?? '—')],
+              ]}
+            />
+          );
+        })()}
+        {(() => {
+          const pr: any = (chart as any).prashna;
+          if (!pr) return null;
+          return (
+            <>
+              <SubTitle>Praśna</SubTitle>
+              <Table
+                cols={[{ label: 'Item', width: 40 }, { label: 'Value', width: 60 }]}
+                rows={[
+                  ['Arudha Lagna', String(pr.arudhaLagna?.rashiName ?? '—')],
+                  ['Trisphuṭa', String(pr.trisphuta?.formatted ?? pr.trisphuta ?? '—')],
+                  ['Catuṣphuṭa', String(pr.chatusphuta?.formatted ?? pr.chatusphuta ?? '—')],
+                  ['Pañcasphuṭa', String(pr.panchasphuta?.formatted ?? pr.panchasphuta ?? '—')],
+                ]}
+              />
+            </>
+          );
+        })()}
+      </Page>
+
+      {/* ------------------------------------------------ remedies */}
+      <Page size="A4" style={S.page} wrap>
+        <RunningHead chapter="Remedies" identity={identity} />
+        <ChapterTitle num={20}>Remedies</ChapterTitle>
+        {(() => {
+          const formed = ((chart as any).doshas?.evaluatedDoshas || [])
+            .filter((d: any) => d.formationStatus === 'Formed' && Array.isArray(d.remedies) && d.remedies.length);
+          if (formed.length === 0) {
+            return (
+              <Text style={{ fontSize: 7.4, color: MUTED }}>
+                No remedy is listed: no doṣa carrying a classical śānti is formed in this chart.
+              </Text>
+            );
+          }
+          return (
+            <>
+              <Text style={{ fontSize: 7.4, color: MUTED, marginBottom: 6 }}>
+                Classical remedial measures for the doṣas actually formed. A prescription, not a
+                prediction.
+              </Text>
+              {formed.map((d: any, i: number) => (
+                <View key={i} style={{ marginBottom: 8 }}>
+                  <SubTitle>{d.name}</SubTitle>
+                  {d.remedies.map((r: any, j: number) => (
+                    <Text key={j} style={{ fontSize: 7.2, color: INK, marginBottom: 2 }}>
+                      {clean(r.title)}{r.source ? ` — ${clean(String(r.source))}` : ''}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+            </>
+          );
+        })()}
+      </Page>
+
         {((chart as any).doshas?.evaluatedDoshas || []).length > 0 && (
           <>
             <SubTitle>Doṣas</SubTitle>
