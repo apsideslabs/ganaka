@@ -1913,6 +1913,74 @@ console.log('\n== Consistency guards & the three missing rules ==');
     JSON.stringify(gy?.conditionsMet));
 }
 
+/* ---------------------------------- EXPORT COVERS THE WHOLE WORKSPACE */
+
+console.log('\n== The export carries what the workspace shows ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 2 });
+
+  // Every workspace area must reach the export, except the indications layer.
+  const REQUIRED: Array<[string, string]> = [
+    ['kundali', 'chart'],
+    ['avakahada', 'avakahada'],
+    ['vargas', 'chart'],
+    ['sudarshana', 'sudarshana'],
+    ['matching_bridge', 'matchingData'],
+    ['varshaphala', 'varshaphala'],
+    ['sphutas', 'chart'],
+    ['bhavas', 'bhavaChalit'],
+    ['bhava_bala', 'bhavaBala'],
+    ['aspects', 'drishti'],
+    ['vimshottari', 'chart'],
+    ['extended_dashas', 'extendedDashas'],
+    ['jaimini', 'chart'],
+    ['shadbala', 'chart'],
+    ['phala', 'phala'],
+    ['ashtakavarga', 'chart'],
+    ['yogas', 'chart'],
+    ['doshas', 'chart'],
+    ['remedies', 'remedies'],
+    ['transits', 'transits'],
+    ['panchanga', 'chart'],
+    ['prashna', 'prashna'],
+    ['sarvatobhadra', 'sarvatobhadra'],
+    ['kp', 'kp'],
+    ['sukshma', 'avasthas'],
+    ['relationships', 'relationships'],
+    ['samhita', 'eclipses'],
+    ['time_sensitivity', 'timeSensitivity'],
+  ];
+  for (const [tab, key] of REQUIRED) {
+    check(`the ${tab} tab reaches the export`, key in e, key);
+  }
+
+  // The indications layer is the one thing deliberately absent.
+  check('the indications layer is not exported', !('indications' in e));
+  check('the overall reading is not exported', !('overallReading' in e));
+
+  // The new sections must actually carry data, not be empty placeholders.
+  check('time sensitivity is populated', Object.keys(e.timeSensitivity || {}).length > 0,
+    Object.keys(e.timeSensitivity || {}).join(','));
+  check('avasthas are populated', Object.keys(e.avasthas || {}).length > 0);
+  check('mrityu bhaga is populated', Array.isArray(e.mrityuBhaga?.rows) && e.mrityuBhaga.rows.length > 0);
+  check('nadi is populated', !!e.nadi?.moon);
+  check('navatara is populated', Array.isArray(e.navatara?.rows) && e.navatara.rows.length === 27);
+
+  // Remedies match the workspace rule exactly: formed doshas only.
+  const formedWithRemedies = (natal.doshas.evaluatedDoshas || [])
+    .filter((d: any) => d.formationStatus === 'Formed' && Array.isArray(d.remedies) && d.remedies.length);
+  const expected = formedWithRemedies.reduce((n: number, d: any) => n + d.remedies.length, 0);
+  check('remedies are exactly those of formed doshas', e.remedies.length === expected,
+    `${e.remedies.length} vs ${expected}`);
+  check('no remedy is exported for an unformed dosha',
+    e.remedies.every((r: any) => r.formationStatus === 'Formed'));
+
+  // And the generator must not claim something it does not do.
+  check('the generator note does not claim remedies are excluded',
+    !String(e.generator?.note || '').includes('no remedies'));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
