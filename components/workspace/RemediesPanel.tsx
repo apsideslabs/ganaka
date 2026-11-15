@@ -123,12 +123,12 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                 Affliction-Specific Prescriptions
               </span>
             </div>
-            <p className="text-xs text-slate-600">
+            <p className="text-[13px] text-slate-600">
               Verified scriptural remedial measures (<em>Śānti</em>, <em>Homa</em>, <em>Dāna</em>, <em>Japa</em> &amp; <em>Vrata</em>) active exclusively for the Doshas identified in this chart.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-amber-50/80 border border-amber-200/80 rounded-xl px-4 py-2 text-xs text-amber-900 font-medium">
+          <div className="flex items-center gap-2 bg-amber-50/80 border border-amber-200/80 rounded-xl px-4 py-2 text-[13px] text-amber-900 font-medium">
             <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
             <span>Strictly filtered: Remedies are displayed <strong>only if the affliction is actively formed</strong>.</span>
           </div>
@@ -137,7 +137,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
         {/* Active Doshas Metric Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-4 bg-rose-50/70 border border-rose-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-rose-700 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-rose-700 block uppercase tracking-wider font-bold">
               Active Formed Doshas
             </span>
             <span className="text-2xl font-mono font-bold text-rose-900 block">
@@ -149,7 +149,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
           </div>
 
           <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-amber-700 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-amber-700 block uppercase tracking-wider font-bold">
               Available Textual Remedies
             </span>
             <span className="text-2xl font-mono font-bold text-amber-900 block">
@@ -161,7 +161,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
           </div>
 
           <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-emerald-700 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-emerald-700 block uppercase tracking-wider font-bold">
               Cancelled / Mitigated Doshas
             </span>
             <span className="text-2xl font-mono font-bold text-emerald-900 block">
@@ -188,7 +188,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                     onClick={() => {
                       setSelectedDoshaFilter(selectedDoshaFilter === d.id ? 'all' : d.id);
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-xl text-[13px] font-semibold flex items-center gap-2 border transition-all cursor-pointer ${
                       selectedDoshaFilter === d.id
                         ? 'bg-rose-700 text-white border-rose-800 shadow-xs'
                         : 'bg-rose-50 text-rose-900 border-rose-200 hover:bg-rose-100'
@@ -197,7 +197,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                     <AlertTriangle className={`w-3.5 h-3.5 ${selectedDoshaFilter === d.id ? 'text-white' : 'text-rose-600'}`} />
                     <span>{d.name}</span>
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                      className={`text-[12px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                         selectedDoshaFilter === d.id ? 'bg-rose-900 text-white' : 'bg-rose-200 text-rose-800'
                       }`}
                     >
@@ -209,7 +209,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
               {selectedDoshaFilter !== 'all' && (
                 <button
                   onClick={() => setSelectedDoshaFilter('all')}
-                  className="px-2.5 py-1.5 rounded-xl text-xs text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 font-medium cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-xl text-[13px] text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 font-medium cursor-pointer"
                 >
                   Show All Active
                 </button>
@@ -227,7 +227,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
             <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
               <button
                 onClick={() => setSelectedClassification('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                   selectedClassification === 'all'
                     ? 'bg-slate-900 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -237,7 +237,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
               </button>
               <button
                 onClick={() => setSelectedClassification('Direct textual remedy')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                   selectedClassification === 'Direct textual remedy'
                     ? 'bg-emerald-700 text-white'
                     : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
@@ -247,7 +247,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
               </button>
               <button
                 onClick={() => setSelectedClassification('Later classical/traditional remedy')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                   selectedClassification === 'Later classical/traditional remedy'
                     ? 'bg-blue-700 text-white'
                     : 'bg-blue-50 text-blue-800 hover:bg-blue-100'
@@ -257,7 +257,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
               </button>
               <button
                 onClick={() => setSelectedClassification('Regional/traditional practice')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                   selectedClassification === 'Regional/traditional practice'
                     ? 'bg-indigo-700 text-white'
                     : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100'
@@ -275,7 +275,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                 placeholder="Search mantra, deity, ritual, text..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#8C2D19]"
+                className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] text-slate-900 focus:outline-none focus:border-[#8C2D19]"
               />
             </div>
           </div>
@@ -313,7 +313,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
             <h3 className="text-lg font-serif font-bold text-slate-900">
               No Active Doshas Requiring Remedies
             </h3>
-            <p className="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed">
+            <p className="text-[13px] text-slate-600 max-w-lg mx-auto leading-relaxed">
               All 30+ classical afflictions evaluated against this horoscope are either <strong>Not Formed</strong> or have been completely <strong>Cancelled / Mitigated (Bhaṅga &amp; Parihāra)</strong> by benefic aspects, exalted dispositions, or classical cancellation rules.
             </p>
           </div>
@@ -329,7 +329,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
           <h3 className="text-base font-serif font-bold text-slate-800">
             No Remedies Matched Filter
           </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="text-[13px] text-slate-500 max-w-md mx-auto">
             Try adjusting your search query or switching to &apos;All Classifications&apos;.
           </p>
         </div>
@@ -367,7 +367,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                   {/* Classification Badge */}
                   <div className="shrink-0">
                     <span
-                      className={`text-[10px] px-2.5 py-1 rounded-full font-bold inline-block border ${
+                      className={`text-[12px] px-2.5 py-1 rounded-full font-bold inline-block border ${
                         remedy.classification === 'Direct textual remedy'
                           ? 'bg-emerald-100 text-emerald-900 border-emerald-200'
                           : remedy.classification === 'Later classical/traditional remedy'
@@ -383,8 +383,8 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                 </div>
 
                 {/* Classical Purpose */}
-                <div className="p-3.5 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1 text-xs">
-                  <span className="text-[10px] text-amber-900 uppercase font-bold tracking-wider block">
+                <div className="p-3.5 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1 text-[13px]">
+                  <span className="text-[12px] text-amber-900 uppercase font-bold tracking-wider block">
                     Classical Expiation Purpose (Śānti Prayojana):
                   </span>
                   <p className="text-amber-950 font-medium leading-relaxed">
@@ -393,8 +393,8 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                 </div>
 
                 {/* Prescribed Traditional Method */}
-                <div className="space-y-1.5 text-xs">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">
+                <div className="space-y-1.5 text-[13px]">
+                  <span className="text-[12px] text-slate-500 uppercase font-bold tracking-wider block">
                     Prescribed Traditional Method (Vidhāna):
                   </span>
                   <p className="text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200/80">
@@ -404,10 +404,10 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                 {/* Qualifications & Ritual Prescriptions Grid */}
                 {qualifications && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[13px]">
                     {qualifications.timing && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Prescribed Timing / Muhūrta:
                         </span>
                         <p className="text-slate-800 font-medium">
@@ -418,7 +418,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                     {qualifications.deity && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Presiding Deity (Adhidevatā):
                         </span>
                         <p className="text-slate-800 font-medium">
@@ -429,7 +429,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                     {qualifications.mantraOrJapa && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Mantra &amp; Japa Count:
                         </span>
                         <p className="text-slate-800 font-serif font-bold text-[#8C2D19]">
@@ -440,7 +440,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                     {qualifications.ritualOfferings && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Offerings &amp; Dāna (द्रव्य दान):
                         </span>
                         <p className="text-slate-800 font-medium">
@@ -451,7 +451,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                     {qualifications.fastingOrVrata && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Vrata &amp; Fasting Rules:
                         </span>
                         <p className="text-slate-800 font-medium">
@@ -462,7 +462,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
 
                     {qualifications.restrictionsOrEligibility && (
                       <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        <span className="text-[12px] text-slate-500 uppercase font-bold block">
                           Eligibility / Classical Caveats:
                         </span>
                         <p className="text-slate-800 font-medium">
@@ -484,7 +484,7 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
                   </div>
 
                   {remedy.provenanceNotes && (
-                    <div className="text-[10px] text-amber-800 italic bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200/60">
+                    <div className="text-[12px] text-amber-800 italic bg-amber-50/70 px-2 py-0.5 rounded border border-amber-200/60">
                       {remedy.provenanceNotes}
                     </div>
                   )}
