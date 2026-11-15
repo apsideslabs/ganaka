@@ -119,7 +119,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                 Phase 2: Detection &amp; Verified Remedies
               </span>
             </div>
-            <p className="text-xs text-slate-600">
+            <p className="text-[13px] text-slate-600">
               Evaluates every verified classical Dosha with complete condition checklists, chart factors, and researched textual remedies (<em>Śānti &amp; Parihāra</em>).
             </p>
           </div>
@@ -129,7 +129,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             <SlidersHorizontal className="w-4 h-4 text-[#8C2D19]" />
             <div className="text-left">
               <span className="text-[11px] font-bold text-slate-800 block">Kuja Doṣa 2nd House</span>
-              <span className="text-[10px] text-slate-500 block">South Indian Tradition</span>
+              <span className="text-[12px] text-slate-500 block">South Indian Tradition</span>
             </div>
             <button
               type="button"
@@ -151,7 +151,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
         {/* Core Metric Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">
               Total Evaluated
             </span>
             <span className="text-2xl font-mono font-bold text-slate-900 block">
@@ -163,7 +163,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
           </div>
 
           <div className="p-4 bg-rose-50/70 border border-rose-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-rose-700 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-rose-700 block uppercase tracking-wider font-bold">
               Formed (Active)
             </span>
             <span className="text-2xl font-mono font-bold text-rose-900 block">
@@ -175,7 +175,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
           </div>
 
           <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-emerald-700 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-emerald-700 block uppercase tracking-wider font-bold">
               Cancelled / Mitigated
             </span>
             <span className="text-2xl font-mono font-bold text-emerald-900 block">
@@ -187,7 +187,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
           </div>
 
           <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[12px] text-slate-500 block uppercase tracking-wider font-bold">
               Not Formed
             </span>
             <span className="text-2xl font-mono font-bold text-slate-700 block">
@@ -221,7 +221,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
                   isCatActive
                     ? 'bg-[#8C2D19] text-white border-[#8C2D19] shadow-xs'
                     : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'
@@ -230,7 +230,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                 <Icon className={`w-3.5 h-3.5 ${isCatActive ? 'text-white' : 'text-[#8C2D19]'}`} />
                 <span>{cat.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
+                  className={`text-[12px] px-1.5 py-0.5 rounded-full font-mono font-bold ${
                     isCatActive
                       ? 'bg-[#701E00] text-white'
                       : formed > 0
@@ -250,7 +250,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
           <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setStatusFilter('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                 statusFilter === 'all'
                   ? 'bg-slate-900 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -260,7 +260,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             </button>
             <button
               onClick={() => setStatusFilter('formed')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 statusFilter === 'formed'
                   ? 'bg-rose-700 text-white'
                   : 'bg-rose-50 text-rose-800 hover:bg-rose-100'
@@ -271,7 +271,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             </button>
             <button
               onClick={() => setStatusFilter('cancelled_mitigated')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 statusFilter === 'cancelled_mitigated'
                   ? 'bg-emerald-700 text-white'
                   : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
@@ -282,7 +282,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             </button>
             <button
               onClick={() => setStatusFilter('not_formed')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
                 statusFilter === 'not_formed'
                   ? 'bg-slate-700 text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -300,7 +300,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
               placeholder="Search dosha, text, planet..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#8C2D19]"
+              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] text-slate-900 focus:outline-none focus:border-[#8C2D19]"
             />
             {searchQuery && (
               <button
@@ -319,7 +319,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
         <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-3 shadow-sm">
           <ShieldCheck className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="text-base font-serif font-bold text-slate-800">No Doshas Matched Filter</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="text-[13px] text-slate-500 max-w-md mx-auto">
             Try switching to another category, clearing your search query, or selecting &apos;All&apos; statuses.
           </p>
         </div>
@@ -337,7 +337,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 text-[13px]">
                 {filteredDoshas.map((dosha) => {
                   const isFormed = dosha.formationStatus === 'Formed';
                   const isCancelled = dosha.formationStatus === 'Cancelled';
@@ -371,7 +371,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                       {/* Classical Status */}
                       <td className="py-3.5 px-4">
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          className={`text-[12px] px-2 py-0.5 rounded-full font-bold ${
                             dosha.classicalStatus === 'Directly Classical'
                               ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
                               : dosha.classicalStatus === 'Later Classical'
@@ -430,7 +430,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                             e.stopPropagation();
                             setSelectedDoshaModal(dosha);
                           }}
-                          className="px-3 py-1 bg-slate-100 hover:bg-[#8C2D19] hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1 bg-slate-100 hover:bg-[#8C2D19] hover:text-white text-slate-700 rounded-lg text-[13px] font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>View Details</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -453,11 +453,11 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-medium">
+                  <span className="text-[13px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono font-medium">
                     {selectedDoshaModal.category}
                   </span>
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                    className={`text-[13px] px-2.5 py-0.5 rounded-full font-bold ${
                       selectedDoshaModal.formationStatus === 'Formed'
                         ? 'bg-rose-600 text-white'
                         : selectedDoshaModal.formationStatus === 'Cancelled'
@@ -470,7 +470,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                     {selectedDoshaModal.formationStatus}
                   </span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    className={`text-[12px] px-2 py-0.5 rounded-full font-bold ${
                       selectedDoshaModal.classicalStatus === 'Directly Classical'
                         ? 'bg-emerald-100 text-emerald-900'
                         : 'bg-blue-100 text-blue-900'
@@ -498,8 +498,8 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
 
             {/* FORMATION CONDITION CHECKLIST */}
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="text-[12px] text-slate-500 uppercase tracking-wider font-bold">
                   Formation Condition Evaluation Checklist:
                 </span>
                 <span className="text-[11px] font-mono text-slate-600">
@@ -511,7 +511,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                 {selectedDoshaModal.evaluatedConditions.map((cond, idx) => (
                   <div
                     key={idx}
-                    className={`p-3 rounded-lg border text-xs flex flex-col gap-1 ${
+                    className={`p-3 rounded-lg border text-[13px] flex flex-col gap-1 ${
                       cond.isMet
                         ? 'bg-rose-50/70 border-rose-200 text-rose-950'
                         : 'bg-slate-100/60 border-slate-200 text-slate-700'
@@ -530,7 +530,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                         )}
                       </span>
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                        className={`text-[12px] px-2 py-0.5 rounded-full font-bold uppercase ${
                           cond.isMet ? 'bg-rose-200 text-rose-900' : 'bg-slate-200 text-slate-600'
                         }`}
                       >
@@ -543,7 +543,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                     </p>
 
                     <div className="mt-1 p-2 bg-white/80 rounded border border-slate-200/60 text-[11px] font-mono text-slate-800">
-                      <span className="text-slate-500 font-sans block text-[10px] uppercase font-bold">
+                      <span className="text-slate-500 font-sans block text-[12px] uppercase font-bold">
                         Chart Factor Responsible:
                       </span>
                       {cond.chartFactor}
@@ -554,8 +554,8 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             </div>
 
             {/* WHY THIS DOSHA IS FORMED / NOT FORMED */}
-            <div className="p-4 bg-amber-50/50 border border-amber-200/80 rounded-xl space-y-1.5 text-xs">
-              <span className="text-[10px] text-amber-900 uppercase tracking-wider font-bold block">
+            <div className="p-4 bg-amber-50/50 border border-amber-200/80 rounded-xl space-y-1.5 text-[13px]">
+              <span className="text-[12px] text-amber-900 uppercase tracking-wider font-bold block">
                 Why this Dosha is {selectedDoshaModal.formationStatus}:
               </span>
               <p className="text-amber-950 leading-relaxed font-medium">
@@ -564,9 +564,9 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             </div>
 
             {/* RELEVANT CHART POSITIONS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[13px]">
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold block">
+                <span className="text-[12px] text-slate-500 uppercase tracking-wider font-bold block">
                   Relevant Planetary Positions:
                 </span>
                 <ul className="space-y-1 text-[11px] text-slate-800 font-mono">
@@ -577,7 +577,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
               </div>
 
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold block">
+                <span className="text-[12px] text-slate-500 uppercase tracking-wider font-bold block">
                   Relevant Houses, Signs &amp; Lordships:
                 </span>
                 <div className="space-y-1 text-[11px] text-slate-800">
@@ -603,14 +603,14 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
 
             {/* CANCELLATION OR MITIGATION (IF APPLICABLE) */}
             {selectedDoshaModal.exceptionsApplied.length > 0 && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs">
-                <span className="text-[10px] text-emerald-800 uppercase tracking-wider font-bold block flex items-center gap-1.5">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-[13px]">
+                <span className="text-[12px] text-emerald-800 uppercase tracking-wider font-bold block flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-700" />
                   <span>Classical Cancellation / Parihāra Verified:</span>
                 </span>
                 <ul className="space-y-1.5">
                   {selectedDoshaModal.exceptionsApplied.map((e, i) => (
-                    <li key={i} className="text-emerald-950 font-medium text-xs">
+                    <li key={i} className="text-emerald-950 font-medium text-[13px]">
                       &bull; {e}
                     </li>
                   ))}
@@ -619,8 +619,8 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
             )}
 
             {/* CLASSICAL MEANING & PHALA */}
-            <div className="space-y-1.5 text-xs">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold block">
+            <div className="space-y-1.5 text-[13px]">
+              <span className="text-[12px] text-slate-500 uppercase tracking-wider font-bold block">
                 Classical Meaning &amp; Astrological Effects (Phala):
               </span>
               <p className="text-slate-800 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
@@ -630,8 +630,8 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
 
             {/* TEXTUAL REFERENCE & SANSKRIT SHLOKA */}
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="text-slate-500 font-bold uppercase tracking-wider text-[12px]">
                   Classical Textual Reference
                 </span>
                 <span className="font-mono font-bold text-[#8C2D19]">
@@ -643,8 +643,8 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
               </p>
               {selectedDoshaModal.primarySource.sanskritShloka && (
                 <div className="p-3 bg-white border border-slate-200/80 rounded-lg">
-                  <span className="text-[10px] text-slate-400 block mb-1">Mūla Śloka (मूल श्लोक):</span>
-                  <p className="text-xs font-serif font-bold text-slate-900 leading-relaxed italic">
+                  <span className="text-[12px] text-slate-400 block mb-1">Mūla Śloka (मूल श्लोक):</span>
+                  <p className="text-[13px] font-serif font-bold text-slate-900 leading-relaxed italic">
                     {selectedDoshaModal.primarySource.sanskritShloka}
                   </p>
                 </div>
@@ -658,7 +658,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
 
             {/* ACTIVE REMEDIES NOTIFICATION (NO REMEDIES IN VIEW DETAILS — DIRECTS TO REMEDIES SUB-PAGE) */}
             {selectedDoshaModal.formationStatus === 'Formed' && selectedDoshaModal.remedies.length > 0 && onNavigateToRemedies && (
-              <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="p-4 bg-amber-50/80 border border-amber-200/90 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px]">
                 <div className="flex items-center gap-2.5">
                   <Flower2 className="w-4 h-4 text-[#8C2D19] shrink-0" />
                   <span className="text-amber-950 font-medium">
@@ -671,7 +671,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
                     setSelectedDoshaModal(null);
                     onNavigateToRemedies();
                   }}
-                  className="px-3.5 py-1.5 bg-[#8C2D19] text-white rounded-lg font-bold text-xs hover:bg-[#732414] transition-all whitespace-nowrap cursor-pointer inline-flex items-center gap-1.5 shadow-2xs self-start sm:self-auto"
+                  className="px-3.5 py-1.5 bg-[#8C2D19] text-white rounded-lg font-bold text-[13px] hover:bg-[#732414] transition-all whitespace-nowrap cursor-pointer inline-flex items-center gap-1.5 shadow-2xs self-start sm:self-auto"
                 >
                   <span>View in Remedies Sub-Page</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -684,7 +684,7 @@ export const DoshasPanel: React.FC<DoshasPanelProps> = ({ chart, onNavigateToRem
               <button
                 type="button"
                 onClick={() => setSelectedDoshaModal(null)}
-                className="px-5 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer"
+                className="px-5 py-2 bg-slate-900 text-white rounded-xl text-[13px] font-semibold hover:bg-slate-800 cursor-pointer"
               >
                 Close Details
               </button>
