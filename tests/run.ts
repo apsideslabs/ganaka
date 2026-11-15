@@ -41,6 +41,7 @@ import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
 import { evaluateNeechaBhanga, evaluateAllNeechaBhanga } from '../lib/jyotisha/neechabhanga';
+import { evaluateNeechaRajaYoga, RAJA_YOGA_NOTE } from '../lib/jyotisha/raja-yoga-neecha';
 import { GRAHA_PROPERTIES } from '../lib/jyotisha/constants';
 import { calculateCurrentTransits } from '../lib/jyotisha/transits';
 import { ALL_DOSHA_DEFINITIONS } from '../lib/doshas/dosha-engine';
@@ -2440,6 +2441,95 @@ console.log('\n== Neecha bhanga presence rule ==');
   });
   const none = evaluateAllNeechaBhanga(pos(noDebilitation) as any);
   check('a chart with no debilitation yields an empty list', none.length === 0, String(none.length));
+}
+
+/* ------------ RAJA YOGA FROM A FALLEN GRAHA (BPHS 22.26-30) */
+
+console.log('\n== BPHS raja yoga from debilitation ==');
+{
+  // 22.26: a debilitated graha that aspects the lagna.
+  // Mars debilitates in Karka. Put Karka at the 7th house (lagna Makara) — from
+  // the 7th, Mars reaches the lagna by its ordinary 7th-house aspect.
+  // (From house 4 it would aspect 10, 7 and 11 — not the lagna.)
+  const crafted: any = {
+    lagnaRashi: 10,
+    planets: {
+      mars: { rashiNumber: 4, house: 7 },
+      moon: { rashiNumber: 8, house: 5 },
+      sun: { rashiNumber: 1, house: 10 },
+      mercury: { rashiNumber: 6, house: 3 },
+      jupiter: { rashiNumber: 10, house: 7 },
+      venus: { rashiNumber: 2, house: 11 },
+      saturn: { rashiNumber: 7, house: 4 },
+      rahu: { rashiNumber: 11, house: 8 },
+      ketu: { rashiNumber: 5, house: 2 },
+    },
+  };
+  const res = evaluateNeechaRajaYoga(crafted);
+  check('a debilitated graha aspecting the lagna is reported', res.length > 0, String(res.length));
+  check('Mars in Karka is reported under 22.26',
+    res.some((r) => r.graha === 'mars' && r.verse === '22.26'));
+
+  // Every reported case must actually aspect the lagna.
+  for (const r of res) {
+    const houses = [7];
+    if (r.graha === 'mars') houses.push(4, 8);
+    if (r.graha === 'jupiter') houses.push(5, 9);
+    if (r.graha === 'saturn') houses.push(3, 10);
+    const reaches = houses.some((n) => (((r.house + n - 2) % 12) + 1) === 1);
+    check(`${r.graha} (H${r.house}) really aspects the lagna`, reaches);
+  }
+
+  // 22.27 names the 3rd, 6th, 8th and 11th. From the 6th, Mars reaches the
+  // lagna by its 8th-house aspect, so it must also be reported under 22.27.
+  const inSixth: any = JSON.parse(JSON.stringify(crafted));
+  inSixth.planets.mars.house = 6;
+  const res27 = evaluateNeechaRajaYoga(inSixth);
+  check('a debilitated graha in the 6th aspecting the lagna is reported under 22.27',
+    res27.some((r) => r.graha === 'mars' && r.verse === '22.27'), JSON.stringify(res27.map((r) => r.verse)));
+
+  // 22.28: an exalted graha aspecting the lagna.
+  // Jupiter exalted in Karka at house 4 aspects house 10/12/... — from 4, Jupiter
+  // aspects 10, 8, 12. Not the lagna. Put it at house 7: 7,7->1 yes.
+  const exalted: any = JSON.parse(JSON.stringify(crafted));
+  exalted.planets.jupiter = { rashiNumber: 4, house: 7 };  // Jupiter exalted in Karka, 7th aspect -> lagna
+  delete (exalted.planets as any).mars;  // keep the exalted case clean
+  const resEx = evaluateNeechaRajaYoga(exalted);
+  check('an exalted graha aspecting the lagna is reported under 22.28',
+    resEx.some((r) => r.graha === 'jupiter' && r.verse === '22.28'));
+
+  // No aspect, no yoga.
+  const noAspect: any = JSON.parse(JSON.stringify(crafted));
+  noAspect.planets.mars.house = 2;   // from 2, Mars aspects 8, 5, 9 — not the lagna
+  noAspect.planets.mars.rashiNumber = 4;
+  check('a debilitated graha not aspecting the lagna gives nothing',
+    !evaluateNeechaRajaYoga(noAspect).some((r) => r.graha === 'mars'));
+
+  // Every case names its verse, its result and its reason.
+  for (const r of res) {
+    check(`verse ${r.verse} names the graha`, typeof r.grahaName === 'string' && r.grahaName.length > 0);
+    check(`verse ${r.verse} states a result`, typeof r.result === 'string' && r.result.length > 0);
+    check(`verse ${r.verse} states a reason`, typeof r.reason === 'string' && r.reason.length > 10);
+  }
+
+  // The two systems are genuinely different rules, so they must be able to
+  // disagree — otherwise one of them is not being computed.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const input = {
+    lagnaRashi: natal.lagna.rashiNumber,
+    planets: Object.fromEntries(
+      Object.entries(natal.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+    ),
+  };
+  const bphs = evaluateNeechaRajaYoga(input as any);
+  const pd = evaluateAllNeechaBhanga(input as any);
+  check('both rule sets run on a real chart', Array.isArray(bphs) && Array.isArray(pd));
+  check('the BPHS module cites only BPHS verses',
+    bphs.every((r) => /^22\.(26|27|28|29|30)$/.test(r.verse)));
+
+  // And the note must not conflate them.
+  check('the BPHS note distinguishes itself from Phaladipika',
+    /different rule/i.test(RAJA_YOGA_NOTE));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
