@@ -770,6 +770,7 @@ function reportData(chart: JyotishaChart): any {
 }
 
 export function ChartReport({ chart }: { chart: JyotishaChart }) {
+  const cached = reportData(chart);
   const bd = chart.meta.birthDetails;
   const p2 = (n: number) => String(n).padStart(2, '0');
   // The running head carries the moment and place only — this is Gaṇaka's
@@ -788,7 +789,6 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   // carries every section the workspace shows. Each is guarded: a failure in one
   // drops that section rather than the whole document.
   const safe = (fn: () => any) => { try { return fn(); } catch { return null; } };
-  const cached = reportData(chart);
   const bhavaBala: any = cached.bhavaBala;
   const phala: any = cached.phala;
   const vimshopaka: any = cached.vimshopaka;
