@@ -1253,6 +1253,45 @@ console.log('\n== KP uses Placidus cusps ==');
   check('significators still produce four levels', sigPlac.length === 4);
 }
 
+/* --------------------- KP OWNS ITS CUSPS, NOT THE CHART'S BHAVAS */
+
+console.log('\n== KP card owns its own cusps ==');
+{
+  // The KP layer must build Placidus cusps itself. If it ever read chart.bhavas
+  // it would silently inherit whole-sign, and the KP card would be showing a
+  // Parashari division dressed as Krishnamurti's.
+  const natal: any = calculateFullJyotishaChart({ ...(FIXTURES[0].birth as any), houseSystem: 'equal_whole' });
+  const kp: any = calculateKpLayer(natal);
+
+  check('the KP layer yields twelve cusps', kp.cusps.length === 12, String(kp.cusps.length));
+
+  const chartStarts = natal.bhavas.map((b: any) => b.startDegree);
+  const kpCusps = kp.cusps.map((c: any) => c.longitude);
+  const identical = kpCusps.every((v: number, i: number) => Math.abs(v - chartStarts[i]) < 0.01);
+  check('KP cusps are NOT the chart whole-sign cusps', !identical,
+    identical ? 'KP is reading chart.bhavas' : 'differs, correct');
+
+  // Whole-sign cusps land on exact 30° multiples; Placidus ones do not.
+  const allMultiples = kpCusps.every((v: number) => Math.abs(v % 30) < 0.01);
+  check('KP cusps are not all on sign boundaries', !allMultiples);
+
+  // Every cusp must carry the full four-lord chain the KP card renders.
+  for (const c of kp.cusps) {
+    check(`cusp ${c.house} has sign, star, sub and sub-sub lords`,
+      !!(c.lords.signLord && c.lords.starLord && c.lords.subLord && c.lords.subSubLord),
+      JSON.stringify(c.lords));
+  }
+
+  // The four-lord chain must be a real chain: each lord rules the next division.
+  check('the sub lord differs from the star lord somewhere',
+    kp.cusps.some((c: any) => c.lords.subLord !== c.lords.starLord));
+
+  // And the KP graha table carries the same chain for planets.
+  const grahasWithLords = (kp.planets || []).filter((p: any) => p.starLord && p.subLord);
+  check('KP grahas carry star and sub lords', grahasWithLords.length > 0,
+    `${grahasWithLords.length} of ${(kp.planets || []).length}`);
+}
+
 /* ------------------------------------------------------ FULL KP ENGINE */
 
 console.log('\n== Full KP engine ==');
