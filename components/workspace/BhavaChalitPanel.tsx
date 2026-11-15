@@ -2,9 +2,14 @@
 
 /**
  * Gaṇaka — Bhāva Chalita Table & House Cusp Architecture
- * Supports Krishnamurti (KP), Śrīpati, and Sama Bhāva (Equal House),
- * exact Ādi (Start), Madhya (Crest), Anta (End) coordinates, KP Sub-Lords,
- * and Bhāva Shift Analysis.
+ *
+ * Śrīpati and Sama Bhāva cusps, exact Ādi (start), Madhya (crest) and Anta (end)
+ * coordinates, and the bhāva shift analysis.
+ *
+ * ⚠ KP CUSPS ARE NOT OFFERED HERE. Krishnamurti's Placidus cusps, star lords and
+ * sub lords belong to the KP card, which builds its own — offering a KP toggle in
+ * a Parāśarī panel invited a chart read with KP cusps while its daśās and yogas
+ * came from the whole-sign system. One card, one framework.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -20,7 +25,8 @@ interface BhavaChalitPanelProps {
   lagnaRashi: RashiNumber;
   lagnaLongitude: number;
   mcLongitude?: number;
-  initialHouseSystem?: 'equal_whole' | 'sripati' | 'placidus';
+  /** KP's Placidus cusps are not offered here — they live in the KP card. */
+  initialHouseSystem?: 'equal_whole' | 'sripati';
 }
 
 const BHAVA_SIGNIFICANCES: Array<{ name: string; sanskrit: string; karaka: string; portfolio: string }> = [
@@ -46,7 +52,11 @@ export function BhavaChalitPanel({
   mcLongitude = (lagnaLongitude + 270) % 360,
   initialHouseSystem = 'equal_whole',
 }: BhavaChalitPanelProps) {
-  const [selectedSystem, setSelectedSystem] = useState<'equal_whole' | 'sripati' | 'placidus'>(initialHouseSystem);
+  const [selectedSystem, setSelectedSystem] = useState<'equal_whole' | 'sripati'>(
+    // A platform default of Placidus is a KP setting; fall back to Śrīpati rather
+    // than computing cusps this panel offers no control over.
+    initialHouseSystem === 'sripati' ? 'sripati' : 'equal_whole'
+  );
   const [activeTab, setActiveTab] = useState<'cusps' | 'relationships' | 'shifts'>('cusps');
 
   // Compute active bhavas based on selected system
@@ -100,14 +110,14 @@ export function BhavaChalitPanel({
           <h2 id="bhava-main-title" className="font-serif text-xl font-bold tracking-tight text-[#2B1810]">
             Bhāva Cusp Table &amp; Chalita Dynamics
           </h2>
-          <p className="font-sans text-xs text-[#6B5E51]">
-            Ādi (Start), Madhya (Crest), Anta (End), KP Sub-Lords, and House-Sign Relationships
+          <p className="font-sans text-[13px] text-[#6B5E51]">
+            Ādi (start), Madhya (crest), Anta (end), and the house–sign relationships
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* House System Switcher */}
-          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-xs">
+          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-[13px]">
             <button
               onClick={() => setSelectedSystem('equal_whole')}
               className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
@@ -128,20 +138,10 @@ export function BhavaChalitPanel({
             >
               Śrīpati (Porphyry)
             </button>
-            <button
-              onClick={() => setSelectedSystem('placidus')}
-              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
-                selectedSystem === 'placidus'
-                  ? 'bg-[#8C2D19] text-[#FDFBF7] shadow-sm'
-                  : 'text-[#4A3B32] hover:text-[#2B1810]'
-              }`}
-            >
-              Krishnamurti (KP)
-            </button>
           </div>
 
           {/* Sub-Tabs */}
-          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#FAF6EE] p-1 font-sans text-xs">
+          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#FAF6EE] p-1 font-sans text-[13px]">
             <button
               onClick={() => setActiveTab('cusps')}
               className={`rounded-md px-3 py-1 font-semibold transition-all ${
@@ -176,15 +176,15 @@ export function BhavaChalitPanel({
           <div className="rounded-xl border border-[#D8CEBA] bg-[#FAF6EE] shadow-sm overflow-hidden">
             <div className="border-b border-[#D8CEBA] bg-[#EFE7D8] px-4 py-2.5 flex items-center justify-between font-sans">
               <span className="font-serif text-sm font-bold text-[#2B1810]">
-                12 Bhāvas — Exact Coordinates (Ādi, Madhya, Anta) &amp; Sub-Lords
+                The twelve bhāvas — exact coordinates
               </span>
-              <span className="text-xs font-mono text-[#7A6B5C]">
-                System: {selectedSystem === 'placidus' ? 'KP Placidus' : selectedSystem === 'sripati' ? 'Śrīpati' : 'Sama Bhāva'}
+              <span className="text-[13px] font-mono text-[#7A6B5C]">
+                System: {selectedSystem === 'sripati' ? 'Śrīpati (Porphyry)' : 'Sama Bhāva (Equal)'}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table id="bhava-cusp-data-table" className="w-full text-left text-xs border-collapse font-sans">
+              <table id="bhava-cusp-data-table" className="w-full text-left text-[13px] border-collapse font-sans">
                 <thead>
                   <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                     <th className="py-2.5 px-3">House (Bhāva)</th>
@@ -192,7 +192,7 @@ export function BhavaChalitPanel({
                     <th className="py-2.5 px-3">Ādi (Start)</th>
                     <th className="py-2.5 px-3 font-mono font-bold text-[#8C2D19]">Madhya (Crest Cusp)</th>
                     <th className="py-2.5 px-3">Anta (End)</th>
-                    <th className="py-2.5 px-3">Sign / Star / Sub Lord</th>
+                    <th className="py-2.5 px-3">Rāśi &amp; lord</th>
                     <th className="py-2.5 px-3">Occupants</th>
                     <th className="py-2.5 px-3">Primary Kāraka</th>
                   </tr>
@@ -207,12 +207,12 @@ export function BhavaChalitPanel({
                       <tr key={bhava.houseNumber} id={`bhava-row-${bhava.houseNumber}`} className="hover:bg-[#F2EADC] transition-colors">
                         <td className="py-2.5 px-3 font-bold text-[#2B1810]">
                           <div className="flex items-center gap-1.5">
-                            <span className="w-5 h-5 rounded-full bg-[#E8DEC8] text-[#8C2D19] flex items-center justify-center font-mono text-[10px]">
+                            <span className="w-5 h-5 rounded-full bg-[#E8DEC8] text-[#8C2D19] flex items-center justify-center font-mono text-[12px]">
                               {bhava.houseNumber}
                             </span>
                             <div>
                               <span className="font-serif">{info.name}</span>
-                              <span className="block text-[10px] text-[#7A6B5C] font-normal">
+                              <span className="block text-[12px] text-[#7A6B5C] font-normal">
                                 {info.sanskrit}
                               </span>
                             </div>
@@ -236,14 +236,12 @@ export function BhavaChalitPanel({
                         </td>
 
                         <td className="py-2.5 px-3 text-[11px]">
-                          <div className="font-medium text-[#2B1810]">
-                            Sign: <span className="font-bold text-[#8C2D19]">{bhava.rashiLord.toUpperCase()}</span>
+                          <div className="font-medium text-[#2B1810] text-[12px]">
+                            <span className="font-bold text-[#8C2D19]">{bhava.rashiLord.toUpperCase()}</span>
                           </div>
-                          {bhava.kp?.starLord && (
-                            <div className="text-[#5C4A3E] text-[10px]">
-                              Star: {bhava.kp.starLord.toUpperCase()} | Sub: <span className="font-semibold text-[#8C2D19]">{bhava.kp.subLord?.toUpperCase()}</span>
-                            </div>
-                          )}
+                          <div className="text-[#5C4A3E] text-[11px] mt-0.5">
+                            {bhava.sanskritName}
+                          </div>
                         </td>
 
                         <td className="py-2.5 px-3">
@@ -252,7 +250,7 @@ export function BhavaChalitPanel({
                               {bhava.planetsInHouse.map((pid) => (
                                 <span
                                   key={pid}
-                                  className="px-1.5 py-0.5 rounded bg-[#F2EADC] text-[#8C2D19] font-bold text-[10px]"
+                                  className="px-1.5 py-0.5 rounded bg-[#F2EADC] text-[#8C2D19] font-bold text-[12px]"
                                 >
                                   {planets[pid]?.sanskritName}
                                 </span>
@@ -285,7 +283,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#8C2D19] text-base">Kendra Bhāvas (Pillars)</span>
               <span className="bg-[#E8DEC8] px-2 py-0.5 rounded text-[11px] font-mono font-bold">1, 4, 7, 10</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Vishnu Sthāna: Houses of vitality, emotional security, partnerships, and worldly achievement. Strong planets here grant stability and success.
             </p>
           </div>
@@ -296,7 +294,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#2D5A27] text-base">Trikoṇa Bhāvas (Trines)</span>
               <span className="bg-[#E1EAD2] text-[#2D5A27] px-2 py-0.5 rounded text-[11px] font-mono font-bold">1, 5, 9</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Lakṣmī Sthāna: Purely auspicious houses of fortune, intellect, dharma, mantra siddhi, and grace from past virtuous actions.
             </p>
           </div>
@@ -307,7 +305,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#A75412] text-base">Duḥsthāna Bhāvas (Difficult)</span>
               <span className="bg-[#FCE8D5] text-[#A75412] px-2 py-0.5 rounded text-[11px] font-mono font-bold">6, 8, 12</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Houses of struggle, diseases, debts, hidden transformations, and expenditure. Benefics here require careful assessment; malefics produce Viparita Raja Yoga.
             </p>
           </div>
@@ -318,7 +316,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#1E4A78] text-base">Upacaya Bhāvas (Growth)</span>
               <span className="bg-[#E3EDF7] text-[#1E4A78] px-2 py-0.5 rounded text-[11px] font-mono font-bold">3, 6, 10, 11</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Houses of progressive improvement over time through willpower and effort. Malefics positioned here yield great resilience and victory.
             </p>
           </div>
@@ -329,7 +327,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#8C2D19] text-base">Māraka Bhāvas (Killers)</span>
               <span className="bg-[#F9DCD5] text-[#8C2D19] px-2 py-0.5 rounded text-[11px] font-mono font-bold">2, 7</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Terminal transition houses. Their lords or planets associated with 2nd and 7th houses govern bodily exhaustion and life-cycle completion during active dasha.
             </p>
           </div>
@@ -340,7 +338,7 @@ export function BhavaChalitPanel({
               <span className="font-serif font-bold text-[#3D2F28] text-base">Paṇaphara &amp; Āpoklima</span>
               <span className="bg-[#E8DEC8] text-[#3D2F28] px-2 py-0.5 rounded text-[11px] font-mono font-bold">2,5,8,11 / 3,6,9,12</span>
             </div>
-            <p className="text-xs text-[#5C4A3E] leading-relaxed">
+            <p className="text-[13px] text-[#5C4A3E] leading-relaxed">
               Succeedent (Paṇaphara) houses yield fruits in middle age; Cadent (Āpoklima) houses yield results later in life or through overseas displacement.
             </p>
           </div>
@@ -355,7 +353,7 @@ export function BhavaChalitPanel({
               <h3 className="font-serif text-base font-bold text-[#2B1810]">
                 Bhāva Chalita Shift Diagnostic
               </h3>
-              <p className="text-xs text-[#7A6B5C]">
+              <p className="text-[13px] text-[#7A6B5C]">
                 Compares whole-sign Rāśi house positions with exact degree-based Bhāva Chalita spans
               </p>
             </div>
@@ -364,7 +362,7 @@ export function BhavaChalitPanel({
               {planetaryShifts.map((ps) => (
                 <div
                   key={ps.planetId}
-                  className={`p-3 rounded-lg border text-xs space-y-1.5 ${
+                  className={`p-3 rounded-lg border text-[13px] space-y-1.5 ${
                     ps.hasShifted
                       ? 'border-[#E6BFB8] bg-[#FDF0EE]'
                       : 'border-[#D8CEBA] bg-[#FAF6EE]'
@@ -373,17 +371,17 @@ export function BhavaChalitPanel({
                   <div className="flex items-center justify-between font-serif font-bold">
                     <span className="text-[#2B1810]">{ps.planetName}</span>
                     {ps.hasShifted ? (
-                      <span className="rounded bg-[#8C2D19] px-1.5 py-0.5 font-sans text-[10px] font-bold text-white">
+                      <span className="rounded bg-[#8C2D19] px-1.5 py-0.5 font-sans text-[12px] font-bold text-white">
                         SHIFTED
                       </span>
                     ) : (
-                      <span className="text-[10px] text-[#2D5A27] flex items-center gap-1 font-sans">
+                      <span className="text-[12px] text-[#2D5A27] flex items-center gap-1 font-sans">
                         <CheckCircle2 className="h-3 w-3" /> Unchanged
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 font-mono text-xs">
+                  <div className="flex items-center gap-2 font-mono text-[13px]">
                     <span className="text-[#5C4A3E]">Rāśi House: <strong>{ps.rashiHouse}</strong></span>
                     <ArrowRight className="h-3.5 w-3.5 text-[#8C2D19]" />
                     <span className="text-[#8C2D19] font-bold">Chalita: <strong>{ps.bhavaHouse}</strong></span>
