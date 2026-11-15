@@ -53,7 +53,33 @@ export interface GanakaChartExport {
   generatedAt: string;
   /** How many daśā levels this document carries. */
   dashaDepth: number;
-  birth: JyotishaChart['meta']['birthDetails'];
+  /**
+   * The birth moment, stated three ways.
+   *
+   * `hour` alone is a bare number a reader has to trust. The two strings make
+   * the half of the day impossible to misread: `time24` is the unambiguous
+   * form, `time12` the one a certificate prints. A downstream reader that
+   * takes "11:51" from a 12-hour display and files it as the birth time is
+   * twelve hours out, which moves the ascendant through a whole sign.
+   */
+  birth: JyotishaChart['meta']['birthDetails'] & {
+    time24: string;
+    time12: string;
+    timeZone: string;
+    utcInstant: string;
+  };
+  /**
+   * How to read this document. Not commentary — the conventions a consumer has
+   * to know to interpret a single number correctly.
+   */
+  conventions: {
+    time: string;
+    longitudes: string;
+    rashis: string;
+    houses: string;
+    degrees: string;
+    dates: string;
+  };
   calculation: {
     ayanamshaType: string;
     ayanamshaValue: number;
@@ -314,7 +340,32 @@ function buildChartExportUncached(chart: JyotishaChart, opts: ExportOptions = {}
     },
     generatedAt: new Date().toISOString(),
     dashaDepth: depth,
-    birth: plain(bd),
+    conventions: {
+      time: 'All times are 24-hour local clock time at the birth place, with the offset in birth.timeZone. birth.time24 is the unambiguous form; birth.time12 is the same instant on a 12-hour clock and exists only for display.',
+      longitudes: `Sidereal, using the ${bd ? (chart.meta as any).ayanamshaType : ''} ayanāṃśa — never tropical. Add the ayanāṃśa in calculation.ayanamshaValue to recover the tropical value.`,
+      rashis: 'Rāśi numbers run 1 = Meṣa (Aries) through 12 = Mīna (Pisces).',
+      houses: 'Houses are numbered 1–12 from the Lagna of the chart in which they appear. A varga has its own lagna; its houses are not the D-1 houses.',
+      degrees: 'Degrees are decimal degrees within the sign (0–30), not absolute longitude, unless the field name says longitude.',
+      dates: 'Daśā and period dates are ISO 8601 dates in the birth place local calendar.',
+    },
+    birth: {
+      ...plain(bd),
+      ...(() => {
+        const p2 = (n: number) => String(n).padStart(2, '0');
+        const h24 = bd.hour;
+        const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+        const meridiem = h24 >= 12 ? 'PM' : 'AM';
+        const tz = bd.timezoneOffsetHours ?? 0;
+        const tzStr = `UTC${tz >= 0 ? '+' : '−'}${p2(Math.floor(Math.abs(tz)))}:${p2(Math.round((Math.abs(tz) % 1) * 60))}`;
+        const utcMs = Date.UTC(bd.year, bd.month - 1, bd.day, h24, bd.minute, bd.second ?? 0) - tz * 3600_000;
+        return {
+          time24: `${p2(h24)}:${p2(bd.minute)}:${p2(bd.second ?? 0)}`,
+          time12: `${p2(h12)}:${p2(bd.minute)}:${p2(bd.second ?? 0)} ${meridiem}`,
+          timeZone: tzStr,
+          utcInstant: new Date(utcMs).toISOString(),
+        };
+      })(),
+    },
     calculation: {
       ayanamshaType: chart.meta.ayanamshaType,
       ayanamshaValue: chart.meta.ayanamshaValue,
