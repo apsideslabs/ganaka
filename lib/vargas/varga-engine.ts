@@ -17,6 +17,7 @@
 
 import { PlanetId } from '../astronomy/ephemeris';
 import { RashiNumber, VargaId, StandardVargaId, ExtendedVargaId, VargaChart, VargaHouse } from '../jyotisha/types';
+import { calculateDignity } from '../jyotisha/dignity';
 import { RASHIS } from '../jyotisha/constants';
 import { normalizeDegrees } from '../astronomy/julian';
 import { calculateNavamsha } from './navamsha';
@@ -446,7 +447,7 @@ export function calculateAllVargas(
 
     const planetsVarga: Record<
       PlanetId,
-      { rashiNumber: RashiNumber; degreeInRashi: number; house: number }
+      { rashiNumber: RashiNumber; degreeInRashi: number; house: number; dignity: string }
     > = {} as any;
 
     for (const [pId, pPos] of Object.entries(planets)) {
@@ -456,7 +457,27 @@ export function calculateAllVargas(
         rashiNumber: pV.rashiNumber,
         degreeInRashi: pV.degreeInRashi,
         house,
+        // Filled below, once every graha in this varga is known.
+        dignity: '',
       };
+    }
+
+    /**
+     * Dignity in THIS varga, not inherited from D-1.
+     *
+     * A graha can be exalted in D-1 and debilitated in D-9; reporting the D-1
+     * reading against a divisional chart is the classic way a varga table lies.
+     * The engine already graded each varga this way for viṃśopaka — that grade
+     * is now kept and shown rather than thrown away.
+     */
+    const vargaPositions: any = {};
+    for (const [pId, pv] of Object.entries(planetsVarga)) {
+      vargaPositions[pId] = {
+        siderealLongitude: ((pv.rashiNumber - 1) * 30) + pv.degreeInRashi,
+      };
+    }
+    for (const [pId, pv] of Object.entries(planetsVarga)) {
+      pv.dignity = calculateDignity(pId as PlanetId, vargaPositions[pId].siderealLongitude, vargaPositions);
     }
 
     // Independent House ↔ Rāśi mapping strictly derived from this Varga's Ascendant (lagnaRashi)
