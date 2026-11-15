@@ -257,7 +257,28 @@ function toRaw(value: any): any {
   return out;
 }
 
+/**
+ * Built exports, keyed by the chart object and the depth.
+ *
+ * A full export walks every daśā system, the eclipse search and three extra
+ * charts for the time-sensitivity pass. That is a second or more of main-thread
+ * work, and the button was doing it from scratch each press. A chart object is
+ * immutable once computed, so the result can be reused.
+ */
+const exportCache = new WeakMap<JyotishaChart, Map<string, GanakaChartExport>>();
+
 export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {}): GanakaChartExport {
+  const depth = opts.dashaDepth ?? 3;
+  let byDepth = exportCache.get(chart);
+  if (!byDepth) { byDepth = new Map(); exportCache.set(chart, byDepth); }
+  const hit = byDepth.get(String(depth));
+  if (hit) return hit;
+  const built = buildChartExportUncached(chart, opts);
+  byDepth.set(String(depth), built);
+  return built;
+}
+
+function buildChartExportUncached(chart: JyotishaChart, opts: ExportOptions = {}): GanakaChartExport {
   const bd = chart.meta.birthDetails;
   const depth = Math.max(1, opts.dashaDepth ?? 3);
   const vim: any = chart.vimshottari || {};
@@ -993,26 +1014,55 @@ function slimPeriods(periods: any[]): any[] {
   }));
 }
 
-/** Suggested filename, matching the PDF's convention. */
-export function chartJsonFilename(chart: JyotishaChart): string {
+/**
+ * Suggested filename.
+ *
+ * A date alone does not tell a reader which chart they are opening once two or
+ * three sit in a folder. If a name was given it is used; otherwise the date
+ * stands in. A transit (gochara) chart is labelled as such rather than with a
+ * birth date it does not have.
+ */
+export function chartJsonFilename(
+  chart: JyotishaChart,
+  opts: { kind?: 'natal' | 'gochar' } = {}
+): string {
   const d = chart.meta.birthDetails;
+  const slug = (raw: string) =>
+    raw
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')   // strip diacritics
+      .replace(/[^A-Za-z0-9]+/g, '-')       // spaces and punctuation to dashes
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40);
+
+  if (opts.kind === 'gochar') return 'Ganaka-Gochar.json';
+
+  const name = (d as any).personName ? slug(String((d as any).personName)) : '';
+  if (name) return `Ganaka-Chart-${name}.json`;
+
   return `Ganaka-Chart-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.json`;
 }
 
-/** Serialise to pretty-printed JSON. */
+const stringCache = new WeakMap<JyotishaChart, string>();
+
+/** Serialise to pretty-printed JSON, cached per chart. */
 export function chartToJsonString(chart: JyotishaChart): string {
-  return JSON.stringify(buildChartExport(chart), null, 2);
+  const hit = stringCache.get(chart);
+  if (hit) return hit;
+  const out = JSON.stringify(buildChartExport(chart), null, 2);
+  stringCache.set(chart, out);
+  return out;
 }
 
 /** Trigger a browser download of the JSON. */
-export function downloadChartJson(chart: JyotishaChart): void {
+export function downloadChartJson(chart: JyotishaChart, kind: 'natal' | 'gochar' = 'natal'): void {
   const blob = new Blob([chartToJsonString(chart)], {
     type: 'application/json;charset=utf-8',
   });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = chartJsonFilename(chart);
+  a.download = chartJsonFilename(chart, { kind });
   document.body.appendChild(a);
   a.click();
   a.remove();
