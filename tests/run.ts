@@ -15,6 +15,8 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { calculateAllPlanets, sunMoonLongitudes } from '../lib/astronomy/ephemeris';
+import { chartJsonFilename } from '../lib/report/export-chart-json';
 import { CLASSICAL_YOGA_REGISTRY } from '../lib/yogas/yoga-engine';
 import { NITYA_YOGAS } from '../lib/jyotisha/panchanga';
 import { calculateAshtakavarga } from '../lib/ashtakavarga/ashtakavarga';
@@ -2660,6 +2662,59 @@ console.log('\n== Yoga coverage ==');
   // Nabhasa uses only the seven non-node grahas — Rahu and Ketu must not count.
   check('the Nabhasa set is built on seven grahas',
     !JSON.stringify(nabhasa.map((y) => y.definition)).includes('Rahu'));
+}
+
+/* ---------------------- EXPORT FILENAME & SPEED ------------------- */
+
+console.log('\n== Export filename and speed ==');
+{
+  const base: any = {
+    year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X',
+  };
+  const nameless: any = calculateFullJyotishaChart(base);
+  const named: any = calculateFullJyotishaChart({ ...base, personName: 'Rahul' });
+  const full: any = calculateFullJyotishaChart({ ...base, personName: 'Rahul Sharma' });
+
+  check('no name falls back to the date',
+    chartJsonFilename(nameless) === 'Ganaka-Chart-20090303.json', chartJsonFilename(nameless));
+  check('a name is used in the filename',
+    chartJsonFilename(named) === 'Ganaka-Chart-Rahul.json', chartJsonFilename(named));
+  check('a full name is slugged with dashes',
+    chartJsonFilename(full) === 'Ganaka-Chart-Rahul-Sharma.json', chartJsonFilename(full));
+  check('a gochar chart is labelled gochar',
+    chartJsonFilename(nameless, { kind: 'gochar' }) === 'Ganaka-Gochar.json');
+  check('diacritics are stripped from the name',
+    chartJsonFilename(calculateFullJyotishaChart({ ...base, personName: 'Aśok Dās' })) === 'Ganaka-Chart-Asok-Das.json');
+  check('punctuation cannot break the filename',
+    !/[^A-Za-z0-9.\-]/.test(chartJsonFilename(calculateFullJyotishaChart({ ...base, personName: "O'Brien / Jr." }))));
+
+  // The name must not collide in the chart cache — two charts differing only by
+  // name must stay distinct.
+  check('the name survives the chart cache', named.meta.birthDetails.personName === 'Rahul');
+  check('a nameless chart stays nameless', nameless.meta.birthDetails.personName === undefined);
+  check('the name does not change any calculation',
+    named.lagna.siderealLongitude === nameless.lagna.siderealLongitude);
+
+  // The export is cached: a second build must be free.
+  const t1 = Date.now(); buildChartExport(nameless, { dashaDepth: 2 }); const first = Date.now() - t1;
+  const t2 = Date.now(); buildChartExport(nameless, { dashaDepth: 2 }); const second = Date.now() - t2;
+  check('the export is cached after the first build', second < Math.max(5, first / 4),
+    `${first} ms then ${second} ms`);
+  check('the cached export is the same object', buildChartExport(nameless, { dashaDepth: 2 }) === buildChartExport(nameless, { dashaDepth: 2 }));
+
+  // The eclipse fast path must match the full ephemeris exactly.
+  let worst = 0;
+  for (let i = 0; i < 12; i++) {
+    const jd = 2451545.0 + i * 211.7;
+    const fullPos: any = calculateAllPlanets(jd, 'lahiri', 0);
+    const fast = sunMoonLongitudes(jd, 'lahiri', 0);
+    const ds = Math.abs(((fullPos.sun.siderealLongitude - fast.sun + 540) % 360) - 180);
+    const dm = Math.abs(((fullPos.moon.siderealLongitude - fast.moon + 540) % 360) - 180);
+    worst = Math.max(worst, ds, dm);
+  }
+  check('the sun/moon fast path is identical to the full ephemeris',
+    worst * 3600 < 0.001, `${(worst * 3600).toFixed(6)}″`);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
