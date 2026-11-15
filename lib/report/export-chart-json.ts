@@ -235,8 +235,15 @@ const STRIP_KEYS = new Set([
  * comes from is provenance a reader may want; its verse number and Devanagari
  * title are not.
  */
+/** Round a float to six decimals — sub-arcsecond precision, without the noise. */
+const round6 = (n: number) => Math.round(n * 1e6) / 1e6;
+
 function toRaw(value: any): any {
   if (Array.isArray(value)) return value.map(toRaw);
+  // A double printed at full precision carries seventeen digits where six are
+  // meaningful: 0.001″ of longitude is 2.7e-7. Across a chart that is thousands
+  // of wasted characters.
+  if (typeof value === 'number') return Number.isFinite(value) ? round6(value) : value;
   if (value === null || typeof value !== 'object') return value;
 
   const out: Record<string, any> = {};
@@ -339,7 +346,17 @@ function buildChartExportUncached(chart: JyotishaChart, opts: ExportOptions = {}
       planets: plain(chart.planets),
       bhavas: plain(chart.bhavas),
       panchanga: plain(chart.panchanga),
-      vargas: plain(chart.vargas),
+      // `houseToRashi` and `rashiToHouse` are pure functions of `lagnaRashi` —
+      // house h maps to rashi ((lagna + h − 2) mod 12) + 1 and back. Storing
+      // them once per varga repeated the same twelve numbers twenty-four times.
+      vargas: plain(
+        Object.fromEntries(
+          Object.entries(chart.vargas || {}).map(([vId, v]: any) => {
+            const { houseToRashi, rashiToHouse, ...rest } = v || {};
+            return [vId, rest];
+          })
+        )
+      ),
       vargottamaPlanets: plain(chart.vargottamaPlanets),
       vimshottari: plain(vimshottari),
       ashtakavarga: plain(chart.ashtakavarga),
@@ -1045,11 +1062,21 @@ export function chartJsonFilename(
 
 const stringCache = new WeakMap<JyotishaChart, string>();
 
-/** Serialise to pretty-printed JSON, cached per chart. */
+/**
+ * Serialise with the top-level sections on their own lines and their contents
+ * compact.
+ *
+ * Indenting every nested level doubled the file — 690 KB against 366 KB for the
+ * same data — and almost none of that indentation helps: a reader navigates by
+ * section, not by the four levels inside `chart.vargas.D9.planets.sun`. This
+ * keeps the sections findable and drops the rest of the whitespace.
+ */
 export function chartToJsonString(chart: JyotishaChart): string {
   const hit = stringCache.get(chart);
   if (hit) return hit;
-  const out = JSON.stringify(buildChartExport(chart), null, 2);
+  const e: any = buildChartExport(chart);
+  const lines = Object.entries(e).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`);
+  const out = `{\n${lines.join(',\n')}\n}\n`;
   stringCache.set(chart, out);
   return out;
 }
