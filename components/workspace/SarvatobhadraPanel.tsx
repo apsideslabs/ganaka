@@ -42,7 +42,7 @@ export const SarvatobhadraPanel: React.FC<SarvatobhadraPanelProps> = ({ chart })
           <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
           <h2 className="text-base font-serif font-bold text-slate-900">Sarvatobhadra Cakra</h2>
         </div>
-        <p className="text-xs text-slate-500 max-w-3xl leading-relaxed">
+        <p className="text-[13px] text-slate-500 max-w-3xl leading-relaxed">
           A 9×9 figure of 81 cells. The outer ring carries the 28 nakṣatras including Abhijit,
           seven to a side, counted clockwise from the north-east corner.
         </p>
@@ -59,9 +59,9 @@ export const SarvatobhadraPanel: React.FC<SarvatobhadraPanelProps> = ({ chart })
                 key={`${c.row}-${c.col}`}
                 className={[
                   'aspect-square flex items-center justify-center rounded text-center p-0.5 leading-tight',
-                  isNak ? 'bg-[#FCFAF6] border border-[#E1D8C7] text-[8px] font-medium text-slate-700' : '',
-                  isRashi ? 'bg-[#8C2D19]/8 border border-[#8C2D19]/25 text-[8px] font-mono text-[#8C2D19]' : '',
-                  isCorner ? 'bg-slate-100 border border-slate-300 text-[10px] text-slate-600' : '',
+                  isNak ? 'bg-[#FCFAF6] border border-[#E1D8C7] text-[11px] font-medium text-slate-700' : '',
+                  isRashi ? 'bg-[#8C2D19]/8 border border-[#8C2D19]/25 text-[11px] font-mono text-[#8C2D19]' : '',
+                  isCorner ? 'bg-slate-100 border border-slate-300 text-[12px] text-slate-600' : '',
                   c.layer === 'empty' ? 'bg-slate-50/60 border border-slate-100' : '',
                 ].join(' ')}
                 title={c.value || undefined}
@@ -74,17 +74,17 @@ export const SarvatobhadraPanel: React.FC<SarvatobhadraPanelProps> = ({ chart })
       </div>
 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
           <Grid3x3 className="w-3.5 h-3.5 text-[#8C2D19]" /> Grahas and their vedha
         </h3>
-        <table className="w-full text-xs">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Graha</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Nakṣatra</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Opposite</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Left</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Right</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Graha</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Nakṣatra</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Opposite</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Left</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Right</th>
             </tr>
           </thead>
           <tbody>
