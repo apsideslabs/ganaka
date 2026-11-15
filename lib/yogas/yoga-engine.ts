@@ -1696,7 +1696,7 @@ export const CLASSICAL_YOGA_REGISTRY: YogaDefinition[] = [
         isPresent: true,
         conditionsMet: cancelled.flatMap((r) => r.reasons.map((x) => `${r.planetName}: ${x}`)),
         involvedPlanets: cancelled.map((r) => r.planet) as PlanetId[],
-        strengthRating: cancelled.some((r) => r.strength >= 3) ? 'High' : 'Moderate',
+        strengthRating: cancelled.some((r) => r.strength >= 3) ? 'High' : 'Medium',
       };
     },
   },
