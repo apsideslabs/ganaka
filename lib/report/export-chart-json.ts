@@ -26,6 +26,7 @@ import { calculateKpAspects } from '@/lib/kp/aspects';
 import { housesSignified } from '@/lib/kp/significators';
 import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { siddhanticResiduals } from '@/lib/astronomy/siddhantic';
+import { assessTimeSensitivity } from '@/lib/jyotisha/time-sensitivity';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { extractLunarData } from '@/lib/jyotisha/kuta/ashtakuta-calculator';
@@ -117,6 +118,10 @@ export interface GanakaChartExport {
   mrityuBhaga: Record<string, unknown>;
   /** Nakṣatra nāḍī for the Moon and Lagna. */
   nadi: Record<string, unknown>;
+  /** Classical remedial measures for the doṣas actually formed in this chart. */
+  remedies: Array<Record<string, unknown>>;
+  /** How far the chart moves when the birth time is nudged — the birth-time uncertainty. */
+  timeSensitivity: Record<string, unknown>;
   /** Sūrya Siddhānta against the modern ephemeris, graha by graha. */
   siddhanticResiduals: Array<Record<string, unknown>>;
   /** The Navatara chakra. */
@@ -214,11 +219,11 @@ export function buildChartExport(chart: JyotishaChart, opts: ExportOptions = {})
       url: 'https://apsideslabs.github.io/ganaka/',
       scope: 'calculation',
       note:
-        'Computed positions and classical classifications only. Yogas and doshas ' +
-        'are reported as detections — which combination formed, from which verse, ' +
-        'on what conditions — without their effects prose or remedies. This ' +
-        'document contains no predictions and no remedies; interpretation belongs ' +
-        'to the reader or to a separate prediction system.',
+        'A complete kuṇḍalī of the birth data: every position, divisional chart, ' +
+        'strength, daśā, yoga, doṣa, remedy and sensitive point the engine derives, ' +
+        'exactly as the workspace shows them. Yogas and doshas are reported as ' +
+        'detections — which combination formed, from which verse, on what conditions. ' +
+        'Only the indications layer is excluded: this document contains no predictions.',
     },
     generatedAt: new Date().toISOString(),
     dashaDepth: depth,
@@ -430,6 +435,54 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
       distribution: n.distribution,
       note: n.note,
     };
+  }, {});
+
+  // Remedies belong to the doṣas that actually formed, and are shown in the
+  // workspace — so they travel with the chart. They are a prescription, not a
+  // prediction, and are not part of the indications layer.
+  const remedies = safe(() => {
+    const out: Array<Record<string, unknown>> = [];
+    for (const d of ((chart.doshas as any)?.evaluatedDoshas ?? [])) {
+      // The workspace panel shows remedies only for doṣas that actually formed.
+      if (d?.formationStatus !== 'Formed') continue;
+      if (!Array.isArray(d?.remedies) || d.remedies.length === 0) continue;
+      for (const r of d.remedies) {
+        out.push({
+          doshaId: d.id,
+          doshaName: d.name,
+          formationStatus: d.formationStatus,
+          id: r.id,
+          title: r.title,
+          sanskritTitle: r.sanskritTitle,
+          transliteration: r.transliteration,
+          category: r.category,
+          description: r.description,
+          procedure: r.procedure ?? r.instructions,
+          mantra: r.mantra,
+          deity: r.deity,
+          day: r.day,
+          source: r.source ?? r.primarySource,
+        });
+      }
+    }
+    return out;
+  }, []);
+
+  const timeSensitivity = safe(() => {
+    const b: any = (chart.meta as any)?.birthDetails ?? {};
+    if (!b.year) return {};
+    return assessTimeSensitivity(
+      {
+        year: b.year, month: b.month, day: b.day,
+        hour: b.hour, minute: b.minute, second: b.second ?? 0,
+        latitude: b.latitude, longitude: b.longitude,
+        timezoneOffsetHours: b.timezoneOffsetHours,
+        locationName: b.locationName,
+        ayanamshaType: (chart.meta as any).ayanamshaType,
+        nodeType: (chart.meta as any).nodeType ?? 'mean',
+      } as any,
+      5
+    );
   }, {});
 
   const residuals = safe(() => {
@@ -793,7 +846,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
-    avasthas, mrityuBhaga, nadi, navatara, siddhanticResiduals: residuals, kpAspects, kpFourStep,
+    avasthas, mrityuBhaga, nadi, navatara, remedies, timeSensitivity, siddhanticResiduals: residuals, kpAspects, kpFourStep,
   };
 }
 
