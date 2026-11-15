@@ -504,19 +504,29 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     for (const [vId, v] of Object.entries((chart.vargas || {}) as any)) {
       const vv: any = v;
       if (!vv?.planets) continue;
-      const positions = {
+      const positions: any = {
         lagnaRashi: vv.lagnaRashi,
         planets: Object.fromEntries(
           Object.entries(vv.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
         ),
       };
-      const res = evaluateAllNeechaBhanga(positions as any);
+      // For D-1, attach the Navamsa so the D-9 confirmation can run.
+      if (vId === 'D1' && (chart.vargas as any)?.D9?.planets) {
+        positions.navamsa = Object.fromEntries(
+          Object.entries((chart.vargas as any).D9.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber }])
+        );
+      }
+      const res = evaluateAllNeechaBhanga(positions);
       if (res.length) {
         out[vId] = res.map((r) => ({
           planet: r.planet,
           rashi: r.rashiName,
+          verdict: r.verdict,
           cancelled: r.cancelled,
           strength: r.strength,
+          ruledHouses: r.ruledHouses,
+          lordsKendraOrTrikona: r.lordsKendraOrTrikona,
+          navamsaConfirmed: r.navamsaConfirmed,
           conditions: r.conditions.map((c) => ({ rule: c.rule, id: c.id, met: c.met, detail: c.detail })),
         }));
       }
