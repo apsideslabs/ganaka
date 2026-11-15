@@ -133,7 +133,7 @@ export const DivisionalChartDiagram: React.FC<DivisionalChartDiagramProps> = ({
       {/* Chart Top Control Bar */}
       <div className="flex items-center justify-between w-full pb-3.5 mb-3 border-b border-slate-100 flex-wrap gap-2.5">
         {/* Style Selector Tabs */}
-        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1 font-sans text-xs">
+        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1 font-sans text-[13px]">
           <button
             type="button"
             id="varga-diagram-north-btn"
@@ -178,7 +178,7 @@ export const DivisionalChartDiagram: React.FC<DivisionalChartDiagramProps> = ({
             type="button"
             id="varga-diagram-degrees-toggle"
             onClick={() => setShowDegrees(!showDegrees)}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-medium rounded-lg border transition-colors cursor-pointer ${
+            className={`flex items-center gap-1 px-2.5 py-1 text-[13px] font-mono font-medium rounded-lg border transition-colors cursor-pointer ${
               showDegrees
                 ? 'bg-amber-100 text-amber-900 border-amber-300'
                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -253,7 +253,7 @@ export const DivisionalChartDiagram: React.FC<DivisionalChartDiagramProps> = ({
       </div>
 
       {/* Chart Footer Indicator */}
-      <div className="mt-3.5 flex items-center justify-between w-full text-xs text-slate-500 px-1">
+      <div className="mt-3.5 flex items-center justify-between w-full text-[13px] text-slate-500 px-1">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-rose-700 font-bold">
             <span className="w-2 h-2 rounded-full bg-rose-600" /> Lagna ({RASHI_DATA[lagnaRashi]?.english})
