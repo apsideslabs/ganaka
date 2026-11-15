@@ -487,11 +487,11 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <div>
                 <h3 className="font-serif text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
                   <span>Viṃśottarī Daśā Gaṇita</span>
-                  <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                  <span className="text-[13px] font-mono font-normal px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
                     BPHS Ch. 46
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 font-sans mt-0.5">
+                <p className="text-[13px] text-slate-500 font-sans mt-0.5">
                   Astronomically exact 120-year Parāśarī cycle with full 6-level sub-period hierarchy down to Dehadaśā.
                 </p>
               </div>
@@ -503,7 +503,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <button
                 id="btn-open-extended-dashas"
                 onClick={onOpenExtendedDashas}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-900 hover:bg-indigo-100 border border-indigo-200 text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
               >
                 <Layers className="w-3.5 h-3.5 text-indigo-700" />
                 <span>Extended Daśās (7 Systems) &rarr;</span>
@@ -513,7 +513,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             <button
               id="btn-open-math-modal"
               onClick={() => setShowMathModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
             >
               <BookOpen className="w-3.5 h-3.5" />
               <span>Daśā Gaṇita Śāstra (Formula &amp; Proof)</span>
@@ -522,7 +522,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             <button
               id="btn-focus-active-dasha"
               onClick={jumpToActiveDasha}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8C2D19] text-white hover:bg-[#722414] text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8C2D19] text-white hover:bg-[#722414] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Locate Active Daśā</span>
@@ -531,7 +531,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
         </div>
 
         {/* CALCULATION FORMULA CONTROLS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1 text-[13px]">
           {/* 1. Year Length (Daśā Māna) */}
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5">
             <div className="flex items-center justify-between">
@@ -539,13 +539,13 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <Scale className="w-3 h-3 text-[#8C2D19]" />
                 <span>Daśā Māna (Year Length)</span>
               </label>
-              <span className="font-mono text-[10px] text-slate-500 font-bold">{yearDays}d/yr</span>
+              <span className="font-mono text-[12px] text-slate-500 font-bold">{yearDays}d/yr</span>
             </div>
             <select
               id="select-year-length"
               value={yearLength}
               onChange={(e) => setYearLength(e.target.value as DashaYearLength)}
-              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[13px] text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
             >
               <option value="solar">Modern Solar (365.2425 days) • AstroSage / Drik</option>
               <option value="savana">Classical Sāvana (360.0 days) • BPHS / Jagannatha</option>
@@ -561,13 +561,13 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <Compass className="w-3 h-3 text-[#8C2D19]" />
                 <span>Starting Seed (Nakṣatra Kṣetra)</span>
               </label>
-              <span className="font-mono text-[10px] text-slate-500 capitalize">{seed}</span>
+              <span className="font-mono text-[12px] text-slate-500 capitalize">{seed}</span>
             </div>
             <select
               id="select-starting-seed"
               value={seed}
               onChange={(e) => setSeed(e.target.value as DashaSeed)}
-              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[13px] text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
             >
               <option value="moon">Janma Nakṣatra (Moon) • Universal Standard</option>
               <option value="lagna">Lagna Nakṣatra (Ascendant) • BPHS 46.12</option>
@@ -584,7 +584,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <Layers className="w-3 h-3 text-[#8C2D19]" />
                 <span>Daśā Display Horizon</span>
               </label>
-              <span className="font-mono text-[10px] text-slate-500">
+              <span className="font-mono text-[12px] text-slate-500">
                 {displayMode === 'lifespan' ? 'Lifespan' : 'Full Cycle'}
               </span>
             </div>
@@ -592,7 +592,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               id="select-display-mode"
               value={displayMode}
               onChange={(e) => setDisplayMode(e.target.value as 'lifespan' | 'full_astronomical')}
-              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[13px] text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
             >
               <option value="lifespan">Lifespan Mode (From Birth Date Onwards)</option>
               <option value="full_astronomical">Full Astronomical Cycle (Includes Pre-Natal)</option>
@@ -601,7 +601,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
         </div>
 
         {/* BIRTH BALANCE SUMMARY STRIP */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-amber-50/70 border border-amber-200/70 rounded-xl text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-amber-50/70 border border-amber-200/70 rounded-xl text-[13px]">
           <div className="flex flex-wrap items-center gap-4 text-slate-800">
             <div>
               <span className="text-slate-500 text-[11px] block">Janma Seed Lord:</span>
@@ -647,7 +647,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
           <button
             id="tab-btn-timeline"
             onClick={() => setActiveTab('timeline')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'timeline'
                 ? 'bg-[#8C2D19] text-white shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -658,7 +658,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
           <button
             id="tab-btn-active"
             onClick={() => setActiveTab('active')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'active'
                 ? 'bg-[#8C2D19] text-white shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -669,7 +669,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
           <button
             id="tab-btn-planets"
             onClick={() => setActiveTab('planets')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer ${
               activeTab === 'planets'
                 ? 'bg-[#8C2D19] text-white shadow-2xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -680,41 +680,41 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
         </div>
 
         {/* Quick Date Selectors */}
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 text-[13px]">
           <span className="text-slate-400 text-[11px] mr-1 hidden sm:inline">Jump:</span>
           <button
             onClick={() => handleTargetDateChange(new Date().toISOString().split('T')[0])}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             Today
           </button>
           <button
             onClick={() => handleTargetDateChange(birthDateDetails.formattedBirthDate)}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             At Birth
           </button>
           <button
             onClick={() => setQuickAge(18)}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             Age 18
           </button>
           <button
             onClick={() => setQuickAge(25)}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             Age 25
           </button>
           <button
             onClick={() => setQuickAge(40)}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             Age 40
           </button>
           <button
             onClick={() => setQuickAge(60)}
-            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium cursor-pointer"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[13px] font-medium cursor-pointer"
           >
             Age 60
           </button>
@@ -728,13 +728,13 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#8C2D19]" />
-              <span className="text-xs font-semibold text-slate-700">Reference Date:</span>
+              <span className="text-[13px] font-semibold text-slate-700">Reference Date:</span>
               <input
                 id="target-date-input"
                 type="date"
                 value={targetDateStr}
                 onChange={(e) => handleTargetDateChange(e.target.value)}
-                className="font-mono text-xs px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-[#8C2D19] cursor-pointer"
+                className="font-mono text-[13px] px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-[#8C2D19] cursor-pointer"
               />
             </div>
 
@@ -742,7 +742,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <button
                 id="btn-focus-active"
                 onClick={jumpToActiveDasha}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-xs font-medium transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-[13px] font-medium transition-colors cursor-pointer"
                 title="Jump directly to the currently active Mahādaśā & Antardaśā"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#8C2D19]" />
@@ -753,7 +753,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <button
                   id="btn-reset-maha"
                   onClick={jumpToMahaLevel}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 text-[13px] font-medium transition-colors cursor-pointer"
                   title="Return to Mahādaśās page"
                 >
                   <RotateCcw className="w-3 h-3 text-slate-400" />
@@ -765,7 +765,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
           {/* Active Chain Quick Breadcrumb Banner (Interactive) */}
           {activeDashaHierarchy && (
-            <div className="p-3.5 bg-gradient-to-r from-amber-50/80 via-orange-50/50 to-slate-50 rounded-xl border border-amber-200/90 flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+            <div className="p-3.5 bg-gradient-to-r from-amber-50/80 via-orange-50/50 to-slate-50 rounded-xl border border-amber-200/90 flex flex-wrap items-center justify-between gap-3 text-[13px] shadow-2xs">
               <div className="flex items-center gap-2">
                 <span className="flex h-2.5 w-2.5 relative">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
@@ -773,7 +773,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 </span>
                 <span className="font-semibold text-slate-800">Operative Chain on {targetDateStr}:</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
+              <div className="flex flex-wrap items-center gap-1.5 font-mono text-[13px]">
                 <button
                   onClick={jumpToMahaLevel}
                   className="px-2 py-0.5 bg-[#8C2D19] text-white rounded-md font-bold shadow-2xs hover:opacity-90 transition-opacity cursor-pointer"
@@ -884,7 +884,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                   <button
                     id="btn-level-back"
                     onClick={goBack}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-800 hover:text-[#8C2D19] border border-slate-200 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-800 hover:text-[#8C2D19] border border-slate-200 text-[13px] font-semibold shadow-2xs transition-colors cursor-pointer"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>Back</span>
@@ -892,7 +892,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 )}
 
                 {/* Breadcrumb Trail */}
-                <nav aria-label="Dasha Navigation Breadcrumb" className="flex items-center gap-1.5 text-xs flex-wrap">
+                <nav aria-label="Dasha Navigation Breadcrumb" className="flex items-center gap-1.5 text-[13px] flex-wrap">
                   <button
                     onClick={jumpToMahaLevel}
                     className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer font-medium ${
@@ -990,7 +990,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
             {/* Context Banner for Level 2+ */}
             {currentLevel > 1 && (
-              <div className="px-4 py-2.5 bg-amber-50/40 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="px-4 py-2.5 bg-amber-50/40 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[13px]">
                 <div className="text-slate-700">
                   <span className="text-slate-500 font-medium">Viewing sub-periods of: </span>
                   <span className="font-semibold text-slate-900">
@@ -1035,7 +1035,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                               pranaIdx: null,
                             });
                           }}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[13px] font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                             isSelected
                               ? 'bg-[#8C2D19] text-white shadow-2xs'
                               : isMahaActive
@@ -1048,7 +1048,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                             <span className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-600'} animate-pulse`} />
                           )}
                           <span>{m.lordName}</span>
-                          <span className={`text-[10px] font-mono ${isSelected ? 'text-amber-200' : 'text-slate-400'}`}>
+                          <span className={`text-[12px] font-mono ${isSelected ? 'text-amber-200' : 'text-slate-400'}`}>
                             {m.durationYears.toFixed(0)}y
                           </span>
                         </button>
@@ -1059,7 +1059,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               )}
 
               {/* Timeline Track Header */}
-              <div className="flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center justify-between gap-2 text-[13px]">
                 <div className="flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 text-[#8C2D19]" />
                   <span className="font-semibold text-slate-800">
@@ -1126,7 +1126,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                       >
                         {/* Active Indicator Floating Badge */}
                         {isActive && (
-                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#8C2D19] text-white tracking-wider shadow-xs whitespace-nowrap z-10 flex items-center gap-1">
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded-full text-[11px] font-bold bg-[#8C2D19] text-white tracking-wider shadow-xs whitespace-nowrap z-10 flex items-center gap-1">
                             <span className="h-1 w-1 rounded-full bg-amber-300 animate-pulse" />
                             ACTIVE
                           </span>
@@ -1134,10 +1134,10 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
                         <div>
                           <div className="flex items-center justify-between gap-1">
-                            <span className={`text-xs font-bold truncate ${theme.text}`}>
+                            <span className={`text-[13px] font-bold truncate ${theme.text}`}>
                               {p.lordName}
                             </span>
-                            <span className="text-[10px] font-mono text-slate-500">
+                            <span className="text-[12px] font-mono text-slate-500">
                               {currentLevel === 1 && `${p.durationYears.toFixed(0)}y`}
                               {currentLevel === 2 && `${(p.durationYears * 12).toFixed(0)}m`}
                               {currentLevel === 3 && `${Math.round(p.durationYears * yearDays)}d`}
@@ -1147,7 +1147,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                         </div>
 
                         {/* Date Span Subtext */}
-                        <div className="mt-1 text-[10px] font-mono text-slate-500 truncate leading-tight">
+                        <div className="mt-1 text-[12px] font-mono text-slate-500 truncate leading-tight">
                           <span>{p.startDate.split('-')[0]}</span>
                           <span className="mx-0.5 text-slate-400">→</span>
                           <span>{p.endDate.split('-')[0]}</span>
@@ -1155,7 +1155,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
                         {/* Drill Down Hover Hint */}
                         {currentLevel < 6 && (
-                          <div className="mt-1 flex items-center justify-between text-[9px] font-semibold text-[#8C2D19] opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="mt-1 flex items-center justify-between text-[11px] font-semibold text-[#8C2D19] opacity-0 group-hover:opacity-100 transition-opacity">
                             <span>Open {DASHA_LEVEL_CONFIG[currentLevel].name.slice(0, 5)}..</span>
                             <ChevronRight className="w-2.5 h-2.5" />
                           </div>
@@ -1177,7 +1177,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                   placeholder={`Search ${DASHA_LEVEL_CONFIG[currentLevel - 1].name} by planet (e.g. Jupiter, Rahu) or year...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#8C2D19]"
+                  className="w-full pl-9 pr-8 py-1.5 text-[13px] bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#8C2D19]"
                 />
                 {searchQuery && (
                   <button
@@ -1193,7 +1193,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             {/* CAPPED SCROLLABLE BOX BODY */}
             <div className="max-h-[540px] overflow-y-auto p-3 sm:p-4 space-y-2.5 bg-slate-50/40">
               {currentItems.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 text-xs">
+                <div className="py-12 text-center text-slate-500 text-[13px]">
                   <p>No matching periods found for &ldquo;{searchQuery}&rdquo;.</p>
                   <button
                     onClick={() => setSearchQuery('')}
@@ -1238,7 +1238,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                         {/* Period Title & Lord Info */}
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[13px] shrink-0 ${
                               isActive
                                 ? 'bg-amber-600 text-white shadow-xs'
                                 : 'bg-slate-100 text-slate-700 group-hover:bg-slate-200'
@@ -1259,7 +1259,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                               </span>
 
                               {/* Duration Tag */}
-                              <span className="text-xs text-slate-500 font-mono">
+                              <span className="text-[13px] text-slate-500 font-mono">
                                 {currentLevel === 1 && `(${item.durationYears.toFixed(2)} yrs)`}
                                 {currentLevel === 2 && `(${(item.durationYears * 12).toFixed(1)} mos)`}
                                 {currentLevel === 3 && `(${Math.round(item.durationYears * yearDays)} days)`}
@@ -1269,25 +1269,25 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
                               {/* Active Status Badges */}
                               {isActive ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/90 text-amber-900 shadow-2xs">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-bold bg-amber-200/90 text-amber-900 shadow-2xs">
                                   <span className="h-1.5 w-1.5 rounded-full bg-amber-700 animate-pulse" />
                                   ACTIVE NOW
                                 </span>
                               ) : null}
                               {'isPreNatal' in item && Boolean((item as { isPreNatal?: boolean }).isPreNatal) ? (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500">
+                                <span className="px-1.5 py-0.5 rounded text-[12px] font-medium bg-slate-100 text-slate-500">
                                   Pre-Natal
                                 </span>
                               ) : null}
                               {'isActiveAtBirth' in item && Boolean((item as { isActiveAtBirth?: boolean }).isActiveAtBirth) ? (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                <span className="px-1.5 py-0.5 rounded text-[12px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
                                   At Birth
                                 </span>
                               ) : null}
                             </div>
 
                             {/* Date Span */}
-                            <div className="text-xs text-slate-600 font-mono mt-0.5">
+                            <div className="text-[13px] text-slate-600 font-mono mt-0.5">
                               {item.startDate} <span className="text-slate-400">→</span> {item.endDate}
                             </div>
                           </div>
@@ -1295,7 +1295,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
                         {/* Drill-down prompt button */}
                         {currentLevel < 6 && (
-                          <div className="flex items-center gap-1 text-xs font-semibold text-[#8C2D19] group-hover:translate-x-0.5 transition-transform self-end sm:self-center shrink-0">
+                          <div className="flex items-center gap-1 text-[13px] font-semibold text-[#8C2D19] group-hover:translate-x-0.5 transition-transform self-end sm:self-center shrink-0">
                             <span>View {DASHA_LEVEL_CONFIG[currentLevel].name}s</span>
                             <ChevronRight className="w-4 h-4" />
                           </div>
@@ -1327,7 +1327,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="input-target-date" className="text-xs text-slate-500 font-medium font-sans">
+                <label htmlFor="input-target-date" className="text-[13px] text-slate-500 font-medium font-sans">
                   Query Reference Date:
                 </label>
                 <input
@@ -1335,7 +1335,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                   type="date"
                   value={targetDateStr}
                   onChange={(e) => handleTargetDateChange(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-xs text-slate-900 shadow-2xs focus:border-[#8C2D19] focus:outline-none cursor-pointer"
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono text-[13px] text-slate-900 shadow-2xs focus:border-[#8C2D19] focus:outline-none cursor-pointer"
                 />
               </div>
             </div>
@@ -1344,102 +1344,102 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 font-sans">
               {/* Level 1: Mahadasha */}
               <div className="rounded-xl bg-amber-50/70 p-3.5 border border-amber-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-amber-800">1. Mahādaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-amber-800">1. Mahādaśā</div>
                 <div className="font-serif text-lg font-bold text-[#8C2D19]">
                   {activeDashaHierarchy.mahadasha.lordName}
                 </div>
                 <div className="font-mono text-[11px] text-slate-600">
                   {activeDashaHierarchy.mahadasha.startDate}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400">
+                <div className="font-mono text-[12px] text-slate-400">
                   to {activeDashaHierarchy.mahadasha.endDate}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-amber-800/80 font-medium">
+                <span className="inline-block text-[12px] font-sans text-amber-800/80 font-medium">
                   {activeDashaHierarchy.mahadasha.durationYears.toFixed(2)} Years
                 </span>
               </div>
 
               {/* Level 2: Antardasha */}
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500">2. Antardaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-slate-500">2. Antardaśā</div>
                 <div className="font-serif text-lg font-bold text-slate-900">
                   {activeDashaHierarchy.antardasha.lordName}
                 </div>
                 <div className="font-mono text-[11px] text-slate-600">
                   {activeDashaHierarchy.antardasha.startDate}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400">
+                <div className="font-mono text-[12px] text-slate-400">
                   to {activeDashaHierarchy.antardasha.endDate}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-slate-500 font-medium">
+                <span className="inline-block text-[12px] font-sans text-slate-500 font-medium">
                   {(activeDashaHierarchy.antardasha.durationYears * 12).toFixed(1)} Months
                 </span>
               </div>
 
               {/* Level 3: Pratyantardasha */}
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500">3. Pratyantardaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-slate-500">3. Pratyantardaśā</div>
                 <div className="font-serif text-lg font-bold text-slate-900">
                   {activeDashaHierarchy.pratyantardasha.lordName}
                 </div>
                 <div className="font-mono text-[11px] text-slate-600">
                   {activeDashaHierarchy.pratyantardasha.startDate}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400">
+                <div className="font-mono text-[12px] text-slate-400">
                   to {activeDashaHierarchy.pratyantardasha.endDate}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-slate-500 font-medium">
+                <span className="inline-block text-[12px] font-sans text-slate-500 font-medium">
                   {(activeDashaHierarchy.pratyantardasha.durationYears * yearDays).toFixed(0)} Days
                 </span>
               </div>
 
               {/* Level 4: Sookshmadasha */}
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500">4. Sūkṣmadaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-slate-500">4. Sūkṣmadaśā</div>
                 <div className="font-serif text-lg font-bold text-slate-900">
                   {activeDashaHierarchy.sookshmadasha?.lordName || '—'}
                 </div>
                 <div className="font-mono text-[11px] text-slate-600 truncate">
                   {activeDashaHierarchy.sookshmadasha?.startDate || '—'}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400 truncate">
+                <div className="font-mono text-[12px] text-slate-400 truncate">
                   to {activeDashaHierarchy.sookshmadasha?.endDate || '—'}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-slate-500 font-medium">
+                <span className="inline-block text-[12px] font-sans text-slate-500 font-medium">
                   Micro-Period
                 </span>
               </div>
 
               {/* Level 5: Pranadasha */}
               <div className="rounded-xl bg-emerald-50/60 p-3.5 border border-emerald-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-800">5. Prāṇadaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-emerald-800">5. Prāṇadaśā</div>
                 <div className="font-serif text-lg font-bold text-emerald-900">
                   {activeDashaHierarchy.pranadasha?.lordName || '—'}
                 </div>
-                <div className="font-mono text-[10px] text-slate-600 truncate">
+                <div className="font-mono text-[12px] text-slate-600 truncate">
                   {activeDashaHierarchy.pranadasha?.startDate || '—'}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400 truncate">
+                <div className="font-mono text-[12px] text-slate-400 truncate">
                   to {activeDashaHierarchy.pranadasha?.endDate || '—'}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-emerald-700 font-medium">
+                <span className="inline-block text-[12px] font-sans text-emerald-700 font-medium">
                   Hours-Level
                 </span>
               </div>
 
               {/* Level 6: Dehadasha */}
               <div className="rounded-xl bg-purple-50/60 p-3.5 border border-purple-200/80 space-y-1 shadow-2xs">
-                <div className="text-[10px] uppercase font-bold tracking-wider text-purple-800">6. Dehadaśā</div>
+                <div className="text-[12px] uppercase font-bold tracking-wider text-purple-800">6. Dehadaśā</div>
                 <div className="font-serif text-lg font-bold text-purple-900">
                   {activeDashaHierarchy.dehadasha?.lordName || '—'}
                 </div>
-                <div className="font-mono text-[10px] text-slate-600 truncate">
+                <div className="font-mono text-[12px] text-slate-600 truncate">
                   {activeDashaHierarchy.dehadasha?.startDate || '—'}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400 truncate">
+                <div className="font-mono text-[12px] text-slate-400 truncate">
                   to {activeDashaHierarchy.dehadasha?.endDate || '—'}
                 </div>
-                <span className="inline-block text-[10px] font-sans text-purple-700 font-medium">
+                <span className="inline-block text-[12px] font-sans text-purple-700 font-medium">
                   Minutes-Level
                 </span>
               </div>
@@ -1447,7 +1447,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
             {/* Progress / Bhukta Bar */}
             <div className="space-y-2 pt-1">
-              <div className="flex justify-between text-xs font-mono text-slate-600">
+              <div className="flex justify-between text-[13px] font-mono text-slate-600">
                 <span>
                   Mahādaśā Bhukta (Elapsed): <strong>{(activeDashaHierarchy.bhukta?.percentage || 0).toFixed(1)}%</strong> ({activeDashaHierarchy.bhukta?.years}y {activeDashaHierarchy.bhukta?.months}m {activeDashaHierarchy.bhukta?.days}d)
                 </span>
@@ -1465,7 +1465,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
 
             {/* Sandhi Warning (if within boundary) */}
             {activeDashaHierarchy.isSandhiActive && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 text-amber-900 text-xs">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 text-amber-900 text-[13px]">
                 <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <span className="font-bold font-serif text-sm block">Daśā Sandhi (Transition Junction Period)</span>
@@ -1493,7 +1493,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-relaxed">
                 <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-200/60 space-y-1.5">
                   <div className="font-serif font-bold text-[#8C2D19] text-sm flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-amber-700" />
@@ -1515,7 +1515,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 </div>
               </div>
 
-              <div className="p-4 bg-gradient-to-r from-slate-50 to-amber-50/30 rounded-xl border border-slate-200 text-xs text-slate-800 leading-relaxed">
+              <div className="p-4 bg-gradient-to-r from-slate-50 to-amber-50/30 rounded-xl border border-slate-200 text-[13px] text-slate-800 leading-relaxed">
                 <span className="font-bold font-serif text-sm block mb-1 text-slate-900">
                   Synthesized Karmic Vector (Mahā &times; Antar Blended)
                 </span>
@@ -1531,7 +1531,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <span className="text-base font-serif font-bold text-[#8C2D19] block uppercase">
                 {vimshottari.balanceAtBirth.lordName} ({vimshottari.balanceAtBirth.lord})
               </span>
-              <span className="text-xs text-slate-600 block">
+              <span className="text-[13px] text-slate-600 block">
                 {vimshottari.balanceAtBirth.nakshatraName} • Pada {vimshottari.balanceAtBirth.nakshatraPada}
               </span>
             </div>
@@ -1541,7 +1541,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <span className="text-base font-mono font-bold text-slate-900 block">
                 {vimshottari.balanceAtBirth.formattedBalance}
               </span>
-              <span className="text-xs text-slate-600 block">
+              <span className="text-[13px] text-slate-600 block">
                 {(vimshottari.balanceAtBirth.percentRemaining || 0).toFixed(1)}% remaining at birth ({vimshottari.balanceAtBirth.yearsRemaining} yrs)
               </span>
             </div>
@@ -1551,7 +1551,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
               <span className="text-base font-mono font-bold text-slate-900 block">
                 {yearDays}d Year ({yearLength})
               </span>
-              <span className="text-xs text-slate-600 block">
+              <span className="text-[13px] text-slate-600 block">
                 Seed: {seed.toUpperCase()} • 120-Year Parāśarī
               </span>
             </div>
@@ -1572,14 +1572,14 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
                     <h4 className="font-serif font-bold text-slate-900 text-base">{p.sanskritName}</h4>
-                    <span className="text-xs text-slate-500 font-mono">({p.name})</span>
+                    <span className="text-[13px] text-slate-500 font-mono">({p.name})</span>
                   </div>
-                  <span className="text-xs font-mono px-2.5 py-1 bg-slate-100 rounded-lg text-slate-700 font-bold border border-slate-200">
+                  <span className="text-[13px] font-mono px-2.5 py-1 bg-slate-100 rounded-lg text-slate-700 font-bold border border-slate-200">
                     H{p.house} • {p.rashiName}
                   </span>
                 </div>
 
-                <div className="space-y-1.5 font-mono text-xs">
+                <div className="space-y-1.5 font-mono text-[13px]">
                   <div className="flex justify-between">
                     <span className="text-slate-500 font-sans">Longitude:</span>
                     <span className="font-bold text-slate-900">{p.degreeStr}</span>
@@ -1616,7 +1616,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                   <h3 className="font-serif text-lg font-bold text-slate-900">
                     Viṃśottarī Daśā Gaṇita Śāstra
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-[13px] text-slate-500">
                     Step-by-step mathematical derivation of birth balance &amp; sub-period proportionality per BPHS Ch. 46.
                   </p>
                 </div>
@@ -1630,7 +1630,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             </div>
 
             {/* Mathematical Step-by-Step Breakdown */}
-            <div className="space-y-4 text-xs font-sans text-slate-700 leading-relaxed">
+            <div className="space-y-4 text-[13px] font-sans text-slate-700 leading-relaxed">
               {/* Step 1 */}
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                 <span className="font-bold font-serif text-slate-900 text-sm block">
@@ -1639,23 +1639,23 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <p>
                   The Nakṣatra circle comprises 27 equal divisions of exactly 13&deg; 20&apos; 00&quot; (800 arcminutes).
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs pt-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[13px] pt-1">
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">Reference Longitude:</span>
+                    <span className="text-[12px] text-slate-400 block font-sans">Reference Longitude:</span>
                     <span className="font-bold text-slate-900">{vimshottari.balanceAtBirth.referenceLongitude}&deg;</span>
                   </div>
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">Nakṣatra:</span>
+                    <span className="text-[12px] text-slate-400 block font-sans">Nakṣatra:</span>
                     <span className="font-bold text-[#8C2D19]">
                       #{vimshottari.balanceAtBirth.nakshatraNumber} {vimshottari.balanceAtBirth.nakshatraName}
                     </span>
                   </div>
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">Nakṣatra Span:</span>
+                    <span className="text-[12px] text-slate-400 block font-sans">Nakṣatra Span:</span>
                     <span className="font-bold text-slate-900">13&deg; 20&apos; 00&quot; (800&apos;)</span>
                   </div>
                   <div className="bg-white p-2.5 rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-sans">Janma Lord:</span>
+                    <span className="text-[12px] text-slate-400 block font-sans">Janma Lord:</span>
                     <span className="font-bold text-amber-800 uppercase">{vimshottari.balanceAtBirth.lordName} ({vimshottari.balanceAtBirth.totalMahaYears}y)</span>
                   </div>
                 </div>
@@ -1666,7 +1666,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <span className="font-bold font-serif text-slate-900 text-sm block">
                   2. Arc Traversed (Bhukta) vs. Arc Remaining (Bhogya)
                 </span>
-                <div className="space-y-1.5 font-mono text-xs bg-white p-3 rounded-xl border border-slate-200">
+                <div className="space-y-1.5 font-mono text-[13px] bg-white p-3 rounded-xl border border-slate-200">
                   <div className="flex justify-between">
                     <span className="font-sans text-slate-500">Arc Traversed in Nakṣatra (&theta;):</span>
                     <span className="font-bold text-slate-900">
@@ -1687,7 +1687,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <span className="font-bold font-serif text-[#8C2D19] text-sm block">
                   3. Classical Balance of Daśā at Birth Formula
                 </span>
-                <div className="p-3 bg-white rounded-xl border border-amber-200 space-y-2 font-mono text-xs text-slate-800">
+                <div className="p-3 bg-white rounded-xl border border-amber-200 space-y-2 font-mono text-[13px] text-slate-800">
                   <div className="text-amber-900 font-semibold font-sans">
                     Sūtra (BPHS Ch. 46.12-14):
                   </div>
@@ -1710,7 +1710,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
                 <span className="font-bold font-serif text-slate-900 text-sm block">
                   4. Antardaśā &amp; Sub-Period Proportional Formula
                 </span>
-                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-2 text-xs">
+                <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-2 text-[13px]">
                   <div className="font-mono text-slate-900">
                     <strong>Antardaśā Duration (Years):</strong> (Mahādaśā Years &times; Antardaśā Lord Years) &divide; 120
                   </div>
@@ -1766,7 +1766,7 @@ export function VimshottariPanel({ chart, onOpenExtendedDashas }: VimshottariPan
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setShowMathModal(false)}
-                className="px-5 py-2 rounded-xl bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#722414] transition-all cursor-pointer shadow-sm"
+                className="px-5 py-2 rounded-xl bg-[#8C2D19] text-white text-[13px] font-semibold hover:bg-[#722414] transition-all cursor-pointer shadow-sm"
               >
                 Close Audit Dialog
               </button>
