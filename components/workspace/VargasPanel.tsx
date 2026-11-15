@@ -430,6 +430,7 @@ export function VargasPanel({
                       <th className="py-3 px-4">Rāśi (Sign)</th>
                       <th className="py-3 px-4">Sign Lord</th>
                       <th className="py-3 px-4 text-center">House</th>
+                      <th className="py-3 px-4">Dignity in this varga</th>
                       <th className="py-3 px-4 text-right">Degree in Division</th>
                     </tr>
                   </thead>
@@ -451,6 +452,26 @@ export function VargasPanel({
                           </td>
                           <td className="py-3 px-4 text-center font-mono font-bold text-[#8C2D19]">
                             H{pInfo.house}
+                          </td>
+                          <td className="py-3 px-4">
+                            {(() => {
+                              // Dignity is computed in THIS varga. A graha exalted in
+                              // D-1 can be a great enemy in D-9; showing the D-1 reading
+                              // here would be the classic way a varga table lies.
+                              const d = pInfo.dignity || 'Neutral (Sama)';
+                              const tone =
+                                d.startsWith('Exalted') ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                  : d.startsWith('Debilitated') ? 'bg-[#8C2D19]/10 text-[#8C2D19] border-[#8C2D19]/25'
+                                    : d.startsWith('Moolatrikona') || d.startsWith('Own Sign') ? 'bg-emerald-50/70 text-emerald-700 border-emerald-200/70'
+                                      : d.startsWith('Great Friend') || d.startsWith('Friend') ? 'bg-sky-50 text-sky-700 border-sky-200'
+                                        : d.startsWith('Great Enemy') || d.startsWith('Enemy') ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                          : 'bg-slate-100 text-slate-600 border-slate-200';
+                              return (
+                                <span className={`inline-block px-2.5 py-1 rounded-md text-[12px] font-medium border ${tone}`}>
+                                  {d}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="py-3 px-4 font-mono text-right text-slate-600">
                             {pInfo.degreeInRashi.toFixed(2)}°
