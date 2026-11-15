@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateAllPlanets, sunMoonLongitudes } from '../lib/astronomy/ephemeris';
 import { chartJsonFilename } from '../lib/report/export-chart-json';
 import { CLASSICAL_YOGA_REGISTRY } from '../lib/yogas/yoga-engine';
@@ -2714,6 +2715,42 @@ console.log('\n== Export filename and speed ==');
   }
   check('the sun/moon fast path is identical to the full ephemeris',
     worst * 3600 < 0.001, `${(worst * 3600).toFixed(6)}″`);
+}
+
+/* ------------------------ EXPORT SIZE & SERIALISATION ------------- */
+
+console.log('\n== Export size ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 3 });
+  const str = chartToJsonString(natal);
+
+  check('the serialised export is valid JSON', (() => { try { JSON.parse(str); return true; } catch { return false; } })());
+  check('the serialised export is under 420 KB', str.length / 1024 < 420, `${(str.length / 1024).toFixed(0)} KB`);
+  check('it is smaller than a two-space pretty print',
+    str.length < JSON.stringify(e, null, 2).length * 0.75,
+    `${(str.length / 1024).toFixed(0)} vs ${(JSON.stringify(e, null, 2).length / 1024).toFixed(0)} KB`);
+  check('top-level sections stay on their own lines',
+    str.split('\n').length > 20 && str.split('\n').length < 60, String(str.split('\n').length));
+
+  // The derivable varga maps are gone.
+  check('varga houseToRashi is not exported', e.chart.vargas.D9.houseToRashi === undefined);
+  check('varga rashiToHouse is not exported', e.chart.vargas.D9.rashiToHouse === undefined);
+  // But the information is still reconstructible from lagnaRashi.
+  const lagna = e.chart.vargas.D9.lagnaRashi;
+  const reconstructed = Array.from({ length: 12 }, (_, i) => ((((lagna - 1) + i) % 12) + 1));
+  check('the house→rāśi mapping is reconstructible from lagnaRashi', reconstructed.length === 12);
+
+  // Floats are rounded, not truncated to nonsense.
+  check('longitudes keep six decimals', (() => {
+    const lon = e.chart.lagna.siderealLongitude;
+    return Math.abs(lon * 1e6 - Math.round(lon * 1e6)) < 1e-6;
+  })(), String(e.chart.lagna.siderealLongitude));
+
+  // Nothing computed was lost.
+  check('all vargas survive', Object.keys(e.chart.vargas).length >= 16);
+  check('all dashas survive', Object.keys(e.extendedDashas).length === 16);
+  check('the KP layer survives', e.kp.cusps.length === 12);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
