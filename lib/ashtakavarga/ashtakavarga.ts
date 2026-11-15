@@ -345,23 +345,4 @@ export function kaksyaOf(siderealLongitude: number): KakshaPosition {
   };
 }
 
-/**
- * The bindu a transiting graha's kakṣyā carries, from the SAV table of the sign
- * it occupies. This is the number a transit reading turns on: a graha in a
- * kakṣyā with no bindu gives nothing, whatever else it promises.
- */
-export function kaksyaBindus(
-  ashtakavarga: { bav?: Record<string, { bindusByRashi?: number[] }>; sav?: { bindusByRashi?: number[] } },
-  graha: string,
-  rashiNumber: number,
-  siderealLongitude: number
-): { kaksha: KakshaPosition; bindu: number | null; sav: number | null } {
-  const kaksha = kaksyaOf(siderealLongitude);
-  const bav = ashtakavarga?.bav?.[graha]?.bindusByRashi;
-  const sav = ashtakavarga?.sav?.bindusByRashi;
-  return {
-    kaksha,
-    bindu: Array.isArray(bav) ? bav[rashiNumber - 1] ?? null : null,
-    sav: Array.isArray(sav) ? sav[rashiNumber - 1] ?? null : null,
-  };
-}
+
