@@ -23,8 +23,8 @@ interface ReversePanchangPanelProps {
 }
 
 const VARAS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const field = 'w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#8C2D19]/40';
-const label = 'block text-[9px] font-mono uppercase tracking-widest text-slate-400 mb-1';
+const field = 'w-full px-2.5 py-1.5 text-[13px] border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#8C2D19]/40';
+const label = 'block text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-1';
 
 export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ chart }) => {
   const b = chart.meta.birthDetails;
@@ -119,7 +119,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
           <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
           <h2 className="text-base font-serif font-bold text-slate-900">Reverse Pañcāṅga — Chart Finder</h2>
         </div>
-        <p className="text-xs text-slate-500 max-w-3xl leading-relaxed">
+        <p className="text-[13px] text-slate-500 max-w-3xl leading-relaxed">
           Find when a tithi, nakṣatra, vāra or rising sign occurs in a span. Criteria left blank
           are not tested. Results are windows with exact opening and closing instants.
         </p>
@@ -170,7 +170,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
               type="button"
               onClick={run}
               disabled={busy}
-              className="w-full px-3 py-1.5 rounded-lg bg-[#8C2D19] text-white text-xs font-semibold hover:bg-[#73240f] transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5"
+              className="w-full px-3 py-1.5 rounded-lg bg-[#8C2D19] text-white text-[13px] font-semibold hover:bg-[#73240f] transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5"
             >
               <Search className={`w-3.5 h-3.5 ${busy ? 'animate-pulse' : ''}`} />
               {busy ? 'Scanning…' : 'Search'}
@@ -184,11 +184,11 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
       {busy && progress && (
         <div className="bg-white border border-[#8C2D19]/30 rounded-2xl p-5 shadow-xs">
           <div className="flex items-center justify-between mb-2">
-            <span className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-[#8C2D19]">
+            <span className="flex items-center gap-1.5 text-[12px] font-mono uppercase tracking-widest text-[#8C2D19]">
               <Radar className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '2.4s' }} />
               Scanning
             </span>
-            <span className="text-[10px] font-mono tabular-nums text-slate-500">
+            <span className="text-[12px] font-mono tabular-nums text-slate-500">
               {progress.percent}% · {progress.done}/{progress.total} samples · {progress.found} found
             </span>
           </div>
@@ -198,7 +198,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
               style={{ width: `${Math.max(2, progress.percent)}%` }}
             />
           </div>
-          <p className="mt-2 text-[10px] font-mono text-slate-400">
+          <p className="mt-2 text-[12px] font-mono text-slate-400">
             {progress.scanning ? `at ${progress.scanning}` : 'finishing…'}
           </p>
         </div>
@@ -208,7 +208,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
       {results && (
         <>
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+            <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
               <CalendarClock className="w-3.5 h-3.5 text-[#8C2D19]" />
               {results.length} window{results.length === 1 ? '' : 's'}
               <span className="text-slate-300 normal-case tracking-normal font-normal">
@@ -217,7 +217,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
             </h3>
 
             {results.length === 0 ? (
-              <p className="text-xs text-slate-400">
+              <p className="text-[13px] text-slate-400">
                 Nothing in this span carries that combination. Widen the range or relax a criterion.
               </p>
             ) : (
@@ -234,7 +234,7 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
                       />
                     ))}
                   </div>
-                  <div className="flex justify-between mt-1 text-[9px] font-mono text-slate-400">
+                  <div className="flex justify-between mt-1 text-[11px] font-mono text-slate-400">
                     <span>{from}</span>
                     <span>each bar is one window</span>
                     <span>{to}</span>
@@ -242,16 +242,16 @@ export const ReversePanchangPanel: React.FC<ReversePanchangPanelProps> = ({ char
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-[13px]">
                     <thead>
                       <tr className="border-b border-slate-200">
-                        <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">#</th>
-                        <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Window</th>
-                        <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Length</th>
-                        <th className="text-left py-2 pl-4 font-mono text-[9px] uppercase tracking-wider text-slate-400">Tithi</th>
-                        <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Nakṣatra</th>
-                        <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Vāra</th>
-                        <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Lagna</th>
+                        <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">#</th>
+                        <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Window</th>
+                        <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Length</th>
+                        <th className="text-left py-2 pl-4 font-mono text-[11px] uppercase tracking-wider text-slate-400">Tithi</th>
+                        <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Nakṣatra</th>
+                        <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Vāra</th>
+                        <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Lagna</th>
                       </tr>
                     </thead>
                     <tbody>
