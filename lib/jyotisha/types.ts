@@ -341,6 +341,11 @@ export interface VargaChart {
       rashiNumber: RashiNumber;
       degreeInRashi: number;
       house: number;
+      /**
+       * Dignity in THIS varga. A graha exalted in D-1 can be a great enemy in
+       * D-9, so this is never inherited from the birth chart.
+       */
+      dignity?: string;
     }
   >;
   houses?: Record<number, VargaHouse>;
