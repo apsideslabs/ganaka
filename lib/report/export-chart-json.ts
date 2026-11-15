@@ -27,6 +27,7 @@ import { housesSignified } from '@/lib/kp/significators';
 import { calculateNavaTara, taraToday } from '@/lib/jyotisha/navatara';
 import { siddhanticResiduals } from '@/lib/astronomy/siddhantic';
 import { noRemedyReason } from '@/lib/doshas/classical-remedies';
+import { evaluateAllNeechaBhanga } from '@/lib/jyotisha/neechabhanga';
 import { assessTimeSensitivity } from '@/lib/jyotisha/time-sensitivity';
 import { calculateAvakahadaChakra } from '@/lib/jyotisha/avakahada';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
@@ -119,6 +120,8 @@ export interface GanakaChartExport {
   mrityuBhaga: Record<string, unknown>;
   /** Nakṣatra nāḍī for the Moon and Lagna. */
   nadi: Record<string, unknown>;
+  /** Nīcabhaṅga per divisional chart, for every graha debilitated in it. */
+  neechaBhanga: Record<string, Array<Record<string, unknown>>>;
   /** Classical remedial measures for the doṣas actually formed in this chart. */
   remedies: Array<Record<string, unknown>>;
   /** How far the chart moves when the birth time is nudged — the birth-time uncertainty. */
@@ -496,6 +499,31 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   // Remedies belong to the doṣas that actually formed, and are shown in the
   // workspace — so they travel with the chart. They are a prescription, not a
   // prediction, and are not part of the indications layer.
+  const neechaBhanga = safe(() => {
+    const out: Record<string, Array<Record<string, unknown>>> = {};
+    for (const [vId, v] of Object.entries((chart.vargas || {}) as any)) {
+      const vv: any = v;
+      if (!vv?.planets) continue;
+      const positions = {
+        lagnaRashi: vv.lagnaRashi,
+        planets: Object.fromEntries(
+          Object.entries(vv.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+        ),
+      };
+      const res = evaluateAllNeechaBhanga(positions as any);
+      if (res.length) {
+        out[vId] = res.map((r) => ({
+          planet: r.planet,
+          rashi: r.rashiName,
+          cancelled: r.cancelled,
+          strength: r.strength,
+          conditions: r.conditions.map((c) => ({ rule: c.rule, id: c.id, met: c.met, detail: c.detail })),
+        }));
+      }
+    }
+    return out;
+  }, {});
+
   const remedies = safe(() => {
     const out: Array<Record<string, unknown>> = [];
     for (const d of ((chart.doshas as any)?.evaluatedDoshas ?? [])) {
@@ -911,7 +939,7 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
     relationships, dispositorRelations, attributes, sayana, bhavaSpasht,
     drishti, sudarshana, eclipses, bhavaChalit, angles, doubleTransit, argala, kp,
     avakahada, transits, matchingData,
-    avasthas, mrityuBhaga, nadi, navatara, remedies, timeSensitivity, siddhanticResiduals: residuals, kpAspects, kpFourStep,
+    avasthas, mrityuBhaga, nadi, navatara, neechaBhanga, remedies, timeSensitivity, siddhanticResiduals: residuals, kpAspects, kpFourStep,
   });
 }
 
