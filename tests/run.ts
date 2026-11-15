@@ -2532,6 +2532,77 @@ console.log('\n== BPHS raja yoga from debilitation ==');
     /different rule/i.test(RAJA_YOGA_NOTE));
 }
 
+/* ------------------ NB vs NBRY — THE LORDSHIP PRECONDITION */
+
+console.log('\n== NB vs NBRY ==');
+{
+  // Lagna Mesha. Mercury debilitates in Mina (house 12) and rules Mithuna (3)
+  // and Kanya (6) — both dusthanas, so a cancellation is NB and no more.
+  const dusthanaOnly: any = {
+    lagnaRashi: 1,
+    planets: {
+      mercury: { rashiNumber: 12, house: 12 },
+      sun: { rashiNumber: 1, house: 1 },
+      moon: { rashiNumber: 4, house: 4 },
+      mars: { rashiNumber: 1, house: 1 },
+      jupiter: { rashiNumber: 4, house: 4 },
+      venus: { rashiNumber: 2, house: 2 },
+      saturn: { rashiNumber: 10, house: 10 },
+      rahu: { rashiNumber: 11, house: 11 },
+      ketu: { rashiNumber: 5, house: 5 },
+    },
+  };
+  const merc = evaluateAllNeechaBhanga(dusthanaOnly).find((r) => r.planet === 'mercury')!;
+  check('Mercury in Mina is debilitated', !!merc);
+  check('Mercury rules only dusthanas here',
+    JSON.stringify(merc.ruledHouses) === '[3,6]', JSON.stringify(merc.ruledHouses));
+  check('a cancellation on dusthana lordship is NB, not NBRY', merc.verdict === 'NB', merc.verdict);
+  check('it is still cancelled', merc.cancelled);
+  check('the note explains why it is not royal',
+    /no kendra or trikoṇa/i.test(merc.note), merc.note.slice(0, 70));
+
+  // Same chart, but the graha lords a kendra — Saturn debilitated in Mesha at
+  // lagna Mesha rules Makara (10) and Kumbha (11): 10 is a kendra.
+  const kendraLordship: any = JSON.parse(JSON.stringify(dusthanaOnly));
+  kendraLordship.planets.saturn = { rashiNumber: 1, house: 1 };
+  const sat = evaluateAllNeechaBhanga(kendraLordship).find((r) => r.planet === 'saturn');
+  if (sat) {
+    check('Saturn rules a kendra here', sat.ruledHouses.some((h) => [1, 4, 7, 10].includes(h)),
+      JSON.stringify(sat.ruledHouses));
+    check('with a cancellation it is NBRY', sat.cancelled ? sat.verdict === 'NBRY' : sat.verdict === 'none',
+      `${sat.verdict} (cancelled ${sat.cancelled})`);
+  }
+
+  // Verdict must always agree with the two inputs it is derived from.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const input: any = {
+    lagnaRashi: natal.lagna.rashiNumber,
+    planets: Object.fromEntries(
+      Object.entries(natal.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+    ),
+    navamsa: Object.fromEntries(
+      Object.entries(natal.vargas.D9.planets as any).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber }])
+    ),
+  };
+  for (const r of evaluateAllNeechaBhanga(input)) {
+    const expected = !r.cancelled ? 'none' : r.lordsKendraOrTrikona ? 'NBRY' : 'NB';
+    check(`${r.planet} verdict matches its inputs`, r.verdict === expected,
+      `${r.verdict} vs ${expected}`);
+    // The daśā leg is never silently claimed.
+    check(`${r.planet} marks dasha as unchecked`, r.dashaChecked === false);
+  }
+
+  // The Navamsa check must actually read D-9.
+  const withNav = evaluateAllNeechaBhanga(input);
+  check('navamsa dignity is reported when D-9 is supplied',
+    withNav.every((r) => typeof r.navamsaDignity === 'string' && r.navamsaDignity!.length > 0));
+
+  // Without D-9 it must be absent, not invented.
+  const noNav = evaluateAllNeechaBhanga({ lagnaRashi: input.lagnaRashi, planets: input.planets });
+  check('navamsa dignity is absent when D-9 is not supplied',
+    noNav.every((r) => r.navamsaDignity === undefined));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
