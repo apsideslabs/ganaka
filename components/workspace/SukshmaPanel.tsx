@@ -107,7 +107,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
       {tab === 'avasthas' && (
         <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
           <div className="px-7 py-4 border-b border-slate-100">
-            <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">five sets</span>}>
+            <SectionHead right={<span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">five sets</span>}>
               Planetary avasthās
             </SectionHead>
           </div>
@@ -210,7 +210,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
 
           <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
             <div className="px-7 py-4 border-b border-slate-100">
-              <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19]">sources differ</span>}>
+              <SectionHead right={<span className="text-[12px] font-mono uppercase tracking-wider text-[#8C2D19]">sources differ</span>}>
                 The full table · both recensions
               </SectionHead>
             </div>
@@ -227,7 +227,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
                     <tr key={row.body} className="border-t border-slate-100">
                       <td className="py-2 px-3 text-slate-800 font-medium whitespace-nowrap">
                         {row.bodyName}
-                        {row.differs && <span className="ml-1.5 text-[10px] text-[#8C2D19] font-mono">≠</span>}
+                        {row.differs && <span className="ml-1.5 text-[12px] text-[#8C2D19] font-mono">≠</span>}
                       </td>
                       {row[recension === 'jataka_parijata' ? 'jataka' : 'phaladipika'].map((d, i) => {
                         const other = recension === 'jataka_parijata' ? row.phaladipika[i] : row.jataka[i];
@@ -260,7 +260,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
                 ['Lagna', nadi.lagnaNakshatra, nadi.lagnaNumber, nadi.lagnaNadiInfo],
               ].map(([label, nak, num, info]: any) => (
                 <div key={label} className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1.5">{label}</div>
+                  <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-1.5">{label}</div>
                   <div className="text-[15px] text-slate-900 font-medium">{nak} <span className="text-slate-400 font-mono text-[13px]">#{num}</span></div>
                   <div className="text-[14px] text-[#8C2D19] font-semibold mt-1.5">{info.english} · {info.dosha}</div>
                   <div className="text-[12px] text-slate-500 mt-1">{info.nature}</div>
@@ -303,7 +303,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
         <div className="space-y-5">
           <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
             <SectionHead right={
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">
                 janma · {navatara.janmaNakshatra} #{navatara.janmaNumber}
               </span>
             }>The nine tārās</SectionHead>
@@ -312,7 +312,7 @@ export const SukshmaPanel: React.FC<Props> = ({ chart }) => {
               today.favourable ? 'border-emerald-300 bg-emerald-50/60' : 'border-[#8C2D19]/30 bg-[#8C2D19]/[0.05]'
             }`}>
               <div className="flex items-baseline justify-between gap-3 flex-wrap mb-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">Today · {today.date}</span>
+                <span className="text-[12px] font-mono uppercase tracking-wider text-slate-500">Today · {today.date}</span>
                 <span className="text-[11px] text-slate-500">
                   Moon in <span className="font-medium text-slate-700">{today.nakshatraName}</span>
                 </span>
