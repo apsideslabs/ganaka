@@ -444,6 +444,49 @@ export function VargasPanel({
             {activeTab === 'planets' ? (
               <div className="overflow-x-auto">
                 <table id="varga-planets-table" className="w-full text-left text-[13px] border-collapse font-sans">
+                  {/* Dignity highlights — the same reading as the D-1 panel, for THIS varga */}
+                  <div className="px-1 pb-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                      <span className="text-[13px] font-bold uppercase tracking-wider text-slate-600 font-serif">
+                        Planetary Essential Dignity Highlights — {activeDef.id}
+                      </span>
+                      <div className="flex items-center gap-3 text-[12px] text-slate-500 flex-wrap">
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#16845B]" />Exalted</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#3B6FC4]" />Friendly</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#667085]" />Neutral</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#B54747]" />Debilitated</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      {Object.entries(activeVarga.planets).map(([pId, pInfo]: any) => {
+                        const prop = GRAHA_PROPERTIES[pId as PlanetId];
+                        const dig: string = pInfo.dignity || 'Neutral (Sama)';
+                        // Same four-way colouring as the D-1 highlights.
+                        const tone =
+                          dig.startsWith('Exalted') ? { bg: '#E8F5EF', border: '#16845B', text: '#16845B' }
+                            : dig.startsWith('Debilitated') ? { bg: '#FBECEC', border: '#B54747', text: '#B54747' }
+                              : (dig.startsWith('Moolatrikona') || dig.startsWith('Own Sign') || dig.startsWith('Great Friend') || dig.startsWith('Friend'))
+                                ? { bg: '#EDF3FC', border: '#3B6FC4', text: '#3B6FC4' }
+                                : { bg: '#F2F4F7', border: '#667085', text: '#667085' };
+                        return (
+                          <div key={pId}
+                            style={{ backgroundColor: tone.bg, borderColor: tone.border }}
+                            className="p-2.5 border rounded-xl flex items-center justify-between shadow-2xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: tone.border }} />
+                              <span className="font-bold text-slate-900 text-[13px]">
+                                {prop?.sanskritName || pId}
+                              </span>
+                            </div>
+                            <span className="text-[13px] font-bold font-serif" style={{ color: tone.text }}>
+                              {dig.split(' ')[0]}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                       <th className="py-3 px-4">Graha</th>
