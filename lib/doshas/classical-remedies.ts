@@ -436,11 +436,145 @@ export const CLASSICAL_REMEDIES_DATABASE: VerifiedClassicalRemedy[] = [
     },
     provenanceNotes: 'Popular modern synthesis distinct from classical BPHS Ch. 83 5th-house Pitṛ Śāpa.',
   },
+
+  /* ---- added from the sources directly, not inferred ---- */
+  {
+    doshaId: 'abhukta_mula',
+    title: 'Abhukta Mūla Śānti',
+    sanskritTitle: 'अभुक्त मूल शान्ति',
+    transliteration: 'Abhuktamūla Śānti Vidhāna',
+    purpose: 'Removing the affliction of birth in the Jyeṣṭhā–Mūla junction, which BPHS calls the heaviest of the gandāntas.',
+    traditionalMethod:
+      'On the twelfth day from birth, on the same lunar mansion, or in the eighth year, erect a pavilion east or north of the house with a sacrificial pit outside it. Have an image of Nirṛti made in gold — dark, terrible, two-headed, wolf-faced, bearing sword and shield, mounted on a corpse — or its equivalent value in gold. Install a pitcher with pañcagavya, holy water and the hundred herbs, and a hundred-holed pot with bamboo leaves. Worship Nirṛti facing west with white cloth and unbroken rice; worship Indra as adhideva and Water as pratyadhidaivata. Offer 1008 or 108 oblations. Recite the Tryambaka mantra for the appeasement of death, then perform abhiṣeka on the parents and child seated together. Give a milch cow to the preceptor, fees to the officiating priests, and feed the brāhmaṇas. Finally gaze on clarified butter while reciting the Yatpāpaṃ mantra.',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'BPHS Ch. 94 v. 3–20 (Ch. 93 in some editions)',
+    classification: 'Direct textual remedy',
+    qualifications: {
+      timing: 'Twelfth day from birth, the same nakṣatra, or the eighth year.',
+      deity: 'Nirṛti, with Indra as adhideva and Water as pratyadhidaivata.',
+      mantraOrJapa: 'Tryambaka mantra; Yatpāpaṃ mantra over clarified butter.',
+      ritualOfferings: 'Gold image or its value, pañcagavya, white cloth, unbroken rice, a milch cow.',
+    },
+  },
+  {
+    doshaId: 'lagna_gandanta',
+    title: 'Gaṇḍānta Go-dāna',
+    sanskritTitle: 'गण्डान्त गोदान',
+    transliteration: 'Gaṇḍānta Go-dāna',
+    purpose: 'Remedy for birth in a gaṇḍānta, the water–fire junction between signs.',
+    traditionalMethod:
+      'For birth in the gaṇḍānta of Mūla, Jyeṣṭhā, Āśleṣā or Maghā, give three cows to a brāhmaṇa. For the gaṇḍānta of Revatī or Aśvinī, give a pair. For any other gaṇḍānta, or where a bad combination accompanies it, give one cow; if no cow is available, give its value instead. BPHS adds that for a daughter born in Āśleṣā and a son born in Mūla a śānti should be performed at their marriage, and that where the husband\'s elder brother and such kin are absent the defect does not arise.',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'BPHS Ch. 94 v. 8–13',
+    classification: 'Direct textual remedy',
+    qualifications: {
+      timing: 'At the gaṇḍānta rite after birth, or at marriage for the Āśleṣā and Mūla cases.',
+      deity: 'The deity of the junction nakṣatra — Indra, Ahi, Pūṣan or the Aśvins.',
+      mantraOrJapa: "Per the family's own recension.",
+      ritualOfferings: 'Cows to a brāhmaṇa, or their value in gold.',
+    },
+  },
+  {
+    doshaId: 'vishti_bhadra_janma',
+    title: 'Viṣṭi / Bhadrā Śānti',
+    sanskritTitle: 'विष्टि भद्रा शान्ति',
+    transliteration: 'Viṣṭi-Bhadrā Śānti',
+    purpose: 'Remedy for birth in the Viṣṭi karaṇa, one of the evil phenomena the texts list.',
+    traditionalMethod:
+      'Worship the gods and the nine grahas. Light lamps of cow-ghee in a Śiva temple. Perform ritual bathing of Lord Śiva and circumambulate the holy fig tree. Conclude by feeding brāhmaṇas, attended by the Gāṇapatya fire sacrifice, the Puruṣa Sūkta, the Saura Sūkta, the Mṛtyuñjaya and the Śānti Sūkta. The result given is that the child is endowed with longevity.',
+    sourceText: 'Hora Ratnam (junior Garga)',
+    chapterAndVerse: 'Hora Ratnam Ch. 2 v. 210–215',
+    classification: 'Direct textual remedy',
+    qualifications: {
+      timing: 'An auspicious day following the birth.',
+      deity: 'Lord Śiva and the nine grahas, with Gaṇeśa at the opening.',
+      mantraOrJapa: 'Mṛtyuñjaya, Puruṣa Sūkta, Saura Sūkta and Śānti Sūkta.',
+      ritualOfferings: 'Cow-ghee lamps, ritual bathing, feeding of brāhmaṇas.',
+    },
+  },
 ];
 
 /**
  * Returns all verified remedies for a specific Dosha ID
  */
+/**
+ * Doṣas that share one rite. The gandānta of the lagna, of the tithi and of a
+ * nakṣatra are all the same junction affliction, and BPHS 94.8 gives one
+ * prescription for the class rather than one per variant.
+ */
+const REMEDY_ALIASES: Record<string, string> = {
+  tithi_gandanta: 'lagna_gandanta',
+  gandamula_nakshatra: 'lagna_gandanta',
+};
+
 export function getRemediesForDosha(doshaId: string): VerifiedClassicalRemedy[] {
-  return CLASSICAL_REMEDIES_DATABASE.filter((r) => r.doshaId === doshaId);
+  const key = REMEDY_ALIASES[doshaId] ?? doshaId;
+  return CLASSICAL_REMEDIES_DATABASE.filter((r) => r.doshaId === key);
+}
+
+/**
+ * Doṣas for which the sources consulted prescribe no remedy at all.
+ *
+ * ⚠ THIS IS NOT THE SAME AS "NOT IMPLEMENTED". An empty array from
+ * `getRemediesForDosha` was ambiguous: it could mean the texts give nothing, or
+ * that nobody had looked. Every doṣa is now accounted for in one of the two
+ * tables, so a reader can tell which.
+ */
+export const NO_REMEDY_PRESCRIBED: Record<string, string> = {
+  // The gandānta class shares one rite, so these are covered by the alias above.
+  tithi_gandanta: '',
+  gandamula_nakshatra: '',
+
+  // Pāpa kartarī is my own extension of the classical affliction to every house.
+  // The texts give the hemming rule but no per-house rite, so saying so is
+  // honest; the remedy is the general śānti for whichever malefics do the
+  // hemming.
+  papa_kartari_lagna:
+    'No classical remedy is prescribed for pāpa kartarī as such. The tradition addresses it through the general śānti of the malefics doing the hemming.',
+  ...Object.fromEntries([2,3,4,5,6,7,8,9,10,11,12].map((h) => [
+    `papa_kartari_house_${h}`,
+    'No classical remedy is prescribed for pāpa kartarī as such. The tradition addresses it through the general śānti of the malefics doing the hemming.',
+  ])),
+  papa_kartari_moon:
+    'No classical remedy is prescribed for pāpa kartarī as such. Candra afflictions are met with the usual Candra śānti.',
+
+  // Doṣas the sources describe but for which they give no rite.
+  angāraka_dosha:
+    'The texts define Aṅgāraka but attach no rite to it. Hanumān worship is commonly given in practice; it is not traced to a verse in the sources consulted, so it is not listed here.',
+  guru_chandala:
+    'The texts define Guru Cāṇḍāla but give no rite for it. Guru śānti is commonly performed in practice; no verse prescribing it was traced.',
+  shani_rahu_shraddha:
+    'Defined as an affliction but with no rite attached in the sources consulted.',
+  surya_shani_virodha:
+    'A relationship between two grahas rather than an affliction with a rite. Addressed through the śānti of whichever of the two is weaker.',
+  kendra_hina_dosha:
+    'A structural weakness rather than an affliction with a rite. Addressed by strengthening the kendra lords.',
+  lagna_balarishta:
+    'An infant-mortality indicator. The sources counsel assessment and care, not a rite; no śānti is prescribed for it specifically.',
+  matri_arista:
+    'An indicator concerning the mother. No rite is attached to it in the sources consulted.',
+  pitri_arista:
+    'An indicator concerning the father. No rite is attached to it in the sources consulted.',
+  brahma_guru_shapa:
+    'A curse class. The sources name it without prescribing a specific remedy.',
+  putra_bhava_arista:
+    'A fifth-house affliction indicator. No rite is attached to it in the sources consulted.',
+  vaidhavya_yoga:
+    'A seventh-and-eighth-house affliction. No rite is attached to it in the sources consulted.',
+  vishakanya_yoga:
+    'Named in later material rather than the classical core; no classical rite is attached.',
+  dvi_kalatra_dosha:
+    'A multiple-marriage indicator. No rite is attached to it in the sources consulted.',
+};
+
+/**
+ * Why no remedy is listed for a doṣa, in words a reader can act on.
+ *
+ * Returns null when a remedy exists, so a caller can tell "nothing prescribed"
+ * apart from "nothing found".
+ */
+export function noRemedyReason(doshaId: string): string | null {
+  if (getRemediesForDosha(doshaId).length > 0) return null;
+  if (doshaId in NO_REMEDY_PRESCRIBED) return NO_REMEDY_PRESCRIBED[doshaId] || null;
+  return null;
 }
