@@ -22,6 +22,7 @@ import { JyotishaChart, VargaId } from '../../lib/jyotisha/types';
 import { KundaliChart } from '../charts/KundaliChart';
 import { PlanetaryTable } from './PlanetaryTable';
 import { evaluateAllNeechaBhanga } from '@/lib/jyotisha/neechabhanga';
+import { evaluateNeechaRajaYoga, RAJA_YOGA_NOTE } from '@/lib/jyotisha/raja-yoga-neecha';
 
 import dynamic from 'next/dynamic';
 import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
@@ -924,6 +925,20 @@ export const WorkspaceClient: React.FC = () => {
       const c: any = chartData;
       if (!c?.planets) return [];
       return evaluateAllNeechaBhanga({
+        lagnaRashi: c.lagna.rashiNumber,
+        planets: Object.fromEntries(
+          Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+        ),
+      } as any);
+    } catch { return []; }
+  }, [chartData]);
+
+  /** BPHS 22.26–30 — a different rule from the Phaladīpikā cancellations. */
+  const rajaYogaD1 = useMemo(() => {
+    try {
+      const c: any = chartData;
+      if (!c?.planets) return [];
+      return evaluateNeechaRajaYoga({
         lagnaRashi: c.lagna.rashiNumber,
         planets: Object.fromEntries(
           Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
@@ -2061,6 +2076,41 @@ ${Object.values(chartData.planets)
                             A cancellation restores the graha to working strength; it is not by itself a
                             Rāja Yoga. Elevation also depends on the houses it rules, its Navāṃśa and its daśā.
                           </p>
+                        </div>
+                      )}
+
+                      {/* ── BPHS 22.26–30 — a separate rule ── */}
+                      {rajaYogaD1.length > 0 && (
+                        <div className="pt-4 mt-2 border-t border-slate-200 space-y-2.5">
+                          <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                            <span className="text-[13px] font-bold uppercase tracking-wider text-slate-600 font-serif">
+                              Rāja Yoga from a fallen graha
+                            </span>
+                            <span className="text-[11px] font-mono text-slate-400">
+                              BPHS 22.26–30
+                            </span>
+                          </div>
+
+                          {rajaYogaD1.map((r: any, i: number) => (
+                            <div key={`${r.verse}-${r.graha}-${i}`}
+                              className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3">
+                              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-serif text-[14px] font-bold text-slate-900">
+                                    {r.grahaName}
+                                  </span>
+                                  <span className="text-[12px] text-slate-500">
+                                    house {r.house} · {r.rashiName}
+                                  </span>
+                                </div>
+                                <span className="text-[11px] font-mono text-slate-500">{r.verse}</span>
+                              </div>
+                              <p className="mt-1.5 text-[12px] text-slate-700 leading-snug">{r.reason}</p>
+                              <p className="mt-1 text-[12px] text-emerald-800 font-medium">{r.result}</p>
+                            </div>
+                          ))}
+
+                          <p className="text-[11px] text-slate-500 leading-relaxed">{RAJA_YOGA_NOTE}</p>
                         </div>
                       )}
                     </div>
