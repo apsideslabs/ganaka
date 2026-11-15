@@ -47,7 +47,7 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-4 h-4 text-[#8C2D19]" />
-          <h2 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+          <h2 className="text-[12px] font-mono uppercase tracking-widest text-slate-500">
             Overall Reading
           </h2>
         </div>
@@ -65,10 +65,10 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
       {reading.movements.map((m) => (
         <div key={m.title} className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
           <div className="flex items-start justify-between gap-4 mb-3">
-            <h3 className="text-[10px] font-mono uppercase tracking-widest text-[#8C2D19]">
+            <h3 className="text-[12px] font-mono uppercase tracking-widest text-[#8C2D19]">
               {m.title}
             </h3>
-            <span className={`text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+            <span className={`text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
               m.activation === 'active'
                 ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
                 : m.activation === 'dormant'
@@ -84,7 +84,7 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
               <span
                 key={sc.id}
                 title={sc.layers.map((l) => `${l.name} ${(l.score * 100).toFixed(0)} — ${l.read}`).join('\n')}
-                className={`text-[10px] font-mono px-2 py-1 rounded-md border ${
+                className={`text-[12px] font-mono px-2 py-1 rounded-md border ${
                   sc.tone === 'strong' ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
                     : sc.tone === 'favourable' ? 'text-teal-700 border-teal-200 bg-teal-50'
                       : sc.tone === 'mixed' ? 'text-amber-700 border-amber-200 bg-amber-50'
@@ -100,16 +100,16 @@ export const IndicationsPanel: React.FC<IndicationsPanelProps> = ({ chart }) => 
 
       {/* the facts it rests on */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
           <BookOpen className="w-3.5 h-3.5" /> The chart this reading rests on
         </h3>
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
           {reading.atAGlance.map((f) => (
             <div key={f.label}>
-              <dt className="text-[9px] font-mono uppercase tracking-wider text-slate-400">
+              <dt className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
                 {f.label}
               </dt>
-              <dd className="text-xs text-slate-800 mt-0.5">{f.value}</dd>
+              <dd className="text-[13px] text-slate-800 mt-0.5">{f.value}</dd>
             </div>
           ))}
         </dl>
