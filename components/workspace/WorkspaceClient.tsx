@@ -929,6 +929,12 @@ export const WorkspaceClient: React.FC = () => {
         planets: Object.fromEntries(
           Object.entries(c.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
         ),
+        // D-9 turns on the Navāṃśa confirmation, the tradition's strongest check.
+        navamsa: c.vargas?.D9?.planets
+          ? Object.fromEntries(
+              Object.entries(c.vargas.D9.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber }])
+            )
+          : undefined,
       } as any);
     } catch { return []; }
   }, [chartData]);
@@ -2048,14 +2054,34 @@ ${Object.values(chartData.planets)
                                   </span>
                                 </div>
                                 <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                                  r.cancelled ? 'bg-emerald-600 text-white' : 'bg-[#B54747] text-white'
+                                  r.verdict === 'NBRY' ? 'bg-emerald-600 text-white'
+                                    : r.verdict === 'NB' ? 'bg-amber-500 text-white'
+                                      : 'bg-[#B54747] text-white'
                                 }`}>
-                                  {r.cancelled
-                                    ? `Nīcabhaṅga forms · ${r.strength}`
-                                    : 'Nīcabhaṅga does not form'}
+                                  {r.verdict === 'NBRY' ? `NBRY · ${r.strength} condition${r.strength > 1 ? 's' : ''}`
+                                    : r.verdict === 'NB' ? `NB only · ${r.strength} condition${r.strength > 1 ? 's' : ''}`
+                                      : 'No cancellation'}
                                 </span>
                               </div>
 
+                              {r.cancelled && (
+                                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-600">
+                                  <span>
+                                    Rules house{r.ruledHouses.length > 1 ? 's' : ''}{' '}
+                                    <strong className="text-slate-800">{r.ruledHouses.join(', ') || '—'}</strong>
+                                    {r.lordsKendraOrTrikona
+                                      ? <span className="text-emerald-700"> · kendra/trikoṇa</span>
+                                      : <span className="text-[#B54747]"> · duṣṭhāna only</span>}
+                                  </span>
+                                  {r.navamsaDignity && (
+                                    <span>
+                                      Navāṃśa: <strong className={r.navamsaConfirmed ? 'text-emerald-700' : 'text-slate-800'}>
+                                        {r.navamsaDignity}
+                                      </strong>
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                               {r.cancelled && (
                                 <ul className="mt-2 space-y-1">
                                   {r.conditions.filter((c: any) => c.met).map((c: any) => (
