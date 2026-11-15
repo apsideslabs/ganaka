@@ -38,6 +38,11 @@ export interface CalculationInput {
   longitude: number;
   timezoneOffsetHours: number;
   locationName: string;
+  /**
+   * Optional given name, used only to label the exported file so a reader can
+   * tell two charts apart. Never used in any calculation.
+   */
+  personName?: string;
   ayanamshaType?: AyanamshaType;
   customAyanamshaValue?: number;
   houseSystem?: 'equal_whole' | 'sripati' | 'placidus';
@@ -100,6 +105,10 @@ function cacheKey(input: CalculationInput): string {
     input.houseSystem ?? 'equal_whole', input.jaiminiScheme ?? '7_karaka',
     input.ashtakavargaRecension ?? 'parashara', input.nodeType ?? 'mean',
     input.ephemerisMode ?? 'drik',
+    // The name does not affect a single calculation, but it is carried on the
+    // chart and labels the export. Without it in the key, two charts identical
+    // in every other respect collide and the second returns the first's name.
+    input.personName ?? '',
   ].join('|');
 }
 
@@ -160,6 +169,7 @@ function computeChart(input: CalculationInput): JyotishaChart {
     longitude: rawLongitude,
     timezoneOffsetHours: rawTimezone,
     locationName,
+    personName,
     ayanamshaType = 'lahiri',
     customAyanamshaValue = 0,
     houseSystem = 'equal_whole',
@@ -493,6 +503,7 @@ function computeChart(input: CalculationInput): JyotishaChart {
         latitude,
         longitude,
         timezoneOffsetHours,
+        ...(personName ? { personName } : {}),
       },
     },
     lagna,
