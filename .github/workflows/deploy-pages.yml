@@ -95,7 +95,7 @@ jobs:
           const c: any = calculateFullJyotishaChart({
             year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0,
             latitude: 26.637102, longitude: 91.19171, timezoneOffsetHours: 5.5,
-            locationName: 'Baghmara, Assam',
+            locationName: 'Assam reference',
             jaiminiScheme: '8_karaka',
           });
           const sb = c.shadbala;
