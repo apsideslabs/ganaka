@@ -10,7 +10,8 @@
  * 2. Extended Vargas — Traditional harmonic charts (D5, D6, D8, D11, D81, D108, D144)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { evaluateAllNeechaBhanga } from '@/lib/jyotisha/neechabhanga';
 import { VargaChart, VargaId, CalculatedPlanet, RashiNumber } from '@/lib/jyotisha/types';
 import { PlanetId } from '@/lib/astronomy/ephemeris';
 import { DivisionalChartDiagram } from './DivisionalChartDiagram';
@@ -72,6 +73,25 @@ export function VargasPanel({
   );
   const [selectedVargaId, setSelectedVargaId] = useState<VargaId>('D9');
   const [activeTab, setActiveTab] = useState<'planets' | 'houses'>('planets');
+
+  /**
+   * Nīcabhaṅga for the active varga — Phaladīpikā 7.26–30, applied to THIS
+   * division's own houses and aspects. A graha debilitated in D-9 is judged by
+   * the D-9 chart, not by the birth chart.
+   */
+  const neechaBhanga = useMemo(() => {
+    try {
+      const v: any = vargas[selectedVargaId] || vargas['D1'];
+      if (!v?.planets) return [];
+      const positions = {
+        lagnaRashi: v.lagnaRashi,
+        planets: Object.fromEntries(
+          Object.entries(v.planets).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+        ),
+      };
+      return evaluateAllNeechaBhanga(positions as any);
+    } catch { return []; }
+  }, [vargas, selectedVargaId]);
 
   // Keep state synchronized with Workspace Settings storage
   useEffect(() => {
@@ -561,6 +581,74 @@ export function VargasPanel({
                 </table>
               </div>
             )}
+
+            {/* ── Nīcabhaṅga — cancellation of debilitation in THIS varga ── */}
+            <div className="mt-6 border-t border-slate-200 pt-6">
+              <div className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+                <div>
+                  <h3 className="font-serif text-[16px] font-semibold text-slate-900">
+                    Nīcabhaṅga — cancellation of debilitation
+                  </h3>
+                  <p className="text-[13px] text-slate-500 mt-1">
+                    Phaladīpikā 7.26–30, read against {activeDef.id}&rsquo;s own houses and aspects.
+                  </p>
+                </div>
+              </div>
+
+              {neechaBhanga.length === 0 ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-4">
+                  <p className="text-[13px] text-slate-600">
+                    No graha occupies its sign of debilitation in {activeDef.id}.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {neechaBhanga.map((r: any) => (
+                    <div key={r.planet}
+                      className={`rounded-xl border px-5 py-4 ${
+                        r.cancelled
+                          ? 'border-emerald-200 bg-emerald-50/50'
+                          : 'border-[#8C2D19]/25 bg-[#8C2D19]/[0.04]'
+                      }`}>
+                      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-serif text-[15px] font-semibold text-slate-900">
+                            {r.planetName}
+                          </span>
+                          <span className="text-[13px] text-slate-500">
+                            debilitated in {r.rashiName}
+                          </span>
+                        </div>
+                        <span className={`text-[12px] font-semibold px-2.5 py-1 rounded-md ${
+                          r.cancelled ? 'bg-emerald-600 text-white' : 'bg-[#8C2D19] text-white'
+                        }`}>
+                          {r.cancelled
+                            ? `Nīcabhaṅga forms · ${r.strength} condition${r.strength > 1 ? 's' : ''}`
+                            : 'Nīcabhaṅga does not form'}
+                        </span>
+                      </div>
+
+                      {r.cancelled && (
+                        <ul className="mt-3 space-y-1.5">
+                          {r.conditions.filter((c: any) => c.met).map((c: any) => (
+                            <li key={c.id} className="flex gap-2 text-[13px] text-slate-700">
+                              <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                              <span>
+                                <span className="font-medium">{c.label}</span>
+                                <span className="text-slate-500"> — {c.detail}</span>
+                                <span className="ml-1.5 text-[11px] font-mono text-slate-400">{c.rule}</span>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      <p className="mt-3 text-[12px] text-slate-500 leading-relaxed">{r.note}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
