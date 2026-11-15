@@ -31,7 +31,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
             <Sun className="w-4 h-4 text-[#7A2D12]" />
             <span>Muhūrta, Horā &amp; Tārā Balam Chronometry</span>
           </h2>
-          <p className="text-xs text-[#5C5850]">
+          <p className="text-[13px] text-[#5C5850]">
             Classical Muhūrta divisions calculated from local sunrise/sunset and astronomical lunar-solar coordinates.
           </p>
         </div>
@@ -40,7 +40,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('muhurtas')}
-            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'muhurtas'
                 ? 'bg-[#7A2D12] text-white shadow-2xs'
                 : 'text-[#5C5850] hover:text-[#171614]'
@@ -51,7 +51,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('horas')}
-            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'horas'
                 ? 'bg-[#7A2D12] text-white shadow-2xs'
                 : 'text-[#5C5850] hover:text-[#171614]'
@@ -62,7 +62,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
           <button
             type="button"
             onClick={() => setActiveSubTab('tarabala')}
-            className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'tarabala'
                 ? 'bg-[#7A2D12] text-white shadow-2xs'
                 : 'text-[#5C5850] hover:text-[#171614]'
@@ -83,11 +83,11 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <Sparkles className="w-4 h-4 text-[#1E4620]" />
                 Auspicious Muhūrta Windows (Śubha Kāla)
               </h3>
-              <div className="space-y-2 text-xs">
+              <div className="space-y-2 text-[13px]">
                 <div className="flex items-center justify-between p-2.5 bg-[#F9FCF9] border border-[#D5EBD5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#1E4620] block">Abhijit Muhūrta</span>
-                    <span className="text-[10px] text-[#5C5850]">8th daytime muhūrta (Noon centered)</span>
+                    <span className="text-[12px] text-[#5C5850]">8th daytime muhūrta (Noon centered)</span>
                   </div>
                   <span className="font-mono font-bold text-[#1E4620]">
                     {panchanga.muhurtas.abhijit}
@@ -96,7 +96,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#F9FCF9] border border-[#D5EBD5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#1E4620] block">Brāhma Muhūrta</span>
-                    <span className="text-[10px] text-[#5C5850]">14th night muhūrta (Pre-sunrise)</span>
+                    <span className="text-[12px] text-[#5C5850]">14th night muhūrta (Pre-sunrise)</span>
                   </div>
                   <span className="font-mono font-bold text-[#1E4620]">
                     {panchanga.muhurtas.brahmaMuhurta}
@@ -105,7 +105,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#F9FCF9] border border-[#D5EBD5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#1E4620] block">Amṛta Kāla</span>
-                    <span className="text-[10px] text-[#5C5850]">42 Ghatis post-Varjyam</span>
+                    <span className="text-[12px] text-[#5C5850]">42 Ghatis post-Varjyam</span>
                   </div>
                   <span className="font-mono font-bold text-[#1E4620]">
                     {panchanga.muhurtas.amritKalam}
@@ -114,7 +114,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#F9FCF9] border border-[#D5EBD5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#1E4620] block">Godhūli Muhūrta</span>
-                    <span className="text-[10px] text-[#5C5850]">Sunset ± 12 minutes</span>
+                    <span className="text-[12px] text-[#5C5850]">Sunset ± 12 minutes</span>
                   </div>
                   <span className="font-mono font-bold text-[#1E4620]">
                     {panchanga.muhurtas.godhuli}
@@ -123,7 +123,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#F9FCF9] border border-[#D5EBD5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#1E4620] block">Vijaya Muhūrta</span>
-                    <span className="text-[10px] text-[#5C5850]">11th daytime muhūrta</span>
+                    <span className="text-[12px] text-[#5C5850]">11th daytime muhūrta</span>
                   </div>
                   <span className="font-mono font-bold text-[#1E4620]">
                     {panchanga.muhurtas.vijaya}
@@ -138,11 +138,11 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <ShieldAlert className="w-4 h-4 text-[#7A2D12]" />
                 Inauspicious Windows (Varjya &amp; Pāpa Kāla)
               </h3>
-              <div className="space-y-2 text-xs">
+              <div className="space-y-2 text-[13px]">
                 <div className="flex items-center justify-between p-2.5 bg-[#FCF9F9] border border-[#F0D5D5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#7A2D12] block">Rāhu Kāla</span>
-                    <span className="text-[10px] text-[#5C5850]">Weekday daytime division</span>
+                    <span className="text-[12px] text-[#5C5850]">Weekday daytime division</span>
                   </div>
                   <span className="font-mono font-bold text-[#7A2D12]">
                     {panchanga.muhurtas.rahukala}
@@ -151,7 +151,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#FCF9F9] border border-[#F0D5D5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#7A2D12] block">Yamagaṇḍa Kāla</span>
-                    <span className="text-[10px] text-[#5C5850]">Yama daytime division</span>
+                    <span className="text-[12px] text-[#5C5850]">Yama daytime division</span>
                   </div>
                   <span className="font-mono font-bold text-[#7A2D12]">
                     {panchanga.muhurtas.yamaghanta}
@@ -160,7 +160,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#FCF9F9] border border-[#F0D5D5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#7A2D12] block">Gulikā Kāla</span>
-                    <span className="text-[10px] text-[#5C5850]">Śani daytime division</span>
+                    <span className="text-[12px] text-[#5C5850]">Śani daytime division</span>
                   </div>
                   <span className="font-mono font-bold text-[#7A2D12]">
                     {panchanga.muhurtas.gulikakala}
@@ -169,7 +169,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                 <div className="flex items-center justify-between p-2.5 bg-[#FCF9F9] border border-[#F0D5D5] rounded-lg">
                   <div>
                     <span className="font-bold text-[#7A2D12] block">Varjyam (Tyājya Kāla)</span>
-                    <span className="text-[10px] text-[#5C5850]">Nakṣatra inauspicious span</span>
+                    <span className="text-[12px] text-[#5C5850]">Nakṣatra inauspicious span</span>
                   </div>
                   <span className="font-mono font-bold text-[#7A2D12]">
                     {panchanga.muhurtas.varjyam}
@@ -182,14 +182,14 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                       {panchanga.muhurtas.durmuhurta.join(' • ')}
                     </span>
                   </div>
-                  <span className="text-[10px] text-[#5C5850] block">Inauspicious daytime muhūrtas for {panchanga.vara.name}</span>
+                  <span className="text-[12px] text-[#5C5850] block">Inauspicious daytime muhūrtas for {panchanga.vara.name}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Ephemeris Summary Banner */}
-          <div className="p-4 rounded-xl bg-white border border-[#E6DEC8] flex flex-wrap items-center justify-between gap-4 text-xs shadow-3xs">
+          <div className="p-4 rounded-xl bg-white border border-[#E6DEC8] flex flex-wrap items-center justify-between gap-4 text-[13px] shadow-3xs">
             <div>
               <span className="text-[#7A7468] block text-[11px] font-serif">Ahorātra Planetary Chronometry</span>
               <span className="font-bold text-[#171614] font-serif text-sm">
@@ -210,13 +210,13 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
             <span className="font-serif font-bold text-sm text-[#171614]">
               Daily 24 Horā Cycles (Vāra Lord: {panchanga.vara.sanskritName})
             </span>
-            <span className="text-xs text-[#5C5850]">
+            <span className="text-[13px] text-[#5C5850]">
               Planetary hour rulers from Sunrise to next Sunrise
             </span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full text-[13px] text-left">
               <thead>
                 <tr className="bg-[#F4EFE6] text-[#4A463E] border-b border-[#D8CEBA]">
                   <th className="p-3 font-semibold">Horā #</th>
@@ -251,7 +251,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
             <span className="font-serif font-bold text-sm text-[#171614]">
               Tārā Balam from Natal Moon Nakṣatra (#{janmaNakshatraNumber} {panchanga.nakshatra.name})
             </span>
-            <span className="text-xs font-mono text-[#7A7468]">
+            <span className="text-[13px] font-mono text-[#7A7468]">
               9 Cycles: Sampat, Kṣema, Sādhana, Mitra, Parama Mitra (Auspicious)
             </span>
           </div>
@@ -262,7 +262,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
               return (
                 <div
                   key={item.nakshatra.number}
-                  className={`p-3 rounded-xl border text-xs space-y-1 transition-all ${
+                  className={`p-3 rounded-xl border text-[13px] space-y-1 transition-all ${
                     isGood
                       ? 'bg-[#F9FCF9] border-[#D1E7D1] text-[#1E4620]'
                       : 'bg-[#FCF9F9] border-[#F0D5D5] text-[#7A2D12]'
@@ -273,7 +273,7 @@ export const MuhurtaPanel: React.FC<MuhurtaPanelProps> = ({
                       #{item.nakshatra.number}. {item.nakshatra.name}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      className={`px-2 py-0.5 rounded text-[12px] font-bold ${
                         isGood
                           ? 'bg-[#E5F4E5] text-[#1E4620]'
                           : 'bg-[#FCEBEB] text-[#7A2D12]'
