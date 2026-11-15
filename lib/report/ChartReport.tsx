@@ -31,6 +31,9 @@ import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
+import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
+import { calculateNadi } from '@/lib/jyotisha/nadi';
+import { calculateNavaTara } from '@/lib/jyotisha/navatara';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
 import { SERIF, SYMBOLS, SYMBOLS2 } from './fonts';
 
