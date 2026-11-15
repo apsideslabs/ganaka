@@ -148,14 +148,14 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
               ].map(([n, l]) => (
                 <div key={l} className="text-center px-4 py-3 rounded-xl bg-slate-50 border border-slate-200/80 min-w-[68px]">
                   <div className="font-serif text-xl text-slate-900 leading-none">{n}</div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mt-1.5">{l}</div>
+                  <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mt-1.5">{l}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
         <div className="px-7 py-3 flex items-center gap-2 flex-wrap bg-slate-50/60 border-t border-slate-100">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mr-1">Matters</span>
+          <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mr-1">Matters</span>
           {Object.entries(promiseCounts).map(([k, n]) => (
             <span key={k} className={`text-[11px] px-2.5 py-1 rounded-lg border font-medium ${TONE[k]?.bg ?? 'bg-slate-50'} ${TONE[k]?.border ?? 'border-slate-200'} ${TONE[k]?.text ?? 'text-slate-600'}`}>
               {PROMISE_LABEL[k] ?? k} · {n}
@@ -192,7 +192,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
           <div className="px-7 py-4 border-b border-slate-100">
             <SectionHead right={
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">
                 ascendant at 9 o&rsquo;clock · houses unequal
               </span>
             }>
@@ -335,7 +335,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                     {l.planetNames.length ? l.planetNames.join(', ') : <span className="text-slate-300">—</span>}
                   </div>
                 </div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 shrink-0 pt-1">
+                <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400 shrink-0 pt-1">
                   {l.level === 1 ? 'strongest' : l.level === 4 ? 'weakest' : ''}
                 </span>
               </div>
@@ -344,7 +344,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
 
           {sig.nodeBorrowed.length > 0 && (
             <div className="mt-6 pt-5 border-t border-slate-100">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-2.5">Nodes acting as agents</div>
+              <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-2.5">Nodes acting as agents</div>
               {sig.nodeBorrowed.map((b) => (
                 <div key={b.node} className="text-[13px] text-slate-600 mb-1">
                   <span className="capitalize font-semibold text-slate-800">{b.node}</span> represents{' '}
@@ -362,7 +362,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
           <div className="px-7 py-4 border-b border-slate-100">
             <SectionHead right={
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">
                 {kp.ruling.extended ? 'seven-planet set' : 'five-planet set'}
               </span>
             }>Ruling planets of the moment</SectionHead>
@@ -384,7 +384,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
             ))}
           </div>
           <div className="px-7 py-4 bg-slate-50/60 border-t border-slate-100">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-1.5">Working set</div>
+            <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-1.5">Working set</div>
             <div className="text-[14px] text-slate-800 capitalize">
               {kp.ruling.workingSet.map((p) => p.planetName).join(' · ') || 'none'}
             </div>
@@ -424,7 +424,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                     ['Held', promise.hitsMatter.join(', ') || 'none'],
                   ].map(([k, v]) => (
                     <div key={k}>
-                      <dt className="text-[10px] font-mono uppercase tracking-wider text-slate-400">{k}</dt>
+                      <dt className="text-[12px] font-mono uppercase tracking-wider text-slate-400">{k}</dt>
                       <dd className="text-[14px] text-slate-800 mt-1 capitalize">{v}</dd>
                     </div>
                   ))}
@@ -478,7 +478,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
             {timing?.current ? (
               <>
                 <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5 mb-6">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-3">Running now</div>
+                  <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-3">Running now</div>
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     {timing.current.lords.map((l, i) => (
                       <React.Fragment key={`${l.lord}-${i}`}>
@@ -497,7 +497,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                   </div>
                 </div>
 
-                <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-3">
+                <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-3">
                   Delivering windows · {timing.windows.length}
                 </div>
                 {timing.windows.length === 0 ? (
@@ -514,7 +514,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                         </span>
                         <span className="text-[12px] font-mono text-emerald-700 shrink-0">{w.covered.join(',')}</span>
                         {w.strong && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 font-medium">RP</span>
+                          <span className="text-[12px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0 font-medium">RP</span>
                         )}
                       </div>
                     ))}
@@ -606,7 +606,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                 </div>
 
                 <div className="mt-6 rounded-xl border-2 border-[#8C2D19]/25 bg-[#8C2D19]/[0.045] p-5">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">Conclusion</div>
+                  <div className="text-[12px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">Conclusion</div>
                   <p className="text-[14px] text-slate-900 leading-relaxed">{fourStep.conclusion}</p>
                 </div>
               </>
@@ -622,7 +622,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         <div className="space-y-5">
           <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
             <div className="rounded-xl border-2 border-[#8C2D19]/25 bg-[#8C2D19]/[0.045] p-5 mb-6">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">The cardinal rule</div>
+              <div className="text-[12px] font-mono uppercase tracking-wider text-[#8C2D19] mb-2">The cardinal rule</div>
               <p className="text-[13px] text-slate-800 leading-relaxed">
                 Aspects support or suppress a signification — they never override the cuspal
                 sub lord. A graha aspecting a cusp gains a secondary link to that house; it does
@@ -630,7 +630,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
               </p>
             </div>
 
-            <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">{aspects.planetAspects.length} aspects</span>}>
+            <SectionHead right={<span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">{aspects.planetAspects.length} aspects</span>}>
               Graha to graha
             </SectionHead>
             {aspects.planetAspects.length === 0 ? (
@@ -667,7 +667,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
 
           <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
             <div className="px-7 py-4 border-b border-slate-100">
-              <SectionHead right={<span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">the half whole-sign dṛṣṭi cannot express</span>}>
+              <SectionHead right={<span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">the half whole-sign dṛṣṭi cannot express</span>}>
                 Graha to cusp · {aspects.cuspAspects.length}
               </SectionHead>
             </div>
@@ -727,7 +727,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
         <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
           <div className="px-7 py-4 border-b border-slate-100">
             <SectionHead right={
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">KP uses Viṃśottarī only</span>
+              <span className="text-[12px] font-mono uppercase tracking-wider text-slate-400">KP uses Viṃśottarī only</span>
             }>Viṃśottarī · mahā and antara</SectionHead>
           </div>
           <div className="max-h-[34rem] overflow-y-auto">
@@ -747,7 +747,7 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
                     <td className={`py-2 px-3 capitalize ${d.level === 'mahā' ? 'text-slate-900 font-semibold' : 'text-slate-600 pl-7'}`}>
                       {d.lordName}
                       {d.isRunning && (
-                        <span className="ml-2.5 text-[10px] px-2 py-0.5 rounded-md bg-[#8C2D19] text-white font-medium">now</span>
+                        <span className="ml-2.5 text-[12px] px-2 py-0.5 rounded-md bg-[#8C2D19] text-white font-medium">now</span>
                       )}
                     </td>
                     <td className="py-2 px-3 font-mono text-slate-600 tabular-nums">{d.from}</td>
