@@ -1186,8 +1186,9 @@ console.log('\n== Exports carry calculation, not prediction ==');
   check('yogas are still exported', Array.isArray(e.chart.yogas) && e.chart.yogas.length > 0);
   check('yoga effects prose is stripped',
     e.chart.yogas.every((y: any) => !('effects' in y)));
-  check('yogas keep their source and verse',
-    e.chart.yogas.every((y: any) => typeof y.chapterAndVerse === 'string' && y.chapterAndVerse.length > 0));
+  // The verse is gone by design; the source text stays as provenance.
+  check('yogas keep their source text but not the verse',
+    e.chart.yogas.every((y: any) => typeof y.sourceText === 'string' && y.chapterAndVerse === undefined));
 
   check('doshas are still exported',
     Array.isArray(e.chart.doshas.evaluatedDoshas) && e.chart.doshas.evaluatedDoshas.length > 0);
@@ -2178,6 +2179,60 @@ console.log('\n== Chart validity sweep ==');
 
   check('every chart in the sweep is structurally valid', bad.length === 0, bad.slice(0, 4).join(' | '));
   check('the sweep actually ran', dates.length * places.length === 42);
+}
+
+/* --------------------- THE EXPORT IS RAW DATA, NOT SCRIPTURE */
+
+console.log('\n== Export carries no verse and no verdict ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const e: any = buildChartExport(natal, { dashaDepth: 2 });
+  const json = JSON.stringify(e);
+
+  // No verse, anywhere.
+  for (const key of ['sanskritShloka', 'chapterAndVerse', 'verseOrShloka', 'sanskritTextName']) {
+    check(`no ${key} in the export`, !json.includes(`"${key}"`), key);
+  }
+  // No interpretive prose.
+  for (const key of ['classicalEffects', 'dhairyaDescription']) {
+    check(`no ${key} in the export`, !json.includes(`"${key}"`), key);
+  }
+  check('yogas carry no effects prose',
+    (e.chart.yogas || []).every((y: any) => y.effects === undefined));
+  check('vimshopaka carries no reading prose',
+    (e.vimshopaka || []).every((v: any) => v.reading === undefined));
+  check('sade sati carries no prediction prose',
+    e.transits?.sadeSati?.dhairyaDescription === undefined);
+
+  // But every computed field survives.
+  check('yogas still name the grahas involved',
+    (e.chart.yogas || []).every((y: any) => Array.isArray(y.involvedPlanets)));
+  check('yogas still carry their conditions',
+    (e.chart.yogas || []).every((y: any) => y.conditionsMet !== undefined));
+  check('yogas still name their source text',
+    (e.chart.yogas || []).every((y: any) => typeof y.sourceText === 'string'));
+  check('doshas still carry their status',
+    (e.chart.doshas.evaluatedDoshas || []).every((d: any) => typeof d.formationStatus === 'string'));
+  check('doshas still carry their rule definition',
+    (e.chart.doshas.evaluatedDoshas || []).every((d: any) => typeof d.definition === 'string'));
+
+  // The things the reader actually needs are all present.
+  const REQUIRED = ['avakahada', 'kp', 'kpAspects', 'kpFourStep', 'extendedDashas',
+    'vimshopaka', 'bhavaBala', 'phala', 'remedies', 'avasthas', 'mrityuBhaga',
+    'nadi', 'navatara', 'relationships', 'varshaphala', 'prashna', 'tajika',
+    'transits', 'matchingData', 'sudarshana', 'drishti', 'eclipses',
+    'sarvatobhadra', 'argala', 'doubleTransit', 'bhavaChalit', 'angles',
+    'sayana', 'bhavaSpasht', 'timeSensitivity'];
+  for (const k of REQUIRED) check(`export carries ${k}`, k in e, k);
+
+  check('panchanga of the birth day is present',
+    !!e.chart.panchanga?.tithi && !!e.chart.panchanga?.nakshatra && !!e.chart.panchanga?.vara);
+  check('all sixteen dasha systems are present',
+    Object.keys(e.extendedDashas || {}).length === 16, String(Object.keys(e.extendedDashas || {}).length));
+  check('the KP layer carries twelve cusps', e.kp?.cusps?.length === 12);
+  check('remedies are present for formed doshas',
+    Array.isArray(e.remedies));
+  check('the varga set is present', Object.keys(e.chart.vargas || {}).length >= 16);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
