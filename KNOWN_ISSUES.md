@@ -151,7 +151,7 @@ Every layer below was checked by running the real TypeScript (bundled with
 esbuild) and comparing against an independent engine or the printed text.
 
 **Jaimini** — kārakas and arūḍhas both match Jagannatha Hora exactly for the
-reference chart (3 Mar 2009, 23:51 IST, Baghmara):
+reference chart (3 Mar 2009, 23:51 IST, Assam):
 
 * Chara kārakas, 8-kāraka scheme: AK Mercury, AmK Mars, BK Saturn, MK Venus,
   PiK Sun, PK Jupiter, GK Rāhu, DK Moon — 8 of 8.
