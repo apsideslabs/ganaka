@@ -38,7 +38,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
             <Eye className="w-5 h-5 text-[#8B2500]" />
             <span>Dṛṣṭi (Aspect) Computation System</span>
           </h2>
-          <p className="text-xs text-[#6A5E4E]">
+          <p className="text-[13px] text-[#6A5E4E]">
             Full Parāśari Graha Dṛṣṭi (with virūpa intensities &amp; special aspects) and Jaimini Rāśi Dṛṣṭi.
           </p>
         </div>
@@ -47,7 +47,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
           <button
             type="button"
             onClick={() => setActiveSubTab('graha')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'graha'
                 ? 'bg-[#8B2500] text-white shadow-2xs'
                 : 'text-[#6A5E4E] hover:text-[#1A1A1A]'
@@ -58,7 +58,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
           <button
             type="button"
             onClick={() => setActiveSubTab('rashi')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-[13px] font-semibold rounded-md transition-all ${
               activeSubTab === 'rashi'
                 ? 'bg-[#8B2500] text-white shadow-2xs'
                 : 'text-[#6A5E4E] hover:text-[#1A1A1A]'
@@ -83,7 +83,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse font-mono">
+              <table className="w-full text-[13px] text-left border-collapse font-mono">
                 <thead>
                   <tr className="bg-[#F6F2EB] text-[#5C4F3E] border-b border-[#E2DACB]">
                     <th className="p-3 font-semibold">Aspecting ↓ / Aspect on →</th>
@@ -102,7 +102,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
                         <td className="p-3 font-semibold text-[#1A1A1A] bg-[#FAF8F5] border-r border-[#EAE3D5]">
                           <div className="flex items-center gap-1.5">
                             <span className="font-serif font-bold">{fromPlanet?.sanskritName}</span>
-                            <span className="text-[10px] text-[#8C7F6C] font-normal">
+                            <span className="text-[12px] text-[#8C7F6C] font-normal">
                               ({fromPlanet?.name})
                             </span>
                           </div>
@@ -144,7 +144,7 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
                               <div className="flex flex-col items-center">
                                 <span>{aspect.aspectStrengthVirupas}</span>
                                 {isSpecial && (
-                                  <span className="text-[9px] px-1 bg-[#8B2500] text-white rounded font-sans">
+                                  <span className="text-[11px] px-1 bg-[#8B2500] text-white rounded font-sans">
                                     Special
                                   </span>
                                 )}
@@ -163,11 +163,11 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
           {/* Special Aspects Breakdown Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-xl border border-[#E8E2D6] space-y-2">
-              <div className="flex items-center gap-2 text-xs font-serif font-bold text-[#8B2500]">
+              <div className="flex items-center gap-2 text-[13px] font-serif font-bold text-[#8B2500]">
                 <Zap className="w-4 h-4" />
                 <span>Maṅgala (Mars) Special Aspects</span>
               </div>
-              <p className="text-xs text-[#5C4F3E] leading-relaxed">
+              <p className="text-[13px] text-[#5C4F3E] leading-relaxed">
                 Casts 100% full Dṛṣṭi on <strong>4th house (90°)</strong> and <strong>8th house (210°)</strong> in addition to standard 7th house opposition.
               </p>
               <div className="text-[11px] font-mono text-[#8C7F6C]">
@@ -177,11 +177,11 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
             </div>
 
             <div className="bg-white p-4 rounded-xl border border-[#E8E2D6] space-y-2">
-              <div className="flex items-center gap-2 text-xs font-serif font-bold text-[#8B2500]">
+              <div className="flex items-center gap-2 text-[13px] font-serif font-bold text-[#8B2500]">
                 <Zap className="w-4 h-4" />
                 <span>Guru (Jupiter) &amp; Nodes Trines</span>
               </div>
-              <p className="text-xs text-[#5C4F3E] leading-relaxed">
+              <p className="text-[13px] text-[#5C4F3E] leading-relaxed">
                 Casts 100% full auspicious Dṛṣṭi on <strong>5th house (120°)</strong> and <strong>9th house (240°)</strong> (Amṛta Dṛṣṭi).
               </p>
               <div className="text-[11px] font-mono text-[#8C7F6C]">
@@ -191,11 +191,11 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
             </div>
 
             <div className="bg-white p-4 rounded-xl border border-[#E8E2D6] space-y-2">
-              <div className="flex items-center gap-2 text-xs font-serif font-bold text-[#8B2500]">
+              <div className="flex items-center gap-2 text-[13px] font-serif font-bold text-[#8B2500]">
                 <Zap className="w-4 h-4" />
                 <span>Śani (Saturn) Special Aspects</span>
               </div>
-              <p className="text-xs text-[#5C4F3E] leading-relaxed">
+              <p className="text-[13px] text-[#5C4F3E] leading-relaxed">
                 Casts 100% full Dṛṣṭi on <strong>3rd house (60°)</strong> and <strong>10th house (270°)</strong> in addition to 7th house.
               </p>
               <div className="text-[11px] font-mono text-[#8C7F6C]">
@@ -215,13 +215,13 @@ export const AspectsPanel: React.FC<AspectsPanelProps> = ({ planets, lagnaRashi 
               <span className="font-serif font-bold text-sm text-[#2A241A]">
                 Jaimini Rāśi Dṛṣṭi (Sign Aspect Rules)
               </span>
-              <span className="text-xs text-[#6A5E4E]">
+              <span className="text-[13px] text-[#6A5E4E]">
                 Chara ↔ Sthira (except adjacent) • Dvisvabhāva ↔ Dvisvabhāva
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
+              <table className="w-full text-[13px] text-left">
                 <thead>
                   <tr className="bg-[#F6F2EB] text-[#5C4F3E] border-b border-[#E2DACB]">
                     <th className="p-3 font-semibold">Rāśi (Sign)</th>
