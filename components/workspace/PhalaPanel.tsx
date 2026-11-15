@@ -80,7 +80,7 @@ export const PhalaPanel: React.FC<PhalaPanelProps> = ({ chart }) => {
           <span className="w-2.5 h-2.5 rounded-full bg-[#8C2D19]" />
           <h2 className="text-base font-serif font-bold text-slate-900">Ishta &amp; Kaṣṭa Phala</h2>
         </div>
-        <p className="text-xs text-slate-500 max-w-3xl leading-relaxed">
+        <p className="text-[13px] text-slate-500 max-w-3xl leading-relaxed">
           A graha&rsquo;s capacity to deliver good or difficult results, from its Ucca and Cheṣṭā
           strength — BPHS 28.6. Ishta plus Kaṣṭa always totals sixty virūpas.
         </p>
@@ -88,16 +88,16 @@ export const PhalaPanel: React.FC<PhalaPanelProps> = ({ chart }) => {
 
       {/* ishta / kashta table */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Graha</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Ucca</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Cheṣṭā</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Ishta</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Kaṣṭa</th>
-              <th className="text-left py-2 pl-4 font-mono text-[9px] uppercase tracking-wider text-slate-400">Delivery</th>
-              <th className="text-left py-2 pl-4 font-mono text-[9px] uppercase tracking-wider text-slate-400">Motion</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Graha</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Ucca</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Cheṣṭā</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Ishta</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Kaṣṭa</th>
+              <th className="text-left py-2 pl-4 font-mono text-[11px] uppercase tracking-wider text-slate-400">Delivery</th>
+              <th className="text-left py-2 pl-4 font-mono text-[11px] uppercase tracking-wider text-slate-400">Motion</th>
             </tr>
           </thead>
           <tbody>
@@ -114,7 +114,7 @@ export const PhalaPanel: React.FC<PhalaPanelProps> = ({ chart }) => {
                     <div className="h-full bg-[#8C2D19]" style={{ width: `${(r.kashta / 60) * 100}%` }} />
                   </div>
                 </td>
-                <td className={`py-1.5 pl-4 text-[10px] ${MOTION_COLOUR[r.motionState] ?? 'text-slate-500'}`}>
+                <td className={`py-1.5 pl-4 text-[12px] ${MOTION_COLOUR[r.motionState] ?? 'text-slate-500'}`}>
                   {r.motionState}
                 </td>
               </tr>
@@ -125,13 +125,13 @@ export const PhalaPanel: React.FC<PhalaPanelProps> = ({ chart }) => {
 
       {/* progeny sphutas */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-[#8C2D19]" /> Progeny Sphuṭas
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {phala.progeny.map((s) => (
             <div key={s.key} className="border border-slate-100 rounded-lg p-3">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 mb-0.5">
+              <div className="text-[12px] font-mono uppercase tracking-wider text-slate-400 mb-0.5">
                 {s.name} <span className="text-slate-300">{s.sanskritName}</span>
               </div>
               <div className="font-serif text-base font-bold text-slate-900">{s.degreeStr}</div>
@@ -145,22 +145,22 @@ export const PhalaPanel: React.FC<PhalaPanelProps> = ({ chart }) => {
 
       {/* kakshya */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-        <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+        <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
           <Orbit className="w-3.5 h-3.5 text-[#8C2D19]" /> Kakṣyā Transits — today
         </h3>
         <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
           Each sign divides into eight kakṣyās of 3°45′. A transit delivers good results only
           where the kakṣyā lord gave a bindu in that sign of the graha&rsquo;s Bhinna Aṣṭakavarga.
         </p>
-        <table className="w-full text-xs">
+        <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Graha</th>
-              <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Rāśi</th>
-              <th className="text-right py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Deg</th>
-              <th className="text-center py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Kakṣyā</th>
-              <th className="text-left py-2 pl-3 font-mono text-[9px] uppercase tracking-wider text-slate-400">Lord</th>
-              <th className="text-center py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Bindu</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Graha</th>
+              <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Rāśi</th>
+              <th className="text-right py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Deg</th>
+              <th className="text-center py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Kakṣyā</th>
+              <th className="text-left py-2 pl-3 font-mono text-[11px] uppercase tracking-wider text-slate-400">Lord</th>
+              <th className="text-center py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Bindu</th>
             </tr>
           </thead>
           <tbody>
