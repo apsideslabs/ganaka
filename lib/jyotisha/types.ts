@@ -489,6 +489,8 @@ export interface JyotishaChart {
       latitude: number;
       longitude: number;
       timezoneOffsetHours: number;
+      /** Optional given name, used only to label exported files. */
+      personName?: string;
     };
   };
   lagna: {
