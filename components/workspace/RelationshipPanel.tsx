@@ -66,7 +66,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
             Pañcadhā Maitrī &amp; Attributes
           </h2>
         </div>
-        <p className="text-xs text-slate-500 max-w-3xl leading-relaxed">
+        <p className="text-[13px] text-slate-500 max-w-3xl leading-relaxed">
           The five-fold relationship between grahas — natural, temporal and their compound —
           together with the favourable number, colour, day, gem and deity read from the birth
           nakṣatra.
@@ -80,7 +80,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
               ['Shatru', summary.shatru],
               ['Adhi Shatru', summary.adhiShatru],
             ].map(([label, n]) => (
-              <span key={String(label)} className="px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-[10px] text-slate-600">
+              <span key={String(label)} className="px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-[12px] text-slate-600">
                 {label} <span className="font-mono font-bold">{String(n)}</span>
               </span>
             ))}
@@ -97,7 +97,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center gap-1.5 transition-colors ${
                 active
                   ? 'bg-[#8C2D19] text-white'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -112,14 +112,14 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
 
       {tab === 'dispositors' && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs overflow-x-auto">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Each graha and the lord of the sign it occupies
           </h3>
-          <table className="w-full text-xs">
+          <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-slate-200">
                 {['Graha', 'Rāśi', 'Dispositor', 'Natural', 'Temporal', 'Pañcadhā'].map((h) => (
-                  <th key={h} className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">{h}</th>
+                  <th key={h} className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -142,18 +142,18 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
       {tab === 'matrix' && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs overflow-x-auto">
           <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
-            <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+            <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500">
               Compound relation of each graha to every other
             </h3>
             <div className="flex items-center gap-2">
-              <label htmlFor="rel-varga" className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <label htmlFor="rel-varga" className="text-[12px] font-mono uppercase tracking-wider text-slate-400">
                 Chart
               </label>
               <select
                 id="rel-varga"
                 value={varga}
                 onChange={(e) => setVarga(e.target.value)}
-                className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white text-slate-700"
+                className="px-2.5 py-1.5 text-[13px] border border-slate-300 rounded-lg bg-white text-slate-700"
               >
                 {['D1', 'D2', 'D3', 'D4', 'D7', 'D9', 'D10', 'D12', 'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'].map((v) => (
                   <option key={v} value={v}>{v}</option>
@@ -161,12 +161,12 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
               </select>
             </div>
           </div>
-          <table className="w-full text-[10px]">
+          <table className="w-full text-[12px]">
             <thead>
               <tr className="border-b border-slate-200">
-                <th className="text-left py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">Graha</th>
+                <th className="text-left py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">Graha</th>
                 {matrixRows.map((r) => (
-                  <th key={r.planet} className="text-center py-2 font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                  <th key={r.planet} className="text-center py-2 font-mono text-[11px] uppercase tracking-wider text-slate-400">
                     {r.planet.slice(0, 3)}
                   </th>
                 ))}
@@ -198,7 +198,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
               ))}
             </tbody>
           </table>
-          <p className="text-[9px] font-mono text-slate-400 mt-2">
+          <p className="text-[11px] font-mono text-slate-400 mt-2">
             AM great friend · M friend · S neutral · X enemy · AX great enemy
           </p>
         </div>
@@ -206,7 +206,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
 
       {tab === 'attributes' && attrs && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-          <h3 className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3">
+          <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Favourable attributes
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -221,7 +221,7 @@ export const RelationshipPanel: React.FC<RelationshipPanelProps> = ({ chart }) =
               ['Direction', attrs.direction],
             ].map(([k, v]) => (
               <div key={String(k)} className="border border-slate-100 rounded-lg px-3 py-2">
-                <div className="text-[9px] font-mono uppercase tracking-wider text-slate-400 mb-0.5">{k}</div>
+                <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-0.5">{k}</div>
                 <div className="text-[11px] text-slate-700">{String(v ?? '—')}</div>
               </div>
             ))}
