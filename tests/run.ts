@@ -42,7 +42,6 @@ import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
 import { calculateCurrentTransits } from '../lib/jyotisha/transits';
 import { ALL_DOSHA_DEFINITIONS } from '../lib/doshas/dosha-engine';
-import { calculatePrashna } from '../lib/jyotisha/prashna';
 import { getRemediesForDosha, NO_REMEDY_PRESCRIBED } from '../lib/doshas/classical-remedies';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
 import { housesSignified } from '../lib/kp/significators';
