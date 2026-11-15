@@ -2101,6 +2101,46 @@ console.log('\n== Report chapters read real fields ==');
   check('navatara tara carries its number and name', !!nt.cycle[0]?.tara?.number && !!nt.cycle[0]?.tara?.name);
 }
 
+/* ------------------------------ EVERY CHART IS STRUCTURALLY VALID */
+
+console.log('\n== Chart validity sweep ==');
+{
+  const dates = [[1900,1,1],[1950,8,15],[1980,3,21],[2000,1,1],[2009,3,3],[2026,11,15],[2040,2,29]];
+  const places = [[26.65,91.15,5.5],[28.61,77.21,5.5],[51.5,-0.13,0],[40.7,-74,-5],[-33.9,151.2,11],[69.6,18.9,1]];
+  const bad: string[] = [];
+
+  for (const [y, m, d] of dates) {
+    for (const [lat, lon, tz] of places) {
+      const tag = `${y}-${m}-${d}@${lat}`;
+      let c: any;
+      try {
+        c = calculateFullJyotishaChart({ year: y, month: m, day: d, hour: 12, minute: 0, second: 0, latitude: lat, longitude: lon, timezoneOffsetHours: tz, locationName: 'T' });
+      } catch (e: any) { bad.push(`${tag}: threw ${e.message.slice(0, 40)}`); continue; }
+
+      for (const [id, p] of Object.entries(c.planets as any)) {
+        const q: any = p;
+        if (!(q.rashiNumber >= 1 && q.rashiNumber <= 12)) bad.push(`${tag}: ${id} rashi ${q.rashiNumber}`);
+        if (!Number.isFinite(q.siderealLongitude) || q.siderealLongitude < 0 || q.siderealLongitude >= 360) bad.push(`${tag}: ${id} longitude`);
+        if (!(q.nakshatraIndex >= 0 && q.nakshatraIndex <= 26)) bad.push(`${tag}: ${id} nakshatra ${q.nakshatraIndex}`);
+        if (!(q.pada >= 1 && q.pada <= 4)) bad.push(`${tag}: ${id} pada ${q.pada}`);
+      }
+      if (!(c.lagna.rashiNumber >= 1 && c.lagna.rashiNumber <= 12)) bad.push(`${tag}: lagna rashi`);
+      if (!(c.lagna.pada >= 1 && c.lagna.pada <= 4)) bad.push(`${tag}: lagna pada`);
+      if (!(c.meta.ayanamshaValue > 20 && c.meta.ayanamshaValue < 30)) bad.push(`${tag}: ayanamsha ${c.meta.ayanamshaValue}`);
+      if (c.ashtakavarga?.sav?.total !== 337) bad.push(`${tag}: SAV total ${c.ashtakavarga?.sav?.total}`);
+      for (const h of c.bhavas as any[]) {
+        if (!(h.houseNumber >= 1 && h.houseNumber <= 12)) bad.push(`${tag}: house ${h.houseNumber}`);
+      }
+      for (const [id, sb] of Object.entries(c.shadbala || {})) {
+        if (!Number.isFinite((sb as any).totalVirupas)) bad.push(`${tag}: shadbala ${id} not finite`);
+      }
+    }
+  }
+
+  check('every chart in the sweep is structurally valid', bad.length === 0, bad.slice(0, 4).join(' | '));
+  check('the sweep actually ran', dates.length * places.length === 42);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
