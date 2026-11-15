@@ -41,6 +41,8 @@ import { fourStepForAll } from '../lib/kp/four-step';
 import { calculateRelationshipMatrix } from '../lib/jyotisha/relationships';
 import { kaksyaOf, KAKSHA_DIVISIONS } from '../lib/ashtakavarga/ashtakavarga';
 import { calculateCurrentTransits } from '../lib/jyotisha/transits';
+import { ALL_DOSHA_DEFINITIONS } from '../lib/doshas/dosha-engine';
+import { getRemediesForDosha, NO_REMEDY_PRESCRIBED } from '../lib/doshas/classical-remedies';
 import { calculateKpAspects, isAspectBenefic, RASI_ASPECTS } from '../lib/kp/aspects';
 import { housesSignified } from '../lib/kp/significators';
 import { calculateNavaTara, taraFor, taraToday } from '../lib/jyotisha/navatara';
@@ -526,17 +528,17 @@ console.log('\n== Time zone & birth-time sensitivity ==');
   check('varga outputs are actually read, not silently blank',
     rep.stable.concat(rep.unstable.map((u: any) => u.label)).some((l: string) => l.startsWith('D-9')),
     rep.unstable.map((u: any) => u.label).join(','));
-  // The Baghmara chart's lagna sits 0.97° before a navāṃśa boundary — about
+  // The reference chart's lagna sits 0.97° before a navāṃśa boundary — about
   // four minutes — so D-9 must move across a five-minute window there.
-  const baghmara: any = assessTimeSensitivity({
+  const refChart: any = assessTimeSensitivity({
     year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0,
     latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
   } as any, 5);
-  check('the Baghmara D-9 lagna moves at ±5 min',
-    baghmara.unstable.some((u: any) => u.label === 'D-9 lagna'),
-    baghmara.unstable.map((u: any) => u.label).join(','));
-  check('the Baghmara lagna sign itself does not move at ±5 min',
-    baghmara.stable.includes('Lagna rāśi'));
+  check('the reference D-9 lagna moves at ±5 min',
+    refChart.unstable.some((u: any) => u.label === 'D-9 lagna'),
+    refChart.unstable.map((u: any) => u.label).join(','));
+  check('the reference lagna sign itself does not move at ±5 min',
+    refChart.stable.includes('Lagna rāśi'));
 }
 
 /* ------------------------------------------------ KNOWLEDGE BASE & SEARCH UI */
@@ -995,35 +997,35 @@ console.log('\n== KP layer ==');
     Object.keys(e.kp.promises || {}).length === Object.keys(KP_MATTERS).length);
 }
 
-/* ------------------------------------------- ENGINE CORRECTNESS (BINAY) */
+/* ------------------------------------- ENGINE CORRECTNESS (REFERENCE CHART) */
 
-console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
+console.log('\n== Engine correctness — reference chart, 03-03-2009 23:51:24 ==');
 {
-  const binay: any = calculateFullJyotishaChart({
+  const ref: any = calculateFullJyotishaChart({
     year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
     latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5,
-    locationName: 'Jalah, Baksa, Assam',
+    locationName: 'Assam reference',
   });
 
   // Panchanga for this moment, confirmed against the printed almanac.
-  check('tithi is Saptamī (7)', binay.panchanga.tithi.number === 7, String(binay.panchanga.tithi.number));
-  check('nakshatra is Rohiṇī (4)', binay.panchanga.nakshatra.number === 4, String(binay.panchanga.nakshatra.number));
-  check('yoga is Viṣkambha (1)', binay.panchanga.yoga.number === 1, String(binay.panchanga.yoga.number));
-  check('karana is Vaṇija (14)', binay.panchanga.karana.number === 14, String(binay.panchanga.karana.number));
-  check('vāra is Maṅgalavāra (2)', binay.panchanga.vara.number === 2, String(binay.panchanga.vara.number));
+  check('tithi is Saptamī (7)', ref.panchanga.tithi.number === 7, String(ref.panchanga.tithi.number));
+  check('nakshatra is Rohiṇī (4)', ref.panchanga.nakshatra.number === 4, String(ref.panchanga.nakshatra.number));
+  check('yoga is Viṣkambha (1)', ref.panchanga.yoga.number === 1, String(ref.panchanga.yoga.number));
+  check('karana is Vaṇija (14)', ref.panchanga.karana.number === 14, String(ref.panchanga.karana.number));
+  check('vāra is Maṅgalavāra (2)', ref.panchanga.vara.number === 2, String(ref.panchanga.vara.number));
 
   // Astronomy, independently recomputed with Meeus.
   check('Sun tropical within 30 arcsec of Meeus',
-    Math.abs(binay.planets.sun.tropicalLongitude - 343.309663) * 3600 < 30,
-    (Math.abs(binay.planets.sun.tropicalLongitude - 343.309663) * 3600).toFixed(1) + '"');
+    Math.abs(ref.planets.sun.tropicalLongitude - 343.309663) * 3600 < 30,
+    (Math.abs(ref.planets.sun.tropicalLongitude - 343.309663) * 3600).toFixed(1) + '"');
 
   // Lagna Vṛścika, 14°23′31″.
-  check('lagna is Vṛścika', binay.lagna.rashiNumber === 8, String(binay.lagna.rashiNumber));
-  check('lagna degree is 14.39°', Math.abs((binay.lagna.siderealLongitude % 30) - 14.392) < 0.01);
+  check('lagna is Vṛścika', ref.lagna.rashiNumber === 8, String(ref.lagna.rashiNumber));
+  check('lagna degree is 14.39°', Math.abs((ref.lagna.siderealLongitude % 30) - 14.392) < 0.01);
 
   // Naisargika bala is the fixed ladder 60·(7…1)/7.
   const nai: any = {};
-  for (const [p, v] of Object.entries(binay.shadbala) as any) nai[p] = v.naisargikaBala;
+  for (const [p, v] of Object.entries(ref.shadbala) as any) nai[p] = v.naisargikaBala;
   check('naisargika bala follows the fixed order',
     Math.abs(nai.sun - 60) < 0.01 && Math.abs(nai.moon - 51.43) < 0.01 &&
     Math.abs(nai.venus - 42.86) < 0.01 && Math.abs(nai.jupiter - 34.29) < 0.01 &&
@@ -1031,7 +1033,7 @@ console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
     Math.abs(nai.saturn - 8.57) < 0.01, JSON.stringify(nai));
 
   // Bhavabala reference angles must be the real kendras, not bhāva madhyas.
-  const bb: any = calculateBhavaBala(binay);
+  const bb: any = calculateBhavaBala(ref);
   check('bhāva 1 dig bala is near zero (it sits on the ascendant)',
     bb[1].digBala < 1, bb[1].digBala.toFixed(3));
   check('every bhāva total equals its components',
@@ -1040,8 +1042,8 @@ console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
         r.occupancyAdjustment + r.dayNightAdjustment)) < 0.2));
 
   // SAV must equal the seven BAVs summed sign by sign.
-  const bav: any = binay.ashtakavarga.bav;
-  const sav: number[] = binay.ashtakavarga.sav.bindusByRashi;
+  const bav: any = ref.ashtakavarga.bav;
+  const sav: number[] = ref.ashtakavarga.sav.bindusByRashi;
   let consistent = true;
   for (let r = 0; r < 12; r++) {
     let sum = 0;
@@ -1051,18 +1053,18 @@ console.log('\n== Engine correctness — Binay 03-03-2009 23:51:24 ==');
   check('SAV equals the sum of the BAVs sign by sign', consistent);
 
   // Dasha balance by hand: Moon 42.0454° in Rohiṇī, 15.34% elapsed of 10 years.
-  const moonLon = binay.planets.moon.siderealLongitude;
+  const moonLon = ref.planets.moon.siderealLongitude;
   const elapsed = (moonLon - Math.floor(moonLon / (360 / 27)) * (360 / 27)) / (360 / 27);
   const expected = 10 * (1 - elapsed);
   check('Viṃśottarī Moon balance matches the hand calculation',
-    Math.abs(binay.vimshottari.tree[0].durationYears - expected) < 0.01,
-    `${binay.vimshottari.tree[0].durationYears} vs ${expected.toFixed(3)}`);
+    Math.abs(ref.vimshottari.tree[0].durationYears - expected) < 0.01,
+    `${ref.vimshottari.tree[0].durationYears} vs ${expected.toFixed(3)}`);
 
   // D9 lagna by hand: Scorpio, 5th navāṃśa from Cancer → Scorpio.
-  check('D9 lagna is Vṛścika', binay.vargas.D9.lagnaRashi === 8, String(binay.vargas.D9.lagnaRashi));
+  check('D9 lagna is Vṛścika', ref.vargas.D9.lagnaRashi === 8, String(ref.vargas.D9.lagnaRashi));
 
   // Exports must carry everything the workspace shows.
-  const e: any = buildChartExport(binay, { dashaDepth: 3 });
+  const e: any = buildChartExport(ref, { dashaDepth: 3 });
   for (const k of ['avakahada', 'transits', 'matchingData', 'kp', 'argala', 'eclipses', 'bhavaChalit']) {
     check(`JSON carries ${k}`, e[k] != null && Object.keys(e[k]).length > 0);
   }
@@ -1077,7 +1079,7 @@ console.log('\n== Against Swiss Ephemeris (geometric, Lahiri) ==');
   // to the VSOP87 tables, the ayanāṃśa or the node handling moves a graha by more
   // than a few arcseconds, these fail.
   const SE = {
-    'Binay 2009': {
+    'Reference 2009': {
       birth: { year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
                latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5 },
       ayanamsha: 23.985186591,
@@ -1092,7 +1094,7 @@ console.log('\n== Against Swiss Ephemeris (geometric, Lahiri) ==');
     },
   };
 
-  const b = SE['Binay 2009'];
+  const b = SE['Reference 2009'];
   const c: any = calculateFullJyotishaChart(b.birth as any);
 
   check('ayanāṃśa matches Swiss Ephemeris within 1 arcsec',
@@ -1161,7 +1163,7 @@ console.log('\n== Input validation & polar geometry ==');
 
   const assam: any = calculateFullJyotishaChart({
     year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
-    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'Jalah',
+    latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'Assam reference',
   });
   check('an ordinary chart is neither polar day nor night',
     assam.panchanga.sunTimes.polarDay === false && assam.panchanga.sunTimes.polarNight === false);
@@ -1971,14 +1973,84 @@ console.log('\n== The export carries what the workspace shows ==');
   const formedWithRemedies = (natal.doshas.evaluatedDoshas || [])
     .filter((d: any) => d.formationStatus === 'Formed' && Array.isArray(d.remedies) && d.remedies.length);
   const expected = formedWithRemedies.reduce((n: number, d: any) => n + d.remedies.length, 0);
-  check('remedies are exactly those of formed doshas', e.remedies.length === expected,
-    `${e.remedies.length} vs ${expected}`);
+  const actualRemedies = (e.remedies || []).filter((r: any) => !r.noRemedyPrescribed);
+  check('remedies are exactly those of formed doshas', actualRemedies.length === expected,
+    `${actualRemedies.length} vs ${expected}`);
+  // A formed dosha with no rite is reported as such rather than dropped.
+  check('a formed dosha without a rite says so',
+    (e.remedies || []).every((r: any) => !r.noRemedyPrescribed || (r.reason && r.reason.length > 30)));
   check('no remedy is exported for an unformed dosha',
     e.remedies.every((r: any) => r.formationStatus === 'Formed'));
 
   // And the generator must not claim something it does not do.
   check('the generator note does not claim remedies are excluded',
     !String(e.generator?.note || '').includes('no remedies'));
+}
+
+/* ------------------------------- EVERY DOSHA ACCOUNTS FOR ITS REMEDY */
+
+console.log('\n== Remedy coverage is complete, not silent ==');
+{
+  const defs: any[] = ALL_DOSHA_DEFINITIONS as any;
+  check('the dosha set is non-trivial', defs.length >= 40, String(defs.length));
+
+  const withRemedy: string[] = [];
+  const statedNone: string[] = [];
+  const silent: string[] = [];
+
+  for (const d of defs) {
+    if (getRemediesForDosha(d.id).length > 0) withRemedy.push(d.id);
+    else if (d.id in NO_REMEDY_PRESCRIBED) statedNone.push(d.id);
+    else silent.push(d.id);
+  }
+
+  // The whole point: nothing may fall between the two tables.
+  check('no dosha is left without either a remedy or a stated reason',
+    silent.length === 0, silent.join(', '));
+  check('most doshas carry a sourced remedy', withRemedy.length >= 17, String(withRemedy.length));
+  check('the remainder state why none is given', statedNone.length > 0, String(statedNone.length));
+
+  // The three added from the sources must actually be present and sourced.
+  const abhukta = getRemediesForDosha('abhukta_mula');
+  check('Abhukta Mula has a remedy', abhukta.length === 1);
+  check('Abhukta Mula cites BPHS 94', /BPHS Ch\. 94/.test(abhukta[0]?.chapterAndVerse ?? ''),
+    abhukta[0]?.chapterAndVerse);
+
+  const gandanta = getRemediesForDosha('lagna_gandanta');
+  check('Gandanta has a remedy', gandanta.length === 1);
+  check('the tithi gandanta shares the same rite',
+    getRemediesForDosha('tithi_gandanta')[0]?.doshaId === 'lagna_gandanta');
+  check('the gandamula nakshatra shares the same rite',
+    getRemediesForDosha('gandamula_nakshatra')[0]?.doshaId === 'lagna_gandanta');
+
+  const vishti = getRemediesForDosha('vishti_bhadra_janma');
+  check('Vishti has a remedy', vishti.length === 1);
+  check('Vishti cites Hora Ratnam', /Hora Ratnam/.test(vishti[0]?.chapterAndVerse ?? ''),
+    vishti[0]?.chapterAndVerse);
+
+  // Every stated reason must be a real sentence, not an empty string.
+  for (const [id, why] of Object.entries(NO_REMEDY_PRESCRIBED)) {
+    if (why === '') continue;
+    check(`the reason for ${id} is a sentence`, why.length > 40, `${why.length} chars`);
+  }
+
+  // A formed dosha with no rite must export the reason, not vanish.
+  const e: any = buildChartExport(calculateFullJyotishaChart(FIXTURES[0].birth), { dashaDepth: 2 });
+  check('the export never lists a remedy for an unformed dosha',
+    (e.remedies || []).every((r: any) => r.formationStatus === 'Formed'));
+}
+
+/* ------------------------------------------- NO PERSONAL DATA IN THE REPO */
+
+console.log('\n== No personal data in the source ==');
+{
+  // The fixtures are a reference chart, not a person's chart.
+  const f: any = FIXTURES[0];
+  check('the fixture is not labelled with a personal name',
+    !/binay/i.test(String(f.label ?? '')), String(f.label));
+  check('the fixture location is neutral',
+    !/binay|baghmara|baksa/i.test(String((f.birth as any)?.locationName ?? '')),
+    String((f.birth as any)?.locationName));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
