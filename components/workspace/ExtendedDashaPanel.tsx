@@ -118,11 +118,11 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
               <h2 className="text-xl font-serif font-bold text-slate-900">
                 Extended Daśā Systems
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+              <span className="text-[13px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
                 7 Traditional Disciplines
               </span>
             </div>
-            <p className="text-xs text-slate-600">
+            <p className="text-[13px] text-slate-600">
               Rigorous, authentic calculation engines for Parāśarī &amp; Jaiminī temporal progressions alongside Viṃśottarī.
             </p>
           </div>
@@ -131,7 +131,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
             {onBackToVimshottari && (
               <button
                 onClick={onBackToVimshottari}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 text-[#8C2D19] hover:bg-amber-100 border border-amber-200 text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Viṃśottarī Daśā (120y)</span>
@@ -147,7 +147,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
               setActiveView('comparison');
               setSearchQuery('');
             }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+            className={`px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-all cursor-pointer border ${
               activeView === 'comparison'
                 ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
                 : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -177,7 +177,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                   setActiveView(sys.id as ExtendedDashaSystemId);
                   setSearchQuery('');
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+                className={`px-3 py-1.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer border ${
                   activeView === sys.id
                     ? 'bg-[#8C2D19] text-white border-[#8C2D19] shadow-2xs'
                     : 'bg-amber-50/70 text-amber-950 border-amber-200/80 hover:bg-amber-100'
@@ -207,7 +207,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                   setActiveView(sys.id as ExtendedDashaSystemId);
                   setSearchQuery('');
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+                className={`px-3 py-1.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer border ${
                   activeView === sys.id
                     ? 'bg-indigo-900 text-white border-indigo-900 shadow-2xs'
                     : 'bg-indigo-50/70 text-indigo-950 border-indigo-200/80 hover:bg-indigo-100'
@@ -229,12 +229,12 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                 <h3 className="text-base font-serif font-bold text-slate-900">
                   Active Daśā Periods Synchronized Comparison
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Cross-system synchronization for today’s date across Nakṣatra planetary and Jaiminī Rāśi methodologies.
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-[13px] font-semibold">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Synchronized to Birth Chart
                 </span>
@@ -243,7 +243,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
 
             {/* Comparison Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-[13px] border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                     <th className="py-3 px-3.5">System</th>
@@ -286,12 +286,12 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                         {row.cycleYears}y
                       </td>
                       <td className="py-3.5 px-3">
-                        <span className="font-serif font-bold text-[#8C2D19] text-xs">
+                        <span className="font-serif font-bold text-[#8C2D19] text-[13px]">
                           {row.currentMajorPeriod}
                         </span>
                       </td>
                       <td className="py-3.5 px-3">
-                        <span className="font-serif font-medium text-slate-800 text-xs">
+                        <span className="font-serif font-medium text-slate-800 text-[13px]">
                           {row.currentSubPeriod}
                         </span>
                       </td>
@@ -343,7 +343,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                       <td className="py-3.5 px-3 text-right">
                         <button
                           onClick={() => setActiveView(row.systemId)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-semibold transition-colors cursor-pointer"
                         >
                           Examine &rarr;
                         </button>
@@ -357,7 +357,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
 
           {/* Quick Guidance Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-amber-50/50 border border-amber-200/70 rounded-2xl p-5 space-y-2 text-xs">
+            <div className="bg-amber-50/50 border border-amber-200/70 rounded-2xl p-5 space-y-2 text-[13px]">
               <div className="flex items-center gap-2 text-amber-950 font-serif font-bold text-sm">
                 <Compass className="w-4 h-4 text-[#8C2D19]" />
                 <span>Nakṣatra-Based Planetary Systems</span>
@@ -367,7 +367,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
               </p>
             </div>
 
-            <div className="bg-indigo-50/50 border border-indigo-200/70 rounded-2xl p-5 space-y-2 text-xs">
+            <div className="bg-indigo-50/50 border border-indigo-200/70 rounded-2xl p-5 space-y-2 text-[13px]">
               <div className="flex items-center gap-2 text-indigo-950 font-serif font-bold text-sm">
                 <Layers className="w-4 h-4 text-indigo-800" />
                 <span>Rāśi-Based Jaiminī Systems</span>
@@ -395,7 +395,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                     {currentResult.system.devanagari}
                   </span>
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${
+                    className={`text-[13px] px-2.5 py-0.5 rounded-full font-semibold border ${
                       currentResult.system.classification === 'nakshatra_planetary'
                         ? 'bg-amber-100 text-amber-900 border-amber-200'
                         : 'bg-indigo-100 text-indigo-900 border-indigo-200'
@@ -405,18 +405,18 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                       ? 'Nakṣatra Planetary Cycle'
                       : 'Jaiminī Rāśi Cycle'}
                   </span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200 font-mono">
+                  <span className="text-[13px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200 font-mono">
                     Cycle: {currentResult.system.cycleYears} Years
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">
+                <p className="text-[13px] text-slate-600 max-w-3xl leading-relaxed">
                   {currentResult.system.description}
                 </p>
               </div>
 
               {/* VARIANT PICKER IF AVAILABLE */}
               {currentResult.availableVariants.length > 1 && (
-                <div className="shrink-0 p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-xs">
+                <div className="shrink-0 p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-[13px]">
                   <span className="font-semibold text-slate-700 block">Calculation Methodology:</span>
                   <select
                     value={activeView === 'astottari' ? astottariVariant : charaVariant}
@@ -427,7 +427,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                         setCharaVariant(e.target.value as any);
                       }
                     }}
-                    className="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
+                    className="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-[13px] text-slate-800 font-medium focus:outline-none focus:border-[#8C2D19] cursor-pointer"
                   >
                     {currentResult.availableVariants.map((v) => (
                       <option key={v.id} value={v.id}>
@@ -440,7 +440,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
             </div>
 
             {/* SCRIPTURAL PROVENANCE & BASIS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] pt-1">
               <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 space-y-1">
                 <span className="text-slate-500 font-medium flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-[#8C2D19]" />
@@ -470,7 +470,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
 
             {/* CLASSICAL ELIGIBILITY BANNER */}
             <div
-              className={`p-4 rounded-xl border text-xs space-y-2 ${
+              className={`p-4 rounded-xl border text-[13px] space-y-2 ${
                 currentResult.eligibility.status === 'satisfied'
                   ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
                   : currentResult.eligibility.status === 'conditional'
@@ -524,48 +524,48 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                   Current Active Period ({new Date().toISOString().split('T')[0]})
                 </h4>
               </div>
-              <span className="text-xs font-mono font-bold text-slate-500">
+              <span className="text-[13px] font-mono font-bold text-slate-500">
                 {currentResult.currentPeriod.progressPercentage}% Elapsed
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-4 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1">
-                <span className="text-xs text-amber-800 font-semibold block">Active Mahādaśā</span>
+                <span className="text-[13px] text-amber-800 font-semibold block">Active Mahādaśā</span>
                 <span className="text-lg font-serif font-bold text-[#8C2D19] block">
                   {currentResult.currentPeriod.majorPeriod.name}
                 </span>
-                <span className="text-xs text-slate-600 block font-serif">
+                <span className="text-[13px] text-slate-600 block font-serif">
                   {currentResult.currentPeriod.majorPeriod.devanagari}
                 </span>
               </div>
 
               <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                <span className="text-xs text-slate-600 font-semibold block">Active Antardaśā</span>
+                <span className="text-[13px] text-slate-600 font-semibold block">Active Antardaśā</span>
                 <span className="text-lg font-serif font-bold text-slate-900 block">
                   {currentResult.currentPeriod.subPeriod?.name || '—'}
                 </span>
-                <span className="text-xs text-slate-600 block font-serif">
+                <span className="text-[13px] text-slate-600 block font-serif">
                   {currentResult.currentPeriod.subPeriod?.devanagari || '—'}
                 </span>
               </div>
 
               <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                <span className="text-xs text-slate-600 font-semibold block">Period Duration</span>
+                <span className="text-[13px] text-slate-600 font-semibold block">Period Duration</span>
                 <span className="text-base font-serif font-bold text-slate-900 block font-mono">
                   {currentResult.currentPeriod.durationYears.toFixed(2)} Years
                 </span>
-                <span className="text-xs text-slate-500 block font-mono">
+                <span className="text-[13px] text-slate-500 block font-mono">
                   {currentResult.currentPeriod.majorPeriod.startDateStr} &rarr; {currentResult.currentPeriod.majorPeriod.endDateStr}
                 </span>
               </div>
 
               <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
-                <span className="text-xs text-slate-600 font-semibold block">Remaining Balance</span>
+                <span className="text-[13px] text-slate-600 font-semibold block">Remaining Balance</span>
                 <span className="text-base font-serif font-bold text-[#8C2D19] block font-mono">
                   {currentResult.currentPeriod.remainingYears}y {currentResult.currentPeriod.remainingMonths}m {currentResult.currentPeriod.remainingDays}d
                 </span>
-                <span className="text-xs text-slate-500 block">
+                <span className="text-[13px] text-slate-500 block">
                   Until {currentResult.currentPeriod.majorPeriod.endDateStr}
                 </span>
               </div>
@@ -589,7 +589,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                 <h4 className="font-serif font-bold text-base text-slate-900">
                   Chronological Period Sequence
                 </h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-[13px] text-slate-500">
                   Click on any Mahādaśā row to reveal its classical Antardaśā sub-period breakdowns.
                 </p>
               </div>
@@ -601,13 +601,13 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                   placeholder="Filter periods..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#8C2D19]"
+                  className="w-full pl-9 pr-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#8C2D19]"
                 />
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-[13px] border-collapse">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                     <th className="py-2.5 px-3 w-8"></th>
@@ -648,12 +648,12 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                             <div className="font-serif font-bold text-slate-900 text-sm flex items-center gap-2">
                               <span>{period.name}</span>
                               {isActive && (
-                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#8C2D19] text-white">
+                                <span className="text-[12px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#8C2D19] text-white">
                                   Current
                                 </span>
                               )}
                               {period.isBirthBalance && (
-                                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                                <span className="text-[12px] uppercase font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
                                   Birth Balance
                                 </span>
                               )}
@@ -685,7 +685,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                                   <Clock className="w-3 h-3 text-[#8C2D19]" />
                                   <span>Antardaśā Sub-Periods for {period.name}</span>
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 text-[13px]">
                                   {period.subPeriods.map((sub) => {
                                     const isSubActive =
                                       currentResult.currentPeriod.subPeriod?.id === sub.id;
@@ -704,7 +704,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                                             {sub.name}
                                           </span>
                                           {isSubActive && (
-                                            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-[#8C2D19] text-white font-bold">
+                                            <span className="text-[11px] uppercase px-1.5 py-0.5 rounded bg-[#8C2D19] text-white font-bold">
                                               Active
                                             </span>
                                           )}
@@ -714,7 +714,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                                             ? `${(sub.durationYears * 12).toFixed(1)} mo`
                                             : `${sub.durationYears.toFixed(2)} yr`}
                                         </div>
-                                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                        <div className="text-[12px] text-slate-400 font-mono mt-0.5">
                                           {sub.startDateStr} &rarr; {sub.endDateStr}
                                         </div>
                                       </div>
@@ -734,7 +734,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
           </div>
 
           {/* CALCULATION STEPS & PROVENANCE DETAILS */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-3 text-xs">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-3 text-[13px]">
             <h4 className="font-serif font-bold text-base text-slate-900 flex items-center gap-1.5">
               <BookOpen className="w-4 h-4 text-[#8C2D19]" />
               <span>Calculation Steps &amp; Technical Audit</span>
