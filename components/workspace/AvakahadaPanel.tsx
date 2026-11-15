@@ -40,17 +40,17 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
             <h2 className="text-base font-serif font-bold text-slate-900">
               Avakahada Cakra (अवकहड़ा चक्र)
             </h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200/80 font-mono font-medium">
+            <span className="text-[13px] px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200/80 font-mono font-medium">
               Classical Birth Matrix
             </span>
           </div>
-          <p className="text-xs text-slate-600">
+          <p className="text-[13px] text-slate-600">
             Canonical 34-factor birth classifications, Ashtakoota fundamentals, Vedha, Pāya, and Ghaṭī mechanics based on BPHS &amp; Muhūrta Chintāmaṇi.
           </p>
         </div>
 
         {/* Quick Summary Pill Bar */}
-        <div className="flex items-center gap-2 flex-wrap text-xs">
+        <div className="flex items-center gap-2 flex-wrap text-[13px]">
           <div className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-800">
             <span className="text-slate-500 mr-1.5">Lagna:</span>
             <span className="font-serif font-bold text-slate-900">{avakahada.lagna.sanskritName} ({avakahada.lagna.name})</span>
@@ -75,7 +75,7 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TableIcon className="w-4 h-4 text-[#8C2D19]" />
-            <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-800">
+            <h3 className="text-[13px] font-serif font-bold uppercase tracking-wider text-slate-800">
               Primary Avakahada &amp; Birth Identifiers Table
             </h3>
           </div>
@@ -85,7 +85,7 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-[13px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100/60 text-slate-700 font-semibold text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4 w-12 text-center">#</th>
@@ -381,15 +381,15 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         {/* Bhayat (भयात) */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-serif font-bold text-slate-900">Bhayāt (भयात)</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+            <span className="text-[13px] font-serif font-bold text-slate-900">Bhayāt (भयात)</span>
+            <span className="text-[12px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
               Elapsed Time
             </span>
           </div>
           <p className="text-[11px] text-slate-600 leading-relaxed">
             The portion of the Janma Nakṣatra elapsed from its ingress moment up to the exact birth time.
           </p>
-          <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 font-mono text-xs">
+          <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 font-mono text-[13px]">
             <div className="flex justify-between text-slate-600">
               <span>Ghaṭī-Pala-Vipala:</span>
               <strong className="text-slate-900">{avakahada.mathematics.bhayat.ghatis} Gh : {avakahada.mathematics.bhayat.palas} Pal : {avakahada.mathematics.bhayat.vipalas} Vip</strong>
@@ -404,15 +404,15 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         {/* Bhabhoga (भाभोग) */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-serif font-bold text-slate-900">Bhābhoga (भाभोग)</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+            <span className="text-[13px] font-serif font-bold text-slate-900">Bhābhoga (भाभोग)</span>
+            <span className="text-[12px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
               Total Nakṣatra Span
             </span>
           </div>
           <p className="text-[11px] text-slate-600 leading-relaxed">
             The total duration and span of the Janma Nakṣatra standard canonical astronomical measure.
           </p>
-          <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 font-mono text-xs">
+          <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5 font-mono text-[13px]">
             <div className="flex justify-between text-slate-600">
               <span>Standard Ghaṭīs:</span>
               <strong className="text-slate-900">{avakahada.mathematics.bhabhoga.formattedGhatis}</strong>
@@ -427,15 +427,15 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         {/* Janma Dasha Balance */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-serif font-bold text-slate-900">Janma Daśā Balance (दशा शेष)</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+            <span className="text-[13px] font-serif font-bold text-slate-900">Janma Daśā Balance (दशा शेष)</span>
+            <span className="text-[12px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900">
               Viṃśottarī At Birth
             </span>
           </div>
           <p className="text-[11px] text-slate-600 leading-relaxed">
             Exact planetary balance remaining in the starting Viṃśottarī Daśā cycle at the moment of birth.
           </p>
-          <div className="p-3.5 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1.5 font-mono text-xs text-amber-950">
+          <div className="p-3.5 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-1.5 font-mono text-[13px] text-amber-950">
             <div className="flex justify-between">
               <span>Starting Lord:</span>
               <strong className="text-[#8C2D19] font-serif">{avakahada.mathematics.dashaBalance.lordSanskrit}</strong>
@@ -453,7 +453,7 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#8C2D19]" />
-            <h3 className="text-xs font-serif font-bold uppercase tracking-wider text-slate-800">
+            <h3 className="text-[13px] font-serif font-bold uppercase tracking-wider text-slate-800">
               Birth Pañcāṅga &amp; Traditional Calendar Constants
             </h3>
           </div>
@@ -463,7 +463,7 @@ export const AvakahadaPanel: React.FC<AvakahadaPanelProps> = ({ chart }) => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full text-left text-[13px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100/60 text-slate-700 font-semibold text-[11px] uppercase tracking-wider">
                 <th className="py-3 px-4 w-12 text-center">#</th>
