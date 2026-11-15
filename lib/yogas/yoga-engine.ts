@@ -25,6 +25,7 @@
 
 
 import { PlanetId } from '../astronomy/ephemeris';
+import { evaluateAllNeechaBhanga } from '../jyotisha/neechabhanga';
 import { DetectedYoga, RashiNumber } from '../jyotisha/types';
 import { GRAHA_PROPERTIES, RASHIS } from '../jyotisha/constants';
 import { NABHASA_AKRITI_EXPANDED_YOGAS } from './nabhasa-yogas';
@@ -1655,63 +1656,48 @@ export const CLASSICAL_YOGA_REGISTRY: YogaDefinition[] = [
   },
 
   // -----------------------------------------------------------------------
-  // VIII. NĪCABHAṄGA RĀJA YOGAS (BPHS Ch. 39, PD Ch. 6, JP Ch. 6)
+  // VIII. NĪCABHAṄGA RĀJA YOGA (Phaladīpikā 7.26–30)
+  //
+  // ⚠ THE CANCELLATION IS PHALADĪPIKĀ'S, NOT BPHS'S. The word nīcabhaṅga does
+  // not occur anywhere in BPHS; what BPHS gives (ch. 22) is a different rule —
+  // a debilitated graha that aspects the Lagna confers rāja yoga without any
+  // cancellation at all. That rule lives in lib/jyotisha/raja-yoga-neecha.ts.
+  //
+  // The conditions below are evaluated by lib/jyotisha/neechabhanga.ts, which
+  // is the single implementation. This entry only reports its verdict, so the
+  // two cannot drift apart.
   // -----------------------------------------------------------------------
   {
     id: 'neechabhanga_raja',
     name: 'Nīcabhaṅga Rāja Yoga',
     sanskritName: 'नीचभङ्ग राजयोग',
     sourceText: 'Phaladīpikā',
-    chapterAndVerse: 'Phaladīpikā ch. 6 (verses unverified) / BPHS ch. 39',
+    chapterAndVerse: 'Phaladīpikā 7.26–30',
     sanskritShloka: 'नीचस्थितो जन्मनि यो ग्रहः स्यात् तद्राशिनाथोऽपि तदुच्चनाथः । चन्द्राल्लग्नाद्यदि केन्द्रवर्ती राजा भवेद् धार्मिकचक्रवर्ती ॥',
     category: 'Raja',
     definition: 'A debilitated planet has its debility cancelled via classical rules (dispositor in Kendra, exaltation lord in Kendra, or mutual aspect).',
     effects: 'Transforms humble origins or initial severe setbacks into monumental worldly triumphs; brings royal sovereignty and resilience.',
     evaluate: (ctx) => {
-      const debPlanets: PlanetId[] = [];
-      const reasons: string[] = [];
-      const moon = ctx.planets.moon;
-
-      for (const pId of SEVEN_PLANETS) {
-        const pPos = ctx.planets[pId];
-        const prop = GRAHA_PROPERTIES[pId];
-        if (pPos && prop && pPos.rashiNumber === prop.debilitationSign) {
-          // Debilitated planet found! Check classical cancellation conditions:
-          const debRashiLord = RASHIS[prop.debilitationSign].lord;
-          const debLordPos = ctx.planets[debRashiLord];
-
-          // 1. Lord of debilitation sign is in Kendra from Lagna
-          if (debLordPos && isKendra(debLordPos.house)) {
-            debPlanets.push(pId);
-            reasons.push(`${prop.sanskritName} debilitation cancelled: Dispositor ${debRashiLord.toUpperCase()} is in Kendra ${debLordPos.house} from Lagna`);
-          }
-          // 2. Lord of debilitation sign is in Kendra from Moon
-          else if (moon && debLordPos && isKendra(getRelativeHouse(moon.house, debLordPos.house))) {
-            debPlanets.push(pId);
-            reasons.push(`${prop.sanskritName} debilitation cancelled: Dispositor ${debRashiLord.toUpperCase()} is in Kendra from Moon`);
-          }
-          // 3. Planet that gets exalted in this sign is in Kendra from Lagna
-          else {
-            const exaltedPlanetInSign = (Object.keys(GRAHA_PROPERTIES) as PlanetId[]).find(
-              (k) => GRAHA_PROPERTIES[k].exaltationSign === prop.debilitationSign
-            );
-            if (exaltedPlanetInSign && ctx.planets[exaltedPlanetInSign] && isKendra(ctx.planets[exaltedPlanetInSign].house)) {
-              debPlanets.push(pId);
-              reasons.push(`${prop.sanskritName} debilitation cancelled: Planet exalted in sign (${exaltedPlanetInSign.toUpperCase()}) is in Kendra ${ctx.planets[exaltedPlanetInSign].house}`);
-            }
-          }
-        }
+      // Delegated: one implementation of Phaladīpikā 7.26–30, in
+      // lib/jyotisha/neechabhanga.ts. Reimplementing it here let the two
+      // disagree on the same chart.
+      const positions: any = {
+        lagnaRashi: ctx.lagnaRashi,
+        planets: Object.fromEntries(
+          Object.entries(ctx.planets as any).map(([k, p]: any) => [k, { rashiNumber: p.rashiNumber, house: p.house }])
+        ),
+      };
+      const results = evaluateAllNeechaBhanga(positions);
+      const cancelled = results.filter((r) => r.cancelled);
+      if (cancelled.length === 0) {
+        return { isPresent: false, conditionsMet: [], involvedPlanets: [], strengthRating: 'Weak' };
       }
-
-      if (debPlanets.length > 0) {
-        return {
-          isPresent: true,
-          conditionsMet: reasons,
-          involvedPlanets: Array.from(new Set(debPlanets)),
-          strengthRating: 'High',
-        };
-      }
-      return { isPresent: false, conditionsMet: [], involvedPlanets: [], strengthRating: 'Weak' };
+      return {
+        isPresent: true,
+        conditionsMet: cancelled.flatMap((r) => r.reasons.map((x) => `${r.planetName}: ${x}`)),
+        involvedPlanets: cancelled.map((r) => r.planet) as PlanetId[],
+        strengthRating: cancelled.some((r) => r.strength >= 3) ? 'High' : 'Moderate',
+      };
     },
   },
 
