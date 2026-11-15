@@ -95,14 +95,14 @@ export function TransitsPanel({
           <h2 id="transits-main-title" className="font-serif text-xl font-bold tracking-tight text-[#2B1810]">
             Gocāra (Transits) &amp; Vedha Obstruction
           </h2>
-          <p className="font-sans text-xs text-[#6B5E51]">
+          <p className="font-sans text-[13px] text-[#6B5E51]">
             Real-time planetary transits counted from Janma Rāśi (Moon) and Janma Lagna
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Sub-view switcher */}
-          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-xs">
+          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-[13px]">
             <button
               onClick={() => setViewMode('table')}
               className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
@@ -132,7 +132,7 @@ export function TransitsPanel({
       </div>
 
       {/* Date Navigation Bar */}
-      <div className="rounded-xl border border-[#D8CEBA] bg-[#FAF6EE] p-3 shadow-sm flex flex-wrap items-center justify-between gap-3 font-sans text-xs">
+      <div className="rounded-xl border border-[#D8CEBA] bg-[#FAF6EE] p-3 shadow-sm flex flex-wrap items-center justify-between gap-3 font-sans text-[13px]">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#8C2D19]" />
           <span className="font-bold text-[#2B1810]">Gocāra Reference Date:</span>
@@ -197,7 +197,7 @@ export function TransitsPanel({
             </h3>
           </div>
           <span
-            className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${
+            className={`rounded-full px-3 py-0.5 text-[13px] font-bold uppercase tracking-wider ${
               transitData.sadeSati.isActive
                 ? 'bg-[#F9DCD5] text-[#8C2D19] border border-[#E6BFB8]'
                 : 'bg-[#E1EAD2] text-[#2D5A27] border border-[#C8D9B8]'
@@ -207,24 +207,24 @@ export function TransitsPanel({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[13px]">
           <div className="rounded-lg bg-[#F2EADC] p-3">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#7A6B5C]">Natal Moon (Janma Rāśi)</span>
+            <span className="text-[12px] uppercase font-bold tracking-wider text-[#7A6B5C]">Natal Moon (Janma Rāśi)</span>
             <div className="font-serif text-base font-bold text-[#2B1810] mt-0.5">
               {RASHIS[natalMoonRashi].sanskritName} ({RASHIS[natalMoonRashi].name})
             </div>
           </div>
 
           <div className="rounded-lg bg-[#F2EADC] p-3">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#7A6B5C]">Transiting Saturn House</span>
+            <span className="text-[12px] uppercase font-bold tracking-wider text-[#7A6B5C]">Transiting Saturn House</span>
             <div className="font-mono text-base font-bold text-[#8C2D19] mt-0.5">
               {transitData.sadeSati.saturnNatalHouseFromMoon}th House from Moon
             </div>
           </div>
 
           <div className="rounded-lg bg-[#F2EADC] p-3">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-[#7A6B5C]">Classical Assessment</span>
-            <div className="text-xs font-semibold text-[#2B1810] mt-0.5">
+            <span className="text-[12px] uppercase font-bold tracking-wider text-[#7A6B5C]">Classical Assessment</span>
+            <div className="text-[13px] font-semibold text-[#2B1810] mt-0.5">
               {transitData.sadeSati.dhairyaDescription}
             </div>
           </div>
@@ -238,13 +238,13 @@ export function TransitsPanel({
             <span className="font-serif text-sm font-bold text-[#2B1810]">
               Transit Positions, House Reckoning &amp; Vedha (Obstruction) Table
             </span>
-            <span className="text-xs text-[#7A6B5C]">
+            <span className="text-[13px] text-[#7A6B5C]">
               Reference: Phaladeepika Ch. 26 &amp; BPHS
             </span>
           </div>
 
           <div className="overflow-x-auto">
-            <table id="transits-data-table" className="w-full text-left text-xs border-collapse">
+            <table id="transits-data-table" className="w-full text-left text-[13px] border-collapse">
               <thead>
                 <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                   <th className="py-2.5 px-3">Graha</th>
@@ -262,14 +262,14 @@ export function TransitsPanel({
                   <tr key={p.id} id={`transit-row-${p.id}`} className="hover:bg-[#F2EADC] transition-colors">
                     <td className="py-2.5 px-3 font-semibold text-[#2B1810]">
                       <div className="font-serif">{p.sanskritName}</div>
-                      <div className="text-[10px] text-[#7A6B5C]">({p.name})</div>
+                      <div className="text-[12px] text-[#7A6B5C]">({p.name})</div>
                     </td>
                     <td className="py-2.5 px-3 font-medium text-[#3D2F28]">
                       {p.transitRashiName} (#{p.transitRashi})
                     </td>
                     <td className="py-2.5 px-3 font-mono font-bold text-[#8C2D19]">
                       {p.transitDegreeInRashi.toFixed(2)}°
-                      {p.isRetrograde && <span className="ml-1 text-[10px] text-[#8C2D19] font-bold">(R)</span>}
+                      {p.isRetrograde && <span className="ml-1 text-[12px] text-[#8C2D19] font-bold">(R)</span>}
                     </td>
                     <td className="py-2.5 px-3 text-center font-mono font-bold text-[#2B1810]">
                       {p.houseFromNatalMoon}th
@@ -292,11 +292,11 @@ export function TransitsPanel({
                     </td>
                     <td className="py-2.5 px-3">
                       {p.isBeneficTransitFromMoon ? (
-                        <span className="inline-flex items-center gap-1 rounded bg-[#E1EAD2] px-2 py-0.5 text-[10px] font-bold text-[#2D5A27]">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#E1EAD2] px-2 py-0.5 text-[12px] font-bold text-[#2D5A27]">
                           <CheckCircle2 className="h-3 w-3" /> Favorable (Śubha)
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded bg-[#F9DCD5] px-2 py-0.5 text-[10px] font-bold text-[#8C2D19]">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#F9DCD5] px-2 py-0.5 text-[12px] font-bold text-[#8C2D19]">
                           <AlertTriangle className="h-3 w-3" /> Unfavorable (Aśubha)
                         </span>
                       )}
@@ -315,7 +315,7 @@ export function TransitsPanel({
       {/* VIEW 2: Transit Kundali Chart */}
       {viewMode === 'chart' && (
         <div id="subview-transit-chart" className="flex flex-col items-center gap-4">
-          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-xs">
+          <div className="inline-flex rounded-lg border border-[#D8CEBA] bg-[#F2EADB] p-1 font-sans text-[13px]">
             <button
               onClick={() => setChartStyle('north')}
               className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
@@ -360,7 +360,7 @@ export function TransitsPanel({
             <div className="border-b border-[#E6DEC8] pb-2 font-serif font-bold text-base text-[#2B1810]">
               Natal Janma Kundalī (Birth Positions)
             </div>
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1.5 text-[13px]">
               {Object.values(natalPlanets).map((p) => (
                 <div key={p.id} className="flex justify-between items-center p-2 rounded bg-[#F2EADC]">
                   <span className="font-semibold text-[#2B1810]">{p.sanskritName}</span>
@@ -375,13 +375,13 @@ export function TransitsPanel({
             <div className="border-b border-[#E6DEC8] pb-2 font-serif font-bold text-base text-[#2B1810]">
               Gocāra Transits ({transitData.transitDateStr})
             </div>
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1.5 text-[13px]">
               {transitData.planets.map((p) => (
                 <div key={p.id} className="flex justify-between items-center p-2 rounded bg-[#F2EADC]">
                   <span className="font-semibold text-[#2B1810]">{p.sanskritName}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[#8C2D19]">{p.transitDegreeInRashi.toFixed(2)}° in {p.transitRashiName}</span>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    <span className={`px-1.5 py-0.5 rounded text-[12px] font-bold ${
                       p.isBeneficTransitFromMoon ? 'bg-[#E1EAD2] text-[#2D5A27]' : 'bg-[#F9DCD5] text-[#8C2D19]'
                     }`}>
                       {p.houseFromNatalMoon}th from 🌕
