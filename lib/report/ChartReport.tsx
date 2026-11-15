@@ -32,6 +32,8 @@ import { findEclipses } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
 import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
+import { calculateVarshaphala } from '@/lib/varshaphala/varshaphala';
+import { calculatePrashna } from '@/lib/jyotisha/prashna';
 import { calculateNadi } from '@/lib/jyotisha/nadi';
 import { calculateNavaTara } from '@/lib/jyotisha/navatara';
 import { calculateCurrentTransits } from '@/lib/jyotisha/transits';
@@ -1613,7 +1615,7 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             const cut = (v: any) => String(v ?? '—').replace(/\s*\(.*\)\s*$/, '');
             return [
               GRAHA[id].name, cut(av.baladi), cut(av.jagradadi),
-              cut(av.deeptadi), cut(av.lajjitadi), cut(av.shayanadi),
+              cut(av.deeptadi), cut(av.lajjitadi), cut(av.sayanadi),
             ];
           })}
         />
@@ -1677,33 +1679,68 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
           The annual chart — muntha, varṣeśa and the Tājika daśās — and the horary positions.
         </Text>
         {(() => {
-          const v: any = (chart as any).varshaphala;
+          // Varṣaphala is computed from the natal chart and the solar return, not
+          // stored on it — the same source the JSON export uses.
+          const bd: any = (chart.meta as any)?.birthDetails ?? {};
+          // The annual chart for the year now running, not the one after birth.
+          const yrs = bd.year ? Math.max(1, new Date().getFullYear() - bd.year + 1) : 1;
+          let v: any = null;
+          try {
+            v = calculateVarshaphala(chart as any, {
+              yearNumber: yrs,
+              latitude: bd.latitude, longitude: bd.longitude,
+              timezoneOffsetHours: bd.timezoneOffsetHours,
+            });
+          } catch { v = null; }
           if (!v) return <Text style={{ fontSize: 7.4, color: MUTED }}>No annual chart available.</Text>;
-          return (
-            <Table
-              cols={[{ label: 'Item', width: 40 }, { label: 'Value', width: 60 }]}
-              rows={[
-                ['Year', String(v.year ?? v.varshaYear ?? '—')],
-                ['Muntha', String(v.muntha?.rashiName ?? v.muntha ?? '—')],
-                ['Varṣeśa', String(v.varshesha?.name ?? v.varshesha ?? '—')],
-                ['Lagna', String(v.lagna?.rashiName ?? v.lagnaRashi ?? '—')],
-              ]}
-            />
-          );
-        })()}
-        {(() => {
-          const pr: any = (chart as any).prashna;
-          if (!pr) return null;
+          const d = (x: any) => (x?.degreeStr ? `${x.rashiName} ${x.degreeStr}` : x?.rashiName ?? '—');
           return (
             <>
-              <SubTitle>Praśna</SubTitle>
               <Table
                 cols={[{ label: 'Item', width: 40 }, { label: 'Value', width: 60 }]}
                 rows={[
-                  ['Arudha Lagna', String(pr.arudhaLagna?.rashiName ?? '—')],
-                  ['Trisphuṭa', String(pr.trisphuta?.formatted ?? pr.trisphuta ?? '—')],
-                  ['Catuṣphuṭa', String(pr.chatusphuta?.formatted ?? pr.chatusphuta ?? '—')],
-                  ['Pañcasphuṭa', String(pr.panchasphuta?.formatted ?? pr.panchasphuta ?? '—')],
+                  ['Year', String(v.yearNumber ?? '—')],
+                  ['Solar return', v.solarReturn
+                    ? `${String(v.solarReturn.day).padStart(2,'0')}/${String(v.solarReturn.month).padStart(2,'0')}/${v.solarReturn.year} ${String(v.solarReturn.hour).padStart(2,'0')}:${String(v.solarReturn.minute).padStart(2,'0')}`
+                    : '—'],
+                  ['Residual arc', `${Number(v.residualArcsec ?? 0).toFixed(2)}″`],
+                  ['Annual lagna', String(v.chart?.lagna?.rashiName ?? '—')],
+                  ['Muntha', `${v.muntha?.rashiName ?? '—'} · house ${v.muntha?.house ?? '—'}`],
+                  ['Varṣeśa', String(v.varshesha?.lordName ?? '—')],
+                ]}
+              />
+              {Array.isArray(v.varshesha?.scores) && (
+                <>
+                  <SubTitle>Varṣeśa pañcavargīya scores</SubTitle>
+                  <Table
+                    cols={[{ label: 'Graha', width: 50 }, { label: 'Points', width: 50, align: 'right' }]}
+                    rows={v.varshesha.scores.map((x: any) => [String(x.planet), String(x.points)])}
+                  />
+                </>
+              )}
+            </>
+          );
+        })()}
+        {(() => {
+          let pr: any = null;
+          try { pr = calculatePrashna(chart as any); } catch { pr = null; }
+          if (!pr) return null;
+          const d = (x: any) => (x?.degreeStr ? `${x.rashiName} ${x.degreeStr}` : x?.rashiName ?? '—');
+          return (
+            <>
+              <SubTitle>Praśna sphuṭas</SubTitle>
+              <Text style={{ fontSize: 6.8, color: MUTED, marginBottom: 4 }}>
+                Arudha needs the direction the questioner faced, so it is omitted.
+              </Text>
+              <Table
+                cols={[{ label: 'Sphuṭa', width: 40 }, { label: 'Position', width: 60 }]}
+                rows={[
+                  ['Trisphuṭa', d(pr.trisphuta)],
+                  ['Catuṣphuṭa', d(pr.chatusphuta)],
+                  ['Pañcasphuṭa', d(pr.panchasphuta)],
+                  ['Prāṇa sphuṭa', d(pr.pranaSphuta)],
+                  ['Deha sphuṭa', d(pr.dehaSphuta)],
+                  ['Mṛtyu sphuṭa', d(pr.mrityuSphuta)],
                 ]}
               />
             </>
