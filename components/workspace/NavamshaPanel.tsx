@@ -107,14 +107,14 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
       {/* 1. Header Banner */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-xs font-bold text-amber-900">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-[13px] font-bold text-amber-900">
             <Layers className="w-3.5 h-3.5 text-[#8C2D19]" />
             <span>BPHS Chapter 6 • Canonical D-9 Navāṃśa Engine</span>
           </div>
           <h2 className="text-xl font-serif font-bold tracking-tight text-slate-900">
             Classical Rāśi → Navāṃśa (D-9) Mapping &amp; Graha Analysis
           </h2>
-          <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">
+          <p className="text-[13px] text-slate-600 max-w-3xl leading-relaxed">
             Every Rāśi is divided into 9 equal harmonic arcs of <strong>3°20&apos;00&quot; (3.333333°)</strong>.
             The starting Navāṃśa is strictly governed by the sign&apos;s element (Tattva):
             Fiery signs begin with <strong>Meṣa (1)</strong>, Earthy with <strong>Makara (10)</strong>,
@@ -124,7 +124,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
 
         {/* Quick Stats Badges */}
         {chartBreakdown && (
-          <div className="flex flex-wrap items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
             <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-emerald-900 font-medium flex items-center gap-1.5 shadow-2xs">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span>Vargottama (D1=D9):</span>
@@ -145,7 +145,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
               <button
                 type="button"
                 onClick={onNavigateToVargaChart}
-                className="px-3 py-1.5 bg-[#8C2D19] text-white rounded-xl text-xs font-bold hover:bg-[#732414] transition-all cursor-pointer inline-flex items-center gap-1 shadow-2xs"
+                className="px-3 py-1.5 bg-[#8C2D19] text-white rounded-xl text-[13px] font-bold hover:bg-[#732414] transition-all cursor-pointer inline-flex items-center gap-1 shadow-2xs"
               >
                 <span>View D-9 Chart</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -166,7 +166,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                   Live Horoscope Breakdown: Lagna &amp; Grahas in Navāṃśa
                 </h3>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[13px] text-slate-500 mt-0.5">
                 Calculated strictly via <code className="font-mono text-slate-700 bg-slate-100 px-1 py-0.5 rounded">Rāśi + exact degree → Navāṃśa # (1–9) → Navāṃśa Rāśi</code>
               </p>
             </div>
@@ -176,7 +176,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
           </div>
 
           <div className="overflow-x-auto">
-            <table id="navamsha-grahas-table" className="w-full text-left text-xs border-collapse">
+            <table id="navamsha-grahas-table" className="w-full text-left text-[13px] border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/40 text-slate-600 font-semibold">
                   <th className="py-3 px-4">Entity</th>
@@ -208,7 +208,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                     </div>
                   </td>
                   <td className="py-3.5 px-4 text-center">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-900 font-mono font-bold text-xs border border-amber-300 shadow-2xs">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-900 font-mono font-bold text-[13px] border border-amber-300 shadow-2xs">
                       #{chartBreakdown.lagnaNavamsha.navamshaNumber}
                     </span>
                   </td>
@@ -219,7 +219,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                     <div className="font-bold text-slate-900">
                       {chartBreakdown.lagnaNavamsha.navamshaRashiSanskrit} ({chartBreakdown.lagnaNavamsha.navamshaRashiName})
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono">
+                    <div className="text-[12px] text-slate-500 font-mono">
                       in D9: {chartBreakdown.lagnaNavamsha.formattedDegreeInNavamsha}
                     </div>
                   </td>
@@ -236,12 +236,12 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                   <td className="py-3.5 px-4 text-right">
                     <div className="flex items-center justify-end gap-1.5 flex-wrap">
                       {chartBreakdown.lagnaNavamsha.isVargottama && (
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-md font-bold text-[10px]">
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-md font-bold text-[12px]">
                           Vargottama
                         </span>
                       )}
                       {chartBreakdown.lagnaNavamsha.isPushkara && (
-                        <span className="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-bold text-[10px] inline-flex items-center gap-1">
+                        <span className="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-bold text-[12px] inline-flex items-center gap-1">
                           <Gem className="w-2.5 h-2.5 text-amber-700" />
                           <span>Puṣkara</span>
                         </span>
@@ -277,7 +277,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span
-                          className={`inline-flex items-center justify-center w-7 h-7 rounded-lg font-mono font-bold text-xs border shadow-2xs ${
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded-lg font-mono font-bold text-[13px] border shadow-2xs ${
                             p.isVargottama
                               ? 'bg-emerald-100 text-emerald-950 border-emerald-300'
                               : p.isPushkara
@@ -295,7 +295,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                         <div className="font-bold text-slate-900">
                           {p.navamshaRashiSanskrit} ({p.navamshaRashiName})
                         </div>
-                        <div className="text-[10px] text-slate-400 font-mono">
+                        <div className="text-[12px] text-slate-400 font-mono">
                           in D9: {p.formattedDegreeInNavamsha}
                         </div>
                       </td>
@@ -312,12 +312,12 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5 flex-wrap">
                           {p.isVargottama && (
-                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-md font-bold text-[10px]">
+                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-md font-bold text-[12px]">
                               Vargottama
                             </span>
                           )}
                           {p.isPushkara && (
-                            <span className="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-bold text-[10px] inline-flex items-center gap-1">
+                            <span className="px-2 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-md font-bold text-[12px] inline-flex items-center gap-1">
                               <Gem className="w-2.5 h-2.5 text-amber-700" />
                               <span>Puṣkara</span>
                             </span>
@@ -355,13 +355,13 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
           <div className="md:col-span-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-[13px] font-bold text-slate-700 mb-1.5">
                   Source Rāśi (Sign):
                 </label>
                 <select
                   value={calcRashi}
                   onChange={(e) => setCalcRashi(parseInt(e.target.value, 10) as RashiNumber)}
-                  className="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:ring-2 focus:ring-[#8C2D19] focus:outline-none"
+                  className="w-full text-[13px] font-medium bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:ring-2 focus:ring-[#8C2D19] focus:outline-none"
                 >
                   {Object.values(RASHIS).map((r) => (
                     <option key={r.number} value={r.number}>
@@ -372,7 +372,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex justify-between">
+                <label className="block text-[13px] font-bold text-slate-700 mb-1.5 flex justify-between">
                   <span>Degree within Rāśi (0°–30°):</span>
                   <span className="font-mono text-[#8C2D19] font-bold">
                     {formatDegreesDMS(calcDeg)}
@@ -393,10 +393,10 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
             {/* Quick Presets based on Chart Entities */}
             {chartBreakdown && (
               <div className="space-y-1.5">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                <span className="text-[12px] uppercase font-bold text-slate-400 tracking-wider block">
                   Quick Load from Horoscope:
                 </span>
-                <div className="flex flex-wrap gap-1.5 text-xs">
+                <div className="flex flex-wrap gap-1.5 text-[13px]">
                   <button
                     type="button"
                     onClick={() => {
@@ -427,14 +427,14 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
 
           {/* Result Output Card */}
           <div className="md:col-span-6 bg-slate-50 border border-slate-200/90 rounded-xl p-5 space-y-3">
-            <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200 pb-2">
+            <div className="flex items-center justify-between text-[13px] text-slate-500 border-b border-slate-200 pb-2">
               <span className="font-bold text-slate-700">Calculated Navāṃśa Result</span>
               <span className="font-mono">{customCalcResult.rangeFormatted}</span>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-[#8C2D19] text-white flex flex-col items-center justify-center shadow-xs shrink-0">
-                <span className="text-[10px] font-bold uppercase opacity-80">Navāṃśa</span>
+                <span className="text-[12px] font-bold uppercase opacity-80">Navāṃśa</span>
                 <span className="text-xl font-serif font-bold">#{customCalcResult.navamshaNumber}</span>
               </div>
 
@@ -442,7 +442,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                 <div className="text-base font-serif font-bold text-slate-900">
                   {customCalcResult.navamshaRashi.sanskritName} ({customCalcResult.navamshaRashi.name})
                 </div>
-                <div className="text-xs text-slate-600">
+                <div className="text-[13px] text-slate-600">
                   Element: <strong>{customCalcResult.navamshaRashi.element}</strong> • Sign Lord: <strong className="capitalize">{customCalcResult.navamshaRashi.lord}</strong>
                 </div>
                 <div className="text-[11px] text-slate-500 font-mono">
@@ -454,15 +454,15 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
             {/* Badges */}
             <div className="flex items-center gap-2 pt-1">
               {customCalcResult.isVargottama ? (
-                <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-full font-bold text-[10px]">
+                <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-full font-bold text-[12px]">
                   🌟 Vargottama (Same sign in D1 &amp; D9)
                 </span>
               ) : (
-                <span className="text-[10px] text-slate-400">Non-Vargottama</span>
+                <span className="text-[12px] text-slate-400">Non-Vargottama</span>
               )}
 
               {customCalcResult.isPushkara && (
-                <span className="px-2.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-bold text-[10px] inline-flex items-center gap-1">
+                <span className="px-2.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded-full font-bold text-[12px] inline-flex items-center gap-1">
                   <Gem className="w-3 h-3 text-amber-700" />
                   <span>Puṣkara Navāṃśa (Fortified)</span>
                 </span>
@@ -483,7 +483,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                   Canonical Rāśi → 9 Navāṃśa Reference Table
                 </h3>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-[13px] text-slate-500 mt-0.5">
                 Select a Rāśi below to inspect its 9 classical Navāṃśa divisions, degree bounds, resulting signs, lords &amp; live chart Grahas.
               </p>
             </div>
@@ -496,7 +496,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                 placeholder="Filter divisions, lords, nakshatras..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                className="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#8C2D19] focus:outline-none"
+                className="w-full text-[13px] pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#8C2D19] focus:outline-none"
               />
             </div>
           </div>
@@ -506,7 +506,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
             <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block">
               Choose Rāśi (Sign):
             </span>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[13px]">
               {canonicalTable.map((r) => {
                 const isSelected = selectedRashiView === r.rashiNumber;
                 return (
@@ -517,17 +517,17 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                       setSelectedRashiView(r.rashiNumber);
                       setCalcRashi(r.rashiNumber);
                     }}
-                    className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap text-xs flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap text-[13px] flex items-center gap-1.5 ${
                       isSelected
                         ? 'bg-[#8C2D19] text-white font-bold shadow-2xs'
                         : 'bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-100 font-medium'
                     }`}
                   >
-                    <span className={`text-[10px] font-mono ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                    <span className={`text-[12px] font-mono ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
                       {r.rashiNumber}
                     </span>
                     <span>{r.rashiSanskrit}</span>
-                    <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                    <span className={`text-[12px] ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
                       ({r.rashiName})
                     </span>
                   </button>
@@ -546,7 +546,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
             {/* Rashi Header */}
             <div className="bg-slate-50/90 px-5 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="w-7 h-7 rounded-xl bg-[#8C2D19] text-white font-mono font-bold text-xs flex items-center justify-center shadow-2xs">
+                <span className="w-7 h-7 rounded-xl bg-[#8C2D19] text-white font-mono font-bold text-[13px] flex items-center justify-center shadow-2xs">
                   {activeRashiData.rashiNumber}
                 </span>
                 <div>
@@ -554,14 +554,14 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                     <h4 className="font-serif font-bold text-slate-900 text-base">
                       {activeRashiData.rashiSanskrit} ({activeRashiData.rashiName})
                     </h4>
-                    <span className="text-xs text-slate-500 font-serif">
+                    <span className="text-[13px] text-slate-500 font-serif">
                       {activeRashiData.rashiDevanagari}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-slate-600 flex-wrap">
+              <div className="flex items-center gap-2 text-[13px] text-slate-600 flex-wrap">
                 <span className="px-2.5 py-1 bg-slate-200/70 rounded-lg font-medium text-[11px]">
                   Element: <strong>{activeRashiData.element}</strong>
                 </span>
@@ -576,7 +576,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
 
             {/* 9 Navamsha Divisions Table for this Rashi */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse font-sans">
+              <table className="w-full text-left text-[13px] border-collapse font-sans">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 text-[11px]">
                     <th className="py-3 px-4 text-center w-16">Nav #</th>
@@ -649,12 +649,12 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                           <td className="py-3 px-4 text-center">
                             <div className="flex items-center justify-center gap-1 flex-wrap">
                               {div.isVargottama && (
-                                <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded text-[9px] font-bold">
+                                <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded text-[11px] font-bold">
                                   Vargottama
                                 </span>
                               )}
                               {div.isPushkara && (
-                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded text-[9px] font-bold inline-flex items-center gap-0.5">
+                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded text-[11px] font-bold inline-flex items-center gap-0.5">
                                   <Gem className="w-2.5 h-2.5 text-amber-700" />
                                   <span>Puṣkara</span>
                                 </span>
@@ -669,7 +669,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                                 {residentEntities.map((ent) => (
                                   <span
                                     key={ent.entityId}
-                                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${
+                                    className={`px-2 py-0.5 rounded-md text-[12px] font-bold border shadow-2xs ${
                                       ent.entityId === 'lagna'
                                         ? 'bg-[#8C2D19] text-white border-[#8C2D19]'
                                         : 'bg-amber-100 text-amber-950 border-amber-300'
