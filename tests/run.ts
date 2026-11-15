@@ -68,7 +68,6 @@ import { SBC_RING, nakshatraAt, vedhaFor, buildSarvatobhadraGrid } from '../lib/
 import { calculateKakshyaTransits, kakshyaFor, KAKSHYA_SPAN } from '../lib/ashtakavarga/kakshya';
 import { calculateSpecialPoints } from '../lib/jyotisha/special-lagnas';
 import { calculateVargaRashi } from '../lib/vargas/varga-engine';
-import { calculateAllPlanets } from '../lib/astronomy/ephemeris';
 
 /** Async checks collected here and awaited before the summary. */
 const pendingAsync: Promise<void>[] = [];
