@@ -17,6 +17,7 @@ import {
   VerifiedClassicalRemedy,
 } from '../../lib/doshas/dosha-types';
 import { evaluateAllDoshas } from '../../lib/doshas/dosha-engine';
+import { noRemedyReason } from '../../lib/doshas/classical-remedies';
 import {
   Flower2,
   ShieldAlert,
@@ -54,6 +55,19 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
   const formedDoshas = useMemo(() => {
     return doshaReport.evaluatedDoshas.filter((d) => d.formationStatus === 'Formed');
   }, [doshaReport]);
+
+  /**
+   * Formed doṣas for which the sources prescribe no rite.
+   *
+   * Showing nothing for these read as an oversight — the same failure mode as
+   * an unexamined house. The reason is stated instead.
+   */
+  const withoutRemedy = useMemo(() => {
+    return formedDoshas
+      .filter((d) => !d.remedies || d.remedies.length === 0)
+      .map((d) => ({ dosha: d, reason: noRemedyReason(d.id) }))
+      .filter((x) => x.reason);
+  }, [formedDoshas]);
 
   // Aggregate all remedies belonging strictly to formed doshas
   const presentRemediesList = useMemo(() => {
@@ -268,7 +282,28 @@ export const RemediesPanel: React.FC<RemediesPanelProps> = ({ chart, onNavigateT
         </div>
       )}
 
-      {/* 3. REMEDY LIST OR EMPTY STATE */}
+      {/* 3. FORMED DOSHAS WITH NO PRESCRIBED RITE */}
+      {withoutRemedy.length > 0 && (
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-7 shadow-xs">
+          <h3 className="text-base font-serif font-bold text-slate-800 mb-1">
+            No classical remedy is prescribed
+          </h3>
+          <p className="text-[13px] text-slate-500 mb-5 leading-relaxed">
+            These doṣas are present in the chart, but the sources consulted attach no rite
+            to them. That is a finding, not a gap in the list.
+          </p>
+          <div className="space-y-3">
+            {withoutRemedy.map(({ dosha, reason }) => (
+              <div key={dosha.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60">
+                <div className="text-[13px] font-semibold text-slate-800">{dosha.name}</div>
+                <p className="text-[12px] text-slate-600 mt-1 leading-relaxed">{reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 4. REMEDY LIST OR EMPTY STATE */}
       {formedDoshas.length === 0 ? (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-12 text-center space-y-4 shadow-sm">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-inner">
