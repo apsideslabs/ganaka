@@ -45,12 +45,12 @@ export const TOLERANCE_ARCSEC = 25;
 
 export const FIXTURES: FixtureChart[] = [
   {
-    id: 'jalah-2009',
-    label: 'Jalah (Baksa), Assam — 3 Mar 2009 23:51:24 IST',
+    id: 'assam-2009',
+    label: 'Assam reference chart — 3 Mar 2009 23:51:24 IST',
     birth: {
       year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 24,
       timezoneOffsetHours: 5.5, latitude: 26.65653, longitude: 91.21622,
-      locationName: 'Jalah, Baksa, Assam',
+      locationName: 'Assam reference',
     },
     expected: {
       sun: 319.328331,
