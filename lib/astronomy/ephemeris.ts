@@ -130,6 +130,33 @@ export function deltaTSeconds(jd: number): number {
 /**
  * Calculates geocentric planetary positions for a given Julian Day and Ayanamsha.
  */
+
+/**
+ * Sun and Moon only — the elongation path.
+ *
+ * `calculateAllPlanets` evaluates nine bodies, their speeds and the nodes. The
+ * eclipse search needs exactly two longitudes per step and calls it tens of
+ * thousands of times, so it spent twenty seconds computing Jupiter it never
+ * read. This returns the same sidereal longitudes for the two bodies that
+ * matter, and nothing else.
+ */
+export function sunMoonLongitudes(
+  jd: number,
+  ayanamshaType: AyanamshaType = 'lahiri',
+  customAyanamsha: number = 0
+): { sun: number; moon: number; moonLatitude: number } {
+  const ayanamsha = calculateAyanamsha(jd, ayanamshaType, customAyanamsha);
+  const jdTT = jd + deltaTSeconds(jd) / 86400.0;
+  const T = (jdTT - 2451545.0) / 36525.0;
+  const sun = calculateSun(T);
+  const moon = calculateMoon(T);
+  return {
+    sun: normalizeDegrees(sun.lon - ayanamsha),
+    moon: normalizeDegrees(moon.lon - ayanamsha),
+    moonLatitude: moon.lat,
+  };
+}
+
 export function calculateAllPlanets(
   jd: number,
   ayanamshaType: AyanamshaType = 'lahiri',
