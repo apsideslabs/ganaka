@@ -29,7 +29,6 @@ import { calculateVimshopakaBala } from '@/lib/jyotisha/vimshopaka';
 import { calculateAllExtendedDashas } from '@/lib/dashas/extended-engine';
 import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
-import { buildChartExport } from '@/lib/report/export-chart-json';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
 import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
@@ -748,18 +747,20 @@ function reportData(chart: JyotishaChart): any {
       const yearOfLife = Math.max(1, new Date().getFullYear() - bd.year);
       return calculateSudarshanaChakra(chart as any, { yearOfLife });
     }),
-    eclipses: safe(() => {
-      const fromExport: any = (buildChartExport(chart as any) as any)?.eclipses;
-      if (Array.isArray(fromExport?.events) && fromExport.events.length) return fromExport.events;
-      return findEclipses({
-        from: { year: bd.year, month: 1, day: 1 },
-        to: { year: bd.year + 10, month: 12, day: 31 },
-        latitude: bd.latitude, longitude: bd.longitude,
-        timezoneOffsetHours: bd.timezoneOffsetHours,
-        ayanamshaType: (chart.meta as any).ayanamshaType,
-        maxResults: 40,
-      });
-    }),
+    // Search directly and let this cache hold the result.
+    //
+    // This used to read `buildChartExport(chart).eclipses`, which built every
+    // section of the JSON export — 367 KB and 24 MB of heap — to obtain forty
+    // eclipse rows. That allocation landed immediately before react-pdf began
+    // laying out twenty-one pages, which is the worst possible moment for it.
+    eclipses: safe(() => findEclipses({
+      from: { year: bd.year, month: 1, day: 1 },
+      to: { year: bd.year + 10, month: 12, day: 31 },
+      latitude: bd.latitude, longitude: bd.longitude,
+      timezoneOffsetHours: bd.timezoneOffsetHours,
+      ayanamshaType: (chart.meta as any).ayanamshaType,
+      maxResults: 40,
+    })),
     doubleTransit: safe(() =>
       calculateDoubleTransit(chart.lagna.rashiNumber, new Date(), (chart.meta as any).ayanamshaType)),
     kpRuling: safe(() => calculateRulingPlanets(
