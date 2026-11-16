@@ -25,7 +25,7 @@
  * sufficient one: a local horizon or the edge of the penumbra can still hide an
  * event this test accepts.
  */
-import { calculateAllPlanets, sunMoonLongitudes } from './ephemeris';
+import { sunMoonLongitudes } from './ephemeris';
 import { calculateSolarTimes, calculateLunarTimes } from './ephemeris';
 import { normalizeDegrees } from './julian';
 
@@ -110,8 +110,10 @@ function stamp(d: ReturnType<typeof dateFromJD>): string {
  * The Moon's ecliptic latitude at a moment, in degrees.
  */
 function moonLatitudeAt(jd: number, ayan: any, custom: number): number {
-  const p: any = calculateAllPlanets(jd, ayan, custom);
-  return Number(p.moon.latitude ?? 0);
+  // Only the Moon's latitude is wanted, and the fast path already returns it.
+  // This used to evaluate all nine bodies once per syzygy — about 250 times a
+  // search — for a single number.
+  return sunMoonLongitudes(jd, ayan, custom).moonLatitude;
 }
 
 /**
