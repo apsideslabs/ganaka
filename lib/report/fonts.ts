@@ -38,13 +38,18 @@ export function registerReportFonts() {
     ],
   });
 
-  Font.register({
-    family: DEVA,
-    fonts: [
-      { src: `${BASE}/fonts/NotoSerifDevanagari-Regular.ttf` },
-      { src: `${BASE}/fonts/NotoSerifDevanagari-Bold.ttf`, fontWeight: 'bold' },
-    ],
-  });
+  // The Devanagari family is deliberately not registered.
+  //
+  // Nothing in the report draws Devanagari — it sets every graha and term in
+  // Latin transliteration, which renders and extracts correctly. Registering a
+  // family that is never used cost 528 KB of font fetching on every PDF build
+  // for nothing.
+  //
+  // If Devanagari is ever wanted: register it here and set `fontFamily: DEVA`
+  // on that Text. Note that react-pdf shapes it correctly but writes a
+  // defective ToUnicode map, so the page looks right while copy-paste and text
+  // extraction return damaged text (पश्यति → पश्यित). Verify extraction before
+  // shipping it.
 
   Font.register({
     family: SYMBOLS,
