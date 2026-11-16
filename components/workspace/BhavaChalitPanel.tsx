@@ -189,12 +189,12 @@ export function BhavaChalitPanel({
                   <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                     <th className="py-2.5 px-3">House (Bhāva)</th>
                     <th className="py-2.5 px-3">Sign (Rāśi)</th>
-                    <th className="py-2.5 px-3">Ādi (Start)</th>
+                    <th className="hidden md:table-cell py-2.5 px-3">Ādi (Start)</th>
                     <th className="py-2.5 px-3 font-mono font-bold text-[#8C2D19]">Madhya (Crest Cusp)</th>
-                    <th className="py-2.5 px-3">Anta (End)</th>
+                    <th className="hidden md:table-cell py-2.5 px-3">Anta (End)</th>
                     <th className="py-2.5 px-3">Rāśi &amp; lord</th>
                     <th className="py-2.5 px-3">Occupants</th>
-                    <th className="py-2.5 px-3">Primary Kāraka</th>
+                    <th className="hidden md:table-cell py-2.5 px-3">Primary Kāraka</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E6DEC8]">
@@ -223,7 +223,7 @@ export function BhavaChalitPanel({
                           {rInfo.sanskritName} ({rInfo.name})
                         </td>
 
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
+                        <td className="hidden md:table-cell py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
                           {bhava.aadiDMS || `${bhava.startDegree.toFixed(2)}°`}
                         </td>
 
@@ -231,7 +231,7 @@ export function BhavaChalitPanel({
                           {bhava.madhyaDMS || bhava.midDegreeStr}
                         </td>
 
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
+                        <td className="hidden md:table-cell py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
                           {bhava.antaDMS || `${bhava.endDegree.toFixed(2)}°`}
                         </td>
 
@@ -261,7 +261,7 @@ export function BhavaChalitPanel({
                           )}
                         </td>
 
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
+                        <td className="hidden md:table-cell py-2.5 px-3 font-mono text-[11px] text-[#5C4A3E]">
                           {info.karaka}
                         </td>
                       </tr>
