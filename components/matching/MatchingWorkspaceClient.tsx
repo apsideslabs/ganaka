@@ -208,14 +208,14 @@ export function MatchingWorkspaceClient() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Date
                 </label>
                 <GanakaDatePicker value={isoToDate(groomDate)} onChange={(d) => setGroomDate(dateToIso(d))} />
               </div>
 
               <div>
-                <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
                 <TimeField value={groomTime} onChange={(t) => setGroomTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
@@ -223,7 +223,7 @@ export function MatchingWorkspaceClient() {
             </div>
 
             <div className="relative">
-              <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                 Birth Location
               </label>
               <div className="relative">
@@ -254,7 +254,7 @@ export function MatchingWorkspaceClient() {
                       className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 flex items-center justify-between"
                     >
                       <span className="font-semibold text-stone-800">{c.name}</span>
-                      <span className="text-[10px] font-mono text-stone-500">
+                      <span className="text-[11px] font-mono text-stone-500">
                         {formatPlaceRegion(c)}
                       </span>
                     </button>
@@ -285,14 +285,14 @@ export function MatchingWorkspaceClient() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Date
                 </label>
                 <GanakaDatePicker value={isoToDate(brideDate)} onChange={(d) => setBrideDate(dateToIso(d))} />
               </div>
 
               <div>
-                <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
                 <TimeField value={brideTime} onChange={(t) => setBrideTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
@@ -300,7 +300,7 @@ export function MatchingWorkspaceClient() {
             </div>
 
             <div className="relative">
-              <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                 Birth Location
               </label>
               <div className="relative">
@@ -331,7 +331,7 @@ export function MatchingWorkspaceClient() {
                       className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 flex items-center justify-between"
                     >
                       <span className="font-semibold text-stone-800">{c.name}</span>
-                      <span className="text-[10px] font-mono text-stone-500">{formatPlaceRegion(c)}</span>
+                      <span className="text-[11px] font-mono text-stone-500">{formatPlaceRegion(c)}</span>
                     </button>
                   ))}
                 </div>
@@ -388,7 +388,7 @@ export function MatchingWorkspaceClient() {
             {/* Visual Mini Dial */}
             <div className="flex items-center gap-4 shrink-0 p-4 bg-stone-50 rounded-xl border border-stone-100">
               <div className="text-center">
-                <span className="text-[10px] font-mono text-stone-500 uppercase block">Nāḍī Status</span>
+                <span className="text-[11px] font-mono text-stone-500 uppercase block">Nāḍī Status</span>
                 <span
                   className={`text-xs font-mono font-bold ${
                     matchingResult.isNadiKutaPass ? 'text-emerald-700' : 'text-rose-700'
@@ -399,7 +399,7 @@ export function MatchingWorkspaceClient() {
               </div>
               <div className="w-px h-8 bg-stone-200" />
               <div className="text-center">
-                <span className="text-[10px] font-mono text-stone-500 uppercase block">Bhakūṭa Status</span>
+                <span className="text-[11px] font-mono text-stone-500 uppercase block">Bhakūṭa Status</span>
                 <span
                   className={`text-xs font-mono font-bold ${
                     matchingResult.isBhakutaPass ? 'text-emerald-700' : 'text-rose-700'
@@ -410,7 +410,7 @@ export function MatchingWorkspaceClient() {
               </div>
               <div className="w-px h-8 bg-stone-200" />
               <div className="text-center">
-                <span className="text-[10px] font-mono text-stone-500 uppercase block">Gaṇa Status</span>
+                <span className="text-[11px] font-mono text-stone-500 uppercase block">Gaṇa Status</span>
                 <span
                   className={`text-xs font-mono font-bold ${
                     matchingResult.isGanaKutaPass ? 'text-emerald-700' : 'text-rose-700'
@@ -512,7 +512,7 @@ export function MatchingWorkspaceClient() {
                   <h4 className="font-serif font-bold text-stone-900 text-sm">
                     1. Muhūrta Cintāmaṇi (मुहूर्तचिन्तामणिः)
                   </h4>
-                  <p className="text-stone-500 font-mono text-[10px]">
+                  <p className="text-stone-500 font-mono text-[11px]">
                     Author: Daivajña Rāma (16th Century CE) — Vivāha Prakaraṇa (Ślokas 1–32)
                   </p>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
@@ -526,7 +526,7 @@ export function MatchingWorkspaceClient() {
                   <h4 className="font-serif font-bold text-stone-900 text-sm">
                     2. Bṛhat Parāśara Horā Śāstra (बृहत्पाराशर होराशास्त्रम्)
                   </h4>
-                  <p className="text-stone-500 font-mono text-[10px]">
+                  <p className="text-stone-500 font-mono text-[11px]">
                     Author: Maharṣi Parāśara — Chapters 80 & 81 (Strī Jātaka & Vivāha Kūṭa)
                   </p>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
@@ -539,7 +539,7 @@ export function MatchingWorkspaceClient() {
                   <h4 className="font-serif font-bold text-stone-900 text-sm">
                     3. Mādhavīya & Jātaka Deśamārga (माधवीयम् / जातकदेशमार्गः)
                   </h4>
-                  <p className="text-stone-500 font-mono text-[10px]">
+                  <p className="text-stone-500 font-mono text-[11px]">
                     Classical South Indian Porutham Authority
                   </p>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
@@ -552,7 +552,7 @@ export function MatchingWorkspaceClient() {
                   <h4 className="font-serif font-bold text-stone-900 text-sm">
                     4. Jaimini Upadeśa Sūtras (जैमिनि उपदेश सूत्राणि)
                   </h4>
-                  <p className="text-stone-500 font-mono text-[10px]">
+                  <p className="text-stone-500 font-mono text-[11px]">
                     Author: Maharṣi Jaimini — Chapter 1 Pāda 4
                   </p>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
