@@ -2989,6 +2989,67 @@ console.log('\n== Structural health ==');
     emptySystems.map(([k]) => k).join(',') || 'all present');
 }
 
+/* ---------------------- RESPONSIVE STRUCTURE ---------------------- */
+
+console.log('\n== Responsive structure ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.tsx')) files.push(full);
+    }
+  };
+  walk(path.join(process.cwd(), 'components'));
+
+  // A table wider than the viewport must sit in a scrolling parent, or the
+  // whole page scrolls sideways and everything shifts.
+  const unscrollable: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/<table[^>]*min-w-\[[0-9]+px\][^>]*>/g)) {
+      const before = src.slice(Math.max(0, m.index! - 400), m.index!);
+      if (!/overflow-x-auto|overflow-auto/.test(before)) unscrollable.push(path.basename(f));
+    }
+  }
+  check('every fixed-width table has a scrolling parent', unscrollable.length === 0,
+    [...new Set(unscrollable)].join(', '));
+
+  // The workspace tab strip must collapse on narrow screens.
+  const ws = fs.readFileSync(path.join(process.cwd(), 'components/workspace/WorkspaceClient.tsx'), 'utf8');
+  check('the workspace nav is responsive',
+    /grid-cols-2[^"]*sm:grid-cols-3[^"]*lg:grid-cols-6/.test(ws));
+
+  // No element may be wider than the viewport without a max-w guard.
+  const tooWide: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/className="([^"]*)"/g)) {
+      const c = m[1];
+      const w = c.match(/(?:^|\s)w-\[(\d{3,})px\]/);
+      if (w && !/max-w-/.test(c) && !/(sm|md|lg|xl):w-/.test(c)) {
+        tooWide.push(`${path.basename(f)} w-[${w[1]}px]`);
+      }
+    }
+  }
+  check('no unguarded fixed-width elements', tooWide.length === 0, [...new Set(tooWide)].slice(0, 4).join(', '));
+
+  // Count tables that would be cramped on a phone, so the number is visible.
+  let wide = 0;
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/<thead>([\s\S]*?)<\/thead>/g)) {
+      const cols = (m[1].match(/<th\b/g) || []).length;
+      if (cols >= 8) wide++;
+    }
+  }
+  console.log(`   note: ${wide} tables carry eight or more columns; they scroll horizontally on a phone`);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
