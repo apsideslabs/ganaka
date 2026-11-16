@@ -2938,6 +2938,57 @@ console.log('\n== Table markup is valid ==');
     Object.entries(d9.planets).filter(([, p]: any) => !p.dignity).map(([k]) => k).join(',') || 'all present');
 }
 
+/* -------------------- STRUCTURAL HEALTH OF THE REPO ---------------- */
+
+console.log('\n== Structural health ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  // No UI text below 10px. 9px labels were unreadable on a phone; 10px is the
+  // floor for superscript markers inside a legend.
+  const tiny: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.tsx')) {
+        const src = fs.readFileSync(full, 'utf8');
+        if (/text-\[9px\]/.test(src)) tiny.push(full);
+      }
+    }
+  };
+  walk(path.join(process.cwd(), 'components'));
+  check('no UI text below 10px', tiny.length === 0, tiny.slice(0, 3).join(', '));
+
+  // Every varga must carry all nine grahas with a dignity.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  let vargaFaults = 0;
+  for (const [vId, v] of Object.entries(natal.vargas as any)) {
+    const planets = Object.values((v as any).planets || {}) as any[];
+    if (planets.length !== 9) vargaFaults++;
+    else if (!planets.every((p) => typeof p.dignity === 'string' && p.dignity)) vargaFaults++;
+  }
+  check('every varga has nine grahas, each with a dignity', vargaFaults === 0, `${vargaFaults} vargas faulty`);
+
+  // Aşṭakavarga must total 337 in every recension.
+  const savTotal = (natal.ashtakavarga as any).sav.total;
+  check('SAV totals 337', savTotal === 337, String(savTotal));
+
+  // The bhāva cusps must span the circle exactly once.
+  const mid = (natal.bhavas as any[]).map((b) => b.midDegree).sort((a, b) => a - b);
+  const gaps = mid.map((d, i) => ((mid[(i + 1) % 12] - d + 360) % 360 || 360));
+  check('the twelve bhāva cusps are distinct', new Set(mid).size === 12, String(new Set(mid).size));
+  check('no bhāva is wider than half the zodiac',
+    gaps.every((g) => g > 0 && g <= 180), gaps.map((g) => g.toFixed(0)).join(','));
+
+  // Every dasha system must produce periods.
+  const ext: any = buildChartExport(natal, { dashaDepth: 2 }).extendedDashas;
+  const emptySystems = Object.entries(ext).filter(([, v]: any) => !v.periods || v.periods.length === 0);
+  check('all sixteen dasha systems yield periods', emptySystems.length === 0,
+    emptySystems.map(([k]) => k).join(',') || 'all present');
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
