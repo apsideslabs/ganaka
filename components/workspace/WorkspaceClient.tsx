@@ -26,7 +26,7 @@ import { evaluateNeechaRajaYoga, RAJA_YOGA_NOTE } from '@/lib/jyotisha/raja-yoga
 
 import dynamic from 'next/dynamic';
 import { buildReportBlob, chartPdfFilename } from '../../lib/report/generate-chart-pdf';
-import { downloadChartJson } from '../../lib/report/export-chart-json';
+import { downloadChartJson, chartToJsonString } from '../../lib/report/export-chart-json';
 import { PdfPreview } from './PdfPreview';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
@@ -788,6 +788,35 @@ export const WorkspaceClient: React.FC = () => {
   const [isSavedDefaultLocation, setIsSavedDefaultLocation] = useState<boolean>(false);
 
   // Synchronize with Workspace & Platform Settings in real-time
+  // Warm the JSON export cache once the chart is on screen.
+  //
+  // The first build costs about two seconds — the ten-year eclipse search is
+  // most of it — and it runs on the main thread. Building it on idle means the
+  // Export button never freezes the tab, and the click stays synchronous so the
+  // browser still treats the download as a user gesture.
+  useEffect(() => {
+    if (!chartData) return;
+    let cancelled = false;
+    const warm = () => {
+      if (cancelled) return;
+      try {
+        chartToJsonString(chartData);
+      } catch {
+        /* the click handler will report a real failure */
+      }
+    };
+    const ric = (globalThis as any).requestIdleCallback as
+      | ((cb: () => void, opts?: { timeout: number }) => number)
+      | undefined;
+    const handle = ric ? ric(warm, { timeout: 4000 }) : setTimeout(warm, 1200);
+    return () => {
+      cancelled = true;
+      const cic = (globalThis as any).cancelIdleCallback as ((h: number) => void) | undefined;
+      if (ric && cic) cic(handle as number);
+      else clearTimeout(handle as any);
+    };
+  }, [chartData]);
+
   useEffect(() => {
     const unsub = subscribeToSettings((scope) => {
       if (scope === 'workspace') {
@@ -1252,6 +1281,10 @@ ${Object.values(chartData.planets)
               size="sm"
               variant="outline"
               onClick={() => {
+                // Deliberately synchronous. An `await` before the download
+                // breaks the user-gesture chain and Safari will refuse the
+                // file. The cache is warmed on idle when the chart arrives, so
+                // this path is normally instant.
                 try {
                   downloadChartJson(chartData);
                 } catch (err) {
