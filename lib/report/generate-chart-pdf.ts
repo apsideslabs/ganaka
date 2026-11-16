@@ -21,6 +21,8 @@ import type { PdfWorkerRequest, PdfWorkerResponse } from './pdf.worker';
 
 export { chartPdfFilename } from './filenames';
 
+let pdfRequestCounter = 0;
+
 /** Render on the main thread — the fallback when a worker cannot be created. */
 async function renderOnMainThread(chart: JyotishaChart): Promise<Blob> {
   const [{ pdf }, React, { ChartReport }, { registerReportFonts }] = await Promise.all([
@@ -51,7 +53,9 @@ export async function buildReportBlob(chart: JyotishaChart): Promise<Blob> {
     return renderOnMainThread(chart);
   }
 
-  const requestId = `pdf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  // A monotonic counter, not Math.random: lib/ is required to stay
+  // deterministic so a given chart always produces the same output.
+  const requestId = `pdf-${++pdfRequestCounter}`;
 
   try {
     return await new Promise<Blob>((resolve, reject) => {
