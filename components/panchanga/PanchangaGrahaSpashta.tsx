@@ -102,20 +102,20 @@ export function PanchangaGrahaSpashta({
                   </td>
                   <td className="py-3 px-4">
                     {p.isRetrograde ? (
-                      <span className="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-[10px] font-bold font-mono">
+                      <span className="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-[11px] font-bold font-mono">
                         Vakrī (Retrograde)
                       </span>
                     ) : (
-                      <span className="text-emerald-700 text-[10px] font-bold font-mono">Mārgī (Direct)</span>
+                      <span className="text-emerald-700 text-[11px] font-bold font-mono">Mārgī (Direct)</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
                     {isCombust ? (
-                      <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[10px] font-bold font-mono">
+                      <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-[11px] font-bold font-mono">
                         Asta (Combust)
                       </span>
                     ) : (
-                      <span className="text-slate-400 text-[10px] font-mono">—</span>
+                      <span className="text-slate-400 text-[11px] font-mono">—</span>
                     )}
                   </td>
                 </tr>
