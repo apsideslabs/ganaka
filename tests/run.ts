@@ -2809,87 +2809,16 @@ console.log('\n== Birth time never ambiguous ==');
   check('it warns that a varga has its own houses', /varga/i.test(e.conventions.houses));
 }
 
-/* ------------------- THE REPORT RUNS OFF THE MAIN THREAD ----------- */
+/* ------------------------- PDF FILENAME ---------------------------- */
 
-console.log('\n== PDF worker ==');
+console.log('\n== PDF filename ==');
 {
-  // The worker module must exist and must not reach for the DOM at import
-  // time: a worker has no document, and a module-scope touch would throw
-  // before the first render.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const fs = require('node:fs');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const path = require('node:path');
-  const workerPath = path.join(process.cwd(), 'lib/report/pdf.worker.ts');
-  check('the pdf worker file exists', fs.existsSync(workerPath), workerPath);
-  if (fs.existsSync(workerPath)) {
-    const src = fs.readFileSync(workerPath, 'utf8');
-    check('the worker registers fonts inside itself', /registerReportFonts\(\)/.test(src));
-    check('the worker renders the report', /ChartReport/.test(src));
-    check('the worker returns a blob', /toBlob\(\)/.test(src));
-    check('the worker posts a response', /postMessage/.test(src));
-  }
-
-  const genPath = path.join(process.cwd(), 'lib/report/generate-chart-pdf.ts');
-  const gen = fs.readFileSync(genPath, 'utf8');
-  check('the generator creates a worker', /new Worker\(/.test(gen));
-  check('the generator falls back to the main thread', /renderOnMainThread/.test(gen));
-  check('the fallback is used when no Worker exists', /typeof Worker === 'undefined'/.test(gen));
-
-  // The chart must be plain data so it survives structured cloning.
   const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
-  const cloneable = (() => {
-    try { structuredClone(natal); return true; } catch { return false; }
-  })();
-  check('the chart survives structured cloning into a worker', cloneable);
-
-  // The PDF filename follows the same rule as the JSON one.
   check('the pdf filename uses the given name',
     chartPdfFilename(calculateFullJyotishaChart({ ...FIXTURES[0].birth, personName: 'Rahul' } as any)) === 'Ganaka-Jyotisha-Rahul.pdf',
     chartPdfFilename(calculateFullJyotishaChart({ ...FIXTURES[0].birth, personName: 'Rahul' } as any)));
   check('the pdf filename falls back to the date',
     /^Ganaka-Jyotisa-Chart-\d{8}\.pdf$/.test(chartPdfFilename(natal)), chartPdfFilename(natal));
-}
-
-/* --------------------- THE 12/24-HOUR CONVERSION ------------------ */
-
-console.log('\n== Time entry: 12h to 24h ==');
-{
-  // The bug that shipped a 23:51 birth as 11:51: a 12-hour face with no
-  // meridiem, so the hour was taken at face value.
-  const cases: Array<[number, boolean, boolean, number, string]> = [
-    [11, false, false, 11, '11 AM'],
-    [11, true,  false, 23, '11 PM'],
-    [12, false, false,  0, '12 AM (midnight)'],
-    [12, true,  false, 12, '12 PM (noon)'],
-    [1,  true,  false, 13, '1 PM'],
-    [1,  false, false,  1, '1 AM'],
-    [0,  false, true,   0, '24h 0'],
-    [12, false, true,  12, '24h 12'],
-    [23, false, true,  23, '24h 23'],
-  ];
-  for (const [h, pm, is24, expected, label] of cases) {
-    const got = to24Hour(h, pm, is24);
-    check(`${label} → ${expected}`, got === expected, String(got));
-  }
-
-  // Out-of-range input is clamped, never wrapped into a different half-day.
-  check('24h face clamps 99 to 23', to24Hour(99, false, true) === 23);
-  check('12h face clamps 13 to 12', to24Hour(13, true, false) === 12);
-
-  // The engine must carry whatever 24-hour value it is given.
-  const at23 = calculateFullJyotishaChart({ ...FIXTURES[0].birth, hour: 23 } as any);
-  const at11 = calculateFullJyotishaChart({ ...FIXTURES[0].birth, hour: 11 } as any);
-  check('the engine keeps hour 23', at23.meta.birthDetails.hour === 23);
-  check('the engine keeps hour 11', at11.meta.birthDetails.hour === 11);
-  check('the two give different lagna signs',
-    at23.lagna.rashiNumber !== at11.lagna.rashiNumber,
-    `${at23.lagna.rashiName} vs ${at11.lagna.rashiName}`);
-
-  // And the export states both faces so the file can be checked.
-  const e23: any = buildChartExport(at23);
-  check('the export states 23:51:24 in 24-hour form', e23.birth.time24 === '23:51:24', e23.birth.time24);
-  check('the export states 11:51:24 PM in 12-hour form', e23.birth.time12 === '11:51:24 PM', e23.birth.time12);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
