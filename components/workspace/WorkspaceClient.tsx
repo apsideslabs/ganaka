@@ -1231,9 +1231,9 @@ ${Object.values(chartData.planets)
               onClick={async () => {
                 setPdfBuilding(true);
                 setPdfError('');
-                // The renderer blocks the main thread for several seconds while
-                // it lays out and subsets fonts. Paint the busy state first, or
-                // the click looks like it did nothing.
+                // The render now runs in a worker, so the main thread stays
+                // free — but give the browser one frame to paint the busy state
+                // before the message goes out.
                 await new Promise((r) => setTimeout(r, 30));
                 try {
                   const blob = await buildReportBlob(chartData);
