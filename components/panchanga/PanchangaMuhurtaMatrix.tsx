@@ -39,7 +39,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
               </span>
             </div>
           </div>
-          <span className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-mono uppercase text-[10px] font-bold tracking-wider self-start sm:self-auto">
+          <span className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-mono uppercase text-[11px] font-bold tracking-wider self-start sm:self-auto">
             Mahā-Śubha Kāla
           </span>
         </div>
@@ -56,7 +56,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 Auspicious Muhūrta Windows (शुभ काल)
               </h3>
             </div>
-            <span className="text-[10px] font-mono uppercase font-bold text-emerald-700 px-2 py-0.5 bg-emerald-50 border border-emerald-200/60 rounded-md">
+            <span className="text-[11px] font-mono uppercase font-bold text-emerald-700 px-2 py-0.5 bg-emerald-50 border border-emerald-200/60 rounded-md">
               Favorable
             </span>
           </div>
@@ -68,7 +68,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-slate-900 block">
                   Abhijit Muhūrta (अभिजित्)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   8th daytime segment (Universal doṣa-destroyer, ruled by Lord Viṣṇu)
                 </span>
               </div>
@@ -83,7 +83,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-slate-900 block">
                   Brāhma Muhūrta (ब्राह्म मुहूर्तः)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   14th nocturnal segment (Ideal for meditation, mantra sādhanā, study)
                 </span>
               </div>
@@ -98,7 +98,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-slate-900 block">
                   Amṛta Kāla (अमृत काल / अमृत घटी)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   Nectarine lunar span derived from Nakṣatra degree (4 Ghaṭīs)
                 </span>
               </div>
@@ -113,7 +113,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-slate-900 block">
                   Vijaya Muhūrta (विजय मुहूर्त)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   11th daytime segment (Ensures victory in litigation, travel, ventures)
                 </span>
               </div>
@@ -128,7 +128,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-slate-900 block">
                   Godhūli Muhūrta (गोधूलि काल)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   Sunset twilight cusp (12 minutes before &amp; after sunset)
                 </span>
               </div>
@@ -148,7 +148,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 Inauspicious Windows (अशुभ काल / वर्ज्यम्)
               </h3>
             </div>
-            <span className="text-[10px] font-mono uppercase font-bold text-rose-700 px-2 py-0.5 bg-rose-50 border border-rose-200/60 rounded-md">
+            <span className="text-[11px] font-mono uppercase font-bold text-rose-700 px-2 py-0.5 bg-rose-50 border border-rose-200/60 rounded-md">
               Avoid New Ventures
             </span>
           </div>
@@ -160,7 +160,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-rose-700 block">
                   Rāhukāla (राहुकाल)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   1/8th of diurnal span ruled by Rāhu — strictly avoid all beginnings
                 </span>
               </div>
@@ -175,7 +175,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-rose-700 block">
                   Yamaghaṇṭa (यमघण्ट)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   Ruled by Yama / Guru division — harmful for journey and commerce
                 </span>
               </div>
@@ -190,7 +190,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-rose-700 block">
                   Gulikakāla (गुलिककाल)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   Ruled by Saturn&apos;s son Gulika / Māndi — obstacle period
                 </span>
               </div>
@@ -205,7 +205,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                 <strong className="text-sm font-serif font-bold text-rose-700 block">
                   Varjyam (वर्ज्यम् / विषघटी)
                 </strong>
-                <span className="text-[10px] text-slate-500 font-sans">
+                <span className="text-[11px] text-slate-500 font-sans">
                   Poisonous 4 Ghaṭī window of the ruling Nakṣatra
                 </span>
               </div>
@@ -221,7 +221,7 @@ export function PanchangaMuhurtaMatrix({ panchanga }: PanchangaMuhurtaMatrixProp
                   <strong className="text-sm font-serif font-bold text-rose-700 block">
                     Durmuhūrta (दुर्मुहूर्त)
                   </strong>
-                  <span className="text-[10px] text-slate-500 font-sans">
+                  <span className="text-[11px] text-slate-500 font-sans">
                     Inauspicious weekday-specific diurnal divisions
                   </span>
                 </div>
