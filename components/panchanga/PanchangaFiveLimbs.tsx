@@ -40,7 +40,7 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
         <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/70 pb-2">
-              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[10px] tracking-wider">1. Tithi (तिथि)</span>
+              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[11px] tracking-wider">1. Tithi (तिथि)</span>
               <span className="font-serif font-bold text-slate-900 text-xs">{tithi.paksha} Pakṣa</span>
             </div>
 
@@ -76,12 +76,12 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
               <strong className="text-slate-900 font-bold">{tithi.endTime}</strong>
             </div>
             {tithi.nextTithiName && (
-              <div className="text-[10px] text-slate-400 truncate">
+              <div className="text-[11px] text-slate-400 truncate">
                 Next: {tithi.nextTithiName}
               </div>
             )}
             {tithi.udayaTithi && (
-              <div className="text-[10px] text-[#8C2D19] font-semibold">
+              <div className="text-[11px] text-[#8C2D19] font-semibold">
                 Udaya (Sunrise): {tithi.udayaTithi}
               </div>
             )}
@@ -92,7 +92,7 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
         <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/70 pb-2">
-              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[10px] tracking-wider">2. Vāra (वासर)</span>
+              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[11px] tracking-wider">2. Vāra (वासर)</span>
               <span className="font-serif font-bold text-slate-900 text-xs">{vara.civilWeekday}</span>
             </div>
 
@@ -138,7 +138,7 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
         <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/70 pb-2">
-              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[10px] tracking-wider">3. Nakṣatra (नक्षत्र)</span>
+              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[11px] tracking-wider">3. Nakṣatra (नक्षत्र)</span>
               <span className="font-mono font-bold text-[#8C2D19]">Pāda {nakshatra.pada}</span>
             </div>
 
@@ -172,12 +172,12 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
               <strong className="text-slate-900 font-bold">{nakshatra.endTime}</strong>
             </div>
             {nakshatra.nextNakshatraName && (
-              <div className="text-[10px] text-slate-400 truncate">
+              <div className="text-[11px] text-slate-400 truncate">
                 Next: {nakshatra.nextNakshatraName}
               </div>
             )}
             {nakshatra.udayaNakshatra && (
-              <div className="text-[10px] text-[#8C2D19] font-semibold">
+              <div className="text-[11px] text-[#8C2D19] font-semibold">
                 Udaya (Sunrise): {nakshatra.udayaNakshatra}
               </div>
             )}
@@ -188,7 +188,7 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
         <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/70 pb-2">
-              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[10px] tracking-wider">4. Yoga (योग)</span>
+              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[11px] tracking-wider">4. Yoga (योग)</span>
               <span className="font-mono text-xs text-slate-500">#{yoga.number} / 27</span>
             </div>
 
@@ -225,12 +225,12 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
               <strong className="text-slate-900 font-bold">{yoga.endTime}</strong>
             </div>
             {yoga.nextYogaName && (
-              <div className="text-[10px] text-slate-400 truncate">
+              <div className="text-[11px] text-slate-400 truncate">
                 Next: {yoga.nextYogaName}
               </div>
             )}
             {yoga.udayaYoga && (
-              <div className="text-[10px] text-[#8C2D19] font-semibold">
+              <div className="text-[11px] text-[#8C2D19] font-semibold">
                 Udaya (Sunrise): {yoga.udayaYoga}
               </div>
             )}
@@ -241,7 +241,7 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
         <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-300 transition-colors">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200/70 pb-2">
-              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[10px] tracking-wider">5. Karaṇa (करण)</span>
+              <span className="font-mono uppercase font-bold text-[#8C2D19] text-[11px] tracking-wider">5. Karaṇa (करण)</span>
               <span className="font-mono text-xs text-slate-500">#{karana.number} / 60</span>
             </div>
 
@@ -274,12 +274,12 @@ export function PanchangaFiveLimbs({ panchanga }: PanchangaFiveLimbsProps) {
               <strong className="text-slate-900 font-bold">{karana.endTime}</strong>
             </div>
             {karana.nextKaranaName && (
-              <div className="text-[10px] text-slate-400 truncate">
+              <div className="text-[11px] text-slate-400 truncate">
                 Next: {karana.nextKaranaName}
               </div>
             )}
             {karana.udayaKarana && (
-              <div className="text-[10px] text-[#8C2D19] font-semibold">
+              <div className="text-[11px] text-[#8C2D19] font-semibold">
                 Udaya (Sunrise): {karana.udayaKarana}
               </div>
             )}
