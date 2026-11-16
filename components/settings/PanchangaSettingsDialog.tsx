@@ -206,7 +206,7 @@ export function PanchangaSettingsDialog({
                         <span className="text-xs font-serif font-bold text-slate-900">
                           Sūryodaya-Vyāpinī (Udaya Tithi)
                         </span>
-                        <span className="text-[10px] font-mono text-[#8C2D19] bg-red-50 px-1.5 py-0.5 rounded font-semibold">
+                        <span className="text-[11px] font-mono text-[#8C2D19] bg-red-50 px-1.5 py-0.5 rounded font-semibold">
                           Vedic Ritual Standard
                         </span>
                       </div>
@@ -230,7 +230,7 @@ export function PanchangaSettingsDialog({
                         <span className="text-xs font-serif font-bold text-slate-900">
                           Astronomical Exact (Span Transition)
                         </span>
-                        <span className="text-[10px] font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                        <span className="text-[11px] font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
                           Continuous Drik
                         </span>
                       </div>
@@ -259,7 +259,7 @@ export function PanchangaSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif font-bold block">Amānta System</span>
-                      <span className="text-[10px] font-mono text-slate-500 block mb-1">New Moon to New Moon</span>
+                      <span className="text-[11px] font-mono text-slate-500 block mb-1">New Moon to New Moon</span>
                       <p className="text-[11px] text-slate-500 font-normal">
                         Month ends on Amāvāsyā. Followed in Maharashtra, Gujarat, Karnataka, Andhra &amp; Tamil Nadu.
                       </p>
@@ -276,7 +276,7 @@ export function PanchangaSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif font-bold block">Pūrṇimānta System</span>
-                      <span className="text-[10px] font-mono text-slate-500 block mb-1">Full Moon to Full Moon</span>
+                      <span className="text-[11px] font-mono text-slate-500 block mb-1">Full Moon to Full Moon</span>
                       <p className="text-[11px] text-slate-500 font-normal">
                         Month ends on Pūrṇimā. Followed in Uttar Pradesh, Bihar, Rajasthan, MP, Punjab &amp; Haryana.
                       </p>
@@ -374,7 +374,7 @@ export function PanchangaSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif block">Local Sunrise (Drik)</span>
-                      <span className="text-[10px] text-slate-500 block font-normal">Astronomical Sunrise Anchor</span>
+                      <span className="text-[11px] text-slate-500 block font-normal">Astronomical Sunrise Anchor</span>
                     </button>
 
                     <button
@@ -388,7 +388,7 @@ export function PanchangaSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif block">Standard 6:00 AM</span>
-                      <span className="text-[10px] text-slate-500 block font-normal">Civil Clock Nominal Anchor</span>
+                      <span className="text-[11px] text-slate-500 block font-normal">Civil Clock Nominal Anchor</span>
                     </button>
                   </div>
                 </div>
@@ -422,7 +422,7 @@ export function PanchangaSettingsDialog({
                           }`}
                         >
                           <span className="text-xs font-serif block">{unit.label}</span>
-                          <span className="text-[10px] font-mono text-slate-500 font-normal">
+                          <span className="text-[11px] font-mono text-slate-500 font-normal">
                             {unit.desc}
                           </span>
                         </button>
