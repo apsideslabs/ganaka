@@ -164,12 +164,12 @@ export function PanchangaMonthlyView({
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px] font-serif">
               <th className="py-3 px-3.5">Date / Day</th>
-              <th className="py-3 px-3.5">Phase</th>
+              <th className="hidden md:table-cell py-3 px-3.5">Phase</th>
               <th className="py-3 px-3.5">Tithi (Lunar Day)</th>
               <th className="py-3 px-3.5">Nakṣatra (Asterism)</th>
-              <th className="py-3 px-3.5">Yoga</th>
-              <th className="py-3 px-3.5">Karaṇa</th>
-              <th className="py-3 px-3.5">Sunrise / Sunset</th>
+              <th className="hidden md:table-cell py-3 px-3.5">Yoga</th>
+              <th className="hidden md:table-cell py-3 px-3.5">Karaṇa</th>
+              <th className="hidden md:table-cell py-3 px-3.5">Sunrise / Sunset</th>
               <th className="py-3 px-3.5">Events / Vratas</th>
             </tr>
           </thead>
@@ -197,7 +197,7 @@ export function PanchangaMonthlyView({
                   </td>
 
                   {/* Moon Phase Icon */}
-                  <td className="py-3 px-3.5 whitespace-nowrap">
+                  <td className="hidden md:table-cell py-3 px-3.5 whitespace-nowrap">
                     <PanchangaMoonPhaseSvg
                       illuminationFraction={row.moonFraction}
                       phaseAngleDeg={row.moonAngle}
@@ -219,17 +219,17 @@ export function PanchangaMonthlyView({
                   </td>
 
                   {/* Yoga */}
-                  <td className="py-3 px-3.5 whitespace-nowrap text-slate-600">
+                  <td className="hidden md:table-cell py-3 px-3.5 whitespace-nowrap text-slate-600">
                     {row.yogaName}
                   </td>
 
                   {/* Karana */}
-                  <td className="py-3 px-3.5 whitespace-nowrap text-slate-600">
+                  <td className="hidden md:table-cell py-3 px-3.5 whitespace-nowrap text-slate-600">
                     {row.karanaName}
                   </td>
 
                   {/* Sun Times */}
-                  <td className="py-3 px-3.5 whitespace-nowrap text-[11px] text-slate-500">
+                  <td className="hidden md:table-cell py-3 px-3.5 whitespace-nowrap text-[11px] text-slate-500">
                     {row.sunrise} – {row.sunset}
                   </td>
 
