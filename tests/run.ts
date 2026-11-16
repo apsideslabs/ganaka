@@ -20,7 +20,6 @@ import { calculateHouses } from '../lib/jyotisha/houses';
 import { parseTimeInput } from '../lib/jyotisha/time-format';
 import { to24Hour } from '../lib/jyotisha/time-format';
 import { chartPdfFilename } from '../lib/report/filenames';
-import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateAllPlanets, sunMoonLongitudes } from '../lib/astronomy/ephemeris';
 import { chartJsonFilename } from '../lib/report/export-chart-json';
 import { CLASSICAL_YOGA_REGISTRY } from '../lib/yogas/yoga-engine';
@@ -3235,6 +3234,27 @@ console.log('\n== JSON export is warm ==');
     .replace(/^\s*\/\/.*$/gm, '');
   check('the JSON click handler does not await before downloading', !/\bawait\b/.test(handler), handler.slice(0, 60));
   check('the workspace warms the export on idle', /requestIdleCallback|chartToJsonString\(chartData\)/.test(ws));
+}
+
+/* ---------------- NO DUPLICATE IMPORTS IN THE SUITE --------------- */
+
+console.log('\n== Test file imports ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = fs.readFileSync(path.join(process.cwd(), 'tests/run.ts'), 'utf8');
+  const seen = new Map<string, number>();
+  for (const m of src.matchAll(/^import\s*\{([^}]+)\}\s*from\s*'([^']+)'/gm)) {
+    for (const raw of m[1].split(',')) {
+      const name = raw.trim().split(/\s+as\s+/).pop()!.trim();
+      if (!name) continue;
+      seen.set(name, (seen.get(name) || 0) + 1);
+    }
+  }
+  const dupes = [...seen.entries()].filter(([, n]) => n > 1).map(([k]) => k);
+  // TypeScript rejects a duplicate binding outright, so this costs a CI cycle
+  // every time it slips through. It has slipped through five times.
+  check('no identifier is imported twice', dupes.length === 0, dupes.join(', '));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
