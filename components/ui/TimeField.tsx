@@ -1,21 +1,31 @@
 'use client';
 
 /**
- * Birth time — a plain three-field entry with an explicit half-of-day choice.
+ * Birth time — one field you type into.
  *
- * The previous control was a clock dial with a 12-hour face that defaulted to
- * AM. A birth at 23:51 typed as "11:51" was silently stored as 11:51 — twelve
- * hours out, a whole ascendant wrong — and nothing in the control said so.
+ * The previous control was three separate number boxes. They fought the typist:
+ * a value echoed back from the parent reset the boxes mid-entry, each box was
+ * nine characters wide, and the meridiem only appeared once a value already
+ * existed — so you chose it after the fact, or not at all.
  *
- * This one is boring on purpose. Hours, minutes, seconds as numbers; a 24-hour
- * or 12-hour face; and in 12-hour mode an AM/PM choice you have to make. The
- * value handed to the engine is ALWAYS 24-hour, and the resolved time is shown
- * back in both forms so the reading can be checked at a glance.
+ * This is a single field with a mask. You type digits and the colons appear:
+ *
+ *   2351      → 23:51
+ *   235124    → 23:51:24
+ *   11:51 pm  → 23:51
+ *   1151p     → 23:51
+ *
+ * An hour of 1–12 with no meridiem is genuinely ambiguous, so it is NOT
+ * guessed. The field says so and waits for AM or PM. That is the whole bug
+ * this component exists to prevent: 23:51 filed as 11:51, a whole ascendant
+ * wrong.
+ *
+ * What the engine receives is always 24-hour.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Clock } from 'lucide-react';
-import { to24Hour, formatTime24, formatTime12 } from '@/lib/jyotisha/time-format';
+import { to24Hour, formatTime24, formatTime12, parseTimeInput } from '@/lib/jyotisha/time-format';
 
 export interface TimeValue {
   hour: number;   // always 0–23
@@ -33,7 +43,6 @@ interface TimeFieldProps {
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
 export const TimeField: React.FC<TimeFieldProps> = ({
   id,
@@ -41,173 +50,117 @@ export const TimeField: React.FC<TimeFieldProps> = ({
   value,
   onChange,
   required,
-  placeholder = 'HH : MM : SS',
+  placeholder = 'e.g. 23:51:24  or  11:51 PM',
 }) => {
-  const [use24, setUse24] = useState(true);
-  // The 12-hour face needs a meridiem of its own; it is not derivable from a
-  // value the user has not entered yet, and defaulting it silently is exactly
-  // the bug this component exists to remove.
-  const [pm, setPm] = useState(false);
+  const [text, setText] = useState('');
+  const [needsMeridiem, setNeedsMeridiem] = useState<{ hour12: number; minute: number; second: number } | null>(null);
+  // Guards the sync effect so it never overwrites what is being typed.
+  const typing = useRef(false);
 
-  const [hh, setHh] = useState('');
-  const [mm, setMm] = useState('');
-  const [ss, setSs] = useState('');
-
-  // Reflect an externally-set value (URL, localStorage, reset).
+  // Reflect an externally-set value (URL, localStorage, reset) — but only when
+  // the field is not the thing that produced it.
   useEffect(() => {
-    if (!value) return;
-    setHh(String(value.hour));
-    setMm(pad(value.minute));
-    setSs(pad(value.second));
-    setPm(value.hour >= 12);
+    if (typing.current) return;
+    if (!value) { setText(''); setNeedsMeridiem(null); return; }
+    setText(formatTime24(value.hour, value.minute, value.second));
+    setNeedsMeridiem(null);
   }, [value?.hour, value?.minute, value?.second]);
 
-  /** Compose the 24-hour value from whatever the face currently shows. */
-  const commit = (rawH: string, rawM: string, rawS: string, isPm: boolean, is24: boolean) => {
-    if (rawH === '') return; // nothing to commit yet
-    const h = parseInt(rawH, 10);
-    const m = clamp(parseInt(rawM || '0', 10) || 0, 0, 59);
-    const s = clamp(parseInt(rawS || '0', 10) || 0, 0, 59);
-    if (Number.isNaN(h)) return;
+  const commit = useCallback((v: TimeValue) => {
+    typing.current = true;
+    onChange(v);
+    // release after the parent has re-rendered with the echoed value
+    requestAnimationFrame(() => { typing.current = false; });
+  }, [onChange]);
 
-    onChange({ hour: to24Hour(h, isPm, is24), minute: m, second: s });
-  };
-
-  const onH = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 2);
-    setHh(digits);
-    commit(digits, mm, ss, pm, use24);
-  };
-  const onM = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 2);
-    setMm(digits);
-    commit(hh, digits, ss, pm, use24);
-  };
-  const onS = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 2);
-    setSs(digits);
-    commit(hh, mm, digits, pm, use24);
-  };
-
-  const switchMode = (to24: boolean) => {
-    setUse24(to24);
-    if (value) {
-      // Re-render the same instant on the other face.
-      const h12 = value.hour % 12 === 0 ? 12 : value.hour % 12;
-      setHh(String(to24 ? value.hour : h12));
-      setPm(value.hour >= 12);
+  const handle = (raw: string) => {
+    setText(raw);
+    const parsed = parseTimeInput(raw);
+    if (parsed.value) {
+      setNeedsMeridiem(null);
+      commit(parsed.value);
+    } else if (parsed.ambiguous) {
+      setNeedsMeridiem(parsed.ambiguous);
+    } else {
+      setNeedsMeridiem(null);
     }
   };
 
-  const setMeridiem = (isPm: boolean) => {
-    setPm(isPm);
-    commit(hh, mm, ss, isPm, use24);
+  const choose = (pm: boolean) => {
+    if (!needsMeridiem) return;
+    const { hour12, minute, second } = needsMeridiem;
+    const v = { hour: to24Hour(hour12, pm, false), minute, second };
+    setNeedsMeridiem(null);
+    setText(formatTime24(v.hour, v.minute, v.second));
+    commit(v);
   };
-
-  const displayHour = use24
-    ? (value ? pad(value.hour) : '')
-    : (value ? String(value.hour % 12 === 0 ? 12 : value.hour % 12) : '');
-
-  const field =
-    'w-full text-center font-mono tabular-nums text-[15px] bg-transparent outline-none ' +
-    'text-slate-900 placeholder:text-slate-300';
 
   return (
     <div className="space-y-1.5">
       {label && (
-        <label
-          htmlFor={id}
-          className="flex items-center justify-between text-[13px] font-medium text-slate-700"
-        >
+        <label htmlFor={id} className="flex items-center justify-between text-[13px] font-medium text-slate-700">
           <span className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-[#8C2D19]" />
             {label}
           </span>
           {required && !value && (
-            <span className="text-[11px] uppercase tracking-wider text-[#8C2D19] font-semibold">
-              Required
-            </span>
+            <span className="text-[11px] uppercase tracking-wider text-[#8C2D19] font-semibold">Required</span>
           )}
         </label>
       )}
 
-      <div className="rounded-xl border border-slate-300 bg-white focus-within:border-[#8C2D19] transition-colors">
-        <div className="flex items-center gap-1 px-3 py-2.5">
-          {/* hour */}
+      <div
+        className={`rounded-xl border bg-white transition-colors ${
+          needsMeridiem ? 'border-[#B45309]' : 'border-slate-300 focus-within:border-[#8C2D19]'
+        }`}
+      >
+        <div className="flex items-center gap-2 px-3.5 py-2.5">
           <input
             id={id}
-            inputMode="numeric"
-            aria-label="Hour"
-            value={hh !== '' ? hh : displayHour}
-            onChange={(e) => onH(e.target.value)}
-            placeholder="HH"
-            className={`${field} w-9`}
-          />
-          <span className="text-slate-300 select-none">:</span>
-          <input
-            inputMode="numeric"
-            aria-label="Minute"
-            value={mm}
-            onChange={(e) => onM(e.target.value)}
-            placeholder="MM"
-            className={`${field} w-9`}
-          />
-          <span className="text-slate-300 select-none">:</span>
-          <input
-            inputMode="numeric"
-            aria-label="Second"
-            value={ss}
-            onChange={(e) => onS(e.target.value)}
-            placeholder="SS"
-            className={`${field} w-9`}
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            spellCheck={false}
+            value={text}
+            onChange={(e) => handle(e.target.value)}
+            onBlur={() => {
+              // Tidy what is in the box into a canonical form once focus leaves.
+              const parsed = parseTimeInput(text);
+              if (parsed.value) setText(formatTime24(parsed.value.hour, parsed.value.minute, parsed.value.second));
+            }}
+            placeholder={placeholder}
+            className="flex-1 min-w-0 bg-transparent outline-none text-[15px] font-mono tabular-nums text-slate-900 placeholder:text-slate-400 placeholder:font-sans placeholder:text-[13px]"
           />
 
-          {/* meridiem — only on the 12-hour face, and never pre-chosen */}
-          {!use24 && (
-            <div className="ml-2 inline-flex rounded-lg border border-slate-300 overflow-hidden">
-              {(['AM', 'PM'] as const).map((m, i) => {
-                const active = (i === 1) === pm;
-                return (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setMeridiem(i === 1)}
-                    className={`px-2.5 py-1 text-[12px] font-semibold transition-colors ${
-                      active ? 'bg-[#8C2D19] text-white' : 'bg-white text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    {m}
-                  </button>
-                );
-              })}
+          {/* Only when the hour could mean either half of the day. */}
+          {needsMeridiem && (
+            <div className="inline-flex rounded-lg border border-[#B45309] overflow-hidden shrink-0">
+              {(['AM', 'PM'] as const).map((m, i) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => choose(i === 1)}
+                  className="px-3 py-1.5 text-[12px] font-semibold bg-white text-[#B45309] hover:bg-[#B45309] hover:text-white transition-colors"
+                >
+                  {m}
+                </button>
+              ))}
             </div>
           )}
-
-          {/* 24 / 12 face */}
-          <div className="ml-auto inline-flex rounded-lg border border-slate-300 overflow-hidden">
-            {[true, false].map((is24) => (
-              <button
-                key={String(is24)}
-                type="button"
-                onClick={() => switchMode(is24)}
-                className={`px-2 py-1 text-[11px] font-semibold transition-colors ${
-                  use24 === is24 ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {is24 ? '24h' : '12h'}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* The resolved value, stated plainly — this is what the engine receives. */}
-        <div className="px-3 pb-2 -mt-0.5">
-          <span className="text-[11px] text-slate-400 font-mono">
-            {value
-              ? `${formatTime24(value.hour, value.minute, value.second)} (24-hour)` +
-                (!use24 ? ` · ${formatTime12(value.hour, value.minute, value.second)}` : '')
-              : placeholder}
-          </span>
+        <div className="px-3.5 pb-2 -mt-0.5">
+          {needsMeridiem ? (
+            <span className="text-[11px] text-[#B45309]">
+              {pad(needsMeridiem.hour12)}:{pad(needsMeridiem.minute)} could be morning or night — choose AM or PM.
+            </span>
+          ) : value ? (
+            <span className="text-[11px] text-slate-400 font-mono">
+              {formatTime24(value.hour, value.minute, value.second)} · {formatTime12(value.hour, value.minute, value.second)}
+            </span>
+          ) : (
+            <span className="text-[11px] text-slate-400">Type digits — colons are added for you.</span>
+          )}
         </div>
       </div>
     </div>
