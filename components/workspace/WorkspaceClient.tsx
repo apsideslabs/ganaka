@@ -30,7 +30,7 @@ import { downloadChartJson } from '../../lib/report/export-chart-json';
 import { PdfPreview } from './PdfPreview';
 import { GanakaButton } from '../ui/GanakaButton';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
-import { GanakaClockPicker } from '../ui/GanakaClockPicker';
+import { TimeField } from '../ui/TimeField';
 import { WorkspaceSettingsDialog } from '../settings/WorkspaceSettingsDialog';
 import {
   getPlatformSettings,
@@ -1216,17 +1216,6 @@ ${Object.values(chartData.planets)
               type="button"
               size="sm"
               variant="outline"
-              onClick={copyChartSummaryToClipboard}
-              title="Copy complete chart ephemeris summary"
-              icon={copiedSummary ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-            >
-              <span>{copiedSummary ? 'Copied!' : 'Copy Data'}</span>
-            </GanakaButton>
-
-            <GanakaButton
-              type="button"
-              size="sm"
-              variant="outline"
               disabled={pdfBuilding}
               onClick={async () => {
                 setPdfBuilding(true);
@@ -1444,16 +1433,14 @@ ${Object.values(chartData.planets)
 
               {/* High Precision Time of Birth Input */}
               <div className="space-y-1.5 sm:col-span-1">
-                <GanakaClockPicker
+                <TimeField
                   id="workspace-tob-picker"
                   label="Time of Birth"
                   value={{ hour, minute, second }}
                   onChange={(t) => {
-                    if (t) {
-                      setHour(t.hour);
-                      setMinute(t.minute);
-                      setSecond(t.second || 0);
-                    }
+                    setHour(t.hour);
+                    setMinute(t.minute);
+                    setSecond(t.second || 0);
                   }}
                 />
               </div>
