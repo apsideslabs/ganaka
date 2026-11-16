@@ -3104,6 +3104,51 @@ console.log('\n== Responsive tables ==');
     [...new Set(wideNoHide)].join(', '));
 }
 
+/* --------- RESPONSIVE RULES LIVE IN CSS, NOT PER TABLE ----------- */
+
+console.log('\n== Responsive table system ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const css = fs.readFileSync(path.join(process.cwd(), 'app/globals.css'), 'utf8');
+
+  // The system, not per-table edits: a sticky header, a sticky identity
+  // column, and a scroll container that every panel inherits.
+  check('the stylesheet declares a sticky table header',
+    /table thead th[^{]*\{[^}]*position:\s*sticky/s.test(css));
+  check('the stylesheet freezes the first column',
+    /table :is\(th, td\):first-child\s*\{[^}]*position:\s*sticky/s.test(css));
+  check('borders are separated so sticky cells keep theirs',
+    /table\s*\{[^}]*border-collapse:\s*separate/s.test(css));
+  check('scroll containers contain sideways overscroll',
+    /overscroll-behavior-x:\s*contain/.test(css));
+  check('the corner cell stacks above both sticky axes',
+    /thead th:first-child\s*\{\s*z-index:\s*3/.test(css));
+
+  // Fluid sizing rather than fixed px, so one rule fits every viewport.
+  check('the type scale is fluid', /clamp\(0\.75rem/.test(css) && /clamp\(0\.9375rem/.test(css));
+  check('spacing is fluid', /--space-fluid:\s*clamp/.test(css));
+
+  // No table may sit outside a scroll container.
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.tsx')) files.push(full);
+    }
+  };
+  walk(path.join(process.cwd(), 'components'));
+  const orphan: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    if (!src.includes('<table')) continue;
+    // every table in the file must have a scroll ancestor somewhere in it
+    if (!/overflow-x-auto|data-table-scroll/.test(src)) orphan.push(path.basename(f));
+  }
+  check('every table sits in a scroll container', orphan.length === 0, orphan.join(', '));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
