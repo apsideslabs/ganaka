@@ -1082,34 +1082,8 @@ function slimPeriods(periods: any[]): any[] {
   }));
 }
 
-/**
- * Suggested filename.
- *
- * A date alone does not tell a reader which chart they are opening once two or
- * three sit in a folder. If a name was given it is used; otherwise the date
- * stands in. A transit (gochara) chart is labelled as such rather than with a
- * birth date it does not have.
- */
-export function chartJsonFilename(
-  chart: JyotishaChart,
-  opts: { kind?: 'natal' | 'gochar' } = {}
-): string {
-  const d = chart.meta.birthDetails;
-  const slug = (raw: string) =>
-    raw
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')   // strip diacritics
-      .replace(/[^A-Za-z0-9]+/g, '-')       // spaces and punctuation to dashes
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 40);
-
-  if (opts.kind === 'gochar') return 'Ganaka-Gochar.json';
-
-  const name = (d as any).personName ? slug(String((d as any).personName)) : '';
-  if (name) return `Ganaka-Chart-${name}.json`;
-
-  return `Ganaka-Chart-${d.year}${String(d.month).padStart(2, '0')}${String(d.day).padStart(2, '0')}.json`;
-}
+import { chartJsonFilename } from './filenames';
+export { chartJsonFilename } from './filenames';
 
 const stringCache = new WeakMap<JyotishaChart, string>();
 
