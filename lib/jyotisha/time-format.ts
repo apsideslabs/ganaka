@@ -88,9 +88,14 @@ export function parseTimeInput(raw: string): Parsed {
     return { value: { hour: to24Hour(h, meridiem === 'pm', false), minute: min, second: sec }, partial: false };
   }
 
-  // No meridiem: 13–23 is unambiguous, 0 is unambiguous, 1–12 is not.
+  // No meridiem. 13–23 is unambiguous, and so is a two-digit hour written with
+  // a leading zero — "06:51" is a 24-hour entry by intent, where "6:51" is a
+  // clock reading that could be either half of the day.
+  const twoDigitHour = parts[0].length === 2;
+  const leadingZero = parts[0].startsWith('0');
   if (h >= 13) return { value: { hour: h, minute: min, second: sec }, partial: false };
   if (h === 0) return { value: { hour: 0, minute: min, second: sec }, partial: false };
+  if (twoDigitHour && leadingZero) return { value: { hour: h, minute: min, second: sec }, partial: false };
   return { ambiguous: { hour12: h, minute: min, second: sec }, partial: false };
 }
 
