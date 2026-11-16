@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateHouses } from '../lib/jyotisha/houses';
 import { parseTimeInput } from '../lib/jyotisha/time-format';
 import { to24Hour } from '../lib/jyotisha/time-format';
@@ -3197,6 +3198,43 @@ console.log('\n== KP cusps ==');
   check('the KP cusp equals the bhāva start, not its midpoint',
     Math.abs(kpCusps[0].longitude - bh[0].startDegree) < 0.001,
     `cusp ${kpCusps[0].longitude.toFixed(2)} vs start ${bh[0].startDegree.toFixed(2)} vs mid ${bh[0].midDegree.toFixed(2)}`);
+}
+
+/* -------------- THE JSON EXPORT MUST NOT FREEZE THE CLICK --------- */
+
+console.log('\n== JSON export is warm ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+
+  // First build is expensive — the ten-year eclipse search dominates — so the
+  // workspace warms it on idle. The click must then be a cache hit, because it
+  // has to stay synchronous: an await before the download breaks the user
+  // gesture and Safari refuses the file.
+  const cold = Date.now();
+  const first = chartToJsonString(natal);
+  const coldMs = Date.now() - cold;
+
+  const warm = Date.now();
+  const second = chartToJsonString(natal);
+  const warmMs = Date.now() - warm;
+
+  check('the export is cached after the first build', warmMs < 50, `${warmMs} ms`);
+  check('the cached export is identical', first === second);
+  check('the export is substantial', first.length > 100_000, `${(first.length / 1024).toFixed(0)} KB`);
+  console.log(`   cold ${coldMs} ms → warm ${warmMs} ms`);
+
+  // The button must call the downloader synchronously.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const ws = fs.readFileSync(path.join(process.cwd(), 'components/workspace/WorkspaceClient.tsx'), 'utf8');
+  // Scope to the JSON button's own onClick block, not the PDF handler above it.
+  const at = ws.indexOf('downloadChartJson(chartData)');
+  const open = ws.lastIndexOf('onClick={', at);
+  const handler = ws.slice(open, at + 40)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
+  check('the JSON click handler does not await before downloading', !/\bawait\b/.test(handler), handler.slice(0, 60));
+  check('the workspace warms the export on idle', /requestIdleCallback|chartToJsonString\(chartData\)/.test(ws));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
