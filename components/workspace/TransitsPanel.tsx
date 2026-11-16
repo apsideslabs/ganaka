@@ -249,10 +249,10 @@ export function TransitsPanel({
                 <tr className="border-b border-[#D8CEBA] bg-[#F7F2E7] text-[#5C4A3E] font-medium">
                   <th className="py-2.5 px-3">Graha</th>
                   <th className="py-2.5 px-3">Transit Rāśi</th>
-                  <th className="py-2.5 px-3 font-mono">Degree in Rāśi</th>
+                  <th className="hidden md:table-cell py-2.5 px-3 font-mono">Degree in Rāśi</th>
                   <th className="py-2.5 px-3 text-center">House (from Moon)</th>
                   <th className="py-2.5 px-3 text-center">House (from Lagna)</th>
-                  <th className="py-2.5 px-3">Vedha (Obstruction)</th>
+                  <th className="hidden md:table-cell py-2.5 px-3">Vedha (Obstruction)</th>
                   <th className="py-2.5 px-3">Verdict</th>
                   <th className="py-2.5 px-3">Phaladeepika Summary</th>
                 </tr>
@@ -267,7 +267,7 @@ export function TransitsPanel({
                     <td className="py-2.5 px-3 font-medium text-[#3D2F28]">
                       {p.transitRashiName} (#{p.transitRashi})
                     </td>
-                    <td className="py-2.5 px-3 font-mono font-bold text-[#8C2D19]">
+                    <td className="hidden md:table-cell py-2.5 px-3 font-mono font-bold text-[#8C2D19]">
                       {p.transitDegreeInRashi.toFixed(2)}°
                       {p.isRetrograde && <span className="ml-1 text-[12px] text-[#8C2D19] font-bold">(R)</span>}
                     </td>
@@ -277,7 +277,7 @@ export function TransitsPanel({
                     <td className="py-2.5 px-3 text-center font-mono text-[#5C4A3E]">
                       {p.houseFromNatalLagna}th
                     </td>
-                    <td className="py-2.5 px-3">
+                    <td className="hidden md:table-cell py-2.5 px-3">
                       {p.hasVedhaObstruction ? (
                         <div className="text-[#8C2D19] flex items-center gap-1 font-bold text-[11px]">
                           <Ban className="h-3 w-3 text-[#8C2D19]" />
