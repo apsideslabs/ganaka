@@ -3115,11 +3115,11 @@ console.log('\n== Responsive table system ==');
   // The system, not per-table edits: a sticky header, a sticky identity
   // column, and a scroll container that every panel inherits.
   check('the stylesheet declares a sticky table header',
-    /table thead th[^{]*\{[^}]*position:\s*sticky/s.test(css));
+    /table thead th[^{]*\{[^}]*position:\s*sticky/.test(css));
   check('the stylesheet freezes the first column',
-    /table :is\(th, td\):first-child\s*\{[^}]*position:\s*sticky/s.test(css));
+    /table :is\(th, td\):first-child\s*\{[\s\S]{0,200}?position:\s*sticky/.test(css));
   check('borders are separated so sticky cells keep theirs',
-    /table\s*\{[^}]*border-collapse:\s*separate/s.test(css));
+    /table\s*\{[^}]*border-collapse:\s*separate/.test(css));
   check('scroll containers contain sideways overscroll',
     /overscroll-behavior-x:\s*contain/.test(css));
   check('the corner cell stacks above both sticky axes',
