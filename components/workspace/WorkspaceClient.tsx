@@ -788,34 +788,6 @@ export const WorkspaceClient: React.FC = () => {
   const [isSavedDefaultLocation, setIsSavedDefaultLocation] = useState<boolean>(false);
 
   // Synchronize with Workspace & Platform Settings in real-time
-  // Warm the JSON export cache once the chart is on screen.
-  //
-  // The first build costs about two seconds — the ten-year eclipse search is
-  // most of it — and it runs on the main thread. Building it on idle means the
-  // Export button never freezes the tab, and the click stays synchronous so the
-  // browser still treats the download as a user gesture.
-  useEffect(() => {
-    if (!chartData) return;
-    let cancelled = false;
-    const warm = () => {
-      if (cancelled) return;
-      try {
-        chartToJsonString(chartData);
-      } catch {
-        /* the click handler will report a real failure */
-      }
-    };
-    const ric = (globalThis as any).requestIdleCallback as
-      | ((cb: () => void, opts?: { timeout: number }) => number)
-      | undefined;
-    const handle = ric ? ric(warm, { timeout: 4000 }) : setTimeout(warm, 1200);
-    return () => {
-      cancelled = true;
-      const cic = (globalThis as any).cancelIdleCallback as ((h: number) => void) | undefined;
-      if (ric && cic) cic(handle as number);
-      else clearTimeout(handle as any);
-    };
-  }, [chartData]);
 
   useEffect(() => {
     const unsub = subscribeToSettings((scope) => {
@@ -946,6 +918,35 @@ export const WorkspaceClient: React.FC = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settledBirth]);
+
+  // Warm the JSON export cache once the chart is on screen.
+  //
+  // The first build costs about two seconds — the ten-year eclipse search is
+  // most of it — and it runs on the main thread. Building it on idle means the
+  // Export button never freezes the tab, and the click stays synchronous so the
+  // browser still treats the download as a user gesture.
+  useEffect(() => {
+    if (!chartData) return;
+    let cancelled = false;
+    const warm = () => {
+      if (cancelled) return;
+      try {
+        chartToJsonString(chartData);
+      } catch {
+        /* the click handler will report a real failure */
+      }
+    };
+    const ric = (globalThis as any).requestIdleCallback as
+      | ((cb: () => void, opts?: { timeout: number }) => number)
+      | undefined;
+    const handle = ric ? ric(warm, { timeout: 4000 }) : setTimeout(warm, 1200);
+    return () => {
+      cancelled = true;
+      const cic = (globalThis as any).cancelIdleCallback as ((h: number) => void) | undefined;
+      if (ric && cic) cic(handle as number);
+      else clearTimeout(handle as any);
+    };
+  }, [chartData]);
 
   /**
    * Nīcabhaṅga for the birth chart — Phaladīpikā 7.26–30. Only grahas actually
