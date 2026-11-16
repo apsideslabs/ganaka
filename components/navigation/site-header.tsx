@@ -190,7 +190,7 @@ export function SiteHeader() {
                         <Settings className="w-4 h-4 text-[#8B2F0B]" />
                         <span className="font-semibold">{t.nav.settings}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-[#8B2F0B] bg-amber-100/70 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[11px] font-mono text-[#8B2F0B] bg-amber-100/70 px-2 py-0.5 rounded font-bold">
                         {languageLabels[language] || 'EN'}
                       </span>
                     </button>
@@ -207,9 +207,9 @@ export function SiteHeader() {
                         <div className="flex flex-col text-left">
                           <span className="text-sm font-serif font-bold text-white tracking-wide flex items-center gap-1.5">
                             <span>{t.nav.panchanga}</span>
-                            <span className="text-[10px] font-mono font-normal opacity-80">(पञ्चाङ्ग)</span>
+                            <span className="text-[11px] font-mono font-normal opacity-80">(पञ्चाङ्ग)</span>
                           </span>
-                          <span className="text-[10px] font-mono text-amber-100/90 font-normal">
+                          <span className="text-[11px] font-mono text-amber-100/90 font-normal">
                             Daily Vedic Almanac &amp; Muhūrta
                           </span>
                         </div>
