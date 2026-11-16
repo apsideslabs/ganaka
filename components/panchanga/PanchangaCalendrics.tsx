@@ -41,78 +41,78 @@ export function PanchangaCalendrics({ panchanga }: PanchangaCalendricsProps) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs font-mono">
         {/* Solar Month */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             Solar Month (सौर मास)
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.solarMonth.name}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5">
+          <span className="text-[11px] text-slate-500 mt-0.5">
             Day {calendar.solarMonth.solarDay} ({calendar.solarMonth.sunDegreeInRashi})
           </span>
         </div>
 
         {/* Amānta Lunar Month */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             Amānta Lunar Month
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.lunarMonth.amantaName}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5">
+          <span className="text-[11px] text-slate-500 mt-0.5">
             {calendar.lunarMonth.status} (South/West)
           </span>
         </div>
 
         {/* Pūrṇimānta Lunar Month */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             Pūrṇimānta Month
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.lunarMonth.purnimantaName}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5">
+          <span className="text-[11px] text-slate-500 mt-0.5">
             North Indian Almanac
           </span>
         </div>
 
         {/* Vedic Season (Ṛtu) */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             Vedic Season (ऋतु)
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.rtu.name}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5">
+          <span className="text-[11px] text-slate-500 mt-0.5">
             {calendar.rtu.sanskritName}
           </span>
         </div>
 
         {/* Solar Ayana */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             Solar Ayana (अयन)
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.ayana.name}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5 truncate">
+          <span className="text-[11px] text-slate-500 mt-0.5 truncate">
             {calendar.ayana.description}
           </span>
         </div>
 
         {/* 60-Year Saṃvatsara */}
         <div className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <span className="text-[10px] text-slate-500 uppercase font-semibold">
+          <span className="text-[11px] text-slate-500 uppercase font-semibold">
             60-Yr Saṃvatsara
           </span>
           <strong className="text-base font-serif font-bold text-slate-900 mt-1">
             {calendar.eras.samvatsara60.name}
           </strong>
-          <span className="text-[10px] text-slate-500 mt-0.5">
+          <span className="text-[11px] text-slate-500 mt-0.5">
             Cycle #{calendar.eras.samvatsara60.number} / 60
           </span>
         </div>
