@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { parseTimeInput } from '../lib/jyotisha/time-format';
 import { to24Hour } from '../lib/jyotisha/time-format';
 import { chartPdfFilename } from '../lib/report/filenames';
 import { chartToJsonString } from '../lib/report/export-chart-json';
@@ -2844,6 +2845,56 @@ console.log('\n== PDF data path is lean ==');
   const ecl = fs.readFileSync(path.join(process.cwd(), 'lib/astronomy/eclipses.ts'), 'utf8');
   check('the eclipse search uses the sun/moon fast path', /sunMoonLongitudes/.test(ecl));
   check('the eclipse search never evaluates all nine bodies', !/calculateAllPlanets/.test(ecl));
+}
+
+/* --------------- TYPING A BIRTH TIME THE WAY PEOPLE DO ------------ */
+
+console.log('\n== Time input parsing ==');
+{
+  const V = (h: number, m: number, sec = 0) => ({ hour: h, minute: m, second: sec });
+
+  // Unambiguous 24-hour entries, in every shape a person types them.
+  const clear: Array<[string, any]> = [
+    ['2351', V(23, 51)],
+    ['235124', V(23, 51, 24)],
+    ['23:51', V(23, 51)],
+    ['23:51:24', V(23, 51, 24)],
+    ['00:30', V(0, 30)],
+    ['0651', V(6, 51)],
+  ];
+  for (const [input, expected] of clear) {
+    const r = parseTimeInput(input);
+    check(`"${input}" reads as ${expected.hour}:${expected.minute}`,
+      !!r.value && r.value.hour === expected.hour && r.value.minute === expected.minute,
+      r.value ? `${r.value.hour}:${r.value.minute}` : 'not parsed');
+  }
+
+  // The same instant written on a 12-hour clock, with the meridiem attached.
+  for (const input of ['11:51 pm', '11:51pm', '11:51 p.m.', '1151p']) {
+    const r = parseTimeInput(input);
+    check(`"${input}" resolves to 23:51`, !!r.value && r.value.hour === 23 && r.value.minute === 51,
+      r.value ? `${r.value.hour}:${r.value.minute}` : 'not parsed');
+  }
+  const am = parseTimeInput('11:51 am');
+  check('"11:51 am" resolves to 11:51', !!am.value && am.value.hour === 11);
+
+  // An hour of 1–12 with no meridiem is NOT guessed — it is asked about.
+  for (const input of ['11:51', '12:00', '6:05', '0651']) {
+    const r = parseTimeInput(input);
+    check(`"${input}" is flagged ambiguous, not guessed`,
+      !r.value && !!r.ambiguous, r.value ? `guessed ${r.value.hour}:${r.value.minute}` : 'asked');
+  }
+
+  // Mid-typing must not commit a half-finished time.
+  for (const input of ['', '2', '1']) {
+    const r = parseTimeInput(input);
+    check(`"${input || '(empty)'}" is treated as still being typed`, !r.value && !r.ambiguous);
+  }
+
+  // A 12-hour clock cannot express 13 or 23, so those must not be accepted
+  // with a meridiem attached.
+  check('"23:51 pm" is rejected as impossible', !parseTimeInput('23:51 pm').value);
+  check('"13:00 am" is rejected as impossible', !parseTimeInput('13:00 am').value);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
