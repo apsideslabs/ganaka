@@ -639,7 +639,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3.5 pt-6 border-t border-slate-100">
           {/* 1. Vāra */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Vāra (Weekday)
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
@@ -652,7 +652,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
           {/* 2. Tithi */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Tithi (Lunar Day)
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
@@ -665,7 +665,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
           {/* 3. Nakṣatra */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Nakṣatra &amp; Pāda
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
@@ -678,7 +678,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
           {/* 4. Signs */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Candra &amp; Sūrya Rāśi
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
@@ -691,7 +691,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
           {/* 5. Sunrise / Sunset */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Sūryodaya / Sūryāsta
             </span>
             <span className="text-xs font-mono font-bold text-slate-900 block truncate">
@@ -704,7 +704,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
 
           {/* 6. Saṁvatsara */}
           <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 shadow-2xs">
-            <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-slate-500 block uppercase tracking-wider font-bold">
               Saṁvatsara &amp; Ṛtu
             </span>
             <span className="text-sm font-bold text-slate-900 block truncate font-serif">
@@ -745,7 +745,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
                     </span>
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`text-[10px] font-serif ${
+                        className={`text-[11px] font-serif ${
                           isDomainActive ? 'text-slate-300' : 'text-slate-500'
                         }`}
                       >
@@ -794,7 +794,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
                   />
                   <span>{tab.title}</span>
                   <span
-                    className={`text-[10px] font-serif ${
+                    className={`text-[11px] font-serif ${
                       isTabActive ? 'text-amber-200' : 'text-slate-400'
                     }`}
                   >
@@ -802,7 +802,7 @@ Gulika Kāla: ${panchanga.muhurtas.gulikakala}`;
                   </span>
                   {tab.badge && (
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ${
                         isTabActive
                           ? 'bg-[#701E00] text-white'
                           : 'bg-amber-100 text-amber-800'
