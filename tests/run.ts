@@ -2875,11 +2875,17 @@ console.log('\n== Time input parsing ==');
     check(`"${input}" resolves to 23:51`, !!r.value && r.value.hour === 23 && r.value.minute === 51,
       r.value ? `${r.value.hour}:${r.value.minute}` : 'not parsed');
   }
+  // A leading zero is a 24-hour entry by intent — "06:51" means morning, where
+  // "6:51" is a clock reading that could be either.
+  const lz = parseTimeInput('0651');
+  check('"0651" is read as 06:51, not asked about', !!lz.value && lz.value.hour === 6,
+    lz.value ? `${lz.value.hour}:${lz.value.minute}` : 'asked');
+
   const am = parseTimeInput('11:51 am');
   check('"11:51 am" resolves to 11:51', !!am.value && am.value.hour === 11);
 
   // An hour of 1–12 with no meridiem is NOT guessed — it is asked about.
-  for (const input of ['11:51', '12:00', '6:05', '0651']) {
+  for (const input of ['11:51', '12:00', '6:05']) {
     const r = parseTimeInput(input);
     check(`"${input}" is flagged ambiguous, not guessed`,
       !r.value && !!r.ambiguous, r.value ? `guessed ${r.value.hour}:${r.value.minute}` : 'asked');
