@@ -170,7 +170,7 @@ export function MuhurtaCalculationSvg({
           <span className="font-bold text-[#FCFAF6] tracking-wider uppercase">
             Gaṇaka Sidereal Ephemeris Engine
           </span>
-          <span className="text-[10px] px-2 py-0.5 bg-[#2A241C] text-[#C49A45] border border-[#C49A45]/30 rounded-xs">
+          <span className="text-[11px] px-2 py-0.5 bg-[#2A241C] text-[#C49A45] border border-[#C49A45]/30 rounded-xs">
             Built-in series
           </span>
         </div>
@@ -355,13 +355,13 @@ export function MuhurtaCalculationSvg({
               <span className="text-xs font-mono font-bold text-[#FCFAF6]">
                 {progressPercent}%
               </span>
-              <span className="text-[9px] font-mono uppercase text-[#A69F91] tracking-wider">
+              <span className="text-[10px] font-mono uppercase text-[#A69F91] tracking-wider">
                 Solving
               </span>
             </div>
           </div>
 
-          <div className="text-[10px] text-[#A69F91] uppercase tracking-widest text-center flex items-center gap-1.5">
+          <div className="text-[11px] text-[#A69F91] uppercase tracking-widest text-center flex items-center gap-1.5">
             <Orbit className="w-3 h-3 text-[#C49A45]" />
             <span>Harmonic Horizon Projection</span>
           </div>
@@ -373,7 +373,7 @@ export function MuhurtaCalculationSvg({
           <div className="border-b border-[#3E3A33] pb-3">
             <div className="flex items-center justify-between text-[11px] text-[#C49A45] font-serif italic mb-1">
               <span>{activeStage.sanskrit}</span>
-              <span className="font-mono text-[10px] uppercase text-[#A69F91] not-italic">
+              <span className="font-mono text-[11px] uppercase text-[#A69F91] not-italic">
                 Stage {activeStage.step} of {COMPUTATION_STAGES.length}
               </span>
             </div>
@@ -403,7 +403,7 @@ export function MuhurtaCalculationSvg({
                 >
                   <div className="flex items-center gap-2.5 truncate">
                     <span
-                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
                         isDone
                           ? 'bg-[#8B2F0B] text-[#FCFAF6]'
                           : isCurrent
@@ -415,7 +415,7 @@ export function MuhurtaCalculationSvg({
                     </span>
                     <span className="truncate font-serif">{s.title}</span>
                   </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider shrink-0 ml-2">
+                  <span className="text-[11px] font-mono uppercase tracking-wider shrink-0 ml-2">
                     {isDone ? 'Evaluated' : isCurrent ? 'Computing...' : 'Pending'}
                   </span>
                 </div>
@@ -425,14 +425,14 @@ export function MuhurtaCalculationSvg({
 
           {/* Real Live Mathematical Telemetry Table */}
           <div className="p-3 bg-[#1C1A17] border border-[#3E3A33] rounded-xs space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] uppercase text-[#A69F91] tracking-wider border-b border-[#2D2924] pb-1 font-bold">
+            <div className="flex items-center justify-between text-[11px] uppercase text-[#A69F91] tracking-wider border-b border-[#2D2924] pb-1 font-bold">
               <span>Kinematic Parameter</span>
               <span>Computed Coordinate</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
               {liveTelemetry.slice(0, 4).map((pt, idx) => (
                 <div key={idx} className="flex items-center justify-between">
-                  <span className="text-[#A69F91] text-[10px]">{pt.symbol}:</span>
+                  <span className="text-[#A69F91] text-[11px]">{pt.symbol}:</span>
                   <span className="text-[#FCFAF6] font-bold">{pt.value}</span>
                 </div>
               ))}
@@ -441,7 +441,7 @@ export function MuhurtaCalculationSvg({
 
           {/* Master Progress Bar */}
           <div className="space-y-1 pt-1">
-            <div className="flex justify-between text-[10px] text-[#A69F91] uppercase">
+            <div className="flex justify-between text-[11px] text-[#A69F91] uppercase">
               <span>Target: {objectiveName}</span>
               <span>{progressPercent}% Complete</span>
             </div>
@@ -457,7 +457,7 @@ export function MuhurtaCalculationSvg({
       </div>
 
       {/* Bottom Footer / Canonical Authority Bar */}
-      <div className="relative z-10 px-5 py-2.5 bg-[#141311] border-t border-[#3E3A33] flex flex-wrap items-center justify-between text-[10px] text-[#A69F91]">
+      <div className="relative z-10 px-5 py-2.5 bg-[#141311] border-t border-[#3E3A33] flex flex-wrap items-center justify-between text-[11px] text-[#A69F91]">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-3.5 h-3.5 text-[#C49A45]" />
           <span>Deterministic Audit: <em>Muhūrta Cintāmaṇi</em>, <em>Kālāmṛta</em>, <em>Bṛhat Saṁhitā</em></span>
