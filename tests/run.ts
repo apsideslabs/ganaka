@@ -3050,6 +3050,60 @@ console.log('\n== Responsive structure ==');
   console.log(`   note: ${wide} tables carry eight or more columns; they scroll horizontally on a phone`);
 }
 
+/* -------- WIDE TABLES SHED COLUMNS ON A PHONE, IN STEP ---------- */
+
+console.log('\n== Responsive tables ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.tsx')) files.push(full);
+    }
+  };
+  walk(path.join(process.cwd(), 'components'));
+
+  // If a header cell is hidden on mobile, the cell beneath it must be hidden at
+  // the SAME ordinal position. Hiding one without the other shifts every value
+  // one column left, which is worse than the cramped table it was fixing.
+  const misaligned: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/<thead>([\s\S]*?)<\/thead>([\s\S]*?)<\/tbody>/g)) {
+      const ths = [...m[1].matchAll(/<th[^>]*>/g)].map((x) => x[0]);
+      // Skip the empty-state row (a single colSpan cell); use the first row
+      // that actually has one cell per column.
+      const rows = m[2].split('</tr>');
+      const firstRow = rows.find((r) => !r.includes('colSpan')) || rows[0] || '';
+      const tds = [...firstRow.matchAll(/<td[^>]*>/g)].map((x) => x[0]);
+      const hpos = ths.map((t, i) => (t.includes('hidden md:table-cell') ? i : -1)).filter((i) => i >= 0);
+      const dpos = tds.map((t, i) => (t.includes('hidden md:table-cell') ? i : -1)).filter((i) => i >= 0);
+      if (hpos.length !== dpos.length || hpos.some((v, i) => v !== dpos[i])) {
+        misaligned.push(path.basename(f));
+      }
+    }
+  }
+  check('hidden columns line up between head and body', misaligned.length === 0,
+    [...new Set(misaligned)].join(', '));
+
+  // The widest tables must shed something on a phone.
+  const wideNoHide: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/<thead>([\s\S]*?)<\/thead>/g)) {
+      const cols = (m[1].match(/<th\b/g) || []).length;
+      const hidden = (m[1].match(/hidden md:table-cell/g) || []).length;
+      if (cols >= 8 && hidden === 0) wideNoHide.push(`${path.basename(f)} (${cols})`);
+    }
+  }
+  check('no eight-column table shows every column on a phone', wideNoHide.length === 0,
+    [...new Set(wideNoHide)].join(', '));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
