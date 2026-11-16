@@ -55,15 +55,27 @@ export function buildKpCusps(chart: JyotishaChart): KpCusp[] {
     if (typeof lon === 'number') planetLongitudes.push({ id: id as PlanetId, lon });
   }
 
+  // ⚠ THE CUSP IS THE START OF THE HOUSE, NOT ITS MIDDLE.
+  //
+  // This read `b.midDegree` — the midpoint of the bhāva — which shifted every
+  // KP cusp by half a house. On one chart that put the 1st cusp 16.46° from the
+  // lagna, about sixty-six minutes of clock time, while remaining internally
+  // consistent: cusp 1 and cusp 7 stayed exactly 180° apart, so the block
+  // looked right and was computed from an ascendant an hour away. Every sub
+  // lord, significator, ruling planet and four-step verdict downstream
+  // inherited the error.
+  //
+  // In KP the cusp is the starting point of the house, so cusp 1 IS the
+  // ascendant by definition. `startDegree` is that value.
   const cusps: KpCusp[] = bhavas.map((b, i) => {
-    const cuspLon = b.midDegree;
+    const cuspLon = b.startDegree;
     const kp = calculateKPPosition(cuspLon);
     const rashi = (Math.floor(cuspLon / 30) + 1) as RashiNumber;
 
     // Occupants: between this cusp and the next, going forward.
     const next = bhavas[(i + 1) % 12];
     const start = cuspLon;
-    const end = next.midDegree;
+    const end = next.startDegree;
     const occupants = planetLongitudes
       .filter(({ lon }) => {
         const within = start < end ? lon >= start && lon < end : lon >= start || lon < end;
