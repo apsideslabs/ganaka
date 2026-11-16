@@ -155,6 +155,7 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
           <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
             Grahas of the year
           </h3>
+          <div className="overflow-x-auto" data-table-scroll>
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-slate-200">
@@ -182,6 +183,7 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
               })}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -226,6 +228,8 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
         <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3">
           Pañcavargīya Bala — election of the varṣeśa
         </h3>
+        <div className="overflow-x-auto" data-table-scroll>
+        <div className="overflow-x-auto" data-table-scroll>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
@@ -256,6 +260,8 @@ export const VarshaphalaPanel: React.FC<VarshaphalaPanelProps> = ({ chart }) => 
             ))}
           </tbody>
         </table>
+        </div>
+        </div>
       </div>
 
       {/* ---------- sahams ---------- */}
