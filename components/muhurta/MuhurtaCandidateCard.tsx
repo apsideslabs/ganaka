@@ -77,7 +77,7 @@ export function MuhurtaCandidateCard({
           </span>
 
           {candidate.isBestInRequestedRange && (
-            <span className="px-2 py-0.5 text-[10px] font-mono bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-md flex items-center gap-1">
+            <span className="px-2 py-0.5 text-[11px] font-mono bg-amber-100 text-amber-900 border border-amber-300 font-bold rounded-md flex items-center gap-1">
               <Star className="w-3 h-3 text-amber-600 fill-amber-600" />
               <span>Sovereign Horizon Pick</span>
             </span>
@@ -104,7 +104,7 @@ export function MuhurtaCandidateCard({
 
           <div className="flex items-center gap-1 text-xs font-mono font-bold px-2 py-1 bg-slate-100 text-[#0F172A] rounded-md border border-[#E2E8F0]">
             <span>{candidate.purityScore}</span>
-            <span className="text-[10px] text-[#64748B]">/100</span>
+            <span className="text-[11px] text-[#64748B]">/100</span>
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@ export function MuhurtaCandidateCard({
         {/* Choghadiya Badge */}
         {candidate.panchangaSnapshot.activeChoghadiyaName && (
           <span
-            className={`px-2 py-0.5 text-[10px] font-mono rounded-md border flex items-center gap-1 font-semibold ${
+            className={`px-2 py-0.5 text-[11px] font-mono rounded-md border flex items-center gap-1 font-semibold ${
               isGoodChoghadiya
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 : choghadiyaNature === 'Neutral / Movement'
@@ -129,7 +129,7 @@ export function MuhurtaCandidateCard({
         {/* Hora Lord Badge */}
         {candidate.panchangaSnapshot.activeHoraLord && (
           <span
-            className={`px-2 py-0.5 text-[10px] font-mono rounded-md border flex items-center gap-1 font-medium ${
+            className={`px-2 py-0.5 text-[11px] font-mono rounded-md border flex items-center gap-1 font-medium ${
               candidate.panchangaSnapshot.activeHoraFavorability === 'AUSPICIOUS'
                 ? 'bg-blue-50 text-blue-800 border-blue-200'
                 : 'bg-slate-50 text-slate-700 border-slate-200'
@@ -143,7 +143,7 @@ export function MuhurtaCandidateCard({
         {candidate.specialYogas.map((yoga, yIdx) => (
           <span
             key={yIdx}
-            className="px-2 py-0.5 text-[10px] font-serif bg-indigo-50 text-indigo-800 border border-indigo-200 rounded-md font-semibold flex items-center gap-1"
+            className="px-2 py-0.5 text-[11px] font-serif bg-indigo-50 text-indigo-800 border border-indigo-200 rounded-md font-semibold flex items-center gap-1"
           >
             <Sparkles className="w-3 h-3 text-indigo-600" />
             <span>{yoga}</span>
@@ -152,7 +152,7 @@ export function MuhurtaCandidateCard({
 
         {/* Godhuli Window */}
         {candidate.panchangaSnapshot.isGodhuli && (
-          <span className="px-2 py-0.5 text-[10px] font-serif bg-amber-50 text-amber-800 border border-amber-200 rounded-md font-semibold flex items-center gap-1">
+          <span className="px-2 py-0.5 text-[11px] font-serif bg-amber-50 text-amber-800 border border-amber-200 rounded-md font-semibold flex items-center gap-1">
             <Sun className="w-3 h-3 text-amber-600" />
             <span>Godhūli Belā (गोधूलि)</span>
           </span>
@@ -160,7 +160,7 @@ export function MuhurtaCandidateCard({
 
         {/* Abhijit Window */}
         {candidate.panchangaSnapshot.isAbhijit && (
-          <span className="px-2 py-0.5 text-[10px] font-serif bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md font-semibold flex items-center gap-1">
+          <span className="px-2 py-0.5 text-[11px] font-serif bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md font-semibold flex items-center gap-1">
             <Crown className="w-3 h-3 text-emerald-600" />
             <span>Abhijit Muhūrta (अभिजित्)</span>
           </span>
@@ -168,7 +168,7 @@ export function MuhurtaCandidateCard({
 
         {/* Vijaya Window */}
         {candidate.panchangaSnapshot.isVijaya && (
-          <span className="px-2 py-0.5 text-[10px] font-serif bg-purple-50 text-purple-800 border border-purple-200 rounded-md font-semibold flex items-center gap-1">
+          <span className="px-2 py-0.5 text-[11px] font-serif bg-purple-50 text-purple-800 border border-purple-200 rounded-md font-semibold flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-purple-600" />
             <span>Vijaya Muhūrta (विजय)</span>
           </span>
@@ -178,32 +178,32 @@ export function MuhurtaCandidateCard({
       {/* Pañcāṅga Limbs & Astrological Anchors Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono pt-1">
         <div className="p-2 bg-[#F8FAFC] rounded-md border border-[#E2E8F0]">
-          <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">Lagna (Ascendant)</span>
+          <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">Lagna (Ascendant)</span>
           <span className="font-serif font-bold text-[#0F172A]">{candidate.lagnaName}</span>
-          <span className="text-[10px] text-[#64748B] block">{candidate.lagnaSanskrit} ({candidate.lagnaLordName})</span>
+          <span className="text-[11px] text-[#64748B] block">{candidate.lagnaSanskrit} ({candidate.lagnaLordName})</span>
         </div>
 
         <div className="p-2 bg-[#F8FAFC] rounded-md border border-[#E2E8F0]">
-          <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">Tithi</span>
+          <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">Tithi</span>
           <span className="font-serif text-[#0F172A] truncate block font-medium">
             {candidate.panchangaSnapshot.tithiName}
           </span>
-          <span className="text-[10px] text-[#64748B] block">{candidate.panchangaSnapshot.tithiPaksha} Pakṣa</span>
+          <span className="text-[11px] text-[#64748B] block">{candidate.panchangaSnapshot.tithiPaksha} Pakṣa</span>
         </div>
 
         <div className="p-2 bg-[#F8FAFC] rounded-md border border-[#E2E8F0]">
-          <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">Nakṣatra</span>
+          <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">Nakṣatra</span>
           <span className="font-serif text-[#0F172A] truncate block font-medium">
             {candidate.panchangaSnapshot.nakshatraName}
           </span>
-          <span className="text-[10px] text-[#64748B] block">Pada {candidate.panchangaSnapshot.nakshatraPada}</span>
+          <span className="text-[11px] text-[#64748B] block">Pada {candidate.panchangaSnapshot.nakshatraPada}</span>
         </div>
 
         <div className="p-2 bg-[#F8FAFC] rounded-md border border-[#E2E8F0]">
-          <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">House Purity</span>
+          <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">House Purity</span>
           <div className="flex items-center gap-1 mt-0.5">
             <span
-              className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+              className={`text-[11px] px-1.5 py-0.5 rounded font-bold ${
                 candidate.ashtamaShuddhi.isClean
                   ? 'bg-emerald-100 text-emerald-800'
                   : 'bg-rose-100 text-rose-800'
@@ -212,7 +212,7 @@ export function MuhurtaCandidateCard({
               8th: {candidate.ashtamaShuddhi.isClean ? 'Pure' : 'Occupied'}
             </span>
             <span
-              className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+              className={`text-[11px] px-1.5 py-0.5 rounded font-bold ${
                 candidate.jamitraShuddhi.isClean
                   ? 'bg-emerald-100 text-emerald-800'
                   : 'bg-rose-100 text-rose-800'
