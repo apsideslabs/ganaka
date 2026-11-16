@@ -2903,6 +2903,41 @@ console.log('\n== Time input parsing ==');
   check('"13:00 am" is rejected as impossible', !parseTimeInput('13:00 am').value);
 }
 
+/* ------------------ NO <div> INSIDE A <table> --------------------- */
+
+console.log('\n== Table markup is valid ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  // A <div> directly inside <table> is invalid: the browser hoists it out and
+  // the table loses its structure, which is what broke everything under the
+  // varga dignity grid.
+  const offenders: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.name.endsWith('.tsx')) {
+        const src = fs.readFileSync(full, 'utf8');
+        if (/<table[^>]*>\s*<div[^>]*>/.test(src)) offenders.push(full);
+      }
+    }
+  };
+  walk(path.join(process.cwd(), 'components'));
+  check('no <div> sits directly inside a <table>', offenders.length === 0, offenders.join(', '));
+
+  // The varga panel must render every graha, Ketu included.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const d9: any = natal.vargas.D9;
+  check('the varga chart carries all nine grahas', Object.keys(d9.planets).length === 9,
+    Object.keys(d9.planets).join(','));
+  check('Ketu is present in the varga', !!d9.planets.ketu);
+  check('every varga graha has a dignity',
+    Object.values(d9.planets).every((p: any) => typeof p.dignity === 'string' && p.dignity.length > 0),
+    Object.entries(d9.planets).filter(([, p]: any) => !p.dignity).map(([k]) => k).join(',') || 'all present');
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
