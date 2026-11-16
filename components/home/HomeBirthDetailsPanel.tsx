@@ -535,7 +535,7 @@ export function HomeBirthDetailsPanel() {
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
-                <p className="text-[10px] text-stone-500">
+                <p className="text-[11px] text-stone-500">
                   Places in this country are listed first when you search.
                 </p>
               </div>
@@ -561,7 +561,7 @@ export function HomeBirthDetailsPanel() {
                     </option>
                   ))}
                 </select>
-                <p className="text-[10px] text-stone-500">
+                <p className="text-[11px] text-stone-500">
                   Default configured in Platform Settings.
                 </p>
               </div>
@@ -580,7 +580,7 @@ export function HomeBirthDetailsPanel() {
                   <option value="sripati">Śrīpati (Porphyry Cusps &amp; Sandhis)</option>
                   <option value="placidus">Placidus (Semi-Arc Cusps)</option>
                 </select>
-                <p className="text-[10px] text-stone-500">
+                <p className="text-[11px] text-stone-500">
                   Controls Bhāva Chalit cusp calculations.
                 </p>
               </div>
@@ -596,7 +596,7 @@ export function HomeBirthDetailsPanel() {
                     className="accent-[#8C2D19] cursor-pointer"
                   />
                 </label>
-                <p className="text-[10px] text-stone-500">
+                <p className="text-[11px] text-stone-500">
                   Enable manual latitude, longitude, and UTC offset input.
                 </p>
               </div>
@@ -606,7 +606,7 @@ export function HomeBirthDetailsPanel() {
             {isCustomCoordinates && (
               <div className="p-3.5 bg-white border border-stone-200 rounded-lg grid grid-cols-1 sm:grid-cols-4 gap-3 animate-in fade-in">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-stone-500">Location Name</label>
+                  <label className="text-[11px] font-mono uppercase text-stone-500">Location Name</label>
                   <input
                     type="text"
                     value={customCityName}
@@ -616,7 +616,7 @@ export function HomeBirthDetailsPanel() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.latLabel}</label>
+                  <label className="text-[11px] font-mono uppercase text-stone-500">{t.birthPanel.latLabel}</label>
                   <input
                     type="number"
                     step="0.0001"
@@ -626,7 +626,7 @@ export function HomeBirthDetailsPanel() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.lngLabel}</label>
+                  <label className="text-[11px] font-mono uppercase text-stone-500">{t.birthPanel.lngLabel}</label>
                   <input
                     type="number"
                     step="0.0001"
@@ -636,7 +636,7 @@ export function HomeBirthDetailsPanel() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase text-stone-500">{t.birthPanel.tzLabel}</label>
+                  <label className="text-[11px] font-mono uppercase text-stone-500">{t.birthPanel.tzLabel}</label>
                   <input
                     type="number"
                     step="0.5"
