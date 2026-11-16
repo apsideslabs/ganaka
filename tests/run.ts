@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { chartPdfFilename } from '../lib/report/filenames';
 import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateAllPlanets, sunMoonLongitudes } from '../lib/astronomy/ephemeris';
 import { chartJsonFilename } from '../lib/report/export-chart-json';
@@ -2805,6 +2806,48 @@ console.log('\n== Birth time never ambiguous ==');
   check('it states the longitudes are sidereal', /sidereal/i.test(e.conventions.longitudes));
   check('it explains rashi numbering', /Meṣa|Aries/i.test(e.conventions.rashis));
   check('it warns that a varga has its own houses', /varga/i.test(e.conventions.houses));
+}
+
+/* ------------------- THE REPORT RUNS OFF THE MAIN THREAD ----------- */
+
+console.log('\n== PDF worker ==');
+{
+  // The worker module must exist and must not reach for the DOM at import
+  // time: a worker has no document, and a module-scope touch would throw
+  // before the first render.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs = require('node:fs');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const path = require('node:path');
+  const workerPath = path.join(process.cwd(), 'lib/report/pdf.worker.ts');
+  check('the pdf worker file exists', fs.existsSync(workerPath), workerPath);
+  if (fs.existsSync(workerPath)) {
+    const src = fs.readFileSync(workerPath, 'utf8');
+    check('the worker registers fonts inside itself', /registerReportFonts\(\)/.test(src));
+    check('the worker renders the report', /ChartReport/.test(src));
+    check('the worker returns a blob', /toBlob\(\)/.test(src));
+    check('the worker posts a response', /postMessage/.test(src));
+  }
+
+  const genPath = path.join(process.cwd(), 'lib/report/generate-chart-pdf.ts');
+  const gen = fs.readFileSync(genPath, 'utf8');
+  check('the generator creates a worker', /new Worker\(/.test(gen));
+  check('the generator falls back to the main thread', /renderOnMainThread/.test(gen));
+  check('the fallback is used when no Worker exists', /typeof Worker === 'undefined'/.test(gen));
+
+  // The chart must be plain data so it survives structured cloning.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const cloneable = (() => {
+    try { structuredClone(natal); return true; } catch { return false; }
+  })();
+  check('the chart survives structured cloning into a worker', cloneable);
+
+  // The PDF filename follows the same rule as the JSON one.
+  check('the pdf filename uses the given name',
+    chartPdfFilename(calculateFullJyotishaChart({ ...FIXTURES[0].birth, personName: 'Rahul' } as any)) === 'Ganaka-Jyotisha-Rahul.pdf',
+    chartPdfFilename(calculateFullJyotishaChart({ ...FIXTURES[0].birth, personName: 'Rahul' } as any)));
+  check('the pdf filename falls back to the date',
+    /^Ganaka-Jyotisa-Chart-\d{8}\.pdf$/.test(chartPdfFilename(natal)), chartPdfFilename(natal));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
