@@ -13,7 +13,7 @@ export function MuhurtaObjectiveInfo({ objective }: MuhurtaObjectiveInfoProps) {
     <div className="bg-white border border-[#E2E8F0] rounded-lg p-4 sm:p-5 shadow-xs space-y-3 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-blue-50 text-[#1D4ED8] rounded border border-blue-100">
+          <span className="px-2 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider bg-blue-50 text-[#1D4ED8] rounded border border-blue-100">
             {objective.category}
           </span>
           <h3 className="text-sm sm:text-base font-serif font-bold text-[#0F172A]">
@@ -37,7 +37,7 @@ export function MuhurtaObjectiveInfo({ objective }: MuhurtaObjectiveInfoProps) {
           <div key={idx} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-md p-2.5 text-xs space-y-1">
             <div className="flex items-center justify-between">
               <span className="font-serif font-bold text-[#0F172A]">{cit.text}</span>
-              <span className="text-[10px] font-mono text-[#64748B]">{cit.chapter}</span>
+              <span className="text-[11px] font-mono text-[#64748B]">{cit.chapter}</span>
             </div>
             {cit.sanskritQuote && (
               <p className="text-[11px] font-serif text-[#1D4ED8] italic">
