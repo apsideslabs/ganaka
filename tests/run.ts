@@ -15,7 +15,6 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
-import { buildKpCusps } from '../lib/kp/cusps';
 import { calculateHouses } from '../lib/jyotisha/houses';
 import { parseTimeInput } from '../lib/jyotisha/time-format';
 import { to24Hour } from '../lib/jyotisha/time-format';
