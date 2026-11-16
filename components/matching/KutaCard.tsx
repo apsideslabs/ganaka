@@ -70,7 +70,7 @@ export function KutaCard({ kuta, index }: KutaCardProps) {
             </span>
           </div>
           {isException && (
-            <span className="text-[10px] font-mono text-amber-700 font-medium mt-0.5 flex items-center gap-1">
+            <span className="text-[11px] font-mono text-amber-700 font-medium mt-0.5 flex items-center gap-1">
               <Sparkles className="w-2.5 h-2.5" /> Parihāra Active
             </span>
           )}
@@ -80,7 +80,7 @@ export function KutaCard({ kuta, index }: KutaCardProps) {
       {/* Inputs comparison */}
       <div className="grid grid-cols-2 gap-2 my-3 py-2 px-3 bg-stone-50/80 rounded-lg border border-stone-100 text-xs">
         <div>
-          <span className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block">
+          <span className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block">
             Groom (Vara)
           </span>
           <span className="font-semibold text-stone-800 break-words">
@@ -88,7 +88,7 @@ export function KutaCard({ kuta, index }: KutaCardProps) {
           </span>
         </div>
         <div>
-          <span className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block">
+          <span className="text-[11px] font-mono text-stone-500 uppercase tracking-wider block">
             Bride (Kanyā)
           </span>
           <span className="font-semibold text-stone-800 break-words">
@@ -117,7 +117,7 @@ export function KutaCard({ kuta, index }: KutaCardProps) {
               &quot;{kuta.exceptionApplied.shloka}&quot;
             </p>
           )}
-          <span className="text-[10px] font-mono text-amber-700 block mt-0.5">
+          <span className="text-[11px] font-mono text-amber-700 block mt-0.5">
             Source: {kuta.exceptionApplied.sourceText} ({kuta.exceptionApplied.chapterAndVerse})
           </span>
         </div>
@@ -131,7 +131,7 @@ export function KutaCard({ kuta, index }: KutaCardProps) {
             {kuta.citation.sanskritTextName} ({kuta.citation.chapterOrSection} {kuta.citation.verseOrSutra})
           </span>
           {kuta.citation.shlokaOriginal && (
-            <p className="font-serif italic text-[10px] text-stone-600 line-clamp-1 hover:line-clamp-none transition-all">
+            <p className="font-serif italic text-[11px] text-stone-600 line-clamp-1 hover:line-clamp-none transition-all">
               &quot;{kuta.citation.shlokaOriginal}&quot;
             </p>
           )}
