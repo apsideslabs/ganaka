@@ -236,7 +236,7 @@ export function WorkspaceSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif font-bold block">North Indian</span>
-                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Diamond / Kendra</span>
+                      <span className="text-[11px] font-mono text-[#8C2D19] font-medium block">Diamond / Kendra</span>
                       <span className="text-[11px] text-slate-500 font-normal mt-1 block">
                         Lagna fixed top center. Signs rotate counter-clockwise.
                       </span>
@@ -253,7 +253,7 @@ export function WorkspaceSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif font-bold block">South Indian</span>
-                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Fixed 4×4 Box</span>
+                      <span className="text-[11px] font-mono text-[#8C2D19] font-medium block">Fixed 4×4 Box</span>
                       <span className="text-[11px] text-slate-500 font-normal mt-1 block">
                         Signs fixed clockwise. Lagna marked with diagonal slash.
                       </span>
@@ -270,7 +270,7 @@ export function WorkspaceSettingsDialog({
                       }`}
                     >
                       <span className="text-xs font-serif font-bold block">East Indian</span>
-                      <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">Bengali / Mithila</span>
+                      <span className="text-[11px] font-mono text-[#8C2D19] font-medium block">Bengali / Mithila</span>
                       <span className="text-[11px] text-slate-500 font-normal mt-1 block">
                         Signs fixed with bisected corners. Mesha top-center, anti-clockwise.
                       </span>
@@ -389,7 +389,7 @@ export function WorkspaceSettingsDialog({
                             <span className="text-sm font-serif font-bold text-slate-900">
                               1. Standard Vargas — D1–D60
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#8C2D19]/10 text-[#8C2D19]">
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#8C2D19]/10 text-[#8C2D19]">
                               Default Selection
                             </span>
                           </div>
@@ -402,7 +402,7 @@ export function WorkspaceSettingsDialog({
 
                     {/* Standard 16 Charts Breakdown */}
                     <div className="mt-4 pt-3 border-t border-slate-200/70">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold block mb-2">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block mb-2">
                         Included Classical Śoḍaśavarga (16 Charts):
                       </span>
                       <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
@@ -415,13 +415,13 @@ export function WorkspaceSettingsDialog({
                             <span className="text-[11px] font-mono font-bold text-slate-800 block">
                               {vid}
                             </span>
-                            <span className="text-[9px] text-slate-500 truncate block">
+                            <span className="text-[10px] text-slate-500 truncate block">
                               {VARGA_DEFINITIONS[vid].name}
                             </span>
                           </div>
                         ))}
                       </div>
-                      <div className="mt-2.5 flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                      <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 font-mono">
                         <span className="font-semibold text-slate-700">Classical Hierarchy:</span>
                         <span>Ṣaḍvarga (6) • Saptavarga (7) • Daśavarga (10) • Śoḍaśavarga (16)</span>
                       </div>
@@ -454,7 +454,7 @@ export function WorkspaceSettingsDialog({
                             <span className="text-sm font-serif font-bold text-slate-900">
                               2. Extended Vargas
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                               Traditional Harmonics
                             </span>
                           </div>
@@ -529,14 +529,14 @@ export function WorkspaceSettingsDialog({
                                     <span className="text-xs font-serif font-bold text-slate-900">
                                       {def.name} ({def.sanskritName})
                                     </span>
-                                    <span className="text-[10px] font-mono text-slate-500">
+                                    <span className="text-[11px] font-mono text-slate-500">
                                       Div: 1/{def.factor} ({(30 / def.factor).toFixed(2)}°)
                                     </span>
                                   </div>
                                   <p className="text-[11px] text-slate-600 font-normal">
                                     {def.significance}
                                   </p>
-                                  <p className="text-[10px] font-mono text-amber-900/80">
+                                  <p className="text-[11px] font-mono text-amber-900/80">
                                     Source: {def.classicalSource}
                                   </p>
                                 </div>
@@ -579,7 +579,7 @@ export function WorkspaceSettingsDialog({
                       <Compass className="w-3.5 h-3.5 text-[#8C2D19]" />
                       <span>Ayanāṃśa System (Zodiac Sidereal Offset)</span>
                     </label>
-                    <span className="text-[10px] font-mono text-[#8C2D19] font-bold bg-[#8C2D19]/10 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-mono text-[#8C2D19] font-bold bg-[#8C2D19]/10 px-2 py-0.5 rounded">
                       Persistent for all charts
                     </span>
                   </div>
@@ -654,7 +654,7 @@ export function WorkspaceSettingsDialog({
                               <span className="text-xs font-serif font-bold text-slate-900 block">
                                 {ayan.name}
                               </span>
-                              <span className="text-[10px] font-mono text-[#8C2D19] font-medium block">
+                              <span className="text-[11px] font-mono text-[#8C2D19] font-medium block">
                                 {ayan.sub}
                               </span>
                             </div>
