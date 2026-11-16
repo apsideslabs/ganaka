@@ -266,7 +266,7 @@ export function GanakaDatePicker({
             <span>{label}</span>
           </span>
           {required && !value && (
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#8B2F0B] font-bold">Required</span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-[#8B2F0B] font-bold">Required</span>
           )}
         </label>
       )}
@@ -344,7 +344,7 @@ export function GanakaDatePicker({
 
                 {/* Direct Entry Input */}
                 <div className="flex items-center gap-1 bg-[#F4F0E7] border border-[#DCD5C6] rounded-xs px-2 py-0.5">
-                  <span className="text-[10px] font-mono uppercase text-[#5C5850]">Type:</span>
+                  <span className="text-[11px] font-mono uppercase text-[#5C5850]">Type:</span>
                   <input
                     type="text"
                     placeholder="DD/MM/YYYY"
@@ -362,7 +362,7 @@ export function GanakaDatePicker({
                   <button
                     type="button"
                     onClick={handleManualCommit}
-                    className="text-[10px] font-mono font-bold text-[#8B2F0B] hover:underline cursor-pointer ml-1"
+                    className="text-[11px] font-mono font-bold text-[#8B2F0B] hover:underline cursor-pointer ml-1"
                   >
                     Go
                   </button>
@@ -424,7 +424,7 @@ export function GanakaDatePicker({
                   <button
                     type="button"
                     onClick={() => handleYearJump(-10)}
-                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[10px] cursor-pointer"
+                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[11px] cursor-pointer"
                     title="Jump -10 years"
                   >
                     -10y
@@ -432,7 +432,7 @@ export function GanakaDatePicker({
                   <button
                     type="button"
                     onClick={() => handleYearJump(-1)}
-                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[10px] cursor-pointer"
+                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[11px] cursor-pointer"
                     title="Jump -1 year"
                   >
                     -1y
@@ -440,7 +440,7 @@ export function GanakaDatePicker({
                   <button
                     type="button"
                     onClick={() => handleYearJump(1)}
-                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[10px] cursor-pointer"
+                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[11px] cursor-pointer"
                     title="Jump +1 year"
                   >
                     +1y
@@ -448,7 +448,7 @@ export function GanakaDatePicker({
                   <button
                     type="button"
                     onClick={() => handleYearJump(10)}
-                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[10px] cursor-pointer"
+                    className="px-1.5 py-0.5 bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs hover:bg-[#ECE7DC] text-[11px] cursor-pointer"
                     title="Jump +10 years"
                   >
                     +10y
@@ -458,7 +458,7 @@ export function GanakaDatePicker({
                 <button
                   type="button"
                   onClick={handleSetToday}
-                  className="flex items-center gap-1 px-2 py-0.5 text-[#8B2F0B] font-semibold hover:bg-[#ECE7DC] cursor-pointer bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs text-[10px] font-mono uppercase"
+                  className="flex items-center gap-1 px-2 py-0.5 text-[#8B2F0B] font-semibold hover:bg-[#ECE7DC] cursor-pointer bg-[#FCFAF6] border border-[#DCD5C6] rounded-xs text-[11px] font-mono uppercase"
                 >
                   <CalendarIcon className="w-2.5 h-2.5" />
                   <span>Today</span>
@@ -472,7 +472,7 @@ export function GanakaDatePicker({
                   {DAY_LABELS.map((d, i) => (
                     <div
                       key={d}
-                      className={`text-[10px] font-mono font-bold py-1 ${
+                      className={`text-[11px] font-mono font-bold py-1 ${
                         i === 0 ? 'text-[#8B2F0B]' : 'text-[#5C5850]'
                       }`}
                     >
