@@ -139,7 +139,7 @@ export function PanchangaLagnaView({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900 text-white px-2 py-0.5 rounded-md">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider bg-slate-900 text-white px-2 py-0.5 rounded-md">
                   Active Ascendant
                 </span>
                 <span className="text-xs font-mono text-slate-600 font-medium">
@@ -170,7 +170,7 @@ export function PanchangaLagnaView({
       <div className="overflow-x-auto border border-slate-200/90 rounded-xl bg-white">
         <table className="w-full text-left text-xs border-collapse font-mono">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[10px] font-serif">
+            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px] font-serif">
               <th className="py-3 px-3.5">#</th>
               <th className="py-3 px-3.5">Ascendant (Lagna)</th>
               <th className="py-3 px-3.5">Ruler (Lord)</th>
@@ -225,15 +225,15 @@ export function PanchangaLagnaView({
 
                 {/* Duration */}
                 <td className="py-3 px-3.5 whitespace-nowrap text-slate-600">
-                  {item.durationMinutes} min <span className="text-[10px] text-slate-400">({item.durationGhatikas})</span>
+                  {item.durationMinutes} min <span className="text-[11px] text-slate-400">({item.durationGhatikas})</span>
                 </td>
 
                 {/* Mobility & Tattva */}
                 <td className="py-3 px-3.5 whitespace-nowrap">
-                  <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-[10px] mr-1 text-slate-700">
+                  <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-[11px] mr-1 text-slate-700">
                     {item.mobility.split(' ')[0]}
                   </span>
-                  <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-[10px] text-slate-700">
+                  <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-md text-[11px] text-slate-700">
                     {item.tattva.split(' ')[0]}
                   </span>
                 </td>
