@@ -387,7 +387,7 @@ export function MuhurtaCalendarHorizonPicker({
                     <span className="font-bold">{preset.label}</span>
                     {isMatch && <Check className="w-3.5 h-3.5 text-blue-400" />}
                   </div>
-                  <span className={`text-[10px] mt-0.5 block truncate ${isMatch ? 'text-blue-200' : 'text-[#64748B]'}`}>
+                  <span className={`text-[11px] mt-0.5 block truncate ${isMatch ? 'text-blue-200' : 'text-[#64748B]'}`}>
                     {preset.sublabel}
                   </span>
                 </button>
