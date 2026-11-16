@@ -263,11 +263,11 @@ export const KundaliChart: React.FC<KundaliChartProps> = ({
           </span>
           <span className="text-slate-300">•</span>
           <span className="text-red-600 font-bold">
-            <sup className="text-[9px] font-black">R</sup> Retrograde
+            <sup className="text-[10px] font-black">R</sup> Retrograde
           </span>
           <span className="text-slate-300">•</span>
           <span className="text-amber-600 font-bold">
-            <sup className="text-[9px] font-black">C</sup> Combust
+            <sup className="text-[10px] font-black">C</sup> Combust
           </span>
         </div>
         <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">
