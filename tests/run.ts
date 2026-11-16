@@ -15,6 +15,8 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { buildKpCusps } from '../lib/kp/cusps';
+import { calculateHouses } from '../lib/jyotisha/houses';
 import { parseTimeInput } from '../lib/jyotisha/time-format';
 import { to24Hour } from '../lib/jyotisha/time-format';
 import { chartPdfFilename } from '../lib/report/filenames';
@@ -3147,6 +3149,55 @@ console.log('\n== Responsive table system ==');
     if (!/overflow-x-auto|data-table-scroll/.test(src)) orphan.push(path.basename(f));
   }
   check('every table sits in a scroll container', orphan.length === 0, orphan.join(', '));
+}
+
+/* ---------- KP CUSPS MUST BE THE CHART'S OWN ANGLES ------------ */
+
+console.log('\n== KP cusps ==');
+{
+  // In KP the cusp is the START of the house, so cusp 1 is the ascendant by
+  // definition. Reading the bhāva midpoint instead shifted every cusp by half a
+  // house — 16.46° on one chart, about sixty-six minutes — while leaving cusp 1
+  // and cusp 7 exactly 180° apart, so the block looked self-consistent and was
+  // computed from an ascendant an hour away.
+  const arc = (a: number, b: number) => Math.abs(((a - b + 540) % 360) - 180);
+  let worst = 0;
+  for (const f of FIXTURES) {
+    const c: any = calculateFullJyotishaChart(f.birth);
+    const cusps = buildKpCusps(c);
+    worst = Math.max(worst,
+      arc(cusps[0].longitude, c.lagna.siderealLongitude),
+      arc(cusps[6].longitude, c.lagna.siderealLongitude + 180));
+  }
+  check('cusp 1 is the ascendant on every chart', worst < 0.001, `${worst.toFixed(6)}°`);
+  check('cusp 7 is the descendant on every chart', worst < 0.001, `${worst.toFixed(6)}°`);
+
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const kpCusps = buildKpCusps(natal);
+
+  check('twelve cusps', kpCusps.length === 12, String(kpCusps.length));
+  check('cusp 1 and cusp 7 are 180° apart',
+    Math.abs(arc(kpCusps[0].longitude, kpCusps[6].longitude) - 180) < 0.001);
+
+  // Cusps must run forward around the circle, each house a sane width.
+  const widths = kpCusps.map((c, i) =>
+    ((kpCusps[(i + 1) % 12].longitude - c.longitude + 360) % 360));
+  check('every house is between 1° and 90° wide',
+    widths.every((w) => w > 1 && w < 90), widths.map((w) => w.toFixed(1)).join(','));
+  check('the twelve houses sum to 360°',
+    Math.abs(widths.reduce((a, b) => a + b, 0) - 360) < 0.01,
+    widths.reduce((a, b) => a + b, 0).toFixed(4));
+
+  // The 10th cusp is the MC in KP.
+  check('cusp 10 is the midheaven',
+    arc(kpCusps[9].longitude, natal.angles.mc) < 0.001,
+    `${arc(kpCusps[9].longitude, natal.angles.mc).toFixed(6)}°`);
+
+  // The cusp longitude must be the house START, not its middle.
+  const bh: any[] = calculateHouses(natal.lagna.siderealLongitude, natal.angles.mc, 'placidus' as any, {} as any);
+  check('the KP cusp equals the bhāva start, not its midpoint',
+    Math.abs(kpCusps[0].longitude - bh[0].startDegree) < 0.001,
+    `cusp ${kpCusps[0].longitude.toFixed(2)} vs start ${bh[0].startDegree.toFixed(2)} vs mid ${bh[0].midDegree.toFixed(2)}`);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
