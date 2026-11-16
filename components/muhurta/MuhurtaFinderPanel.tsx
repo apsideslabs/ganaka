@@ -303,7 +303,7 @@ export function MuhurtaFinderPanel({
                 >
                   <div className="flex items-center justify-between w-full mb-1">
                     <span
-                      className={`text-[10px] font-mono uppercase tracking-wider font-semibold ${
+                      className={`text-[11px] font-mono uppercase tracking-wider font-semibold ${
                         isSelected ? 'text-blue-300' : 'text-[#1D4ED8]'
                       }`}
                     >
@@ -387,7 +387,7 @@ export function MuhurtaFinderPanel({
                     <label className="text-xs font-serif font-bold text-[#0F172A]">
                       {q.label}
                     </label>
-                    <span className="text-[10px] font-mono text-[#64748B]">{q.sanskritTerm}</span>
+                    <span className="text-[11px] font-mono text-[#64748B]">{q.sanskritTerm}</span>
                   </div>
 
                   {q.type === 'select' && (
@@ -580,7 +580,7 @@ export function MuhurtaFinderPanel({
                       <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-900">
                         Classical Lookahead Advisory (श्रेष्ठतर काल विकल्प)
                       </span>
-                      <span className="px-2 py-0.5 text-[10px] font-mono bg-amber-100 text-amber-900 rounded font-bold">
+                      <span className="px-2 py-0.5 text-[11px] font-mono bg-amber-100 text-amber-900 rounded font-bold">
                         {strongerAlternative.classificationLabel}
                       </span>
                     </div>
