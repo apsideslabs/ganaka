@@ -49,10 +49,10 @@ export function PanchangaPlanetaryHoras({ horas }: PanchangaPlanetaryHorasProps)
                 className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-2 hover:border-slate-300 transition-colors"
               >
                 <div className="flex items-center justify-between text-slate-500 border-b border-slate-200/70 pb-1.5">
-                  <span className="text-[10px] uppercase font-bold text-[#8C2D19]">
+                  <span className="text-[11px] uppercase font-bold text-[#8C2D19]">
                     Horā #{h.hourIndex + 1}
                   </span>
-                  <span className="text-[10px] text-slate-900 font-bold">{h.timeRange}</span>
+                  <span className="text-[11px] text-slate-900 font-bold">{h.timeRange}</span>
                 </div>
                 <div className="text-sm font-serif font-bold text-slate-900 flex items-center justify-between">
                   <span>{h.rulerName}</span>
@@ -85,10 +85,10 @@ export function PanchangaPlanetaryHoras({ horas }: PanchangaPlanetaryHorasProps)
                 className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-2 hover:border-slate-300 transition-colors"
               >
                 <div className="flex items-center justify-between text-slate-500 border-b border-slate-200/70 pb-1.5">
-                  <span className="text-[10px] uppercase font-bold text-indigo-700">
+                  <span className="text-[11px] uppercase font-bold text-indigo-700">
                     Horā #{h.hourIndex + 1}
                   </span>
-                  <span className="text-[10px] text-slate-900 font-bold">{h.timeRange}</span>
+                  <span className="text-[11px] text-slate-900 font-bold">{h.timeRange}</span>
                 </div>
                 <div className="text-sm font-serif font-bold text-slate-900 flex items-center justify-between">
                   <span>{h.rulerName}</span>
