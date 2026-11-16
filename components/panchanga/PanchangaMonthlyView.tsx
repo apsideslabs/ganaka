@@ -162,7 +162,7 @@ export function PanchangaMonthlyView({
       <div className="overflow-x-auto border border-slate-200/90 rounded-xl bg-white">
         <table className="w-full text-left text-xs border-collapse font-mono">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[10px] font-serif">
+            <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px] font-serif">
               <th className="py-3 px-3.5">Date / Day</th>
               <th className="py-3 px-3.5">Phase</th>
               <th className="py-3 px-3.5">Tithi (Lunar Day)</th>
@@ -210,12 +210,12 @@ export function PanchangaMonthlyView({
                     <span className={row.tithiPaksha === 'Shukla' ? 'text-[#8C2D19] font-medium' : 'text-slate-800'}>
                       {row.tithiName}
                     </span>{' '}
-                    <span className="text-[10px] text-slate-400">({row.tithiPaksha[0]})</span>
+                    <span className="text-[11px] text-slate-400">({row.tithiPaksha[0]})</span>
                   </td>
 
                   {/* Nakshatra */}
                   <td className="py-3 px-3.5 whitespace-nowrap font-serif">
-                    {row.nakshatraName} <span className="text-[10px] text-slate-400 font-mono">P{row.nakshatraPada}</span>
+                    {row.nakshatraName} <span className="text-[11px] text-slate-400 font-mono">P{row.nakshatraPada}</span>
                   </td>
 
                   {/* Yoga */}
@@ -236,7 +236,7 @@ export function PanchangaMonthlyView({
                   {/* Events / Parvas */}
                   <td className="py-3 px-3.5 whitespace-nowrap">
                     {row.parvaLabel ? (
-                      <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-amber-50 text-amber-900 rounded-md border border-amber-200">
+                      <span className="px-2 py-0.5 text-[11px] font-mono font-bold bg-amber-50 text-amber-900 rounded-md border border-amber-200">
                         {row.parvaLabel}
                       </span>
                     ) : (
