@@ -181,11 +181,11 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                 <tr className="border-b border-slate-200 bg-slate-50/40 text-slate-600 font-semibold">
                   <th className="py-3 px-4">Entity</th>
                   <th className="py-3 px-4">D-1 Rāśi &amp; Exact Degree</th>
-                  <th className="py-3 px-4 text-center">Navāṃśa # (1–9)</th>
-                  <th className="py-3 px-4">Degree Range in Rāśi</th>
+                  <th className="hidden md:table-cell py-3 px-4 text-center">Navāṃśa # (1–9)</th>
+                  <th className="hidden md:table-cell py-3 px-4">Degree Range in Rāśi</th>
                   <th className="py-3 px-4">Resulting Navāṃśa Rāśi</th>
-                  <th className="py-3 px-4">Sign Lord</th>
-                  <th className="py-3 px-4 text-center">D-9 House</th>
+                  <th className="hidden md:table-cell py-3 px-4">Sign Lord</th>
+                  <th className="hidden md:table-cell py-3 px-4 text-center">D-9 House</th>
                   <th className="py-3 px-4">Nakshatra &amp; Pāda</th>
                   <th className="py-3 px-4 text-right">Auspicious Status</th>
                 </tr>
@@ -207,12 +207,12 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                       {chartBreakdown.lagnaNavamsha.formattedDegreeInRashi}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-center">
+                  <td className="hidden md:table-cell py-3.5 px-4 text-center">
                     <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-900 font-mono font-bold text-[13px] border border-amber-300 shadow-2xs">
                       #{chartBreakdown.lagnaNavamsha.navamshaNumber}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 font-mono text-slate-700">
+                  <td className="hidden md:table-cell py-3.5 px-4 font-mono text-slate-700">
                     {chartBreakdown.lagnaNavamsha.degreeRangeFormatted}
                   </td>
                   <td className="py-3.5 px-4">
@@ -223,10 +223,10 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                       in D9: {chartBreakdown.lagnaNavamsha.formattedDegreeInNavamsha}
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-600 capitalize">
+                  <td className="hidden md:table-cell py-3.5 px-4 text-slate-600 capitalize">
                     {chartBreakdown.lagnaNavamsha.navamshaLord}
                   </td>
-                  <td className="py-3.5 px-4 text-center font-mono font-bold text-[#8C2D19]">
+                  <td className="hidden md:table-cell py-3.5 px-4 text-center font-mono font-bold text-[#8C2D19]">
                     H1
                   </td>
                   <td className="py-3.5 px-4 text-slate-700">
@@ -580,12 +580,12 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 text-[11px]">
                     <th className="py-3 px-4 text-center w-16">Nav #</th>
-                    <th className="py-3 px-4 w-40">Degree Range</th>
+                    <th className="hidden md:table-cell py-3 px-4 w-40">Degree Range</th>
                     <th className="py-3 px-4">Resulting Navāṃśa Rāśi</th>
-                    <th className="py-3 px-4">Sign Lord</th>
-                    <th className="py-3 px-4">Element</th>
+                    <th className="hidden md:table-cell py-3 px-4">Sign Lord</th>
+                    <th className="hidden md:table-cell py-3 px-4">Element</th>
                     <th className="py-3 px-4">Nakshatra Pāda</th>
-                    <th className="py-3 px-4 text-center">Flags</th>
+                    <th className="hidden md:table-cell py-3 px-4 text-center">Flags</th>
                     <th className="py-3 px-4 text-right">Grahas in this Chart</th>
                   </tr>
                 </thead>
@@ -624,7 +624,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                             </span>
                           </td>
 
-                          <td className="py-3 px-4 font-mono text-slate-600 text-[11px]">
+                          <td className="hidden md:table-cell py-3 px-4 font-mono text-slate-600 text-[11px]">
                             {div.rangeFormatted}
                           </td>
 
@@ -634,11 +634,11 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                             </div>
                           </td>
 
-                          <td className="py-3 px-4 capitalize text-slate-600">
+                          <td className="hidden md:table-cell py-3 px-4 capitalize text-slate-600">
                             {div.navamshaLord}
                           </td>
 
-                          <td className="py-3 px-4 text-slate-600">
+                          <td className="hidden md:table-cell py-3 px-4 text-slate-600">
                             {div.navamshaElement}
                           </td>
 
@@ -646,7 +646,7 @@ export const NavamshaPanel: React.FC<NavamshaPanelProps> = ({ chart, onNavigateT
                             {div.nakshatraName} P{div.nakshatraPada}
                           </td>
 
-                          <td className="py-3 px-4 text-center">
+                          <td className="hidden md:table-cell py-3 px-4 text-center">
                             <div className="flex items-center justify-center gap-1 flex-wrap">
                               {div.isVargottama && (
                                 <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded text-[11px] font-bold">
