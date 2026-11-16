@@ -269,14 +269,14 @@ export function PanchangaCalendarView({
 
                 <div className="space-y-0.5 mt-1">
                   <span
-                    className={`text-[10px] sm:text-[11px] font-serif block truncate font-medium ${
+                    className={`text-[11px] sm:text-[11px] font-serif block truncate font-medium ${
                       d.isCurrentSelected ? 'text-slate-100' : 'text-slate-800'
                     }`}
                   >
                     {d.tithiName}
                   </span>
                   <span
-                    className={`text-[9px] sm:text-[10px] font-mono block truncate ${
+                    className={`text-[10px] sm:text-[11px] font-mono block truncate ${
                       d.isCurrentSelected ? 'text-slate-300' : 'text-slate-500'
                     }`}
                   >
@@ -284,7 +284,7 @@ export function PanchangaCalendarView({
                   </span>
                   {d.specialParva && (
                     <span
-                      className={`inline-block text-[9px] font-mono px-1.5 py-0.5 rounded-md font-semibold ${
+                      className={`inline-block text-[10px] font-mono px-1.5 py-0.5 rounded-md font-semibold ${
                         d.isCurrentSelected
                           ? 'bg-white/20 text-white'
                           : 'bg-amber-100 text-amber-900'
