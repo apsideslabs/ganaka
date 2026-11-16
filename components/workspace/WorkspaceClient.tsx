@@ -2079,7 +2079,7 @@ ${Object.values(chartData.planets)
                                       <span className="text-emerald-600 font-bold shrink-0">✓</span>
                                       <span>
                                         {c.detail}
-                                        <span className="ml-1 text-[10px] font-mono text-slate-400">{c.rule}</span>
+                                        <span className="ml-1 text-[11px] font-mono text-slate-400">{c.rule}</span>
                                       </span>
                                     </li>
                                   ))}
