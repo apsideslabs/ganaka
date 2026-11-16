@@ -66,7 +66,7 @@ export function PanchangaDailyView({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-900 text-white rounded-md">
+              <span className="px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase tracking-wider bg-slate-900 text-white rounded-md">
                 Drik Siddhānta Almanac
               </span>
               <span className="text-xs font-mono text-slate-600 font-medium bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
@@ -93,13 +93,13 @@ export function PanchangaDailyView({
                 <Sun className="w-5 h-5 text-[#8C2D19]" />
               </div>
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-semibold">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 block font-semibold">
                   Sunrise / Sunset
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-900 block">
                   {panchanga.sunTimes.sunrise} – {panchanga.sunTimes.sunset}
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[11px] font-mono text-slate-500">
                   Dina: {panchanga.sunTimes.dayDurationGhatis}
                 </span>
               </div>
@@ -122,13 +122,13 @@ export function PanchangaDailyView({
                 size={32}
               />
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-semibold">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 block font-semibold">
                   Candra (Moon)
                 </span>
                 <span className="text-xs font-mono font-bold text-slate-900 block">
                   {panchanga.tithi.paksha} Pakṣa • {panchanga.sunTimes.moonPhaseName || (panchanga.tithi.number <= 15 ? 'Śukla' : 'Kṛṣṇa')}
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[11px] font-mono text-slate-500">
                   Illum: {(panchanga.sunTimes.moonIlluminationPct || 50).toFixed(1)}%
                 </span>
               </div>
@@ -197,7 +197,7 @@ export function PanchangaDailyView({
                   <div className="p-2 bg-white text-[#8C2D19] rounded-lg border border-slate-200/60 group-hover:bg-[#8C2D19] group-hover:text-white transition-colors">
                     <Clock size={16} />
                   </div>
-                  <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold">
+                  <span className="text-[11px] font-mono uppercase text-slate-500 font-semibold">
                     लग्न सारणी
                   </span>
                 </div>
@@ -225,7 +225,7 @@ export function PanchangaDailyView({
                   <div className="p-2 bg-white text-amber-700 rounded-lg border border-slate-200/60 group-hover:bg-amber-700 group-hover:text-white transition-colors">
                     <Sun size={16} />
                   </div>
-                  <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold">
+                  <span className="text-[11px] font-mono uppercase text-slate-500 font-semibold">
                     होरा चक्र
                   </span>
                 </div>
@@ -253,7 +253,7 @@ export function PanchangaDailyView({
                   <div className="p-2 bg-white text-emerald-700 rounded-lg border border-slate-200/60 group-hover:bg-emerald-700 group-hover:text-white transition-colors">
                     <Award size={16} />
                   </div>
-                  <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold">
+                  <span className="text-[11px] font-mono uppercase text-slate-500 font-semibold">
                     चौघड़िया
                   </span>
                 </div>
@@ -281,7 +281,7 @@ export function PanchangaDailyView({
                   <div className="p-2 bg-white text-purple-700 rounded-lg border border-slate-200/60 group-hover:bg-[#8C2D19] group-hover:text-white transition-colors">
                     <Search size={16} />
                   </div>
-                  <span className="text-[10px] font-mono uppercase text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded">
+                  <span className="text-[11px] font-mono uppercase text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded">
                     SHASTRA
                   </span>
                 </div>
