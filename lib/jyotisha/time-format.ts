@@ -39,3 +39,58 @@ export function formatZone(offsetHours: number): string {
   const abs = Math.abs(offsetHours);
   return `UTC${sign}${pad(Math.floor(abs))}:${pad(Math.round((abs % 1) * 60))}`;
 }
+
+
+export interface Parsed {
+  /** A complete, unambiguous time. */
+  value?: TimeValue;
+  /** An hour of 1–12 with no meridiem — we need the user to say which half. */
+  ambiguous?: { hour12: number; minute: number; second: number };
+  /** Still being typed. */
+  partial: boolean;
+}
+
+/**
+ * Parse anything a person might type. Accepts a meridiem in any of the usual
+ * spellings, with or without a space, and tolerates digits-only entry.
+ */
+export function parseTimeInput(raw: string): Parsed {
+  const text = raw.trim().toLowerCase();
+  if (!text) return { partial: true };
+
+  // Pull off a trailing meridiem: "pm", "p.m.", and a bare "p" all count.
+  const m = text.match(/([ap])\.?m?\.?$/);
+  const meridiem = m ? (m[1].startsWith('p') ? 'pm' : 'am') : null;
+  let body = (m ? text.slice(0, m.index) : text).replace(/[^0-9:]/g, '');
+
+  // "2351" or "235124" — digits only, no separators.
+  if (!body.includes(':')) {
+    if (body.length <= 2) return { partial: true };
+    if (body.length === 3) body = `${body[0]}:${body.slice(1)}`;
+    else if (body.length === 4) body = `${body.slice(0, 2)}:${body.slice(2)}`;
+    else if (body.length === 5) body = `${body[0]}:${body.slice(1, 3)}:${body.slice(3)}`;
+    else if (body.length === 6) body = `${body.slice(0, 2)}:${body.slice(2, 4)}:${body.slice(4)}`;
+    else return { partial: true };
+  }
+
+  const parts = body.split(':');
+  const h = parseInt(parts[0] || '', 10);
+  const minRaw = parts[1];
+  if (Number.isNaN(h) || minRaw === undefined || minRaw === '') return { partial: true };
+  const min = parseInt(minRaw, 10);
+  if (Number.isNaN(min) || min > 59) return { partial: true };
+  const sec = parts[2] ? parseInt(parts[2], 10) : 0;
+  if (Number.isNaN(sec) || sec > 59) return { partial: true };
+
+  if (meridiem) {
+    // 12-hour reading with an explicit half of day.
+    if (h < 1 || h > 12) return { partial: true };
+    return { value: { hour: to24Hour(h, meridiem === 'pm', false), minute: min, second: sec }, partial: false };
+  }
+
+  // No meridiem: 13–23 is unambiguous, 0 is unambiguous, 1–12 is not.
+  if (h >= 13) return { value: { hour: h, minute: min, second: sec }, partial: false };
+  if (h === 0) return { value: { hour: 0, minute: min, second: sec }, partial: false };
+  return { ambiguous: { hour12: h, minute: min, second: sec }, partial: false };
+}
+
