@@ -247,13 +247,13 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                     <th className="py-3 px-3.5">System</th>
-                    <th className="py-3 px-3">Type</th>
-                    <th className="py-3 px-3">Cycle</th>
+                    <th className="py-3 px-3 hidden md:table-cell">Type</th>
+                    <th className="py-3 px-3 hidden md:table-cell">Cycle</th>
                     <th className="py-3 px-3">Active Major Period</th>
                     <th className="py-3 px-3">Active Sub-Period</th>
                     <th className="py-3 px-3">Span (Start – End)</th>
                     <th className="py-3 px-3">Progress / Remaining</th>
-                    <th className="py-3 px-3">Eligibility</th>
+                    <th className="py-3 px-3 hidden md:table-cell">Eligibility</th>
                     <th className="py-3 px-3 text-right">Action</th>
                   </tr>
                 </thead>
@@ -271,7 +271,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                           {row.sanskritName}
                         </div>
                       </td>
-                      <td className="py-3.5 px-3">
+                      <td className="hidden md:table-cell py-3.5 px-3">
                         <span
                           className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold ${
                             row.classification === 'nakshatra_planetary'
@@ -282,7 +282,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                           {row.classification === 'nakshatra_planetary' ? 'Nakṣatra' : 'Jaiminī Rāśi'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-3 font-mono text-slate-700">
+                      <td className="hidden md:table-cell py-3.5 px-3 font-mono text-slate-700">
                         {row.cycleYears}y
                       </td>
                       <td className="py-3.5 px-3">
@@ -317,7 +317,7 @@ export function ExtendedDashaPanel({ chart, onBackToVimshottari }: ExtendedDasha
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-3">
+                      <td className="hidden md:table-cell py-3.5 px-3">
                         {row.eligibilityStatus === 'satisfied' ? (
                           <span className="inline-flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md text-[11px] font-medium border border-emerald-200">
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
