@@ -175,7 +175,7 @@ export function PanchangaYearlyView({
         <div className="overflow-x-auto border border-slate-200/90 rounded-xl bg-white">
           <table className="w-full text-left text-xs border-collapse font-mono">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[10px] font-serif">
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px] font-serif">
                 <th className="py-3 px-3.5">#</th>
                 <th className="py-3 px-3.5">Saṅkrānti (Sanskrit)</th>
                 <th className="py-3 px-3.5">Sidereal Sign</th>
@@ -207,7 +207,7 @@ export function PanchangaYearlyView({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {RITUS.map((r, i) => (
             <div key={i} className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-1.5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">
                 Season #{i + 1}
               </span>
               <span className="text-sm font-serif font-bold text-slate-900 block">
