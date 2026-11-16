@@ -443,9 +443,7 @@ export function VargasPanel({
 
             {activeTab === 'planets' ? (
               <div className="overflow-x-auto">
-                <table id="varga-planets-table" className="w-full text-left text-[13px] border-collapse font-sans">
-                  {/* Dignity highlights — the same reading as the D-1 panel, for THIS varga */}
-                  <div className="px-1 pb-5">
+                <div className="px-1 pb-5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                       <span className="text-[13px] font-bold uppercase tracking-wider text-slate-600 font-serif">
                         Planetary Essential Dignity Highlights — {activeDef.id}
@@ -487,6 +485,7 @@ export function VargasPanel({
                     </div>
                   </div>
 
+                  <table id="varga-planets-table" className="w-full text-left text-[13px] border-collapse font-sans">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
                       <th className="py-3 px-4">Graha</th>
