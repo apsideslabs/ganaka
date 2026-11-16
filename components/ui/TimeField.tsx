@@ -25,13 +25,9 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Clock } from 'lucide-react';
-import { to24Hour, formatTime24, formatTime12, parseTimeInput } from '@/lib/jyotisha/time-format';
+import { to24Hour, formatTime24, formatTime12, parseTimeInput, type TimeValue } from '@/lib/jyotisha/time-format';
 
-export interface TimeValue {
-  hour: number;   // always 0–23
-  minute: number; // 0–59
-  second: number; // 0–59
-}
+export type { TimeValue };
 
 interface TimeFieldProps {
   id?: string;
