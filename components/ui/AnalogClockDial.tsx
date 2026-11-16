@@ -338,7 +338,7 @@ export function AnalogClockDial({
       {(title || subtitle) && (
         <div className="text-center mt-6 px-6">
           {title && (
-            <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-[#8C2D19]/85">
+            <p className="text-[11px] font-mono uppercase tracking-[0.28em] text-[#8C2D19]/85">
               {title}
             </p>
           )}
