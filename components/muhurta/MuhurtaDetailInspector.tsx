@@ -53,10 +53,10 @@ export function MuhurtaDetailInspector({
       {/* Top Header */}
       <div className="border-b border-[#E2E8F0] pb-3.5 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#64748B] font-bold">
+          <span className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] font-bold">
             Shāstric Verification Inspector
           </span>
-          <span className={`px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase rounded-md border ${badgeClass}`}>
+          <span className={`px-2.5 py-0.5 text-[11px] font-mono font-bold uppercase rounded-md border ${badgeClass}`}>
             {candidate.classificationLabel}
           </span>
         </div>
@@ -83,7 +83,7 @@ export function MuhurtaDetailInspector({
       {/* Qualification Statement Box */}
       <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase font-bold text-[#64748B]">
+          <span className="text-[11px] font-mono uppercase font-bold text-[#64748B]">
             Classical Decision Statement (निर्णय सारम्)
           </span>
           <span className="text-xs font-mono font-bold text-[#0F172A]">
@@ -171,7 +171,7 @@ export function MuhurtaDetailInspector({
             <span className="text-[11px] uppercase font-bold text-[#64748B]">
               21 Classical Mahā-Doṣas Ledger (एकविंशति महादोषाः)
             </span>
-            <div className="flex items-center gap-2 text-[10px]">
+            <div className="flex items-center gap-2 text-[11px]">
               <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">
                 {clearedAudit} Cleared
               </span>
@@ -210,7 +210,7 @@ export function MuhurtaDetailInspector({
                       {audit.name} ({audit.sanskritName})
                     </span>
                     <span
-                      className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
                         isCleared
                           ? 'bg-emerald-100 text-emerald-800'
                           : isMitigated
@@ -243,7 +243,7 @@ export function MuhurtaDetailInspector({
         <div className="space-y-3.5 text-xs font-mono">
           <div className="grid grid-cols-2 gap-2">
             <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md">
-              <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">
+              <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">
                 8th House (Aṣṭama Śuddhi)
               </span>
               <span
@@ -253,13 +253,13 @@ export function MuhurtaDetailInspector({
               >
                 {candidate.ashtamaShuddhi.isClean ? '✓ Completely Pure' : '⚠ Occupied'}
               </span>
-              <span className="text-[10px] text-[#64748B] block mt-1">
+              <span className="text-[11px] text-[#64748B] block mt-1">
                 {candidate.ashtamaShuddhi.description}
               </span>
             </div>
 
             <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md">
-              <span className="text-[10px] text-[#64748B] block uppercase tracking-wider">
+              <span className="text-[11px] text-[#64748B] block uppercase tracking-wider">
                 7th House (Jāmitra Śuddhi)
               </span>
               <span
@@ -269,7 +269,7 @@ export function MuhurtaDetailInspector({
               >
                 {candidate.jamitraShuddhi.isClean ? '✓ Completely Pure' : '⚠ Jāmitra Afflicted'}
               </span>
-              <span className="text-[10px] text-[#64748B] block mt-1">
+              <span className="text-[11px] text-[#64748B] block mt-1">
                 {candidate.jamitraShuddhi.description}
               </span>
             </div>
@@ -277,7 +277,7 @@ export function MuhurtaDetailInspector({
 
           {/* Kendra & Upachaya Fortifications */}
           <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md space-y-1.5">
-            <span className="text-[10px] text-[#64748B] block uppercase tracking-wider font-bold">
+            <span className="text-[11px] text-[#64748B] block uppercase tracking-wider font-bold">
               Kendra &amp; Upachaya House Fortifications
             </span>
             <div className="text-[11px] text-[#0F172A] space-y-1">
@@ -308,7 +308,7 @@ export function MuhurtaDetailInspector({
 
           {/* Planetary Placements Table */}
           <div className="space-y-1.5">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-[#64748B] block">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-[#64748B] block">
               Rising Planetary Placements
             </span>
             <div className="max-h-48 overflow-y-auto border border-[#E2E8F0] rounded-md divide-y divide-[#E2E8F0]">
@@ -316,7 +316,7 @@ export function MuhurtaDetailInspector({
                 <div key={idx} className="p-2 flex items-center justify-between bg-white text-[11px]">
                   <div>
                     <span className="font-bold text-[#0F172A]">{p.planetName}</span>
-                    <span className="text-[10px] text-[#64748B] ml-1.5">
+                    <span className="text-[11px] text-[#64748B] ml-1.5">
                       ({p.sanskritName})
                     </span>
                   </div>
@@ -325,7 +325,7 @@ export function MuhurtaDetailInspector({
                       House {p.houseFromLagna} ({p.rashiName})
                     </span>
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
                         p.isBenefic ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
                       }`}
                     >
@@ -343,28 +343,28 @@ export function MuhurtaDetailInspector({
       {activeTab === 'chronometry' && (
         <div className="space-y-3 text-xs font-mono">
           <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md space-y-2">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-[#64748B] block">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-[#64748B] block">
               Active Horā &amp; Choghadiyā Alignment
             </span>
 
             <div className="grid grid-cols-2 gap-2 pt-1">
               <div className="p-2.5 bg-white border border-[#E2E8F0] rounded">
-                <span className="text-[10px] text-[#64748B] block uppercase">Active Horā Lord</span>
+                <span className="text-[11px] text-[#64748B] block uppercase">Active Horā Lord</span>
                 <span className="font-serif font-bold text-sm text-[#0F172A] block mt-0.5">
                   {candidate.panchangaSnapshot.activeHoraLord}
                 </span>
-                <span className="text-[10px] text-[#1D4ED8] block">
+                <span className="text-[11px] text-[#1D4ED8] block">
                   {candidate.panchangaSnapshot.activeHoraFavorability}
                 </span>
               </div>
 
               <div className="p-2.5 bg-white border border-[#E2E8F0] rounded">
-                <span className="text-[10px] text-[#64748B] block uppercase">Choghadiyā Window</span>
+                <span className="text-[11px] text-[#64748B] block uppercase">Choghadiyā Window</span>
                 <span className="font-serif font-bold text-sm text-[#0F172A] block mt-0.5">
                   {candidate.panchangaSnapshot.activeChoghadiyaName}
                 </span>
                 <span
-                  className={`text-[10px] block ${
+                  className={`text-[11px] block ${
                     candidate.panchangaSnapshot.activeChoghadiyaIsAuspicious
                       ? 'text-emerald-700 font-bold'
                       : 'text-rose-700'
@@ -377,7 +377,7 @@ export function MuhurtaDetailInspector({
           </div>
 
           <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md space-y-2">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-[#64748B] block">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-[#64748B] block">
               Classical Timing Windows &amp; Exclusions
             </span>
 
@@ -459,7 +459,7 @@ export function MuhurtaDetailInspector({
                   <div className="flex items-center justify-between">
                     <span className="font-serif font-bold text-[#0F172A]">{cond.rule.name}</span>
                     <span
-                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
                         cond.status === 'MET'
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-rose-100 text-rose-800'
@@ -468,7 +468,7 @@ export function MuhurtaDetailInspector({
                       {cond.status === 'MET' ? 'CLEARED' : 'VIOLATION'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-[#64748B] font-mono">
+                  <p className="text-[11px] text-[#64748B] font-mono">
                     Observed: <strong>{cond.observedValue}</strong>
                   </p>
                 </div>
@@ -491,7 +491,7 @@ export function MuhurtaDetailInspector({
                   <div className="flex items-center justify-between">
                     <span className="font-serif font-bold text-[#0F172A]">{cond.rule.name}</span>
                     <span
-                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
                         cond.status === 'MET'
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-amber-100 text-amber-800'
@@ -500,7 +500,7 @@ export function MuhurtaDetailInspector({
                       {cond.status}
                     </span>
                   </div>
-                  <p className="text-[10px] text-[#64748B] font-mono">
+                  <p className="text-[11px] text-[#64748B] font-mono">
                     Observed: <strong>{cond.observedValue}</strong>
                   </p>
                 </div>
@@ -525,7 +525,7 @@ export function MuhurtaDetailInspector({
                   <span className="font-serif font-bold text-[#1D4ED8] block">
                     {c.text} ({c.chapter} {c.shlokaRange})
                   </span>
-                  <span className="text-[10px] font-serif text-[#64748B]">
+                  <span className="text-[11px] font-serif text-[#64748B]">
                     {c.sanskritTitle}
                   </span>
                 </div>
