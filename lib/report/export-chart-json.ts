@@ -351,17 +351,13 @@ function buildChartExportUncached(chart: JyotishaChart, opts: ExportOptions = {}
     birth: {
       ...plain(bd),
       ...(() => {
-        const p2 = (n: number) => String(n).padStart(2, '0');
         const h24 = bd.hour;
-        const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
-        const meridiem = h24 >= 12 ? 'PM' : 'AM';
         const tz = bd.timezoneOffsetHours ?? 0;
-        const tzStr = `UTC${tz >= 0 ? '+' : '−'}${p2(Math.floor(Math.abs(tz)))}:${p2(Math.round((Math.abs(tz) % 1) * 60))}`;
         const utcMs = Date.UTC(bd.year, bd.month - 1, bd.day, h24, bd.minute, bd.second ?? 0) - tz * 3600_000;
         return {
-          time24: `${p2(h24)}:${p2(bd.minute)}:${p2(bd.second ?? 0)}`,
-          time12: `${p2(h12)}:${p2(bd.minute)}:${p2(bd.second ?? 0)} ${meridiem}`,
-          timeZone: tzStr,
+          time24: formatTime24(h24, bd.minute, bd.second ?? 0),
+          time12: formatTime12(h24, bd.minute, bd.second ?? 0),
+          timeZone: formatZone(tz),
           utcInstant: new Date(utcMs).toISOString(),
         };
       })(),
@@ -1083,6 +1079,7 @@ function slimPeriods(periods: any[]): any[] {
 }
 
 import { chartJsonFilename } from './filenames';
+import { formatTime24, formatTime12, formatZone } from '@/lib/jyotisha/time-format';
 export { chartJsonFilename } from './filenames';
 
 const stringCache = new WeakMap<JyotishaChart, string>();
