@@ -36,7 +36,7 @@ export function MatchingDiagram({ groom, bride }: MatchingDiagramProps) {
         <h4 className="text-xs font-serif font-bold text-stone-900">
           Zodiacal Displacement (Bhakūṭa Geometry)
         </h4>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-semibold">
+        <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-semibold">
           Count: {displacement} / 12
         </span>
       </div>
@@ -70,7 +70,7 @@ export function MatchingDiagram({ groom, bride }: MatchingDiagramProps) {
                   x={labelX}
                   y={labelY + 3}
                   textAnchor="middle"
-                  className={`text-[9px] font-mono ${
+                  className={`text-[10px] font-mono ${
                     isGroomRashi || isBrideRashi
                       ? 'fill-[#8C2D19] font-bold'
                       : 'fill-stone-400 font-normal'
@@ -96,7 +96,7 @@ export function MatchingDiagram({ groom, bride }: MatchingDiagramProps) {
           {/* Groom Marker */}
           <g>
             <circle cx={gX} cy={gY} r="14" fill="#171614" stroke="#8C2D19" strokeWidth="1.5" />
-            <text x={gX} y={gY + 3.5} textAnchor="middle" fill="#FCFAF6" className="text-[9px] font-mono font-bold">
+            <text fontSize={9} fontWeight="bold" fontFamily="ui-monospace, monospace" x={gX} y={gY + 3.5} textAnchor="middle" fill="#FCFAF6" >
               ♂
             </text>
           </g>
@@ -104,7 +104,7 @@ export function MatchingDiagram({ groom, bride }: MatchingDiagramProps) {
           {/* Bride Marker */}
           <g>
             <circle cx={bX} cy={bY} r="14" fill="#8C2D19" stroke="#171614" strokeWidth="1.5" />
-            <text x={bX} y={bY + 3.5} textAnchor="middle" fill="#FCFAF6" className="text-[9px] font-mono font-bold">
+            <text fontSize={9} fontWeight="bold" fontFamily="ui-monospace, monospace" x={bX} y={bY + 3.5} textAnchor="middle" fill="#FCFAF6" >
               ♀
             </text>
           </g>
