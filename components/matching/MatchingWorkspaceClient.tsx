@@ -23,7 +23,7 @@ import { KutaCard } from './KutaCard';
 import { DeeperMatchingPanel } from './DeeperMatchingPanel';
 import { MatchingDiagram } from './MatchingDiagram';
 import { GanakaDatePicker } from '../ui/GanakaDatePicker';
-import { GanakaClockPicker } from '../ui/GanakaClockPicker';
+import { TimeField } from '../ui/TimeField';
 import { GanakaButton } from '../ui/GanakaButton';
 import { getWorkspaceSettings } from '@/lib/settings/settings-storage';
 import {
@@ -218,7 +218,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
-                <GanakaClockPicker value={groomTime} onChange={(t) => t && setGroomTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
+                <TimeField value={groomTime} onChange={(t) => setGroomTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
               </div>
             </div>
 
@@ -295,7 +295,7 @@ export function MatchingWorkspaceClient() {
                 <label className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block mb-1">
                   Birth Time
                 </label>
-                <GanakaClockPicker value={brideTime} onChange={(t) => t && setBrideTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
+                <TimeField value={brideTime} onChange={(t) => setBrideTime({ hour: t.hour, minute: t.minute, second: t.second ?? 0 })} />
               </div>
             </div>
 
