@@ -3078,7 +3078,7 @@ console.log('\n== Responsive tables ==');
       // Skip the empty-state row (a single colSpan cell); use the first row
       // that actually has one cell per column.
       const rows = m[2].split('</tr>');
-      const firstRow = rows.find((r) => !r.includes('colSpan')) || rows[0] || '';
+      const firstRow = rows.find((r: string) => !r.includes('colSpan')) || rows[0] || '';
       const tds = [...firstRow.matchAll(/<td[^>]*>/g)].map((x) => x[0]);
       const hpos = ths.map((t, i) => (t.includes('hidden md:table-cell') ? i : -1)).filter((i) => i >= 0);
       const dpos = tds.map((t, i) => (t.includes('hidden md:table-cell') ? i : -1)).filter((i) => i >= 0);
