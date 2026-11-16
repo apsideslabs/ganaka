@@ -2821,6 +2821,27 @@ console.log('\n== PDF filename ==');
     /^Ganaka-Jyotisa-Chart-\d{8}\.pdf$/.test(chartPdfFilename(natal)), chartPdfFilename(natal));
 }
 
+/* ------------- THE PDF DOES NOT BUILD THE JSON TO GET ECLIPSES ----- */
+
+console.log('\n== PDF data path is lean ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const src = fs.readFileSync(path.join(process.cwd(), 'lib/report/ChartReport.tsx'), 'utf8');
+
+  // Building the whole export inside the report allocated 24 MB and 1.8 s of
+  // work immediately before react-pdf began laying out the pages.
+  check('the report does not build the JSON export',
+    !/buildChartExport\s*\(/.test(src.replace(/\/\*[\s\S]*?\*\//g, '')));
+  check('the report searches eclipses directly', /findEclipses\s*\(/.test(src));
+  check('the report caches its derived data', /reportDataCache/.test(src));
+
+  // The eclipse search itself must stay on the two-body fast path.
+  const ecl = fs.readFileSync(path.join(process.cwd(), 'lib/astronomy/eclipses.ts'), 'utf8');
+  check('the eclipse search uses the sun/moon fast path', /sunMoonLongitudes/.test(ecl));
+  check('the eclipse search does not evaluate all nine bodies', !/calculateAllPlanets\(jd, ayan/.test(ecl));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
