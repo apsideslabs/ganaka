@@ -87,6 +87,7 @@ export const PrashnaPanel: React.FC<PrashnaPanelProps> = ({ chart }) => {
         <h3 className="text-[12px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-[#8C2D19]" /> Sphuṭas
         </h3>
+        <div className="overflow-x-auto" data-table-scroll>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-slate-200">
@@ -107,6 +108,7 @@ export const PrashnaPanel: React.FC<PrashnaPanelProps> = ({ chart }) => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* six factors */}
