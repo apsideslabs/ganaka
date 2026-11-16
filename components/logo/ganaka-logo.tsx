@@ -244,7 +244,7 @@ export function GanakaLogo({
           >
             Gaṇaka
           </span>
-          <span className="text-[10px] font-serif font-semibold text-[#8C2D19] bg-[#8C2D19]/8 border border-[#8C2D19]/15 px-1.5 py-0.5 rounded leading-none hidden sm:inline-block">
+          <span className="text-[11px] font-serif font-semibold text-[#8C2D19] bg-[#8C2D19]/8 border border-[#8C2D19]/15 px-1.5 py-0.5 rounded leading-none hidden sm:inline-block">
             गणक
           </span>
         </div>
@@ -252,7 +252,7 @@ export function GanakaLogo({
           <span
             className={`text-stone-500 font-sans tracking-tight leading-tight mt-0.5 ${
               size === 'sm'
-                ? 'text-[10px]'
+                ? 'text-[11px]'
                 : size === 'lg'
                 ? 'text-xs'
                 : 'text-[11px]'
