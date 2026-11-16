@@ -183,7 +183,7 @@ export function AboutView() {
                 className="p-4 bg-white border border-[#E5E1D8] rounded-sm shadow-2xs hover:border-[#8B4513]/40 transition-colors flex flex-col justify-between"
               >
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#6B7280]">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#6B7280]">
                     {item.phase}
                   </span>
                   <h3 className="mt-1 text-sm font-semibold text-[#1A1A1A]">
