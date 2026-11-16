@@ -162,7 +162,7 @@ export function PanchangaMoonPhaseSvg({
       </svg>
 
       {showPercent && (
-        <span className="text-[10px] font-mono text-[#5C5850]">
+        <span className="text-[11px] font-mono text-[#5C5850]">
           {percent}%
         </span>
       )}
