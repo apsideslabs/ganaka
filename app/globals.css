@@ -210,3 +210,98 @@
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
+
+/* ============================================================================
+   RESPONSIVE DATA TABLES
+   ----------------------------------------------------------------------------
+   Every table here is a lookup table: many rows, the reader scans for one and
+   reads across it. For that job horizontal scroll is the honest pattern —
+   nothing is hidden, nothing is reordered, and the column-to-header
+   relationship survives. The stacked-card pattern destroys that relationship
+   unless roles are re-declared on every cell, and it is wrong for comparison
+   tables anyway.
+
+   Two rules make the scroll usable, both pure CSS applied once:
+
+     1. a sticky header, so the column names stay while you scroll rows
+     2. a sticky first column, so the row's identity stays while you scroll
+        across — without it you lose track of which row you are reading
+
+   `border-collapse: separate` is required: with `collapse` the borders belong
+   to the table rather than the cell, so they stay behind when a cell sticks.
+
+   Placed in the base layer so any Tailwind utility still wins — a cell marked
+   `whitespace-normal` keeps wrapping.
+   ========================================================================= */
+@layer base {
+  /* The scroll containers. Matched by class and by attribute so every panel is
+     covered without editing any of them. */
+  :where(.overflow-x-auto, [data-table-scroll]) {
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  :where(.overflow-x-auto, [data-table-scroll])::-webkit-scrollbar { height: 8px; }
+  :where(.overflow-x-auto, [data-table-scroll])::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 4px;
+  }
+
+  table { border-collapse: separate; border-spacing: 0; }
+
+  /* Deliberately NOT setting `white-space: nowrap` on every cell. It stops
+     columns squashing, but several tables carry sentences in their cells and
+     nowrap would stretch those rows to absurd widths. The wide tables already
+     declare `min-w-[…]`, which forces the container to scroll instead of
+     compressing — that is the same effect, applied only where it is wanted. */
+
+  /* Sticky header — opaque, or the rows scroll through it. */
+  table thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background-color: var(--bg-surface-raised, #fff);
+  }
+
+  /* Sticky first column — the row's identity. */
+  table :is(th, td):first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    background-color: var(--bg-surface-raised, #fff);
+    z-index: 1;
+  }
+
+  /* The corner cell sits above both. */
+  table thead th:first-child { z-index: 3; }
+
+  /* A hairline shadow on the frozen column: reads as "more to the right"
+     rather than as a cell with an odd border. */
+  table :is(th, td):first-child::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: -1px;
+    width: 1px;
+    box-shadow: 2px 0 6px rgb(0 0 0 / 0.10);
+    pointer-events: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   FLUID SCALE
+   ---------------------------------------------------------------------------
+   Sizes were fixed in px, so the same page felt cramped on a phone and small on
+   a large monitor. These clamp between a floor and a ceiling against the
+   viewport — one rule, every screen, no breakpoints.
+   ------------------------------------------------------------------------ */
+@layer base {
+  :root {
+    --text-fluid-sm:   clamp(0.75rem,   0.72rem + 0.15vw, 0.8125rem);
+    --text-fluid-base: clamp(0.8125rem, 0.78rem + 0.20vw, 0.9375rem);
+    --text-fluid-lg:   clamp(0.9375rem, 0.90rem + 0.30vw, 1.125rem);
+    --space-fluid:     clamp(0.75rem,   0.60rem + 0.80vw, 1.5rem);
+  }
+}
