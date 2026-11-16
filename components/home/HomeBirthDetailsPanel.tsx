@@ -23,7 +23,7 @@ import { getPreferredCountry, setPreferredCountry, deviceTimezone } from '@/lib/
 import { availableCountries, countryForTimezone } from '@/lib/astronomy/city-index';
 import { AYANAMSHA_DEFINITIONS, AyanamshaType } from '@/lib/astronomy/ayanamsha';
 import { GanakaDatePicker } from '@/components/ui/GanakaDatePicker';
-import { GanakaClockPicker, TimeValue } from '@/components/ui/GanakaClockPicker';
+import { TimeField, type TimeValue } from '@/components/ui/TimeField';
 import { AnalogClockDial } from '@/components/ui/AnalogClockDial';
 import {
   getPlatformSettings,
@@ -480,9 +480,9 @@ export function HomeBirthDetailsPanel() {
             />
           </div>
 
-          {/* 4. Time of Birth (TOB) — Custom 3D Cylindrical Drum Wheel */}
+          {/* 4. Time of Birth (TOB) */}
           <div className="lg:col-span-6">
-            <GanakaClockPicker
+            <TimeField
               id="home-tob-picker"
               label={t.birthPanel.tobLabel}
               value={tob}
