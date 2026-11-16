@@ -98,10 +98,10 @@ export function PanchangaChoghadiya({ panchanga }: PanchangaChoghadiyaProps) {
             >
               <div>
                 <div className="flex items-center justify-between text-xs font-mono pb-2.5 border-b border-slate-200/70">
-                  <span className="text-[10px] uppercase font-bold text-slate-500">
+                  <span className="text-[11px] uppercase font-bold text-slate-500">
                     Slot #{slot.number}
                   </span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 border rounded-md flex items-center gap-1 ${badgeBg}`}>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 border rounded-md flex items-center gap-1 ${badgeBg}`}>
                     <StatusIcon size={11} />
                     <span>{slot.nature}</span>
                   </span>
