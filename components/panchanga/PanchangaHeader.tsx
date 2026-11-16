@@ -251,11 +251,11 @@ export function PanchangaHeader({
                             <span className="font-serif text-slate-900">{city.name}</span>
                             {isCurrent && <Check size={12} className="text-[#8C2D19]" />}
                           </div>
-                          <span className="text-[10px] text-slate-500 font-mono block">
+                          <span className="text-[11px] text-slate-500 font-mono block">
                             {formatPlaceRegion(city)}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400">
+                        <span className="text-[11px] font-mono text-slate-400">
                           {formatDMS(city.latitude, true)} {formatDMS(city.longitude, false)}
                         </span>
                       </button>
@@ -272,7 +272,7 @@ export function PanchangaHeader({
       {showCoordinateDrawer && (
         <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50/80 p-4 rounded-xl text-xs font-mono border border-slate-200/80">
           <div>
-            <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">
+            <label className="block text-[11px] uppercase font-bold text-slate-500 mb-1">
               Latitude (° Decimal)
             </label>
             <input
@@ -284,7 +284,7 @@ export function PanchangaHeader({
             />
           </div>
           <div>
-            <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">
+            <label className="block text-[11px] uppercase font-bold text-slate-500 mb-1">
               Longitude (° Decimal)
             </label>
             <input
@@ -296,7 +296,7 @@ export function PanchangaHeader({
             />
           </div>
           <div>
-            <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">
+            <label className="block text-[11px] uppercase font-bold text-slate-500 mb-1">
               Timezone Offset (Hours UTC)
             </label>
             <input
@@ -308,7 +308,7 @@ export function PanchangaHeader({
             />
           </div>
           <div>
-            <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1">
+            <label className="block text-[11px] uppercase font-bold text-slate-500 mb-1">
               Ayanāṃśa Mode
             </label>
             <select
