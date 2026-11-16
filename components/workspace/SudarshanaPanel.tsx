@@ -313,6 +313,8 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
             Each graha in three houses
           </h3>
 
+          <div className="overflow-x-auto" data-table-scroll>
+
           <table className="w-full text-[13px] border-collapse">
             <thead>
               <tr className="border-b border-slate-200">
@@ -358,6 +360,8 @@ export const SudarshanaPanel: React.FC<{ chart: JyotishaChart }> = ({ chart }) =
               ))}
             </tbody>
           </table>
+
+          </div>
 
           <p className="text-[12px] text-slate-400 mt-3 leading-relaxed">
             Filled cells mark the house active in year {year}. A graha keeps its sign in every
