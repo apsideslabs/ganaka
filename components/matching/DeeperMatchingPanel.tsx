@@ -48,7 +48,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
               </h4>
             </div>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
                 mangalaComparison.neutralizationStatus.includes('Sama') ||
                 mangalaComparison.neutralizationStatus.includes('Free')
                   ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
@@ -61,14 +61,14 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Groom</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Groom</span>
               <p className="font-semibold text-stone-800">
                 {mangalaComparison.groom.hasDosha ? 'Afflicted' : 'Clean'} ({mangalaComparison.groom.severity})
               </p>
               <p className="text-[11px] text-stone-600 mt-0.5">{mangalaComparison.groom.description}</p>
             </div>
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Bride</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Bride</span>
               <p className="font-semibold text-stone-800">
                 {mangalaComparison.bride.hasDosha ? 'Afflicted' : 'Clean'} ({mangalaComparison.bride.severity})
               </p>
@@ -80,7 +80,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
             {mangalaComparison.verdict}
           </p>
 
-          <div className="pt-2 border-t border-stone-100 text-[10px] font-mono text-stone-500">
+          <div className="pt-2 border-t border-stone-100 text-[11px] font-mono text-stone-500">
             Source: {mangalaComparison.citation.sanskritTextName} ({mangalaComparison.citation.chapterOrSection})
           </div>
         </div>
@@ -94,21 +94,21 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
                 7th Bhāva & Lord Conjugal Affinity
               </h4>
             </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-stone-100 text-stone-800 border border-stone-200">
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-stone-100 text-stone-800 border border-stone-200">
               Displacement: {seventhHouseAffinity.signDisplacement}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Groom 7th</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Groom 7th</span>
               <p className="font-semibold text-stone-800">
                 Lord: {seventhHouseAffinity.groom7thLord}
               </p>
               <p className="text-[11px] text-stone-600">Sign: {RASHIS[seventhHouseAffinity.groom7thSign].sanskritName}</p>
             </div>
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Bride 7th</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Bride 7th</span>
               <p className="font-semibold text-stone-800">
                 Lord: {seventhHouseAffinity.bride7thLord}
               </p>
@@ -120,7 +120,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
             {seventhHouseAffinity.verdict}
           </p>
 
-          <div className="pt-2 border-t border-stone-100 text-[10px] font-mono text-stone-500">
+          <div className="pt-2 border-t border-stone-100 text-[11px] font-mono text-stone-500">
             Source: {seventhHouseAffinity.citation.sanskritTextName} ({seventhHouseAffinity.citation.chapterOrSection})
           </div>
         </div>
@@ -135,7 +135,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
               </h4>
             </div>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
                 navamshaHarmony.isTrikonaOrKendra
                   ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                   : 'bg-stone-100 text-stone-800 border border-stone-200'
@@ -147,7 +147,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Groom D-9</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Groom D-9</span>
               <p className="font-semibold text-stone-800">
                 Lagna: {RASHIS[navamshaHarmony.groomD9LagnaRashi].sanskritName}
               </p>
@@ -156,7 +156,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
               </p>
             </div>
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Bride D-9</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Bride D-9</span>
               <p className="font-semibold text-stone-800">
                 Lagna: {RASHIS[navamshaHarmony.brideD9LagnaRashi].sanskritName}
               </p>
@@ -170,7 +170,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
             {navamshaHarmony.verdict}
           </p>
 
-          <div className="pt-2 border-t border-stone-100 text-[10px] font-mono text-stone-500">
+          <div className="pt-2 border-t border-stone-100 text-[11px] font-mono text-stone-500">
             Source: {navamshaHarmony.citation.sanskritTextName} ({navamshaHarmony.citation.chapterOrSection})
           </div>
         </div>
@@ -184,21 +184,21 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
                 Jaimini Upapada (UL) & Dārakāraka (DK)
               </h4>
             </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
               DK: {jaiminiKuta.mutualDKMaitri}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Groom Jaimini</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Groom Jaimini</span>
               <p className="font-semibold text-stone-800">
                 UL: {RASHIS[jaiminiKuta.groomULRashi].sanskritName}
               </p>
               <p className="text-[11px] text-stone-600">DK: {jaiminiKuta.groomDKPlanet}</p>
             </div>
             <div className="p-2 bg-stone-50 rounded-lg border border-stone-100">
-              <span className="text-[10px] font-mono text-stone-500 uppercase block">Bride Jaimini</span>
+              <span className="text-[11px] font-mono text-stone-500 uppercase block">Bride Jaimini</span>
               <p className="font-semibold text-stone-800">
                 UL: {RASHIS[jaiminiKuta.brideULRashi].sanskritName}
               </p>
@@ -210,7 +210,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
             {jaiminiKuta.verdict}
           </p>
 
-          <div className="pt-2 border-t border-stone-100 text-[10px] font-mono text-stone-500">
+          <div className="pt-2 border-t border-stone-100 text-[11px] font-mono text-stone-500">
             Source: {jaiminiKuta.citation.sanskritTextName} ({jaiminiKuta.citation.chapterOrSection})
           </div>
         </div>
@@ -225,7 +225,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
               </h4>
             </div>
             <span
-              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+              className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
                 dashaSandhi.isSandhiRisk
                   ? 'bg-amber-50 text-amber-900 border border-amber-200'
                   : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
@@ -239,7 +239,7 @@ export function DeeperMatchingPanel({ deeper }: DeeperMatchingPanelProps) {
             {dashaSandhi.explanation}
           </p>
 
-          <div className="pt-2 border-t border-stone-100 text-[10px] font-mono text-stone-500">
+          <div className="pt-2 border-t border-stone-100 text-[11px] font-mono text-stone-500">
             Source: {dashaSandhi.citation.sanskritTextName} ({dashaSandhi.citation.chapterOrSection})
           </div>
         </div>
