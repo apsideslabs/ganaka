@@ -6,6 +6,13 @@
  * that turned a Vṛścika ascendant into a Mithuna one.
  */
 
+export interface TimeValue {
+  /** 0–23. Always 24-hour, whatever face the user typed on. */
+  hour: number;
+  minute: number;
+  second: number;
+}
+
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 const pad = (n: number) => String(n).padStart(2, '0');
 
