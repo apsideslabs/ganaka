@@ -1410,17 +1410,23 @@ console.log('\n== Overall reading ==');
   check('every at-a-glance value is non-empty',
     reading.atAGlance.every((f) => f.value.trim().length > 0));
 
-  // The reading must not leak the rule layer it was composed from.
+  // The reading must not leak a citation — a chapter and verse number — into
+  // the prose. It MAY say how many rules held, which is a summary of the
+  // evidence rather than a citation of it, and is the point of the block.
   const blob = [reading.headline, ...reading.movements.map((m) => m.body)].join(' ');
-  check('no rule citations survive in the prose', !/classical[^.]*rules/i.test(blob), blob.slice(0, 120));
+  check('no chapter-and-verse citation survives in the prose',
+    !/(Ch\.\s*\d|Śloka\s*\d|Adhyāya\s*\d|\bBPHS\b)/.test(blob), blob.slice(0, 160));
   check('no "no canonical configuration" note survives',
     !/canonical configuration/i.test(blob));
   check('no dangling copula ends a sentence', !/\s(?:is|are|was|were)\s*[.;]/.test(blob));
   check('no Devanagari gloss survives in the prose', !/[\u0900-\u097F]/.test(blob));
 
   // It is one reading, not twelve — the prose must not enumerate domains.
+  // Raised from 3000 when each movement gained its classical-evidence line.
+  // The bound still holds the reading to one paragraph per movement rather
+  // than twelve domain summaries.
   check('the prose is shorter than twelve domain summaries',
-    blob.length < 3000, `${blob.length} chars`);
+    blob.length < 3600, `${blob.length} chars`);
 
   check('thin-ground domains are named, not listed as rules',
     Array.isArray(reading.thinnest));
@@ -3785,6 +3791,53 @@ console.log('\n== Classical rule registry ==');
   const unused = ids.filter((id) => !used.has(id));
   check('every rule in the registry is used by an evaluator', unused.length === 0,
     unused.join(','));
+}
+
+/* ---- THE OVERALL READING MUST SHOW ITS CLASSICAL EVIDENCE ---- */
+
+console.log('\n== Overall reading: classical evidence ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const report: any = generateClassicalChartIndications(natal);
+  const reading: any = buildOverallReading(report, natal);
+
+  // The evidence block is the point: the reading says how many classical rules
+  // were tested and how many hold, per text, instead of only scoring domains.
+  check('the reading reports how many rules were tested',
+    typeof reading.evidence?.rulesTested === 'number' && reading.evidence.rulesTested > 0,
+    String(reading.evidence?.rulesTested));
+  check('the reading reports how many hold',
+    typeof reading.evidence?.rulesMet === 'number' &&
+    reading.evidence.rulesMet <= reading.evidence.rulesTested,
+    `${reading.evidence?.rulesMet}/${reading.evidence?.rulesTested}`);
+  check('the per-text tally is populated and sums to the total',
+    reading.evidence.byText.length > 0 &&
+    reading.evidence.byText.reduce((a: number, b: any) => a + b.tested, 0) === reading.evidence.rulesTested,
+    String(reading.evidence.byText.length));
+  check('the tally names more than one source text',
+    reading.evidence.byText.length >= 3, String(reading.evidence.byText.length));
+
+  // Every movement must carry its own classical tally.
+  check('every movement carries a classical tally',
+    reading.movements.every((m: any) => typeof m.classical?.tested === 'number'),
+    String(reading.movements.length));
+  check('movement tallies sum to the whole',
+    reading.movements.reduce((a: number, m: any) => a + m.classical.tested, 0) ===
+      reading.evidence.rulesTested);
+
+  // A movement with rules tested but none met must say so rather than stay silent.
+  const barren = reading.movements.filter((m: any) => m.classical.tested > 0 && m.classical.met === 0);
+  check('a movement with no met rule says so',
+    barren.every((m: any) => /no classical rule was met/i.test(m.body)),
+    String(barren.length));
+
+  // Threads name a shared cause, never a bare word.
+  check('threads are well formed',
+    reading.threads.every((t: any) => t.observation.length > 30 && t.domains.length >= 3),
+    String(reading.threads.length));
+  check('no thread names a non-graha',
+    reading.threads.every((t: any) => /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/.test(t.observation)),
+    reading.threads.map((t: any) => t.observation.slice(0, 20)).join('|'));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
