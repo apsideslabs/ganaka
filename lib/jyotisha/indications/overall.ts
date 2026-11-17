@@ -250,12 +250,17 @@ export function buildOverallReading(
   // Score every domain the report produced.
   const specs: DomainSpec[] = (report.orderedDomainIds ?? []).map((id) => {
     const d = report.domains?.[id];
+    const ph = d?.directClassicalPhalas ?? [];
     return {
       id,
       label: d?.title ?? id,
       house: d?.primaryBhavas?.[0] ?? 1,
       karakas: [...new Set((d?.keyGrahas ?? []) as any)] as any,
       vargas: d?.keyVargas ?? ['D1', 'D9'],
+      // The sixth layer: what the texts said about this domain, in the score.
+      classical: ph.length
+        ? { tested: ph.length, met: ph.filter((x: any) => x.allConditionsMet).length }
+        : undefined,
     };
   });
   const scores = scoreAllDomains(chart, specs);
@@ -373,8 +378,11 @@ export function buildOverallReading(
   const threads = findThreads(report);
 
   const method =
-    'Each domain is scored on five layers — the house lord 40%, its natural significator 25%, ' +
-    'the divisional chart 15%, aṣṭakavarga bindus 10%, and whether the running daśā opens it 10%. ' +
+    'Each domain is scored on six layers — the house lord 35%, its natural significator 22%, ' +
+    'the divisional chart 13%, aṣṭakavarga bindus 9%, whether the running daśā opens it 9%, ' +
+    'and how many of the domain\'s own classical rules the chart met 12%. ' +
+    'The sixth layer is there because the other five and the rule layer could disagree outright: ' +
+    'a domain could look strong on dignity and ṣaḍbala while every verse written about it failed. ' +
     'The weights are a convention, not a verse; they are stated so the reading can be argued with.';
 
   return { headline, method, movements, atAGlance, thinnest, strongButDormant, evidence, threads };
