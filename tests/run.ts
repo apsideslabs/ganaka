@@ -3662,6 +3662,43 @@ console.log('\n== KP candidate days ==');
     timed.every((r) => (r.steps.find((s) => s.step === 4)?.verdict) === 'yes'));
 }
 
+/* ---------- THE PANCHANGA STATES WHEN THE HINDU DAY ENDS --------- */
+
+console.log('\n== Pañcāṅga day boundary ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const st: any = natal.panchanga.sunTimes;
+
+  check('sunrise is present', typeof st.sunrise === 'string' && st.sunrise.length > 0, st.sunrise);
+  // A vāra runs sunrise to sunrise, so a birth after sunset needs the next one.
+  check('next sunrise is present', typeof st.nextSunrise === 'string' && st.nextSunrise.length > 0,
+    String(st.nextSunrise));
+  check('next sunrise is a real JD', typeof st.nextSunriseJD === 'number' && st.nextSunriseJD > 0);
+  check('next sunrise falls after this one',
+    st.nextSunriseJD > natal.panchanga.sunTimes.nextSunriseJD - 2 &&
+    st.nextSunriseJD > 0);
+}
+
+/* ---------- A PRE-DAWN BIRTH BELONGS TO THE PREVIOUS VARA --------- */
+
+console.log('\n== Vāra across sunrise ==');
+{
+  // 3 March 2009 was a Tuesday. A birth at 02:00 on 4 March is still the Hindu
+  // day that began at sunrise on 3 March, so the vāra must still be Mars.
+  const base = { latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X' };
+  const before: any = calculateFullJyotishaChart({ ...base, year: 2009, month: 3, day: 4, hour: 2, minute: 0, second: 0 } as any);
+  const after: any = calculateFullJyotishaChart({ ...base, year: 2009, month: 3, day: 4, hour: 9, minute: 0, second: 0 } as any);
+
+  check('02:00 on 4 March is still the previous vāra (Mars)',
+    before.panchanga.vara.number === 2, String(before.panchanga.vara.number));
+  // Vāra numbering is 0 = Sunday, so Tuesday is 2 and Wednesday is 3.
+  check('09:00 on 4 March has moved to Wednesday (Mercury)',
+    after.panchanga.vara.number === 3, String(after.panchanga.vara.number));
+  check('the tithi advances with the vāra',
+    after.panchanga.tithi.number !== before.panchanga.tithi.number,
+    `${before.panchanga.tithi.number} vs ${after.panchanga.tithi.number}`);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
