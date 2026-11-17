@@ -23,6 +23,7 @@
 
 import { PlanetId } from '../astronomy/ephemeris';
 import { ShadbalaComponent, RashiNumber } from '../jyotisha/types';
+import { sputaDrishti } from './sputa-drishti';
 import { GRAHA_PROPERTIES } from '../jyotisha/constants';
 import { normalizeDegrees } from '../astronomy/julian';
 
@@ -547,30 +548,27 @@ export function calculateShadbala(
     // varies with the exact angular separation rather than the whole-sign
     // house. That needs the piecewise curve, and a wrong curve is worse than a
     // documented whole-sign approximation.
-    const ASPECT_HOUSES: Record<string, Array<[number, number]>> = {
-      sun: [[7, 60]],
-      moon: [[7, 60]],
-      mercury: [[7, 60]],
-      venus: [[7, 60]],
-      mars: [[7, 60], [4, 45], [8, 45]],
-      jupiter: [[7, 60], [5, 30], [9, 30]],
-      saturn: [[7, 60], [3, 15], [10, 15]],
-    };
+    // Sputa dṛṣṭi, BPHS 26.6–26.12 — the aspect measured by degrees.
+    //
+    // This used to be whole-sign: a fixed value if the two grahas happened to
+    // fall the right number of signs apart, and exactly 0 if they did not. On
+    // the first chart tested four of the seven read 0.00 for that reason alone.
+    // The texts measure the aspect by the angle between the two, which is what
+    // lib/shadbala/sputa-drishti.ts now supplies.
     const moonWaxing = moonSunDiff <= 180;
     let drishtiSum = 0;
+    const selfLon = normalizeDegrees(planetaryPositions[pId].siderealLongitude);
     for (const other of GRAHAS) {
       if (other === pId) continue;
-      const otherRashi = Math.floor(normalizeDegrees(planetaryPositions[other].siderealLongitude) / 30) + 1;
-      const houseFromOther = (((pRashi - otherRashi + 12) % 12) + 1);
-      const aspect = (ASPECT_HOUSES[other] || [[7, 60]]).find(([h]) => h === houseFromOther);
-      if (aspect) {
-        const isBenefic =
-          other === 'jupiter' ||
-          other === 'venus' ||
-          other === 'mercury' ||
-          (other === 'moon' && moonWaxing);
-        drishtiSum += isBenefic ? aspect[1] : -aspect[1];
-      }
+      const otherLon = normalizeDegrees(planetaryPositions[other].siderealLongitude);
+      const virupas = sputaDrishti(otherLon, selfLon, other as any);
+      if (virupas === 0) continue;
+      const isBenefic =
+        other === 'jupiter' ||
+        other === 'venus' ||
+        other === 'mercury' ||
+        (other === 'moon' && moonWaxing);
+      drishtiSum += isBenefic ? virupas : -virupas;
     }
     const drigBala = Math.max(-60, Math.min(60, drishtiSum / 4));
 
