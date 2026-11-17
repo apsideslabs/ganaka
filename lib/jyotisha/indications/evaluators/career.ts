@@ -284,6 +284,20 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jaimini 1.2.39-41 and 1.2.42-47 — the 10th and 4th from the karakamsha.
+  {
+    const ak = (chart.jaimini?.charaKarakas ?? [])[0] as any;
+    const akp: any = ak ? (chart.planets as any)[ak.planet] : null;
+    const d9 = akp ? (chart.vargas?.D9?.planets as any)?.[ak.planet]?.rashiNumber : null;
+    const tenthFromAk = d9 ? ((d9 - 1 + 9) % 12) + 1 : null;
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_karakamsha_kendra', 'phala_jaimini_karakamsha',
+        [{ id: 'c_karakamsha_10th', description: 'A graha occupies the 10th from the karakamsha', expected: '>= 1', observed: tenthFromAk ? `10th from karakamsha = rasi ${tenthFromAk}` : 'no atmskaraka', met: !!tenthFromAk }],
+        'The 10th from the karakamsha gives the profession and public standing; the 4th from it gives the dwelling and inner contentment.',
+        CANONICAL_RULES.jaimini_karakamsha_kendra),
+    );
+  }
+
   return {
     id: 'career',
     title: 'Career & Professional Life',
