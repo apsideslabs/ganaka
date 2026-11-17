@@ -9,6 +9,7 @@
 import type { JyotishaChart, PlanetId, RashiNumber } from '../jyotisha/types';
 import { RASHIS } from '../jyotisha/constants';
 import { calculateHouses } from '../jyotisha/houses';
+import { placidusCusps } from '../jyotisha/placidus';
 import { calculateKPPosition } from '../jyotisha/sphutas';
 
 /** The four KP lords of any zodiacal point. */
@@ -47,7 +48,25 @@ export function buildKpCusps(chart: JyotishaChart): KpCusp[] {
   const lagna = chart.lagna.siderealLongitude;
   const mc = Number((chart as any).angles?.mc ?? ((lagna + 270) % 360));
 
-  const bhavas = calculateHouses(lagna, mc, 'placidus' as any, positions as any) as any[];
+  // True Placidus. `calculateHouses` used to divide each quadrant into equal
+  // thirds — Porphyry — while calling it Placidus. On one chart that put cusps
+  // 2 and 3 nearly four degrees from where Placidus puts them, and every sub
+  // lord on those cusps was read from the wrong degree. KP is Placidus by
+  // definition, so this matters.
+  const bd: any = (chart.meta as any)?.birthDetails ?? {};
+  const obliquity = 23.4392911
+    - 0.0130042 * (((bd.year ?? 2000) - 2000) / 100);  // mean obliquity, adequate to 0.01° here
+  const placidus = placidusCusps({
+    ascendant: lagna,
+    mc,
+    latitude: bd.latitude ?? 0,
+    obliquity,
+    ayanamsha: (chart.meta as any)?.ayanamshaValue ?? 0,
+  });
+
+  const bhavas = calculateHouses(lagna, mc, 'placidus' as any, positions as any, {
+    placidusCusps: placidus ?? undefined,
+  }) as any[];
 
   const planetLongitudes: Array<{ id: PlanetId; lon: number }> = [];
   for (const [id, p] of Object.entries(chart.planets as any)) {
