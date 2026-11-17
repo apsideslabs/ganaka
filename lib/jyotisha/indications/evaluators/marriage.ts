@@ -187,8 +187,8 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
     directClassicalPhalas.push(
       phalaFromRule('bphs_jaya_bhava_phala', 'phala_bphs_jaya_bhava',
         [
-          { description: '7th lord in a kendra or trikona', observed: `House ${h7}`, met: [1,4,7,10,5,9].includes(h7) },
-          { description: '7th lord not in a trika house', observed: `House ${h7}`, met: ![6,8,12].includes(h7) },
+          { id: 'c_7th_lord_in_a_kendra_or_trikona', description: '7th lord in a kendra or trikona', expected: '7th lord in a kendra or trikona', observed: `House ${h7}`, met: [1,4,7,10,5,9].includes(h7) },
+          { id: 'c_7th_lord_not_in_a_trika_house', description: '7th lord not in a trika house', expected: '7th lord not in a trika house', observed: `House ${h7}`, met: ![6,8,12].includes(h7) },
         ],
         'The 7th bhava governs the spouse; its lord well placed gives a good spouse and lasting union, in a trika house delay or discord.',
         CANONICAL_RULES.bphs_jaya_bhava_phala),
