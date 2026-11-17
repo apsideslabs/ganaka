@@ -246,8 +246,8 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     directClassicalPhalas.push(
       phalaFromRule('bphs_karma_bhava_phala', 'phala_bphs_karma_bhava',
         [
-          { description: '10th lord in a kendra or trikona', observed: `House ${h10}`, met: [1,4,7,10,5,9].includes(h10) },
-          { description: '10th lord not in a trika house', observed: `House ${h10}`, met: ![6,8,12].includes(h10) },
+          { id: 'c_10th_lord_in_a_kendra_or_trikona', description: '10th lord in a kendra or trikona', expected: '10th lord in a kendra or trikona', observed: `House ${h10}`, met: [1,4,7,10,5,9].includes(h10) },
+          { id: 'c_10th_lord_not_in_a_trika_house', description: '10th lord not in a trika house', expected: '10th lord not in a trika house', observed: `House ${h10}`, met: ![6,8,12].includes(h10) },
         ],
         'The 10th bhava governs action and profession; its lord well placed gives high position and honour, in a trika house servitude.',
         CANONICAL_RULES.bphs_karma_bhava_phala),
