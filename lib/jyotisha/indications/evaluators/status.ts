@@ -177,6 +177,19 @@ export function evaluateStatusDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 6 - seventy verses of named yogas.
+  {
+    const l5 = getHouseLord(chart, 5); const l9 = getHouseLord(chart, 9);
+    const p5: any = chart.planets[l5.id]; const p9: any = chart.planets[l9.id];
+    const linked = p5?.house === p9?.house && l5.id !== l9.id;
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_yoga_adhyaya', 'phala_phaladeepika_yoga',
+        [{ id: 'c_pd_yoga_linked', description: '5th and 9th lords in mutual relation', expected: 'conjunction or exchange', observed: linked ? 'conjoined' : 'separate', met: linked }],
+        'The yoga chapter gives the benefic combinations that raise a chart and the malefic ones that depress it, each with its forming condition.',
+        CANONICAL_RULES.phaladeepika_yoga_adhyaya),
+    );
+  }
+
   return {
     id: 'status',
     title: 'Social Status, Authority & Public Life',
