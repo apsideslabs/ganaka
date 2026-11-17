@@ -5,12 +5,21 @@
  * life domain on the five layers the classical texts actually use, with fixed
  * weights, so a verdict can be traced to a number instead of a sentence:
  *
- *   1. Bhāveśa        40%  the domain's house lord — dignity, house type,
+ *   1. Bhāveśa        40% (35% when the sixth layer is present)  the domain's house lord — dignity, house type,
  *                          combustion, retrogradation
  *   2. Naisargika      25%  the natural significator, weighed by its ṣaḍbala ratio
  *   3. Divisional      15%  where the lord sits in the domain's own varga
  *   4. Aṣṭakavarga     10%  the bindus in the domain's bhāva
- *   5. Daśā            10%  whether the running period can deliver it
+ *   5. Daśā            10% (9%)  whether the running period can deliver it
+ *   6. Classical       12%  how many of the domain's own classical rules the
+ *                          chart actually met
+ *
+ * The sixth layer exists because the first five and the rule layer could
+ * disagree outright: a domain could score 0.7 on dignity, ṣaḍbala, varga,
+ * bindus and daśā while every classical rule for it failed. Two measures of the
+ * same house pointing opposite ways is not a nuance, it is a defect. The
+ * classical tally now carries weight in the score it was previously only
+ * reported beside.
  *
  * The weights are published rather than hidden. They are a convention, not a
  * verse, and a reader who disagrees with them can see exactly what to change.
@@ -223,6 +232,12 @@ export interface DomainSpec {
   house: number;
   karakas: PlanetId[];
   vargas: string[];
+  /**
+   * How many classical rules the domain's evaluator tested, and how many the
+   * chart met. Optional: a caller that has not run the evaluators simply omits
+   * it and the Classical layer is left out of the weighting.
+   */
+  classical?: { tested: number; met: number };
 }
 
 /** Score one domain across all five layers. */
@@ -247,6 +262,25 @@ export function scoreDomain(chart: JyotishaChart, spec: DomainSpec): DomainScore
       return { score: d.score, read: d.read };
     })() },
   ];
+
+  // The sixth layer, present only when the caller ran the evaluators. Its
+  // weight is taken from the other five in proportion so the total stays 1.0.
+  if (spec.classical && spec.classical.tested > 0) {
+    const { tested, met } = spec.classical;
+    const ratio = met / tested;
+    // The five base weights sum to 1.00 on their own, so they are scaled down
+    // to 0.88 before the sixth takes its 0.12. Without the scale the sum would
+    // be 1.12; with a flat 0.12 added and no scale it would be 1.12 either way.
+    const CLASSICAL_WEIGHT = 0.12;
+    const scale = 1 - CLASSICAL_WEIGHT;
+    for (const l of layers) l.weight = l.weight * scale;
+    layers.push({
+      name: 'Classical',
+      weight: CLASSICAL_WEIGHT,
+      score: ratio,
+      read: `${met} of ${tested} classical rule${tested === 1 ? '' : 's'} met`,
+    });
+  }
 
   const total = Math.round(layers.reduce((sum, l) => sum + l.score * l.weight, 0) * 100);
   const tone: Tone = total >= 70 ? 'strong' : total >= 55 ? 'favourable' : total >= 40 ? 'mixed' : 'weak';
