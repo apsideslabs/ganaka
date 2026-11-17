@@ -195,6 +195,21 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 10 - the 7th read from lagna and from the Moon.
+  {
+    const l7 = getHouseLord(chart, 7); const l7p: any = chart.planets[l7.id];
+    const m7 = ((chart.planets.moon.rashiNumber - 1 + 6) % 12) + 1;
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_kalatra_bhava', 'phala_phaladeepika_kalatra',
+        [
+          { id: 'c_pd_7th_kendra', description: '7th lord in a kendra or trikona', expected: 'kendra or trikona', observed: `House ${l7p?.house}`, met: [1,4,7,10,5,9].includes(l7p?.house ?? 0) },
+          { id: 'c_pd_7th_moon', description: '7th from the Moon is not a dusthana', expected: 'not 6/8/12', observed: `Rasi ${m7}`, met: ![6,8,12].includes(m7) },
+        ],
+        'Phaladipika reads the 7th from the lagna and again from the Moon; both must agree before the spouse reading is firm.',
+        CANONICAL_RULES.phaladeepika_kalatra_bhava),
+    );
+  }
+
   return {
     id: 'marriage',
     title: 'Marriage & Partnership',
