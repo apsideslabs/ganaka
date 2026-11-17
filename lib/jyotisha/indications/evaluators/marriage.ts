@@ -19,6 +19,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -178,6 +179,21 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // BPHS 18 - the 7th bhava, 42 verses, the longest of the bhava chapters.
+  {
+    const l7 = getHouseLord(chart, 7); const l7p: any = chart.planets[l7.id];
+    const h7 = l7p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_jaya_bhava_phala', 'phala_bphs_jaya_bhava',
+        [
+          { description: '7th lord in a kendra or trikona', observed: `House ${h7}`, met: [1,4,7,10,5,9].includes(h7) },
+          { description: '7th lord not in a trika house', observed: `House ${h7}`, met: ![6,8,12].includes(h7) },
+        ],
+        'The 7th bhava governs the spouse; its lord well placed gives a good spouse and lasting union, in a trika house delay or discord.',
+        CANONICAL_RULES.bphs_jaya_bhava_phala),
+    );
+  }
 
   return {
     id: 'marriage',
