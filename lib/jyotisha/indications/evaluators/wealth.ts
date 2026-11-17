@@ -172,8 +172,8 @@ export function evaluateWealthDomain(chart: JyotishaChart): DomainIndication {
     directClassicalPhalas.push(
       phalaFromRule('bphs_dhana_bhava_phala', 'phala_bphs_dhana_bhava',
         [
-          { description: '2nd lord placed in a kendra or trikona', observed: `House ${h2}`, met: good(h2) },
-          { description: '2nd lord not in a trika house (6/8/12)', observed: `House ${h2}`, met: !trika(h2) },
+          { id: 'c_2nd_lord_placed_in_a_kendra_or_trikona', description: '2nd lord placed in a kendra or trikona', expected: '2nd lord placed in a kendra or trikona', observed: `House ${h2}`, met: good(h2) },
+          { id: 'c_2nd_lord_not_in_a_trika_house_6_8_12', description: '2nd lord not in a trika house (6/8/12)', expected: '2nd lord not in a trika house (6/8/12)', observed: `House ${h2}`, met: !trika(h2) },
         ],
         good(h2) && !trika(h2)
           ? 'The 2nd lord in a kendra or trikona increases wealth (dhana-vrddhi).'
@@ -182,13 +182,13 @@ export function evaluateWealthDomain(chart: JyotishaChart): DomainIndication {
     );
     directClassicalPhalas.push(
       phalaFromRule('bphs_labha_bhava_phala', 'phala_bphs_labha_bhava',
-        [{ description: '11th lord placed in a kendra or trikona', observed: `House ${h11}`, met: good(h11) }],
+        [{ id: 'c_11th_lord_placed_in_a_kendra_or_trikon', description: '11th lord placed in a kendra or trikona', expected: '11th lord placed in a kendra or trikona', observed: `House ${h11}`, met: good(h11) }],
         'The 11th bhava governs income; its lord well placed gives steady gain and the fulfilment of desires.',
         CANONICAL_RULES.bphs_labha_bhava_phala),
     );
     directClassicalPhalas.push(
       phalaFromRule('bphs_daridra_yogas', 'phala_bphs_daridra',
-        [{ description: '2nd and 11th lords not both in dusthanas', observed: `2nd in ${h2}, 11th in ${h11}`, met: !(trika(h2) && trika(h11)) }],
+        [{ id: 'c_2nd_and_11th_lords_not_both_in_dusthan', description: '2nd and 11th lords not both in dusthanas', expected: '2nd and 11th lords not both in dusthanas', observed: `2nd in ${h2}, 11th in ${h11}`, met: !(trika(h2) && trika(h11)) }],
         'Combinations for penury arise when the wealth lords fall in dusthanas joined to malefics. BPHS reads them only against the countervailing dhana yogas of Ch. 41.',
         CANONICAL_RULES.bphs_daridra_yogas),
     );
