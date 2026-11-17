@@ -157,25 +157,50 @@ export function kpTiming(
   const currentLords = chain.map((n, i) => toLord(chart, cusps, n, i, matterHouses, rpSet));
   const current = currentLords.length ? judge(currentLords, matterHouses) : null;
 
-  // Walk the antardaśās of the running mahādaśā and keep the delivering ones.
+  // Walk the antardaśās and pratyantaras of every mahādaśā inside the horizon
+  // and keep the delivering ones.
+  //
+  // This used to read `chain[0]` only — the mahādaśā running today. A matter
+  // whose window falls in the NEXT mahādaśā then came back "promised, waits for
+  // a later mahādaśā" with no date, which is the answer for most matters on
+  // most charts. KP states the rule over a horizon, not over one mahādaśā:
+  //
+  //   "Take every Maha-Antar-Pratyantar combination inside the horizon of the
+  //    reading and test each against the joint-coverage rule."
+  //
+  // The horizon is the running mahādaśā plus the next two, which covers roughly
+  // the next forty years — long enough that a "no window" answer means none,
+  // rather than none-yet.
   const windows: KpTimingWindow[] = [];
-  const maha = chain[0];
-  if (maha?.subPeriods) {
-    for (const antar of maha.subPeriods) {
+  const tree: any[] = (chart.vimshottari as any)?.tree ?? [];
+  const runningIdx = tree.findIndex((n) => {
+    const st = new Date(n.startDate).getTime();
+    const en = new Date(n.endDate).getTime();
+    return now.getTime() >= st && now.getTime() <= en;
+  });
+  const horizon = runningIdx >= 0 ? tree.slice(runningIdx, runningIdx + 3) : tree.slice(0, 3);
+
+  for (const maha of horizon) {
+    const mahaLord = toLord(chart, cusps, maha, 0, matterHouses, rpSet);
+    const mahaCovers = mahaLord.covers.length > 0 ? mahaLord : (currentLords[0] ?? mahaLord);
+    for (const antar of maha?.subPeriods ?? []) {
       const antarLord = toLord(chart, cusps, antar, 1, matterHouses, rpSet);
       const pratys: any[] = antar.subPeriods ?? [];
       if (pratys.length === 0) {
-        const w = judge([currentLords[0] ?? antarLord, antarLord], matterHouses);
+        const w = judge([mahaCovers, antarLord], matterHouses);
         if (w.delivers) windows.push(w);
         continue;
       }
       for (const praty of pratys) {
         const pratyLord = toLord(chart, cusps, praty, 2, matterHouses, rpSet);
-        const w = judge([currentLords[0] ?? antarLord, antarLord, pratyLord], matterHouses);
+        const w = judge([mahaCovers, antarLord, pratyLord], matterHouses);
         if (w.delivers) windows.push(w);
       }
     }
   }
+
+  // Report in time order, as KP states — unranked, no single "the" date.
+  windows.sort((a, b) => new Date(a.from).getTime() - new Date(b.from).getTime());
 
   return {
     house,
