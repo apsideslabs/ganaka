@@ -70,17 +70,38 @@ export function evaluateCuspPromise(
   let reading: string;
   const name = GRAHA_PROPERTIES[subLord]?.name ?? subLord;
 
-  if (hitsMatter.length > 0 && hitsDetrimental.length === 0) {
-    promise = subLordRetrograde ? 'promised-when-direct' : 'promised';
-    reading = subLordRetrograde
-      ? `The sub lord ${name} signifies ${hitsMatter.join(', ')} but is retrograde, so the matter is promised when it turns direct.`
-      : `The sub lord ${name} signifies ${hitsMatter.join(', ')} — the matter is promised.`;
-  } else if (hitsMatter.length === 0 && hitsDetrimental.length > 0) {
+  // The verdict is TWO-VALUED. One required house is enough to promise the
+  // matter, even when adverse houses are signified alongside it:
+  //
+  //   "The cuspal sub lord must signify any one of 2, 7 or 11. One house is
+  //    enough... It is NOT PROMISED only when the sub lord is connected
+  //    exclusively to the adverse houses."
+  //
+  //   "a sub lord that signifies 7 alongside 6 and 12 still promises marriage —
+  //    the reading marks it 'promised, with difficulty'."
+  //
+  // Krishnamurti Padhdhati III states the same thing in its own words: if the
+  // 7th cusp sub lord signifies 6 and 10 it will not marry; if it signifies 2, 7
+  // and 11 marriage is promised.
+  //
+  // This used to return a third value, 'mixed', whenever both groups were hit.
+  // Since the three-level reading almost always touches both, that made the
+  // great majority of matters unreadable — 'mixed' was being carried into the
+  // four-step as if the matter were unpromised.
+  if (hitsMatter.length > 0) {
+    const difficulty = hitsDetrimental.length > 0
+      ? ` It also signifies ${hitsDetrimental.join(', ')}, so the matter comes with difficulty rather than freely.`
+      : '';
+    if (subLordRetrograde) {
+      promise = 'promised-when-direct';
+      reading = `The sub lord ${name} signifies ${hitsMatter.join(', ')} but is retrograde, so the matter is promised when it turns direct.${difficulty}`;
+    } else {
+      promise = 'promised';
+      reading = `The sub lord ${name} signifies ${hitsMatter.join(', ')} — the matter is promised.${difficulty}`;
+    }
+  } else if (hitsDetrimental.length > 0) {
     promise = 'denied';
-    reading = `The sub lord ${name} signifies only the detrimental houses ${hitsDetrimental.join(', ')} — the matter is not promised.`;
-  } else if (hitsMatter.length > 0 && hitsDetrimental.length > 0) {
-    promise = 'mixed';
-    reading = `The sub lord signifies both ${hitsMatter.join(', ')} and ${hitsDetrimental.join(', ')} — both results are given, in different periods.`;
+    reading = `The sub lord ${name} signifies only the detrimental houses ${hitsDetrimental.join(', ')} and none of ${matterHouses.join(', ')} — the matter is not promised.`;
   } else {
     promise = 'undetermined';
     reading = 'The sub lord signifies neither group by this reading, so the cusp is silent on the matter.';
