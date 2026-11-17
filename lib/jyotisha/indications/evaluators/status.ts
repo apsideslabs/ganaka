@@ -15,6 +15,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -137,6 +138,44 @@ export function evaluateStatusDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // Phaladipika Ch. 7, Saravali Ch. 35, 37 and 38.
+  {
+    const kendraLords = [1,4,7,10].map((h) => getHouseLord(chart, h).id);
+    const trikonaLords = [5,9].map((h) => getHouseLord(chart, h).id);
+    const linked = kendraLords.some((k) => trikonaLords.some((t) => {
+      const kp: any = chart.planets[k]; const tp: any = chart.planets[t];
+      return k !== t && kp?.house === tp?.house;
+    }));
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_maharajayoga', 'phala_phaladeepika_rajayoga',
+        [{ id: 'c_pd_kendra_trikona', description: 'A kendra lord and a trikona lord conjoined', expected: 'mutual relation', observed: linked ? 'conjoined' : 'separate', met: linked }],
+        'Raja yogas form when the lords of kendras and trikonas stand in mutual relation; the 9th and 10th linked is the strongest.',
+        CANONICAL_RULES.phaladeepika_maharajayoga),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_rajayoga', 'phala_saravali_rajayoga',
+        [{ id: 'c_sv_rajayoga', description: 'Kendra and trikona lords in mutual relation', expected: 'relation present', observed: linked ? 'yes' : 'no', met: linked }],
+        'Saravali devotes 181 verses to raja yoga, covering every kendra-trikona combination and its strengthening conditions.',
+        CANONICAL_RULES.saravali_rajayoga),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_rajayoga_bhanga', 'phala_saravali_bhanga',
+        [{ id: 'c_sv_bhanga', description: 'The yogakaraka is not combust or in a dusthana', expected: 'unafflicted', observed: `9th lord in house ${(chart.planets[getHouseLord(chart,9).id] as any)?.house}`, met: ![6,8,12].includes((chart.planets[getHouseLord(chart,9).id] as any)?.house ?? 0) }],
+        'A raja yoga is broken when its yogakaraka is combust, defeated in graha-yuddha, debilitated without cancellation, or joined to a dusthana lord.',
+        CANONICAL_RULES.saravali_rajayoga_bhanga),
+    );
+    // Saravali Ch. 37 - the five mahapurusha yogas.
+    const maha = [['mars','Rucaka'],['mercury','Bhadra'],['jupiter','Hamsa'],['venus','Malavya'],['saturn','Sasa']]
+      .filter(([p]) => [1,4,7,10].includes((chart.planets as any)[p]?.house ?? 0)
+        && /Own|Exalted|Moolatrikona/.test(String((chart.planets as any)[p]?.dignity ?? '')));
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_pancha_mahapurusha', 'phala_saravali_mahapurusha',
+        [{ id: 'c_sv_mahapurusha', description: 'One of the five grahas in a kendra in its own dignity', expected: 'Rucaka/Bhadra/Hamsa/Malavya/Sasa', observed: maha.length ? maha.map(([,n])=>n).join(',') : 'none', met: maha.length > 0 }],
+        'The five mahapurusha yogas form when Mars, Mercury, Jupiter, Venus or Saturn occupies a kendra in its own sign or exaltation.',
+        CANONICAL_RULES.saravali_pancha_mahapurusha),
+    );
+  }
 
   return {
     id: 'status',
