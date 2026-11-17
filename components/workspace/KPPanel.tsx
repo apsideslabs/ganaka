@@ -119,6 +119,39 @@ export const KPPanel: React.FC<KPPanelProps> = ({ chart }) => {
 
   return (
     <div className="space-y-5">
+      {/* ── birth-time sensitivity ─────────────────────────────── */}
+      {/* KP hangs the whole verdict on the sub lord of one cusp degree, and that
+          sub lord holds for a couple of minutes. A reading that hides this is
+          hiding its largest source of error. */}
+      {kp.sensitivity && (
+        <div
+          className={`rounded-2xl border px-5 py-4 ${
+            kp.sensitivity.minutes <= 3
+              ? 'border-[#8C2D19]/30 bg-[#8C2D19]/[0.04]'
+              : 'border-slate-200/90 bg-white'
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <Clock className={`w-4 h-4 shrink-0 mt-0.5 ${kp.sensitivity.minutes <= 3 ? 'text-[#8C2D19]' : 'text-slate-400'}`} />
+            <div className="min-w-0">
+              <p className="text-[13px] text-slate-900 font-medium">
+                The 7th cusp sub lord is {kp.sensitivity.subLord}, and it holds for{' '}
+                <strong className="font-semibold">±{kp.sensitivity.minutes} minute{kp.sensitivity.minutes === 1 ? '' : 's'}</strong>.
+              </p>
+              <p className="text-[12px] text-slate-500 mt-1 leading-relaxed">
+                {kp.sensitivity.minutes <= 3
+                  ? 'Move the birth time further than that and the sub lord changes'
+                  : 'Move the birth time further than that and the sub lord changes'}
+                {kp.sensitivity.wouldBecome
+                  ? ` — ${kp.sensitivity.wouldBecome.afterMinutes} minute${kp.sensitivity.wouldBecome.afterMinutes === 1 ? '' : 's'} ${kp.sensitivity.wouldBecome.direction} it becomes ${kp.sensitivity.wouldBecome.subLord}, and every verdict that rests on this cusp changes with it.`
+                  : '.'}{' '}
+                Check the recorded time before relying on a promise or a denial.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── header ─────────────────────────────────────────────── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
         <div className="px-7 pt-6 pb-5">
