@@ -254,6 +254,24 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 5 and Saravali Ch. 33 - livelihood and the 10th.
+  {
+    const l10 = getHouseLord(chart, 10); const l10p: any = chart.planets[l10.id];
+    const m10 = ((chart.planets.moon.rashiNumber - 1 + 9) % 12) + 1;
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_karmajiva', 'phala_phaladeepika_karmajiva',
+        [{ id: 'c_pd_10th_placed', description: '10th lord not in a dusthana', expected: 'not 6/8/12', observed: `House ${l10p?.house}`, met: ![6,8,12].includes(l10p?.house ?? 0) }],
+        'Livelihood is read from the 10th bhava, its lord, the graha occupying it and the strongest graha in the chart.',
+        CANONICAL_RULES.phaladeepika_karmajiva),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_karma_chinta', 'phala_saravali_karma',
+        [{ id: 'c_sv_10th_moon', description: '10th from the Moon is a kendra or trikona from lagna', expected: 'supported', observed: `Rasi ${m10}`, met: [1,4,7,10,5,9].includes(m10) }],
+        'Saravali reads the 10th from the lagna and again from the Moon, and gives the profession from whichever is stronger.',
+        CANONICAL_RULES.saravali_karma_chinta),
+    );
+  }
+
   return {
     id: 'career',
     title: 'Career & Professional Life',
