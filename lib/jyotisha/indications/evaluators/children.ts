@@ -17,6 +17,7 @@ import {
   getCharaKarakaPlanet,
   makeFact,
   GRAHA_SANSKRIT_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -121,6 +122,18 @@ export function evaluateChildrenDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // Jaimini 1.4.24-31 — children from the 5th from the Upapada.
+  {
+    const ulRashi = (chart.jaimini?.arudhaPadas as any)?.twelfth ?? null;
+    const fifthFromUl = ulRashi ? ((ulRashi - 1 + 4) % 12) + 1 : null;
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_upapada_children', 'phala_jaimini_upapada_children',
+        [{ id: 'c_upapada_5th', description: 'The Upapada resolves and its 5th is read', expected: 'Upapada present', observed: ulRashi ? `UL rasi ${ulRashi}, 5th = ${fifthFromUl}` : 'no Upapada', met: !!ulRashi }],
+        'Children are read from the 5th from the Upapada and the grahas in and aspecting it.',
+        CANONICAL_RULES.jaimini_upapada_children),
+    );
+  }
 
   return {
     id: 'children',
