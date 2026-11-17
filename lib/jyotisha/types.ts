@@ -430,6 +430,12 @@ export interface DetectedYoga {
   effects: string;
   involvedPlanets: PlanetId[];
   strengthRating: 'High' | 'Medium' | 'Weak' | 'Cancelled';
+  /**
+   * BPHS 6.53 — the grahas whose combustion or debilitation makes this yoga
+   * yoganāśaka, listed as `planet:cause`. The yoga still forms; its result is
+   * light. Absent when nothing is diminished.
+   */
+  diminishedBy?: string[];
   isUnverified?: boolean;
   provenanceNotes?: string;
 }
