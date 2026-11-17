@@ -159,7 +159,14 @@ export function calculateHouses(
   siderealLagna: number,
   siderealMC: number,
   system: 'equal_whole' | 'sripati' | 'placidus' = 'equal_whole',
-  planetaryPositions: Record<PlanetId, { siderealLongitude: number }>
+  planetaryPositions: Record<PlanetId, { siderealLongitude: number }>,
+  /**
+   * When supplied, these twelve Placidus cusps are used verbatim for the
+   * 'placidus' system. Without them the branch below falls back to dividing
+   * each quadrant into equal thirds, which is Porphyry, not Placidus — the
+   * caller is responsible for supplying real cusps.
+   */
+  options?: { placidusCusps?: number[] }
 ): DetailedBhavaCusp[] {
   const lagnaRashi = (Math.floor(siderealLagna / 30) + 1) as RashiNumber;
   const bhavas: DetailedBhavaCusp[] = [];
@@ -314,18 +321,26 @@ export function calculateHouses(
     const q4 = normalizeDegrees(h1Cusp - h10Cusp);
 
     const cusps: number[] = [];
-    cusps[1] = h1Cusp;
-    cusps[2] = normalizeDegrees(h1Cusp + q1 / 3);
-    cusps[3] = normalizeDegrees(h1Cusp + (2 * q1) / 3);
-    cusps[4] = h4Cusp;
-    cusps[5] = normalizeDegrees(h4Cusp + q2 / 3);
-    cusps[6] = normalizeDegrees(h4Cusp + (2 * q2) / 3);
-    cusps[7] = h7Cusp;
-    cusps[8] = normalizeDegrees(h7Cusp + q3 / 3);
-    cusps[9] = normalizeDegrees(h7Cusp + (2 * q3) / 3);
-    cusps[10] = h10Cusp;
-    cusps[11] = normalizeDegrees(h10Cusp + q4 / 3);
-    cusps[12] = normalizeDegrees(h10Cusp + (2 * q4) / 3);
+    if (options?.placidusCusps && options.placidusCusps.length === 12) {
+      // Real Placidus cusps from lib/jyotisha/placidus.ts.
+      for (let h = 1; h <= 12; h++) cusps[h] = normalizeDegrees(options.placidusCusps[h - 1]);
+    } else {
+      // ⚠ Porphyry, not Placidus: each quadrant divided into equal thirds. Kept
+      // only as a fallback for callers that cannot supply latitude and
+      // obliquity. Do not read KP sub-lords off this.
+      cusps[1] = h1Cusp;
+      cusps[2] = normalizeDegrees(h1Cusp + q1 / 3);
+      cusps[3] = normalizeDegrees(h1Cusp + (2 * q1) / 3);
+      cusps[4] = h4Cusp;
+      cusps[5] = normalizeDegrees(h4Cusp + q2 / 3);
+      cusps[6] = normalizeDegrees(h4Cusp + (2 * q2) / 3);
+      cusps[7] = h7Cusp;
+      cusps[8] = normalizeDegrees(h7Cusp + q3 / 3);
+      cusps[9] = normalizeDegrees(h7Cusp + (2 * q3) / 3);
+      cusps[10] = h10Cusp;
+      cusps[11] = normalizeDegrees(h10Cusp + q4 / 3);
+      cusps[12] = normalizeDegrees(h10Cusp + (2 * q4) / 3);
+    }
 
     for (let h = 1; h <= 12; h++) {
       const cuspStart = cusps[h];
