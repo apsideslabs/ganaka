@@ -24,6 +24,7 @@
  */
 import type { JyotishaChart, PlanetId } from '../jyotisha/types';
 import { calculateAyanamsha } from '@/lib/astronomy/ayanamsha';
+import { cusp7Sensitivity, type CuspSensitivity } from './sensitivity';
 import { buildKpCusps, cuspLord, type KpCusp } from './cusps';
 import { calculateKPPosition } from '../jyotisha/sphutas';
 import { GRAHA_PROPERTIES } from '../jyotisha/constants';
@@ -87,6 +88,12 @@ export interface KpLayer {
   ruling: RulingPlanetsResult;
   /** The promise verdict for each matter. */
   promises: Record<string, CuspPromiseResult | null>;
+  /**
+   * How many minutes the birth time may move before the 7th cusp sub lord
+   * changes. KP's verdict turns on that single sub lord, so this is the
+   * reading's largest source of error and is reported, never hidden.
+   */
+  sensitivity?: CuspSensitivity | null;
   /** Which cusp's star holds which other cusp's sub lord. */
   interlinks: CuspInterlink[];
   /** Timing for the primary house of each matter. */
@@ -195,6 +202,7 @@ function buildKpLayer(
   }
 
   const ruling = rulingPlanetsForChart(chart, true, mode);
+  const sensitivity = cusp7Sensitivity(chart);
 
   const promises: Record<string, CuspPromiseResult | null> = {};
   const timing: Record<string, KpTimingResult> = {};
@@ -273,6 +281,7 @@ function buildKpLayer(
     significators,
     ruling,
     promises,
+    sensitivity,
     interlinks: cuspalInterlinks(chart, cusps),
     timing,
     nodeAgents: nodeAgency(chart),
