@@ -122,6 +122,42 @@ export function evaluateLifeThemesDomain(chart: JyotishaChart): DomainIndication
     );
   }
 
+  // BPHS 37 and 38 - the lunar and solar yogas, plus Ch. 36's named yogas.
+  {
+    const moonRashi = chart.planets.moon.rashiNumber;
+    const others = ['sun','mars','mercury','jupiter','venus','saturn']
+      .map((p) => (chart.planets as any)[p])
+      .filter((p: any) => p && p.rashiNumber !== moonRashi);
+    const in2 = others.filter((p: any) => ((p.rashiNumber - moonRashi + 12) % 12) === 1).length;
+    const in12 = others.filter((p: any) => ((p.rashiNumber - moonRashi + 12) % 12) === 11).length;
+    const kendraFromMoon = others.filter((p: any) => [0,3,6,9].includes((p.rashiNumber - moonRashi + 12) % 12)).length;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_lunar_yogas', 'phala_bphs_lunar_yogas',
+        [
+          { id: 'c_lunar_sunapha', description: 'A graha in the 2nd from the Moon', expected: '>= 1', observed: String(in2), met: in2 >= 1 },
+          { id: 'c_lunar_kemadruma', description: 'Not Kemadruma (a graha in a kendra from the Moon)', expected: '>= 1', observed: String(kendraFromMoon), met: kendraFromMoon >= 1 },
+        ],
+        'Sunapha gives from the 2nd from the Moon, Anapha from the 12th; Kemadruma — neither, and no graha in a kendra from the Moon — is the classical marker of isolation.',
+        CANONICAL_RULES.bphs_lunar_yogas),
+    );
+    const sunRashi = chart.planets.sun.rashiNumber;
+    const s2 = others.filter((p: any) => ((p.rashiNumber - sunRashi + 12) % 12) === 1).length;
+    const s12 = others.filter((p: any) => ((p.rashiNumber - sunRashi + 12) % 12) === 11).length;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_solar_yogas', 'phala_bphs_solar_yogas',
+        [{ id: 'c_solar_vesi', description: 'Vesi, Vasi or Ubhayachari present', expected: '>= 1 graha beside the Sun', observed: `${s2} in 2nd, ${s12} in 12th`, met: s2 + s12 > 0 }],
+        'Vesi from the 2nd from the Sun, Vasi from the 12th, Ubhayachari from both; the result follows the nature of the graha involved.',
+        CANONICAL_RULES.bphs_solar_yogas),
+    );
+    const jupMoon = [0,3,6,9].includes(((chart.planets.jupiter.rashiNumber - moonRashi + 12) % 12));
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_yogas_many_other', 'phala_bphs_gajakesari',
+        [{ id: 'c_gajakesari', description: 'Jupiter in a kendra from the Moon (Gajakesari)', expected: 'kendra from Moon', observed: jupMoon ? 'yes' : 'no', met: jupMoon }],
+        'Gajakesari forms when Jupiter occupies a kendra from the Moon; the other named yogas of the chapter follow their own arrangements.',
+        CANONICAL_RULES.bphs_yogas_many_other),
+    );
+  }
+
   return {
     id: 'life_themes',
     title: 'Major Life Tendencies & Chart Emphasis',
