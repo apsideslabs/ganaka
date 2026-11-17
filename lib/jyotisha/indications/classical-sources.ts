@@ -83,7 +83,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   jaimini_atmakaraka_nature: {
     id: 'jaimini_atmakaraka_nature',
     sourceText: 'Jaimini Upadeśa Sūtras',
-    chapterAndVerse: 'Adhyāya 1, Pāda 2, Sūtras 1–12',
+    chapterAndVerse: 'Adhyāya 1, Pāda 1, Sūtras 11–18',
     sanskritTitle: 'आत्मकारक स्वभाव सूत्रम्',
     sanskritShloka: 'आत्माधिकः कलादिभिर्नभोगेषु। कारकांशे स्वभाववृत्तिः॥',
     editionOrManuscript: 'Sanjay Rath commentary on Maharṣi Jaimini Upadeśa Sūtras',
@@ -199,7 +199,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   jaimini_upapada_lagna_dampatya: {
     id: 'jaimini_upapada_lagna_dampatya',
     sourceText: 'Jaimini Upadeśa Sūtras',
-    chapterAndVerse: 'Adhyāya 1, Pāda 4, Sūtras 1–10',
+    chapterAndVerse: 'Adhyāya 1, Pāda 4, Sūtras 1–23',
     sanskritTitle: 'उपपद लग्न दाम्पत्य सूत्रम्',
     sanskritShloka: 'उपपदं पदं पितुः। तत्र शुभयोगे भार्यासौख्यम्॥',
     editionOrManuscript: 'Jaimini Sūtras with Neelakantha commentary',
@@ -289,7 +289,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   jaimini_karakamsha_ishta_devata: {
     id: 'jaimini_karakamsha_ishta_devata',
     sourceText: 'Jaimini Upadeśa Sūtras',
-    chapterAndVerse: 'Adhyāya 1, Pāda 2, Sūtras 68–78',
+    chapterAndVerse: 'Adhyāya 1, Pāda 2, Sūtras 68–82',
     sanskritTitle: 'कारकांश इष्टदेवता सूत्रम्',
     sanskritShloka: 'कारकांशात् द्वादशे केतौ कैवल्यम्। शुभांशे देवताभक्तिः॥',
     editionOrManuscript: 'Maharṣi Jaimini Sūtras ed. Sanjay Rath',
@@ -317,7 +317,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   jaimini_arudha_lagna_kirti: {
     id: 'jaimini_arudha_lagna_kirti',
     sourceText: 'Jaimini Upadeśa Sūtras',
-    chapterAndVerse: 'Adhyāya 1, Pāda 3, Sūtras 15–28',
+    chapterAndVerse: 'Adhyāya 1, Pāda 3, Sūtras 18–23',
     sanskritTitle: 'आरूढ कीर्ति सूत्रम्',
     sanskritShloka: 'आरूढलग्नादेकादशे शुभे लाभः कीर्तिश्च। दशमे चामलं यशः॥',
     editionOrManuscript: 'Jaimini Upadeśa Sūtras ed. P.S. Sastri',
@@ -820,6 +820,79 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
     textualDisagreementNotes:
       'The vedha cancellation is Phaladīpikā\'s own emphasis; BPHS Ch. 26 of the Sharma recension gives transits without it.',
+  },
+
+  // ==========================================
+  // Jaimini — the remaining padas, B. Suryanarain Rao numbering
+  // ==========================================
+  jaimini_argala: {
+    id: 'jaimini_argala',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 1, Sūtras 5–10',
+    ruleDescription:
+      'Argala — the intervention a house makes on another, and its virodha (obstruction). The 2nd, 4th and 11th from a house give argala; the 12th, 10th and 3rd obstruct it. Where both operate, the stronger wins.',
+    scopeAndConditions:
+      'Occupants of the 2nd, 4th, 11th (argala) and 12th, 10th, 3rd (virodha) from the house being read.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+    textualDisagreementNotes:
+      'Rao notes the sūtras encode houses as letters, never grahas. A reading that treats the letter code as naming planets misreads the pāda.',
+  },
+
+  jaimini_rashi_drishti: {
+    id: 'jaimini_rashi_drishti',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 1, Sūtras 2–4',
+    ruleDescription:
+      'Sign aspect: a movable sign aspects the fixed sign ninth from it and the dual sign fifth from it; fixed and dual signs follow their own counts. Grahas aspect through the sign they occupy, so a graha\'s reach is its sign\'s reach.',
+    scopeAndConditions:
+      'The nature of the aspected sign (movable/fixed/dual) and its distance from the aspecting sign.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+    textualDisagreementNotes:
+      'Jaimini\'s sign aspect is not Parāśara\'s graha aspect. Reading one as the other is the commonest confusion between the two systems.',
+  },
+
+  jaimini_chara_dasha: {
+    id: 'jaimini_chara_dasha',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 1, Sūtras 25–28 and 34',
+    ruleDescription:
+      'Chara daśā: the years of a sign are counted from its position, and the direction of counting reverses in odd and even signs. Sub-periods within a sign follow sūtra 34.',
+    scopeAndConditions:
+      'The sign\'s parity, the lagna, and the lord\'s placement.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+  },
+
+  jaimini_karakamsha_kendra: {
+    id: 'jaimini_karakamsha_kendra',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 2, Sūtras 39–47',
+    ruleDescription:
+      'The 10th from the kārakāṃśa gives the profession and public standing; the 4th from it gives the kind of dwelling and inner contentment. Both are read from the ātmakāraka\'s navāṃśa sign.',
+    scopeAndConditions:
+      'Grahas in the 10th and 4th from the kārakāṃśa, and the signs themselves.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+  },
+
+  jaimini_upapada_children: {
+    id: 'jaimini_upapada_children',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 4, Sūtras 24–31',
+    ruleDescription:
+      'Children are read from the 5th from the Upapada, and from the grahas in and aspecting it. The sūtras continue the same pada that gives the spouse, so the two readings share a base.',
+    scopeAndConditions:
+      'The 5th from the Upapada, its occupants and aspects.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+  },
+
+  jaimini_upapada_siblings: {
+    id: 'jaimini_upapada_siblings',
+    sourceText: 'Jaimini Upadeśa Sūtras',
+    chapterAndVerse: 'Adhyāya 1, Pāda 4, Sūtras 32–38',
+    ruleDescription:
+      'Siblings are read from the 3rd from the Upapada, with the grahas in and aspecting it naming their number and nature.',
+    scopeAndConditions:
+      'The 3rd from the Upapada and its occupants.',
+    editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
   },
 
 };
