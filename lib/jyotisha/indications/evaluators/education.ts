@@ -160,8 +160,8 @@ export function evaluateEducationDomain(chart: JyotishaChart): DomainIndication 
     directClassicalPhalas.push(
       phalaFromRule('bphs_panchama_bhava_phala', 'phala_bphs_panchama',
         [
-          { description: '5th lord in a kendra or trikona', observed: `House ${h5}`, met: [1,4,7,10,5,9].includes(h5) },
-          { description: '5th lord not in a trika house', observed: `House ${h5}`, met: ![6,8,12].includes(h5) },
+          { id: 'c_5th_lord_in_a_kendra_or_trikona', description: '5th lord in a kendra or trikona', expected: '5th lord in a kendra or trikona', observed: `House ${h5}`, met: [1,4,7,10,5,9].includes(h5) },
+          { id: 'c_5th_lord_not_in_a_trika_house', description: '5th lord not in a trika house', expected: '5th lord not in a trika house', observed: `House ${h5}`, met: ![6,8,12].includes(h5) },
         ],
         'The 5th bhava governs learning and merit; its lord well placed with Mercury and Jupiter gives sharp intelligence and success in study.',
         CANONICAL_RULES.bphs_panchama_bhava_phala),
