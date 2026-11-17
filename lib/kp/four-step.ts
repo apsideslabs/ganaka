@@ -17,6 +17,7 @@
  */
 
 import type { JyotishaChart, PlanetId } from '../jyotisha/types';
+import { candidateDays } from './candidate-days';
 import { GRAHA_PROPERTIES } from '../jyotisha/constants';
 import type { KpLayer } from './index';
 import { KP_MATTERS } from './constants';
@@ -142,6 +143,26 @@ export function fourStepCheck(
       (w) => `${w.from.slice(0, 10)} → ${w.to.slice(0, 10)} · ${w.lords.map((l) => l.lordName).join(' › ')} · covers ${w.covered.join(',')}`
     ),
   };
+
+  // Transit marks the moment inside a window; it never decides the event.
+  //   "a day qualifies when the Sun's sign, star and sub lords are all among
+  //    the period lords... a day on which the transit disagrees does not deny
+  //    the event."
+  // So the days are listed when there are any and passed over when there are
+  // not — never used to turn a delivering window into a refusal.
+  if (windows.length > 0) {
+    const days: string[] = [];
+    for (const w of windows.slice(0, 3)) {
+      for (const d of candidateDays(chart, w, 6)) days.push(d.date);
+    }
+    if (days.length) {
+      const uniq = [...new Set(days)].sort();
+      step4.finding += ` Candidate days (Sun/Moon transiting in the star and sub of the period lords): ${uniq.slice(0, 8).join(', ')}${uniq.length > 8 ? ` … ${uniq.length} in all` : ''}.`;
+      step4.evidence.push(`transit: ${uniq.length} candidate day(s)`);
+    } else {
+      step4.evidence.push('transit: no day inside these windows satisfies the star-and-sub test — the window stands, the transit only fails to narrow it');
+    }
+  }
 
   const steps = [step1, step2, step3, step4];
 
