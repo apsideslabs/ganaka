@@ -15,6 +15,7 @@ import {
   GRAHA_SANSKRIT_NAMES,
   getCharaKarakaPlanet,
   NATURAL_BENEFICS,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -129,6 +130,19 @@ export function evaluateTemperamentDomain(chart: JyotishaChart): DomainIndicatio
     [],
     []
   );
+
+  // BPHS 45 - the avasthas, which decide whether a graha acts at all.
+  {
+    const moon: any = chart.planets.moon;
+    const deg = moon.siderealLongitude % 30;
+    const baladi = deg < 6 ? 'Bala' : deg < 12 ? 'Kumara' : deg < 18 ? 'Yuva' : deg < 24 ? 'Vriddha' : 'Mrita';
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_avasthas', 'phala_bphs_avasthas',
+        [{ id: 'c_avastha_mrita', description: 'The Moon is not in Mritavastha', expected: 'not the last 6 degrees', observed: `${baladi} at ${deg.toFixed(2)}deg`, met: baladi !== 'Mrita' }],
+        'A graha in Mritavastha gives nothing, whatever its other strength; the Bala, Kumara, Yuva and Vriddha states give progressively less.',
+        CANONICAL_RULES.bphs_avasthas),
+    );
+  }
 
   return {
     id: 'temperament',
