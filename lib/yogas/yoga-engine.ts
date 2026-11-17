@@ -97,6 +97,94 @@ export interface YogaDefinition {
   };
 }
 
+
+// =========================================================================
+// YOGA-NĀŚAKA — the strength gate the texts require
+// =========================================================================
+//
+// BPHS 6.53 (also numbered 3.102):
+//
+//   अस्तंगता ग्रहजिता नीचगा दुर्बलाश्च ये ।
+//   शयनादिगतास्तेभ्य उत्पन्ना योगनाशकाः ॥
+//
+// "Yogas produced by grahas that are combust (astaṃgata), defeated in planetary
+//  war (grahajita), debilitated (nīcaga), weak (durbala), or in śayanādi
+//  avasthās are yoganāśaka — destroyers of the yoga."
+//
+// BPHS 2.59–60 gives a combust graha a share of good strength of zero.
+// Phaladīpikā 20.30 treats a combust graha as equal to a debilitated one.
+//
+// Two qualifications the texts insist on, and which a naive gate gets wrong:
+//
+//   1. Jātaka Pārijāta 2.34 — the defect is removed when the graha receives a
+//      benefic aspect (moudyabhanga for combustion, nīcabhaṅga for debilitation).
+//      A gate that ignores this cancels yogas the texts preserve.
+//
+//   2. RETROGRESSION IS NOT A DEFECT. Phaladīpikā equates a retrograde graha
+//      with an exalted one for strength. Vakrī must never diminish a yoga.
+//
+// And the yoga is DIMINISHED, not void. The texts say the yoga's result is
+// light, not absent — no standard source calls it void.
+
+export type YogaNashakaCause =
+  | 'combustion'
+  | 'debilitation'
+  | 'graha-yuddha'
+  | 'shayanadi';
+
+export interface YogaNashakaFinding {
+  planet: PlanetId;
+  cause: YogaNashakaCause;
+  cancelledBy: string | null;
+}
+
+/**
+ * Which grahas in a formed yoga carry a yoga-nāśaka defect, and whether a
+ * benefic aspect has cancelled it.
+ */
+export function findYogaNashakaDefects(
+  involved: PlanetId[],
+  ctx: YogaEvaluationContext
+): YogaNashakaFinding[] {
+  const findings: YogaNashakaFinding[] = [];
+  const benefics: PlanetId[] = ['jupiter', 'venus'];
+
+  for (const id of involved) {
+    const p = ctx.planets[id];
+    if (!p) continue;
+
+    let cause: YogaNashakaCause | null = null;
+    if (p.isCombust) cause = 'combustion';
+    else if (isDebilitated(id, p.rashiNumber)) cause = 'debilitation';
+    if (!cause) continue;
+
+    // Jātaka Pārijāta 2.34: a benefic aspect removes the defect.
+    const aspecting = benefics.filter((b) => {
+      if (b === id) return false;
+      const bp = ctx.planets[b];
+      if (!bp) return false;
+      const sep = Math.abs(((bp.siderealLongitude - p.siderealLongitude + 540) % 360) - 180);
+      return sep <= 30; // a benefic within one sign of the graha
+    });
+
+    findings.push({
+      planet: id,
+      cause,
+      cancelledBy: aspecting.length
+        ? `${aspecting.map((b) => GRAHA_PROPERTIES[b]?.sanskritName ?? b).join(', ')} aspects it (Jātaka Pārijāta 2.34 — the defect is removed)`
+        : null,
+    });
+  }
+  return findings;
+}
+
+/** Step a strength rating down one level. Diminished, not void. */
+function diminish(rating: 'High' | 'Medium' | 'Weak' | 'Cancelled') {
+  if (rating === 'High') return 'Medium' as const;
+  if (rating === 'Medium') return 'Weak' as const;
+  return 'Weak' as const;
+}
+
 // =========================================================================
 // HELPER UTILITIES FOR CLASSICAL YOGA CALCULATIONS
 // =========================================================================
@@ -1934,23 +2022,53 @@ export function detectAllYogas(
 
   for (const yogaDef of CLASSICAL_YOGA_REGISTRY) {
     const result = yogaDef.evaluate(ctx);
-    if (result.isPresent) {
-      detected.push({
-        id: yogaDef.id,
-        name: yogaDef.name,
-        sanskritName: yogaDef.sanskritName,
-        sourceText: yogaDef.sourceText,
-        chapterAndVerse: yogaDef.chapterAndVerse,
-        sanskritShloka: yogaDef.sanskritShloka,
-        category: yogaDef.category as any,
-        conditionsMet: result.conditionsMet,
-        effects: yogaDef.effects,
-        involvedPlanets: result.involvedPlanets,
-        strengthRating: result.strengthRating,
-        isUnverified: yogaDef.isUnverified,
-        provenanceNotes: yogaDef.provenanceNotes,
-      });
+    if (!result.isPresent) continue;
+
+    // BPHS 6.53 — a yoga formed by a combust, war-defeated, debilitated or weak
+    // graha is yoganāśaka. The yoga still forms; its result is light.
+    //
+    // Two families are exempt, because the defect IS the yoga:
+    //   • nīcabhaṅga — the cancellation of that very debilitation. Diminishing
+    //     it for the debilitation it cancels is backwards.
+    //   • viparīta rāja — formed from duṣṭhāna lords precisely because they are
+    //     badly placed. The weakness is the cause, not a fault in it.
+    const exempt = /neecha|nīca|nicabhanga|viparita|viparīta/i.test(yogaDef.id);
+    const defects = exempt ? [] : findYogaNashakaDefects(result.involvedPlanets, ctx);
+    const live = defects.filter((d) => !d.cancelledBy);
+    const cancelled = defects.filter((d) => d.cancelledBy);
+
+    const conditionsMet = [...result.conditionsMet];
+    for (const d of cancelled) {
+      conditionsMet.push(
+        `${GRAHA_PROPERTIES[d.planet]?.sanskritName ?? d.planet} is ${d.cause === 'combustion' ? 'combust' : 'debilitated'}, but ${d.cancelledBy}`
+      );
     }
+    for (const d of live) {
+      conditionsMet.push(
+        `${GRAHA_PROPERTIES[d.planet]?.sanskritName ?? d.planet} is ${d.cause === 'combustion' ? 'combust' : 'debilitated'} — BPHS 6.53: a yoga formed by such a graha is yoganāśaka, so this result is light rather than full`
+      );
+    }
+
+    detected.push({
+      id: yogaDef.id,
+      name: yogaDef.name,
+      sanskritName: yogaDef.sanskritName,
+      sourceText: yogaDef.sourceText,
+      chapterAndVerse: yogaDef.chapterAndVerse,
+      sanskritShloka: yogaDef.sanskritShloka,
+      category: yogaDef.category as any,
+      conditionsMet,
+      effects: yogaDef.effects,
+      involvedPlanets: result.involvedPlanets,
+      // Diminished, not void: no standard source calls a combust-participant
+      // yoga void.
+      strengthRating: live.length ? diminish(result.strengthRating) : result.strengthRating,
+      diminishedBy: live.length
+        ? live.map((d) => `${d.planet}:${d.cause}`)
+        : undefined,
+      isUnverified: yogaDef.isUnverified,
+      provenanceNotes: yogaDef.provenanceNotes,
+    });
   }
 
   return detected;
