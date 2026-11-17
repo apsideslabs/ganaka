@@ -15,6 +15,8 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { generalSputaDrishti, sputaDrishti } from '../lib/shadbala/sputa-drishti';
+import { candidateDays } from '../lib/kp/candidate-days';
 import { REQUIRED_SHADBALA_RUPAS } from '../lib/shadbala/shadbala';
 import { calculateKPPosition } from '../lib/jyotisha/sphutas';
 import { placidusCusps } from '../lib/jyotisha/placidus';
@@ -3586,6 +3588,78 @@ console.log('\n== Jaimini kārakas ==');
   // The seven-graha scheme — the nodes are not given chara kārakas.
   check('seven chara kārakas are assigned', natal.jaimini.charaKarakas.length === 7,
     String(natal.jaimini.charaKarakas.length));
+}
+
+/* ------- SPUTA DRISHTI REPLACES THE WHOLE-SIGN APPROXIMATION ------ */
+
+console.log('\n== Sputa drishti (BPHS 26.6–26.8) ==');
+{
+  // The classical curve, agreed by every recension.
+  const CURVE: Array<[number, number]> = [
+    [30, 0], [60, 15], [90, 45], [120, 30], [150, 0],
+    [180, 60], [210, 45], [240, 30], [270, 15], [300, 0],
+  ];
+  for (const [angle, want] of CURVE) {
+    check(`sputa drishti at ${angle}° is ${want}`, Math.abs(generalSputaDrishti(angle) - want) < 0.01,
+      String(generalSputaDrishti(angle)));
+  }
+  check('nothing below 30° or from 300°', generalSputaDrishti(29.9) === 0 && generalSputaDrishti(300) === 0);
+
+  // Continuous and bounded for every graha, including the special aspects.
+  for (const g of ['sun', 'mars', 'jupiter', 'saturn'] as const) {
+    let prev = sputaDrishti(0, 0.01, g), maxStep = 0, outOfRange = 0;
+    for (let a = 0.01; a < 360; a += 0.05) {
+      const v = sputaDrishti(0, a, g);
+      if (v < 0 || v > 60) outOfRange++;
+      maxStep = Math.max(maxStep, Math.abs(v - prev));
+      prev = v;
+    }
+    check(`${g} sputa drishti stays within [0,60]`, outOfRange === 0, String(outOfRange));
+    check(`${g} sputa drishti is continuous`, maxStep < 0.15, maxStep.toFixed(3));
+  }
+
+  // dṛgbala must now carry a real value for every graha — the whole-sign
+  // version returned exactly 0 for four of seven on this chart.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const zeros = ['sun','moon','mars','mercury','jupiter','venus','saturn']
+    .filter((p) => (natal.shadbala as any)[p].drigBala === 0);
+  check('no graha reads drigbala of exactly zero', zeros.length === 0, zeros.join(','));
+
+  const anyNegative = ['sun','moon','mars','mercury','jupiter','venus','saturn']
+    .some((p) => (natal.shadbala as any)[p].drigBala < 0);
+  check('drigbala keeps its sign — malefic aspects subtract', anyNegative);
+}
+
+/* ---------- KP NARROWS A WINDOW TO CANDIDATE DAYS -------------- */
+
+console.log('\n== KP candidate days ==');
+{
+  // "a day qualifies when the Sun's sign, star and sub lords are all among the
+  //  period lords... a day on which the transit disagrees does not deny the event."
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const L: any = calculateKpLayer(natal, new Date());
+
+  let windowsChecked = 0, windowsWithDays = 0, badDay = 0;
+  for (const k of Object.keys(L.timing)) {
+    for (const w of ((L.timing as any)[k].windows ?? []).slice(0, 4)) {
+      windowsChecked++;
+      const days = candidateDays(natal, w, 8);
+      if (days.length) windowsWithDays++;
+      const lords = new Set(w.lords.map((l: any) => l.lord));
+      for (const d of days) {
+        // every candidate day must sit inside its window and match all three lords
+        if (d.date < w.from.slice(0, 10) || d.date > w.to.slice(0, 10)) badDay++;
+        if (!(lords.has(d.signLord) && lords.has(d.starLord) && lords.has(d.subLord))) badDay++;
+      }
+    }
+  }
+  check('candidate days fall inside their window and match all three lords', badDay === 0, String(badDay));
+  check('some windows yield candidate days', windowsWithDays > 0, `${windowsWithDays}/${windowsChecked}`);
+
+  // A window with no qualifying day must still stand as a window.
+  const timed = fourStepForAll(natal, L, new Date()).filter((r) => r.outcome === 'promised-and-timed');
+  check('a window with no transit day still counts as timed',
+    timed.every((r) => (r.steps.find((s) => s.step === 4)?.verdict) === 'yes'));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
