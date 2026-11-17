@@ -15,6 +15,7 @@ import {
   getHouseSAVBindus,
   makeFact,
   GRAHA_SANSKRIT_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -115,6 +116,25 @@ export function evaluateHealthDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // BPHS 17 and 19 - the 6th and 8th bhavas.
+  {
+    const l6 = getHouseLord(chart, 6); const l6p: any = chart.planets[l6.id];
+    const l8 = getHouseLord(chart, 8); const l8p: any = chart.planets[l8.id];
+    const h6 = l6p?.house ?? 0; const h8 = l8p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_shashtha_bhava_phala', 'phala_bphs_shashtha',
+        [{ description: '6th lord not in the lagna or the 8th', observed: `House ${h6}`, met: ![1, 8].includes(h6) }],
+        'The 6th lord in its own sign, the lagna or the 8th gives wounds on the body; the graha joined to it names the affected region.',
+        CANONICAL_RULES.bphs_shashtha_bhava_phala),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_ayur_bhava_phala', 'phala_bphs_ayur',
+        [{ description: '8th lord not in a trika house', observed: `House ${h8}`, met: ![6, 12].includes(h8) }],
+        'The 8th bhava governs longevity; its lord strong and well placed lengthens life, afflicted it shortens it. BPHS requires the maraka analysis of Ch. 44 before any longevity statement.',
+        CANONICAL_RULES.bphs_ayur_bhava_phala),
+    );
+  }
 
   return {
     id: 'health',
