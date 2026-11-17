@@ -210,6 +210,24 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 18 - every pair of grahas conjoined.
+  {
+    const rashiCount = new Map<number, string[]>();
+    for (const p of ['sun','moon','mars','mercury','jupiter','venus','saturn']) {
+      const r = (chart.planets as any)[p]?.rashiNumber;
+      if (!r) continue;
+      if (!rashiCount.has(r)) rashiCount.set(r, []);
+      rashiCount.get(r)!.push(p);
+    }
+    const pairs = [...rashiCount.values()].filter((g) => g.length >= 2);
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_dvija_yoga', 'phala_phaladeepika_dvija',
+        [{ id: 'c_pd_pair', description: 'At least one pair of grahas conjoined', expected: '>= 1 pair', observed: pairs.length ? pairs.map((g) => g.join('+')).slice(0,3).join(', ') : 'none', met: pairs.length > 0 }],
+        'Every pair of conjoined grahas is read as one unit, not as two placements.',
+        CANONICAL_RULES.phaladeepika_dvija_yoga),
+    );
+  }
+
   return {
     id: 'marriage',
     title: 'Marriage & Partnership',
