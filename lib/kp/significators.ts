@@ -128,35 +128,60 @@ export function nodeAgency(chart: JyotishaChart): NodeAgent[] {
   return out;
 }
 
-/** The houses a graha signifies by its own occupation, ownership and star link. */
+/**
+ * The houses a graha signifies.
+ *
+ * Krishnamurti Padhdhati reads a cuspal sub lord at THREE levels — the planet
+ * itself, its star lord, and its sub lord — collecting the houses each one
+ * occupies and owns:
+ *
+ *   "The cuspal sub lord is read at three levels — the planet itself, its star
+ *    lord and its sub lord. At each level the houses that planet occupies and
+ *    owns are collected, and nothing else."
+ *
+ * This function used to collect only two. On the Steve Jobs chart that dropped
+ * the 7th cusp sub lord's sub lord — the Moon, sitting in Placidus house 7 and
+ * owning cusp 11 — and with both marriage houses missing from Venus's list the
+ * engine declared marriage "not promised" for a man who married in 1991.
+ */
 function ownHouses(chart: JyotishaChart, cusps: KpCusp[], id: PlanetId): number[] {
   const out = new Set<number>();
   const p: any = (chart.planets as any)?.[id];
   if (!p || typeof p.siderealLongitude !== 'number') return [];
 
   const lon = p.siderealLongitude;
-  for (let i = 0; i < 12; i++) {
-    const start = cusps[i].longitude;
-    const end = cusps[(i + 1) % 12].longitude;
-    const inside = start < end ? lon >= start && lon < end : lon >= start || lon < end;
-    if (inside) { out.add(cusps[i].house); break; }
-  }
-  for (const c of cusps) if (cuspLord(c) === id) out.add(c.house);
 
-  const star = calculateKPPosition(lon).starLord;
-  if (star !== id) {
-    const sp: any = (chart.planets as any)?.[star];
-    if (sp && typeof sp.siderealLongitude === 'number') {
-      const slon = sp.siderealLongitude;
-      for (let i = 0; i < 12; i++) {
-        const start = cusps[i].longitude;
-        const end = cusps[(i + 1) % 12].longitude;
-        const inside = start < end ? slon >= start && slon < end : slon >= start || slon < end;
-        if (inside) { out.add(cusps[i].house); break; }
-      }
-      for (const c of cusps) if (cuspLord(c) === star) out.add(c.house);
+  /** The Placidus house a longitude falls in. */
+  const houseOfLongitude = (L: number): number | null => {
+    for (let i = 0; i < 12; i++) {
+      const start = cusps[i].longitude;
+      const end = cusps[(i + 1) % 12].longitude;
+      const inside = start < end ? L >= start && L < end : L >= start || L < end;
+      if (inside) return cusps[i].house;
     }
-  }
+    return null;
+  };
+
+  /** Occupancy and ownership of one graha, added to the set. */
+  const addGraha = (gid: PlanetId) => {
+    const g: any = (chart.planets as any)?.[gid];
+    if (!g || typeof g.siderealLongitude !== 'number') return;
+    const h = houseOfLongitude(g.siderealLongitude);
+    if (h !== null) out.add(h);
+    for (const c of cusps) if (cuspLord(c) === gid) out.add(c.house);
+  };
+
+  // Level 1 — the graha itself.
+  addGraha(id);
+
+  const kp = calculateKPPosition(lon);
+
+  // Level 2 — its star lord.
+  if (kp.starLord !== id) addGraha(kp.starLord as PlanetId);
+
+  // Level 3 — its sub lord. This is the level that was missing.
+  if (kp.subLord !== id && kp.subLord !== kp.starLord) addGraha(kp.subLord as PlanetId);
+
   return [...out].sort((a, b) => a - b);
 }
 
