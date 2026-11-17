@@ -3486,6 +3486,36 @@ console.log('\n== KP birth-time sensitivity ==');
     !!s && typeof s.subLord === 'string', s?.subLord);
 }
 
+/* ---- THE SENSITIVITY MUST BE SHOWN, NOT JUST COMPUTED --------- */
+
+console.log('\n== KP sensitivity surfaces ==');
+{
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  // Computing it and leaving it on the layer object is useless: the reader
+  // never sees it. It has to reach the panel, the JSON and the PDF.
+  const panel = fs.readFileSync(path.join(process.cwd(), 'components/workspace/KPPanel.tsx'), 'utf8');
+  check('the KP panel shows the birth-time margin', /kp\.sensitivity/.test(panel));
+
+  const exp = fs.readFileSync(path.join(process.cwd(), 'lib/report/export-chart-json.ts'), 'utf8');
+  check('the JSON export carries the cusp sub-lord sensitivity',
+    /cuspSubLordSensitivity/.test(exp));
+
+  const pdf = fs.readFileSync(path.join(process.cwd(), 'lib/report/ChartReport.tsx'), 'utf8');
+  check('the PDF states the birth-time margin', /kpSensitivity/.test(pdf));
+
+  // And the value itself must be real on a chart that has birth details.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const L: any = calculateKpLayer(natal, new Date());
+  check('the sensitivity is a positive number of minutes',
+    !!L.sensitivity && L.sensitivity.minutes > 0 && L.sensitivity.minutes <= 30,
+    String(L.sensitivity?.minutes));
+
+  const e: any = buildChartExport(natal);
+  check('the exported KP block carries the sensitivity', !!e.kp?.cuspSubLordSensitivity);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
