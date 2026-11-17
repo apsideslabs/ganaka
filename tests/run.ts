@@ -991,11 +991,12 @@ console.log('\n== KP layer ==');
   // The promise rule must be internally consistent with its own house lists.
   const pr: any = evaluateCuspPromise(natal, 7, KP_MATTERS.marriage.matter, KP_MATTERS.marriage.detrimental);
   check('cusp promise returns a verdict', !!pr && typeof pr.promise === 'string');
+  // Two-valued: any required house promises the matter, even alongside adverse
+  // ones. 'mixed' was retired — it made the majority of matters unreadable.
   check('promise verdict follows the house groups',
-    (pr.promise === 'promised' && pr.hitsMatter.length > 0 && pr.hitsDetrimental.length === 0) ||
-    (pr.promise === 'denied' && pr.hitsMatter.length === 0 && pr.hitsDetrimental.length > 0) ||
-    (pr.promise === 'mixed' && pr.hitsMatter.length > 0 && pr.hitsDetrimental.length > 0) ||
-    (pr.promise === 'undetermined' && pr.hitsMatter.length === 0 && pr.hitsDetrimental.length === 0),
+    (pr.hitsMatter.length > 0 && (pr.promise === 'promised' || pr.promise === 'promised-when-direct')) ||
+    (pr.hitsMatter.length === 0 && pr.hitsDetrimental.length > 0 && pr.promise === 'denied') ||
+    (pr.hitsMatter.length === 0 && pr.hitsDetrimental.length === 0 && pr.promise === 'undetermined'),
     JSON.stringify({ p: pr.promise, m: pr.hitsMatter, d: pr.hitsDetrimental }));
   check('the marriage group is 2, 7, 11 against 1, 6, 10',
     JSON.stringify(KP_MATTERS.marriage.matter) === '[2,7,11]' &&
@@ -3339,6 +3340,52 @@ console.log('\n== Placidus cusps ==');
   const porphyry2 = (kp[0].longitude + q1) % 360;
   const gap = Math.abs(((kp[1].longitude - porphyry2 + 540) % 360) - 180);
   check('cusp 2 is Placidus, not Porphyry equal-thirds', gap > 0.5, `differs by ${gap.toFixed(2)}°`);
+}
+
+/* ---- KP READS THE CUSPAL SUB LORD AT THREE LEVELS, NOT TWO ------ */
+
+console.log('\n== KP promise rule ==');
+{
+  // "The cuspal sub lord is read at three levels — the planet itself, its star
+  //  lord and its sub lord. At each level the houses that planet occupies and
+  //  owns are collected."
+  //
+  // The engine collected two. On the Steve Jobs chart that dropped Venus's sub
+  // lord — the Moon, in Placidus house 7 and owning cusp 11 — and the engine
+  // declared marriage "not promised" for a man who married in 1991.
+  const jobs: any = calculateFullJyotishaChart({
+    year: 1955, month: 2, day: 24, hour: 19, minute: 13, second: 0,
+    latitude: 37.7749, longitude: -122.4194, timezoneOffsetHours: -8,
+    locationName: 'San Francisco',
+  } as any);
+  const layer = calculateKpLayer(jobs, new Date());
+  // The layer already evaluated every matter; use its own promise map.
+  const r: any = (layer.promises as any).marriage;
+
+  check('the 7th cusp sub lord is Venus', r.subLord === 'venus', r.subLord);
+  check('the third level contributes house 7 or 11',
+    r.signifies.includes(7) || r.signifies.includes(11), r.signifies.join(','));
+  check('marriage is promised on the Jobs chart', r.promise !== 'denied', r.promise);
+
+  // The verdict is two-valued: one required house promises the matter even
+  // alongside adverse houses, which then read as "with difficulty".
+  check('the promise is two-valued, never a third "mixed" value',
+    ['promised', 'promised-when-direct', 'denied', 'undetermined'].includes(r.promise), r.promise);
+
+  // Denial only when the sub lord touches the adverse set exclusively.
+  const denied = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    .map((h) => evaluateCuspPromise(jobs, h, [2, 7, 11], [1, 6, 10, 12]))
+    .filter((x): x is any => !!x && x.promise === 'denied');
+  check('every denied verdict hits no matter house',
+    denied.every((d: any) => d.hitsMatter.length === 0));
+
+  // The rule is documented where it is applied.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const sig = fs.readFileSync(path.join(process.cwd(), 'lib/kp/significators.ts'), 'utf8');
+  const prom = fs.readFileSync(path.join(process.cwd(), 'lib/kp/promise.ts'), 'utf8');
+  check('significators.ts documents the three levels', /THREE levels/.test(sig));
+  check('promise.ts documents the two-valued verdict', /TWO-VALUED/.test(prom));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
