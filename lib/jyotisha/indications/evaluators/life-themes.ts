@@ -158,6 +158,18 @@ export function evaluateLifeThemesDomain(chart: JyotishaChart): DomainIndication
     );
   }
 
+  // Jaimini 1.1.25-28 and 1.1.34 — chara dasha.
+  {
+    const lagnaRashi = chart.lagna.rashiNumber;
+    const odd = lagnaRashi % 2 === 1;
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_chara_dasha', 'phala_jaimini_chara_dasha',
+        [{ id: 'c_chara_dasha', description: 'The lagna sign parity is known for chara dasha', expected: 'odd or even', observed: `rasi ${lagnaRashi} (${odd ? 'odd' : 'even'})`, met: true }],
+        'Chara dasha counts the years of a sign from its position, reversing the direction of counting between odd and even signs.',
+        CANONICAL_RULES.jaimini_chara_dasha),
+    );
+  }
+
   return {
     id: 'life_themes',
     title: 'Major Life Tendencies & Chart Emphasis',
