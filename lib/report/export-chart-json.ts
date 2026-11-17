@@ -724,6 +724,10 @@ function buildExtendedSections(chart: JyotishaChart, depth: number) {
   const kp = safe(() => {
     const layer = calculateKpLayer(chart);
     return {
+      // KP's verdict rests on one sub lord of one cusp degree, and that sub
+      // lord holds for a couple of minutes. Exported so the reader knows how
+      // far the birth time may move before the whole layer changes.
+      cuspSubLordSensitivity: layer.sensitivity ?? null,
       cusps: layer.cusps.map((c) => ({
         house: c.house,
         longitude: c.longitude,
