@@ -135,6 +135,18 @@ export function evaluateFamilyDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jaimini 1.4.32-38 — siblings from the 3rd from the Upapada.
+  {
+    const ulRashi = (chart.jaimini?.arudhaPadas as any)?.twelfth ?? null;
+    const thirdFromUl = ulRashi ? ((ulRashi - 1 + 2) % 12) + 1 : null;
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_upapada_siblings', 'phala_jaimini_upapada_siblings',
+        [{ id: 'c_upapada_3rd', description: 'The Upapada resolves and its 3rd is read', expected: 'Upapada present', observed: ulRashi ? `UL rasi ${ulRashi}, 3rd = ${thirdFromUl}` : 'no Upapada', met: !!ulRashi }],
+        'Siblings are read from the 3rd from the Upapada, with the grahas there naming their number and nature.',
+        CANONICAL_RULES.jaimini_upapada_siblings),
+    );
+  }
+
   return {
     id: 'family',
     title: 'Family & Domestic Life',
