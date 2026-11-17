@@ -213,10 +213,6 @@ const VarshaphalaPanel = dynamic(() => import('./VarshaphalaPanel').then((m) => 
   ssr: false,
   loading: () => <PanelSkeleton />,
 });
-const MatchingBridgePanel = dynamic(() => import('./MatchingBridgePanel').then((m) => m.MatchingBridgePanel), {
-  ssr: false,
-  loading: () => <PanelSkeleton />,
-});
 
 interface PresetEvent {
   name: string;
@@ -333,7 +329,6 @@ export type WorkspaceTab =
   | 'panchanga'
   | 'indications'
   | 'sudarshana'
-  | 'matching_bridge'
   | 'varshaphala'
   | 'bhava_bala'
   | 'phala'
@@ -378,7 +373,6 @@ const NAV_DOMAINS: NavDomain[] = [
       { id: 'vargas', name: 'Ṣoḍaśavarga (16 Charts)', shortName: '16 Vargas (D1–D60)', icon: Layers, badge: '16 Charts' },
       { id: 'navamsha', name: 'Navāṃśa (D-9) Reference & Grahas', shortName: 'Navāṃśa Table', icon: Table, badge: 'Canonical D9' },
       { id: 'sudarshana', name: 'Sudarśana Cakra (सुदर्शन चक्र)', shortName: 'Sudarśana Cakra', icon: Layers, badge: 'Triple Chart' },
-      { id: 'matching_bridge', name: 'Vivāha Kūṭa Matching Profile', shortName: 'Kuṭa Profile', icon: Users, badge: 'Matching' },
     ],
   },
   {
@@ -2217,10 +2211,6 @@ ${Object.values(chartData.planets)
 
         {activeTab === 'sudarshana' && (
           <SudarshanaPanel chart={chartData} />
-        )}
-
-        {activeTab === 'matching_bridge' && (
-          <MatchingBridgePanel chart={chartData} />
         )}
 
         {/* Category 2: Planetary Sphuta & Spheres */}
