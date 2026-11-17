@@ -704,4 +704,122 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
   },
 
+  // ==========================================
+  // BPHS — the yoga and avastha chapters
+  // ==========================================
+  bphs_bhavesha_phala: {
+    id: 'bphs_bhavesha_phala',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'Ch. 24 (Bhāveśaphala), Śloka 1–148',
+    sanskritTitle: 'भावेशफलाध्यायः',
+    ruleDescription:
+      'Each house lord read in each of the twelve houses — the longest chapter of the work at 148 verses. The lagna lord in the 10th gives paternal happiness, recognition and self-earned wealth; the 7th lord in the 7th gives spouse happiness, courage and discernment. The closing verses instruct the reader to scale the result by the lord\'s strength: full, half or quarter for full, medium or low.',
+    scopeAndConditions:
+      'The house a lord occupies, read against its own lordship, then scaled by that lord\'s ṣaḍbala.',
+    editionOrManuscript: 'R. Santhanam, Vol. 1',
+    textualDisagreementNotes:
+      'The closing verses make every result in this chapter conditional on strength. Reading a placement without scaling it by ṣaḍbala overstates a weak lord.',
+  },
+
+  bphs_yogas_many_other: {
+    id: 'bphs_yogas_many_other',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'Ch. 36 (Anekayoga), Śloka 1–39',
+    ruleDescription:
+      'The named yogas beyond Nābhasa: Gajakesari (Jupiter in a kendra from the Moon), Amala (a benefic alone in the 10th), Parvata, Kahala, Chamara, Sankha, Bheri, Mridanga, Srinatha, Sarada, Matsya, Kurma, Khadga, Lakshmi, Kusuma, Kalanidhi, Kalpadruma and Trimurti.',
+    scopeAndConditions:
+      'The specific graha arrangement each yoga names, with the benefic or malefic nature of the participants.',
+    editionOrManuscript: 'R. Santhanam, Vol. 1',
+  },
+
+  bphs_lunar_yogas: {
+    id: 'bphs_lunar_yogas',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'Ch. 37 (Candrayoga), Śloka 1–24',
+    ruleDescription:
+      'Yogas formed from the Moon: Sunaphā (a graha in the 2nd from the Moon), Anaphā (in the 12th), Duradharā (both), Kemadruma (neither, with no graha in a kendra from the Moon) and Adhiyoga (benefics in the 6th, 7th and 8th from the Moon). Kemadruma is the classical marker of isolation; Adhiyoga of prosperity.',
+    scopeAndConditions:
+      'Grahas in the 2nd, 12th and kendras from the Moon, excluding the Sun.',
+    editionOrManuscript: 'R. Santhanam, Vol. 1',
+  },
+
+  bphs_solar_yogas: {
+    id: 'bphs_solar_yogas',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'Ch. 38 (Sūryayoga), Śloka 1–6',
+    ruleDescription:
+      'Yogas formed from the Sun: Veśi (a graha in the 2nd from the Sun), Vāśi (in the 12th) and Ubhayacari (both). Their effect follows the nature of the graha involved — benefic gives good fortune, malefic the reverse.',
+    scopeAndConditions:
+      'Grahas in the 2nd and 12th from the Sun, excluding the Moon.',
+    editionOrManuscript: 'R. Santhanam, Vol. 1',
+  },
+
+  bphs_avasthas: {
+    id: 'bphs_avasthas',
+    sourceText: 'Bṛhat Parāśara Horā Śāstra',
+    chapterAndVerse: 'Ch. 45 (Avasthā), Śloka 1–45',
+    ruleDescription:
+      'The states of a graha: Bāla (infant), Kumāra (youth), Yuvā (adult), Vṛddha (old) and Mṛta (dead) by degree within its sign; the Dīptādi eight states by dignity; and the Lajjitādi six by placement. A graha in Mṛtāvasthā gives nothing, whatever its other strength.',
+    scopeAndConditions:
+      'Degree within sign for the Bālādi set, dignity for Dīptādi, and house placement for Lajjitādi.',
+    editionOrManuscript: 'R. Santhanam, Vol. 1',
+    textualDisagreementNotes:
+      'BPHS gives several avastha schemes that can disagree on the same graha. The text does not say which overrides; later practice weighs the Dīptādi set highest.',
+  },
+
+  // ==========================================
+  // Phaladīpikā — the yoga and bhāva chapters
+  // ==========================================
+  phaladeepika_yoga_adhyaya: {
+    id: 'phaladeepika_yoga_adhyaya',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 6 (Yogādhyāya), Śloka 1–70',
+    sanskritTitle: 'योगाध्यायः',
+    ruleDescription:
+      'Seventy verses of named yogas — the largest single treatment in the work. Covers the benefic combinations that raise a chart and the malefic ones that depress it, each with its forming condition and its stated result.',
+    scopeAndConditions:
+      'The specific graha arrangement named by each yoga, with the strength of its participants.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  phaladeepika_bhava_ashraya: {
+    id: 'phaladeepika_bhava_ashraya',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 8 (Bhāvāśrayaphala), Śloka 1–35',
+    sanskritTitle: 'भावाश्रयफलम्',
+    ruleDescription:
+      'Each graha read in each of the twelve houses — the counterpart to Sārāvalī Ch. 30 and to BPHS Ch. 24, but organised by occupant rather than by lord.',
+    scopeAndConditions:
+      'The occupying graha, its natural nature, and the house it occupies.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+    textualDisagreementNotes:
+      'Phaladīpikā, Sārāvalī and BPHS all read grahas in houses and do not always agree. Where they conflict the reading names which text it followed.',
+  },
+
+  phaladeepika_dvija_yoga: {
+    id: 'phaladeepika_dvija_yoga',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 18 (Dvigrahayoga), Śloka 1–17',
+    sanskritTitle: 'द्विग्रहयोगः',
+    ruleDescription:
+      'Every pair of grahas conjoined, read for what the combination gives: Sun–Moon, Sun–Mars, Jupiter–Saturn and the rest, each with its stated result. A conjunction is read as one unit, not as two placements.',
+    scopeAndConditions:
+      'The two grahas in the same sign, with their individual dignities modifying the joint result.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  phaladeepika_gochara: {
+    id: 'phaladeepika_gochara',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 26 (Gocaraphala), Śloka 1–48',
+    sanskritTitle: 'गोचरफलम्',
+    ruleDescription:
+      'Transit results counted from the natal Moon, house by house for each graha, with the vedha (obstruction) pairs that cancel a favourable transit. A benefic transit in a good house is void if a graha sits in its vedha position.',
+    scopeAndConditions:
+      'The transiting graha\'s house from the natal Moon, and whether its vedha point is occupied.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+    textualDisagreementNotes:
+      'The vedha cancellation is Phaladīpikā\'s own emphasis; BPHS Ch. 26 of the Sharma recension gives transits without it.',
+  },
+
 };
