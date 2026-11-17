@@ -36,8 +36,20 @@ import { normalizeDegrees } from '../astronomy/julian';
  * Sun at 6.5 rūpas was being reported as merely meeting its minimum when it
  * actually exceeds the common requirement by thirty per cent.
  */
+/**
+ * The minimum Shadbala each graha needs, in rūpas (BPHS 27.32–33, Santhanam).
+ *
+ *   Sun 6.5 · Moon 6.0 · Mars 5.0 · Mercury 7.0 · Jupiter 6.5 · Venus 5.5 · Saturn 5.0
+ *
+ * The Sun was 5.0 here — a figure some modern tables print. Against BPHS it
+ * understates the requirement by 1.5 rūpas, so a Sun at 369 virūpas read as
+ * ratio 1.23 (comfortably strong) when BPHS puts it at 0.95 (below minimum).
+ *
+ * Phaladīpikā 4.22–23 prints the same list except Jupiter at 8.5; that is a
+ * different recension and is not blended in here.
+ */
 export const REQUIRED_SHADBALA_RUPAS: Record<PlanetId, number> = {
-  sun: 5.0,
+  sun: 6.5,
   moon: 6.0,
   mars: 5.0,
   mercury: 7.0,
