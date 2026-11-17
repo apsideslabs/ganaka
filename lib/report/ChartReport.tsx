@@ -31,6 +31,7 @@ import { calculateSudarshanaChakra } from '@/lib/jyotisha/sudarshana';
 import { findEclipses } from '@/lib/astronomy/eclipses';
 import { calculateDoubleTransit } from '@/lib/jyotisha/transits';
 import { calculateRulingPlanets, KP_MATTERS, evaluateCuspPromise } from '@/lib/jyotisha/kp';
+import { calculateKpLayer } from '@/lib/kp';
 import { calculateMrityuBhaga } from '@/lib/jyotisha/mrityu-bhaga';
 import { calculateVarshaphala } from '@/lib/varshaphala/varshaphala';
 import { calculatePrashna } from '@/lib/jyotisha/prashna';
@@ -802,6 +803,10 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
   const doubleTransit: any = cached.doubleTransit;
   const argalaList: any[] = ((chart as any).argala || []);
   const kpRuling: any = cached.kpRuling;
+  // KP's verdict rests on the sub lord of one cusp degree, and that sub lord
+  // holds for a couple of minutes. The report states the margin rather than
+  // hiding it — it is the largest source of error in the whole layer.
+  const kpSensitivity: any = safe(() => calculateKpLayer(chart as any).sensitivity);
   const kpPromises: any[] = safe(() =>
     Object.entries(KP_MATTERS).map(([key, m]: any) => {
       const primary = m.matter[0] ?? 1;
@@ -1455,6 +1460,19 @@ export function ChartReport({ chart }: { chart: JyotishaChart }) {
             Krishnamurti Paddhati reads Placidus cusps and nakṣatra sub-division. It is a separate
             framework, kept here on its own terms rather than mixed into the Parāśarī judgements.
           </Text>
+
+          {kpSensitivity && (
+            <View style={{ borderWidth: 0.5, borderColor: ACCENT, borderRadius: 3, padding: 6, marginBottom: 8 }}>
+              <Text style={{ fontSize: 7.6, color: INK }}>
+                <Text style={{ fontWeight: 'bold' }}>Birth-time margin: </Text>
+                the 7th cusp sub lord is {kpSensitivity.subLord} and holds for ±{kpSensitivity.minutes}
+                {' '}minute{kpSensitivity.minutes === 1 ? '' : 's'}.
+                {kpSensitivity.wouldBecome
+                  ? ` Move the recorded time ${kpSensitivity.wouldBecome.afterMinutes} minute${kpSensitivity.wouldBecome.afterMinutes === 1 ? '' : 's'} ${kpSensitivity.wouldBecome.direction} and it becomes ${kpSensitivity.wouldBecome.subLord}, changing every verdict below.`
+                  : ''}
+              </Text>
+            </View>
+          )}
 
           <SubTitle>Ruling Planets of the Moment</SubTitle>
           <Table
