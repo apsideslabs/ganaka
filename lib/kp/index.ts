@@ -23,6 +23,7 @@
  * a caller never needs to enter birth data again — pass the chart, get KP.
  */
 import type { JyotishaChart, PlanetId } from '../jyotisha/types';
+import { calculateAyanamsha } from '@/lib/astronomy/ayanamsha';
 import { buildKpCusps, cuspLord, type KpCusp } from './cusps';
 import { calculateKPPosition } from '../jyotisha/sphutas';
 import { GRAHA_PROPERTIES } from '../jyotisha/constants';
@@ -128,12 +129,65 @@ export function calculateKpLayer(
   return built;
 }
 
+
+/**
+ * KP is read on the KP ayanāṃśa, not on whatever the chart was cast in.
+ *
+ * The engine carries `kp` and `kp_new` in AYANAMSHA_DEFINITIONS, but the KP
+ * layer inherited the chart's global ayanāṃśa — Lahiri by default. The two
+ * differ by about 0.09°, which is small in degrees and decisive in subs: a sub
+ * is often under a degree wide, so the sub lord of a cusp can change, and with
+ * it the promise verdict for the whole matter.
+ *
+ * An ayanāṃśa difference is a uniform shift of every sidereal longitude, so the
+ * chart is re-expressed on the KP ayanāṃśa by adding the difference. No
+ * ephemeris call is repeated.
+ */
+function onKpAyanamsha(chart: JyotishaChart): JyotishaChart {
+  const meta: any = chart.meta;
+  const chartAyan = Number(meta?.ayanamshaValue ?? 0);
+  const jd = Number(meta?.julianDay);
+  if (!Number.isFinite(jd) || chartAyan === 0) return chart;
+
+  let kpAyan: number;
+  try {
+    kpAyan = calculateAyanamsha(jd, 'kp');
+  } catch {
+    return chart;
+  }
+  const delta = chartAyan - kpAyan; // add to each sidereal longitude
+  if (Math.abs(delta) < 1e-9) return chart;
+
+  const shift = (x: number) => (((x + delta) % 360) + 360) % 360;
+  const planets: any = {};
+  for (const [id, p] of Object.entries(chart.planets as any)) {
+    const pl: any = p;
+    planets[id] = { ...pl, siderealLongitude: shift(pl.siderealLongitude) };
+  }
+  const angles: any = (chart as any).angles ?? {};
+
+  return {
+    ...chart,
+    lagna: { ...(chart as any).lagna, siderealLongitude: shift((chart as any).lagna.siderealLongitude) },
+    planets,
+    angles: {
+      ...angles,
+      mc: typeof angles.mc === 'number' ? shift(angles.mc) : angles.mc,
+      ic: typeof angles.ic === 'number' ? shift(angles.ic) : angles.ic,
+      descendant: typeof angles.descendant === 'number' ? shift(angles.descendant) : angles.descendant,
+    },
+    meta: { ...meta, ayanamshaValue: kpAyan, ayanamshaType: 'kp' },
+  } as JyotishaChart;
+}
+
 function buildKpLayer(
   chart: JyotishaChart,
   now: Date,
   mode: 'natal' | 'horary'
 ): KpLayer {
-  const cusps = buildKpCusps(chart);
+  // Re-express the chart on the KP ayanāṃśa before any cusp or sub lord is read.
+  const kpChart = onKpAyanamsha(chart);
+  const cusps = buildKpCusps(kpChart);
 
   const significators: Record<number, SignificatorsResult> = {};
   for (let h = 1; h <= 12; h++) {
