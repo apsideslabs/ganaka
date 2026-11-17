@@ -232,6 +232,31 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // Jaimini 1.1.2-4 and 1.1.5-10 — sign aspect and argala.
+  {
+    const lagnaRashi = chart.lagna.rashiNumber;
+    const argala = [2,4,11].map((h) => ((lagnaRashi - 1 + h - 1) % 12) + 1);
+    const virodha = [12,10,3].map((h) => ((lagnaRashi - 1 + h - 1) % 12) + 1);
+    const occupantsOf = (r: number) => (chart.bhavas as any[]).find((b: any) => b.rashiNumber === r)?.occupants ?? [];
+    const argalaCount = argala.filter((r) => occupantsOf(r).length > 0).length;
+    const virodhaCount = virodha.filter((r) => occupantsOf(r).length > 0).length;
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_argala', 'phala_jaimini_argala',
+        [{ id: 'c_argala', description: 'Argala on the lagna exceeds its virodha', expected: 'argala >= virodha', observed: `argala ${argalaCount}, virodha ${virodhaCount}`, met: argalaCount >= virodhaCount }],
+        'The 2nd, 4th and 11th from a house give argala; the 12th, 10th and 3rd obstruct it. Where both operate the stronger wins.',
+        CANONICAL_RULES.jaimini_argala),
+    );
+    const movable = [1,4,7,10].includes(lagnaRashi);
+    const fixed = [2,5,8,11].includes(lagnaRashi);
+    const nature = movable ? 'movable' : fixed ? 'fixed' : 'dual';
+    directClassicalPhalas.push(
+      phalaFromRule('jaimini_rashi_drishti', 'phala_jaimini_drishti',
+        [{ id: 'c_rashi_drishti', description: 'The lagna sign has its Jaimini aspect available', expected: 'a sign of known nature', observed: `${nature} sign ${lagnaRashi}`, met: movable || fixed || true }],
+        'A movable sign aspects the fixed sign ninth from it and the dual sign fifth from it; fixed and dual signs follow their own counts.',
+        CANONICAL_RULES.jaimini_rashi_drishti),
+    );
+  }
+
   return {
     id: 'constitution',
     title: 'Lagna & Fundamental Constitution',
