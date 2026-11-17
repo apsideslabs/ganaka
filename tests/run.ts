@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { placidusCusps } from '../lib/jyotisha/placidus';
 import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateHouses } from '../lib/jyotisha/houses';
 import { parseTimeInput } from '../lib/jyotisha/time-format';
@@ -3300,6 +3301,44 @@ console.log('\n== Yoga nāśaka gate ==');
   check('the engine cites BPHS 6.53 for the gate', /BPHS 6\.53/.test(eng));
   check('the engine records that retrogression is not a defect',
     /RETROGRESSION IS NOT A DEFECT/.test(eng));
+}
+
+/* ------------- PLACIDUS CUSPS MUST MATCH SWISS EPHEMERIS --------- */
+
+console.log('\n== Placidus cusps ==');
+{
+  // Reference values from Swiss Ephemeris, swe.houses_ex(..., b'P', FLG_SIDEREAL)
+  // for 24 Feb 1955 19:13 PST, San Francisco (37.7749, -122.4194).
+  const REF = [148.65,174.56,204.66,237.62,270.79,301.54,328.65,354.56,24.66,57.62,90.79,121.54];
+  const got = placidusCusps({
+    ascendant: 148.647, mc: 57.6181, latitude: 37.7749,
+    obliquity: 23.4454, ayanamsha: 23.230653,
+  });
+  check('twelve cusps returned', !!got && got.length === 12);
+  let worst = 0;
+  for (let i = 0; i < 12; i++) {
+    const d = Math.abs(((got![i] - REF[i] + 540) % 360) - 180);
+    worst = Math.max(worst, d);
+  }
+  check('Placidus matches Swiss Ephemeris on every cusp', worst < 0.02, `worst ${worst.toFixed(3)}°`);
+
+  // Placidus has no solution inside the polar circles.
+  check('Placidus returns null beyond the polar circle',
+    placidusCusps({ ascendant: 0, mc: 90, latitude: 70, obliquity: 23.44 }) === null);
+
+  // The KP layer must use real Placidus, not equal-thirds.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const kp = buildKpCusps(natal);
+  // Cusp 1 is the ascendant and cusp 10 the MC, whatever the house system.
+  check('cusp 1 is the ascendant', Math.abs(((kp[0].longitude - natal.lagna.siderealLongitude + 540) % 360) - 180) < 0.001);
+  check('cusp 10 is the midheaven', Math.abs(((kp[9].longitude - natal.angles.mc + 540) % 360) - 180) < 0.001);
+
+  // Porphyry would place cusp 2 at asc + quadrant/3. Placidus must differ from
+  // that on a chart where the quadrant is not evenly divided.
+  const q1 = ((kp[3].longitude - kp[0].longitude + 360) % 360) / 3;
+  const porphyry2 = (kp[0].longitude + q1) % 360;
+  const gap = Math.abs(((kp[1].longitude - porphyry2 + 540) % 360) - 180);
+  check('cusp 2 is Placidus, not Porphyry equal-thirds', gap > 0.5, `differs by ${gap.toFixed(2)}°`);
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
