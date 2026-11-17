@@ -272,6 +272,18 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 26 - transits counted from the natal Moon, with vedha.
+  {
+    const moonRashi = chart.planets.moon.rashiNumber;
+    const saturnFromMoon = ((chart.planets.saturn.rashiNumber - moonRashi + 12) % 12) + 1;
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_gochara', 'phala_phaladeepika_gochara',
+        [{ id: 'c_pd_gochara', description: 'Saturn not transiting the 8th from the Moon', expected: 'not 8th', observed: `House ${saturnFromMoon} from Moon`, met: saturnFromMoon !== 8 }],
+        'Transit results are counted from the natal Moon; a favourable transit is void when a graha occupies its vedha point.',
+        CANONICAL_RULES.phaladeepika_gochara),
+    );
+  }
+
   return {
     id: 'career',
     title: 'Career & Professional Life',
