@@ -3438,6 +3438,54 @@ console.log('\n== KP sub table ==');
   }
 }
 
+/* ------- KP TIMING REACHES PAST THE RUNNING MAHĀDAŚĀ ------------ */
+
+console.log('\n== KP timing horizon ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const L = calculateKpLayer(natal, new Date());
+  const rows = fourStepForAll(natal, L, new Date());
+  const timed = rows.filter((r) => r.outcome === 'promised-and-timed');
+
+  // The rule is stated over a horizon, not over one mahādaśā:
+  //   "Take every Maha-Antar-Pratyantar combination inside the horizon of the
+  //    reading and test each against the joint-coverage rule."
+  // Reading only chain[0] returned "waits for a later mahādaśā" for most
+  // matters on most charts.
+  check('some matters find a delivering window', timed.length > 0,
+    `${timed.length} of ${rows.length}`);
+
+  // Windows are reported in time order, unranked.
+  const win = (L.timing as any).marriage?.windows ?? [];
+  const ordered = win.every((w: any, i: number) =>
+    i === 0 || new Date(w.from).getTime() >= new Date(win[i - 1].from).getTime());
+  check('delivering windows are in time order', ordered);
+
+  // Every window must actually cover the whole matter group.
+  check('every window covers the full house group',
+    win.every((w: any) => w.missing.length === 0),
+    win.map((w: any) => w.missing.join(',')).join('|'));
+}
+
+/* ---- KP REPORTS HOW FAR THE BIRTH TIME MAY MOVE --------------- */
+
+console.log('\n== KP birth-time sensitivity ==');
+{
+  // "together with a note of how many minutes the birth time could move before
+  //  the 7th cusp sub lord changes. That note matters more than it looks."
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const L: any = calculateKpLayer(natal, new Date());
+  const s = L.sensitivity;
+
+  check('the layer reports birth-time sensitivity', !!s && typeof s.minutes === 'number');
+  check('the sensitivity is a sane number of minutes', !!s && s.minutes > 0 && s.minutes <= 30,
+    String(s?.minutes));
+  check('the sensitivity names the sub lord that takes over',
+    !!s && (s.wouldBecome === null || typeof s.wouldBecome.subLord === 'string'));
+  check('the sensitivity names the cusp sub lord it protects',
+    !!s && typeof s.subLord === 'string', s?.subLord);
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
