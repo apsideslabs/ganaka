@@ -34,12 +34,40 @@ export interface OverallReading {
     body: string;
     /** Whether the running period opens this movement now. */
     activation: 'active' | 'dormant' | 'partial';
+    /**
+     * What the classical texts actually said about this movement: how many
+     * rules were tested, how many the chart met, and which verses fired.
+     * The score says how strong a domain is; this says what it rests on.
+     */
+    classical: {
+      tested: number;
+      met: number;
+      /** Distinct source texts behind the rules that were met. */
+      sources: string[];
+      /** The chapter citations that fired, in the order they were tested. */
+      citations: string[];
+    };
   }>;
   atAGlance: Array<{ label: string; value: string }>;
   /** Domains resting on the thinnest ground. */
   thinnest: string[];
   /** Domains that are strong but not currently activated. */
   strongButDormant: string[];
+  /** The classical record behind the whole reading. */
+  evidence: {
+    rulesTested: number;
+    rulesMet: number;
+    /** Per-text tally, so a reading leaning on one book is visible. */
+    byText: Array<{ text: string; tested: number; met: number }>;
+    /** Where two texts on the chart disagreed. */
+    contradictions: string[];
+  };
+  /**
+   * A condition that recurs across several domains. One weak graha dragging
+   * three houses is a different reading from three unrelated weaknesses, and
+   * the domain-by-domain view cannot show the difference.
+   */
+  threads: Array<{ observation: string; domains: string[] }>;
 }
 
 const KEEP_PARENTHETICAL =
@@ -152,6 +180,63 @@ function activationOf(scores: DomainScore[]): 'active' | 'dormant' | 'partial' {
   return 'partial';
 }
 
+/** Every phala the twelve evaluators produced, with the domain it came from. */
+function collectPhalas(report: ClassicalIndicationsReport) {
+  const out: Array<{ domain: DomainId; phala: any }> = [];
+  for (const id of report.orderedDomainIds ?? []) {
+    for (const phala of (report.domains?.[id]?.directClassicalPhalas ?? [])) {
+      out.push({ domain: id as DomainId, phala });
+    }
+  }
+  return out;
+}
+
+/**
+ * A condition shared by three or more domains.
+ *
+ * The evaluators each test their own houses, so a combust Jupiter sitting in
+ * the 5th and aspecting the 7th shows up as two unrelated "Condition Not Met"
+ * lines. Naming the shared cause is what turns twelve verdicts into a reading.
+ */
+function findThreads(report: ClassicalIndicationsReport) {
+  // A domain is "thin" when at least one of its classical rules was tested and
+  // failed. Its keyGrahas are the grahas the evaluator itself nominated as the
+  // carriers of that domain, so a graha recurring across thin domains is the
+  // shared cause — no text parsing, no guessing.
+  const thin: Array<{ title: string; grahas: string[] }> = [];
+  for (const id of report.orderedDomainIds ?? []) {
+    const d = report.domains?.[id];
+    const ph = d?.directClassicalPhalas ?? [];
+    if (!ph.length) continue;
+    if (!ph.some((x: any) => !x.allConditionsMet)) continue;
+    // Only the primary significator: every domain nominates three or four
+    // grahas, so counting them all makes almost any graha look like a thread.
+    const primary = String((d?.keyGrahas ?? [])[0] ?? '');
+    const grahas = /^(sun|moon|mars|mercury|jupiter|venus|saturn|rahu|ketu)$/i.test(primary)
+      ? [primary] : [];
+    if (grahas.length) thin.push({ title: d?.title ?? String(id), grahas });
+  }
+
+  const byGraha = new Map<string, string[]>();
+  for (const { title, grahas } of thin) {
+    for (const g of grahas) {
+      const key = g.charAt(0).toUpperCase() + g.slice(1).toLowerCase();
+      if (!byGraha.has(key)) byGraha.set(key, []);
+      byGraha.get(key)!.push(title);
+    }
+  }
+
+  return [...byGraha.entries()]
+    .filter(([, domains]) => domains.length >= 3)
+    .sort((a, b) => b[1].length - a[1].length)
+    .map(([graha, domains]) => ({
+      observation:
+        `${graha} is the primary significator in ${domains.length} domains whose classical rule failed — ` +
+        'one placement carrying several weaknesses, not several separate ones.',
+      domains,
+    }));
+}
+
 /**
  * Compose the overall reading from the domain report and the chart.
  */
@@ -187,6 +272,9 @@ export function buildOverallReading(
     { title: 'Footing — physical and inner', ids: ['health', 'spirituality', 'life_themes'] },
   ];
 
+  const allPhalas = collectPhalas(report);
+  const phalasOf = (ids: DomainId[]) => allPhalas.filter((x) => ids.includes(x.domain));
+
   const movements = groups.map((grp) => {
     const gs = pick(grp.ids);
     const activation = activationOf(gs);
@@ -197,8 +285,24 @@ export function buildOverallReading(
       })
       .filter(Boolean)
       .join(' ');
-    const body = `${lines} ${movementVerdict(gs, activation)}`.trim();
-    return { title: grp.title, scores: gs, body, activation };
+
+    // What the texts said about this movement, not just what the score says.
+    const ph = phalasOf(grp.ids);
+    const met = ph.filter((x) => x.phala.allConditionsMet);
+    const classical = {
+      tested: ph.length,
+      met: met.length,
+      sources: [...new Set(met.map((x) => String(x.phala.sourceText ?? '')).filter(Boolean))],
+      citations: met.map((x) => String(x.phala.chapterAndVerse ?? '')).filter(Boolean).slice(0, 6),
+    };
+    const evidenceLine =
+      ph.length === 0 ? ''
+        : met.length === 0
+          ? ` No classical rule was met for this movement — ${ph.length} were tested and every condition failed.`
+          : ` Of ${ph.length} classical rules tested here, ${met.length} hold${classical.sources.length ? `, across ${classical.sources.length} text${classical.sources.length === 1 ? '' : 's'}` : ''}.`;
+
+    const body = `${lines}${evidenceLine} ${movementVerdict(gs, activation)}`.trim();
+    return { title: grp.title, scores: gs, body, activation, classical };
   }).filter((m) => m.body.length > 0);
 
   const lagnaName = plain(g.ascendantSign).split('(')[0].trim();
@@ -207,11 +311,42 @@ export function buildOverallReading(
   const strongest = [...scores].sort((a, b) => b.total - a.total)[0];
   const weakest = [...scores].sort((a, b) => a.total - b.total)[0];
 
+  // Per-text tally across the whole reading.
+  const byTextMap = new Map<string, { tested: number; met: number }>();
+  for (const { phala } of allPhalas) {
+    const t = String(phala.sourceText ?? '');
+    if (!t) continue;
+    const cur = byTextMap.get(t) ?? { tested: 0, met: 0 };
+    cur.tested += 1;
+    if (phala.allConditionsMet) cur.met += 1;
+    byTextMap.set(t, cur);
+  }
+  const byText = [...byTextMap.entries()]
+    .map(([text, v]) => ({ text, ...v }))
+    .sort((a, b) => b.tested - a.tested);
+
+  const contradictions = [...new Set(
+    allPhalas
+      .map((x) => String(x.phala.reconciliationNotes ?? '').trim())
+      .filter((n) => n.length > 20)
+  )].slice(0, 4);
+
+  const evidence = {
+    rulesTested: allPhalas.length,
+    rulesMet: allPhalas.filter((x) => x.phala.allConditionsMet).length,
+    byText,
+    contradictions,
+  };
+
+
   const headline =
     `${lagnaName} ascendant with the Moon in ${moonName} — ` +
     `${lower(plain(g.dominantElement))} in temperament, ${lower(plain(g.dominantGuna))} by disposition. ` +
     (strongest && weakest && strongest.id !== weakest.id
       ? `${strongest.label.split('&')[0].trim()} is the firmest ground here; ${weakest.label.split('&')[0].trim()} the thinnest.`
+      : '') +
+    (evidence.rulesTested > 0
+      ? ` ${evidence.rulesMet} of ${evidence.rulesTested} classical rules tested hold for this chart.`
       : '');
 
   const atAGlance = [
@@ -235,12 +370,14 @@ export function buildOverallReading(
       (s.layers.find((l) => l.name === 'Daśā')?.score ?? 0) <= 0.3)
     .map((s) => s.label);
 
+  const threads = findThreads(report);
+
   const method =
     'Each domain is scored on five layers — the house lord 40%, its natural significator 25%, ' +
     'the divisional chart 15%, aṣṭakavarga bindus 10%, and whether the running daśā opens it 10%. ' +
     'The weights are a convention, not a verse; they are stated so the reading can be argued with.';
 
-  return { headline, method, movements, atAGlance, thinnest, strongButDormant };
+  return { headline, method, movements, atAGlance, thinnest, strongButDormant, evidence, threads };
 }
 
 /** The single paragraph form, for places that want one block of prose. */
