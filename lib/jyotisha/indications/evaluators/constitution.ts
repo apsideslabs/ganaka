@@ -217,6 +217,21 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // BPHS 24 - house lords in houses, scaled by strength (148 verses).
+  {
+    const ll = getHouseLord(chart, 1); const llp: any = chart.planets[ll.id];
+    const h = llp?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_bhavesha_phala', 'phala_bphs_bhavesha',
+        [
+          { id: 'c_bhavesha_kendra', description: 'Lagna lord in a kendra or trikona', expected: '1/4/7/10 or 5/9', observed: `House ${h}`, met: [1,4,7,10,5,9].includes(h) },
+          { id: 'c_bhavesha_scaled', description: 'Lagna lord strong enough for a full result', expected: 'Shadbala >= 1', observed: String(llp?.shadbalaRatio ?? 'n/a'), met: (llp?.shadbalaRatio ?? 0) >= 1 },
+        ],
+        'The lagna lord in a kendra or trikona gives the full result of that house; the closing verses scale it to half or a quarter by the lord\'s strength.',
+        CANONICAL_RULES.bphs_bhavesha_phala),
+    );
+  }
+
   return {
     id: 'constitution',
     title: 'Lagna & Fundamental Constitution',
