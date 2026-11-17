@@ -136,8 +136,8 @@ export function fourStepCheck(
     verdict: windows.length > 0 ? 'yes' : 'no',
     finding:
       windows.length > 0
-        ? `${windows.length} window(s) in the current mahādaśā have lords that together cover ${timing.matterHouses.join(', ')}.`
-        : `No period in the current mahādaśā covers all of ${timing?.matterHouses.join(', ') ?? matter.matter.join(', ')}.`,
+        ? `${windows.length} window(s) inside the horizon — the running mahādaśā and the next two — have lords that together cover ${timing.matterHouses.join(', ')}.`
+        : `No period inside the horizon — the running mahādaśā and the next two — covers all of ${timing?.matterHouses.join(', ') ?? matter.matter.join(', ')}.`,
     evidence: windows.slice(0, 5).map(
       (w) => `${w.from.slice(0, 10)} → ${w.to.slice(0, 10)} · ${w.lords.map((l) => l.lordName).join(' › ')} · covers ${w.covered.join(',')}`
     ),
