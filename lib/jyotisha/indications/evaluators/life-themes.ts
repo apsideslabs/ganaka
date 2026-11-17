@@ -11,6 +11,7 @@ import { CANONICAL_RULES } from '../classical-sources';
 import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -107,6 +108,19 @@ export function evaluateLifeThemesDomain(chart: JyotishaChart): DomainIndication
     [],
     []
   );
+
+  // BPHS 35 - the Nabhasa yogas. They operate across the whole life and do not
+  // wait for a dasa, so they belong to the life-theme layer rather than to any
+  // single bhava.
+  {
+    const kendras = [1,4,7,10].filter((h) => (chart.bhavas as any[]).some((b: any) => b.houseNumber === h && (b.occupants?.length ?? 0) > 0)).length;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_nabhasa_life_pattern', 'phala_bphs_nabhasa',
+        [{ description: 'At least one kendra occupied', observed: `${kendras} of 4 kendras filled`, met: kendras >= 1 }],
+        'Nabhasa yogas describe the macro distribution of the grahas across kendra, trikona and upacaya, and are held to operate throughout life without waiting for a dasa.',
+        CANONICAL_RULES.bphs_nabhasa_life_pattern),
+    );
+  }
 
   return {
     id: 'life_themes',
