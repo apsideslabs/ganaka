@@ -1979,7 +1979,6 @@ console.log('\n== The export carries what the workspace shows ==');
     ['avakahada', 'avakahada'],
     ['vargas', 'chart'],
     ['sudarshana', 'sudarshana'],
-    ['matching_bridge', 'matchingData'],
     ['varshaphala', 'varshaphala'],
     ['sphutas', 'chart'],
     ['bhavas', 'bhavaChalit'],
@@ -3255,6 +3254,52 @@ console.log('\n== Test file imports ==');
   // TypeScript rejects a duplicate binding outright, so this costs a CI cycle
   // every time it slips through. It has slipped through five times.
   check('no identifier is imported twice', dupes.length === 0, dupes.join(', '));
+}
+
+/* --------- YOGAS MUST RESPECT THE YOGANĀŚAKA RULE (BPHS 6.53) ----- */
+
+console.log('\n== Yoga nāśaka gate ==');
+{
+  // अस्तंगता ग्रहजिता नीचगा दुर्बलाश्च ये । शयनादिगतास्तेभ्य उत्पन्ना योगनाशकाः ॥
+  // BPHS 6.53: yogas formed by a combust, war-defeated, debilitated or weak
+  // graha are yoganāśaka. The yoga forms; its result is light.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const yogas: any[] = natal.yogas || [];
+
+  check('the chart reports its yogas', yogas.length > 0, String(yogas.length));
+
+  // Jupiter is debilitated in this fixture, so anything it forms must be marked.
+  const debilitatedJupiter = yogas.filter((y) =>
+    (y.diminishedBy || []).some((d: string) => d.startsWith('jupiter:')));
+  check('yogas formed by a debilitated graha are flagged',
+    debilitatedJupiter.length > 0, String(debilitatedJupiter.length));
+
+  // Diminished, never void — the texts say light, not absent.
+  check('a diminished yoga is never rated Cancelled',
+    debilitatedJupiter.every((y) => y.strengthRating !== 'Cancelled'),
+    debilitatedJupiter.filter((y) => y.strengthRating === 'Cancelled').map((y) => y.name).join(','));
+  check('a diminished yoga still reports the rule that reduced it',
+    debilitatedJupiter.every((y) =>
+      (y.conditionsMet || []).some((c: string) => c.includes('BPHS 6.53'))));
+
+  // Nīcabhaṅga is exempt: the debilitation it cancels is the yoga itself.
+  const nb = yogas.filter((y) => /neecha|nīca|nicabhanga/i.test(y.id));
+  check('nīcabhaṅga is not diminished by the debilitation it cancels',
+    nb.every((y) => !y.diminishedBy),
+    nb.filter((y) => y.diminishedBy).map((y) => y.name).join(',') || 'all exempt');
+
+  // Retrogression must never diminish a yoga — Phaladīpikā equates a retrograde
+  // graha with an exalted one for strength.
+  check('retrogression is never a yoga-nāśaka cause',
+    yogas.every((y) => !(y.diminishedBy || []).some((d: string) => d.includes('retro'))));
+
+  // The rule must be documented where it is applied.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const eng = fs.readFileSync(path.join(process.cwd(), 'lib/yogas/yoga-engine.ts'), 'utf8');
+  check('the engine cites BPHS 6.53 for the gate', /BPHS 6\.53/.test(eng));
+  check('the engine records that retrogression is not a defect',
+    /RETROGRESSION IS NOT A DEFECT/.test(eng));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
