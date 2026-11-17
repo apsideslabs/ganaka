@@ -17,6 +17,7 @@ import {
   getHouseSAVBindus,
   makeFact,
   GRAHA_SANSKRIT_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -167,6 +168,24 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     [],
     []
   );
+
+  // BPHS 11.14-16 - the master gate every other bhava chapter assumes.
+  {
+    const ll = getHouseLord(chart, 1);
+    const llp: any = chart.planets[ll.id];
+    const inTrika = [6, 8, 12].includes(llp?.house ?? 0);
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_bhava_viveka_judgement', 'phala_bphs_bhava_viveka',
+        [
+          { description: 'Lagna lord not placed in a trika house (6/8/12)', observed: `House ${llp?.house}`, met: !inTrika },
+          { description: 'Lagna lord not combust', observed: llp?.isCombust ? 'combust' : 'not combust', met: !llp?.isCombust },
+        ],
+        inTrika || llp?.isCombust
+          ? 'A bhava whose lord is lost among the trikesas, asleep, aged or dead gives no result (bhavasya phalam nastam).'
+          : 'A bhava whose lord is joined to or aspected by benefics gives its full result (bhava-saukhya).',
+        CANONICAL_RULES.bphs_bhava_viveka_judgement),
+    );
+  }
 
   return {
     id: 'constitution',
