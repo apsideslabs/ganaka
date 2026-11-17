@@ -41,7 +41,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   phaladeepika_lagna_dehabala: {
     id: 'phaladeepika_lagna_dehabala',
     sourceText: 'Phaladīpikā (Mantreśvara)',
-    chapterAndVerse: 'Ch. 14 (Dehasaukhyādi Phala), Śloka 1–3',
+    chapterAndVerse: 'Ch. 16 (Dvādaśabhāvaphala), Śloka 1–35',
     sanskritTitle: 'देहसौख्यादि विचारः',
     sanskritShloka: 'लग्ने लग्नपतौ वाऽपि केन्द्रत्रिकोणगे बलयुते। अरिरोगशोकमुक्तः स जीवेच्छरदां शतम्॥',
     editionOrManuscript: 'V. Subrahmanya Sastri recension (1937)',
@@ -53,7 +53,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   saravali_lagna_vargottama: {
     id: 'saravali_lagna_vargottama',
     sourceText: 'Sārāvalī (Kalyāṇavarmā)',
-    chapterAndVerse: 'Ch. 3 (Vargottamādhyāya), Śloka 48–50',
+    chapterAndVerse: 'Ch. 3 (Horārāśibheda), Śloka 1–41',
     sanskritTitle: 'वर्गोत्तम लग्न फलम्',
     sanskritShloka: 'वर्गोत्तमे तनौ जाते रूपवान् सुभगः शुचिः। कुलोत्तंसः प्रतापी च दीर्घायुश्च नरो भवेत्॥',
     editionOrManuscript: 'Kalyāṇavarmā Sārāvalī (Khemraj Shrikrishnadass ed.)',
@@ -69,7 +69,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   saravali_chandra_buddhi_manas: {
     id: 'saravali_chandra_buddhi_manas',
     sourceText: 'Sārāvalī (Kalyāṇavarmā)',
-    chapterAndVerse: 'Ch. 22–24 (Candra-Budha Prakṛti), Śloka 1–8',
+    chapterAndVerse: 'Ch. 23 (Candracāra), Śloka 1–26',
     sanskritTitle: 'मनःस्वभाव निर्णयः',
     sanskritShloka: 'चन्द्रेण मनसो ज्ञानात् बुधेन बुद्धिनिर्णयः। सौम्यैर्युतेक्षितौ शान्तौ क्रूरैश्चण्डप्रकृतिको॥',
     editionOrManuscript: 'Sārāvalī, ed. R. Santhanam',
@@ -227,7 +227,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   phaladeepika_santana_yoga: {
     id: 'phaladeepika_santana_yoga',
     sourceText: 'Phaladīpikā (Mantreśvara)',
-    chapterAndVerse: 'Ch. 18 (Santāna Bhāva), Śloka 1–6',
+    chapterAndVerse: 'Ch. 12 (Putrabhāvaphala), Śloka 1–34',
     sanskritTitle: 'सन्तान योग विचारः',
     sanskritShloka: 'सुतेशे केन्द्रगे सौम्ये गुरौ वा शुभवीक्षिते। सन्ततिः स्याद्गुणोपेता कुलोद्धारकरी शुभा॥',
     editionOrManuscript: 'Phaladīpikā ed. V. Subrahmanya Sastri',
@@ -542,6 +542,166 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     scopeAndConditions:
       '10th lord placement and dignity, the graha occupying the 10th, and the Daśāṃśa (D-10) for the specific occupation.',
     editionOrManuscript: 'R. Santhanam, Vol. 1',
+  },
+
+  // ==========================================
+  // Phaladīpikā — 28 chapters, Subrahmanya Sastri numbering
+  // ==========================================
+  phaladeepika_kalatra_bhava: {
+    id: 'phaladeepika_kalatra_bhava',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 10 (Kalatrabhāva), Śloka 1–15',
+    sanskritTitle: 'कलत्रभवम्',
+    ruleDescription:
+      'The 7th bhāva for the spouse. Its lord in a kendra or trikoṇa, with Venus well placed, gives a good partner; the 7th lord in a dusthāna, combust or joined to malefics gives delay and discord. The chapter reads the 7th from both the lagna and the Moon.',
+    scopeAndConditions:
+      '7th lord placement and dignity, Venus, and benefic or malefic occupancy of the 7th.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+    textualDisagreementNotes:
+      'Phaladīpikā reads the 7th from the Moon as well as the lagna; BPHS Ch. 18 reads it from the lagna alone. Where the two disagree the Moon-based reading is the more specific.',
+  },
+
+  phaladeepika_karmajiva: {
+    id: 'phaladeepika_karmajiva',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 5 (Karmajīvaprakaraṇa), Śloka 1–9',
+    sanskritTitle: 'कर्मजीव प्रकरणम्',
+    ruleDescription:
+      'Livelihood is read from the 10th bhāva and its lord, the graha occupying the 10th, and the strongest graha in the chart. The chapter is short — nine verses — because it defers the detail to the Daśāṃśa.',
+    scopeAndConditions:
+      '10th lord, 10th occupants, and the Daśāṃśa (D-10) lagna and its lord.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  phaladeepika_bhava_chinta: {
+    id: 'phaladeepika_bhava_chinta',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 15 (Bhāvacintā), Śloka 1–30',
+    sanskritTitle: 'भावचिन्ता',
+    ruleDescription:
+      'How any bhāva is judged at all: from its lord, its occupants, its aspecting grahas and its strength. A bhāva gives its result through its lord; the occupants modify it; a benefic aspect protects and a malefic one damages.',
+    scopeAndConditions:
+      'Bhāveśa strength and placement, occupancy, and the aspects falling on the bhāva.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+    textualDisagreementNotes:
+      'This is Phaladīpikā\'s counterpart to BPHS Ch. 11 (Bhāvaviveka). The two agree on the primacy of the lord; they differ on how much weight to give the occupants.',
+  },
+
+  phaladeepika_roga_nirnaya: {
+    id: 'phaladeepika_roga_nirnaya',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 14 (Roganirṇaya), Śloka 1–29',
+    sanskritTitle: 'रोगनिर्णयः',
+    ruleDescription:
+      'Disease is read from the 6th bhāva and its lord, the lagna and its lord, and the graha that afflicts them. The nature of the illness follows the afflicting graha; the affected limb follows the sign.',
+    scopeAndConditions:
+      '6th lord and 6th occupants, lagna lord affliction, and the nature of the afflicting graha.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  phaladeepika_maharajayoga: {
+    id: 'phaladeepika_maharajayoga',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 7 (Mahārājayoga), Śloka 1–30',
+    sanskritTitle: 'राजयोगः',
+    ruleDescription:
+      'Rāja yogas: the lords of kendras and trikoṇas in mutual relation — conjunction, aspect or exchange — give rank and authority. The 9th and 10th lords linked is the strongest form.',
+    scopeAndConditions:
+      'Kendra lord (1/4/7/10) and trikoṇa lord (5/9) in conjunction, mutual aspect or sign exchange.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  phaladeepika_pravrajya: {
+    id: 'phaladeepika_pravrajya',
+    sourceText: 'Phaladīpikā (Mantreśvara)',
+    chapterAndVerse: 'Ch. 27 (Pravrajyāyoga), Śloka 1–8',
+    sanskritTitle: 'प्रव्रज्यायोगः',
+    ruleDescription:
+      'Yogas of renunciation: four or more grahas in one bhāva, or the 4th, 9th and 12th lords in mutual relation with Saturn, turn the native toward asceticism. The chapter is only eight verses and is read alongside BPHS Ch. 45 of the Sharma recension.',
+    scopeAndConditions:
+      'Four or more grahas in a single bhāva, or the 9th and 12th lords joined to Saturn.',
+    editionOrManuscript: 'V. Subrahmanya Sastri (1950)',
+  },
+
+  // ==========================================
+  // Sārāvalī — 54 chapters, Kalyāṇavarman
+  // ==========================================
+  saravali_bhavadhyaya: {
+    id: 'saravali_bhavadhyaya',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 30 (Bhāvādhyāya), Śloka 1–87',
+    sanskritTitle: 'भावाध्याय',
+    ruleDescription:
+      'The grahas read bhāva by bhāva: each planet in each of the twelve houses, with its effect. The longest chapter of the work at 87 verses, and the one most quoted for house-by-house readings.',
+    scopeAndConditions:
+      'The occupying graha and the house it occupies; benefic or malefic nature modifies the result.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
+    textualDisagreementNotes:
+      'Sārāvalī gives house effects by occupant rather than by lord, where BPHS gives them by lord. The two are complementary, not alternatives.',
+  },
+
+  saravali_bhagya_chinta: {
+    id: 'saravali_bhagya_chinta',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 32 (Bhāgyacintā), Śloka 1–84',
+    sanskritTitle: 'भाग्यचिन्ता',
+    ruleDescription:
+      'Fortune is read from the 9th bhāva counted from the lagna and again from the Moon. Its lord strong, or Jupiter placed there, gives fortune and faith; afflicted, it gives doubt and loss of the guru.',
+    scopeAndConditions:
+      '9th lord from lagna and from the Moon, and Jupiter\'s condition.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
+    textualDisagreementNotes:
+      'Reading the 9th from the Moon as well as the lagna is Sārāvalī\'s own emphasis; BPHS Ch. 20 uses the lagna alone.',
+  },
+
+  saravali_karma_chinta: {
+    id: 'saravali_karma_chinta',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 33 (Karmacintā), Śloka 1–20',
+    sanskritTitle: 'कर्मचिन्ताध्याय',
+    ruleDescription:
+      'Action and profession from the 10th bhāva: its lord, its occupants, and the graha with the highest strength. Sārāvalī adds that the 10th from the Moon is read alongside the 10th from the lagna.',
+    scopeAndConditions:
+      '10th lord and occupants, plus the 10th from the Moon.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
+  },
+
+  saravali_rajayoga: {
+    id: 'saravali_rajayoga',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 35 (Rājayogādhyāya), Śloka 1–181',
+    sanskritTitle: 'राजयोगाध्याय',
+    ruleDescription:
+      'The largest treatment of rāja yoga in the corpus at 181 verses: every combination of kendra and trikoṇa lords, their exchanges, their aspects, and the grahas that strengthen or obstruct them.',
+    scopeAndConditions:
+      'Kendra–trikoṇa lord relations, with the obstructing conditions of Ch. 38 applied afterwards.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
+  },
+
+  saravali_rajayoga_bhanga: {
+    id: 'saravali_rajayoga_bhanga',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 38 (Rājayogabhaṅga), Śloka 1–24',
+    sanskritTitle: 'राजयोगभङ्ग',
+    ruleDescription:
+      'Obstruction to rāja yoga: a rāja yoga is broken when its yogakāraka is combust, defeated in graha-yuddha, debilitated without cancellation, or joined to the 6th, 8th or 12th lord. Sārāvalī devotes a whole chapter to this, which BPHS does not.',
+    scopeAndConditions:
+      'The yogakāraka\'s dignity, combustion, graha-yuddha result and association with dusthāna lords.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
+    textualDisagreementNotes:
+      'This is the classical source for what later practice calls yoga-nāśaka. BPHS 6.53 states the principle in one verse; Sārāvalī gives it 24.',
+  },
+
+  saravali_pancha_mahapurusha: {
+    id: 'saravali_pancha_mahapurusha',
+    sourceText: 'Sārāvalī (Kalyāṇavarmā)',
+    chapterAndVerse: 'Ch. 37 (Pañcamahāpuruṣalakṣaṇa), Śloka 1–9',
+    sanskritTitle: 'पञ्चमहापुरुषलक्षणं',
+    ruleDescription:
+      'The five mahāpuruṣa yogas — Rucaka (Mars), Bhadra (Mercury), Haṃsa (Jupiter), Mālavya (Venus) and Śaśa (Saturn) — formed when one of these grahas occupies a kendra in its own sign or exaltation.',
+    scopeAndConditions:
+      'The named graha in a kendra (1/4/7/10) in its own sign, mūlatrikoṇa or exaltation.',
+    editionOrManuscript: 'N.N. Krishna Rau / R. Santhanam',
   },
 
 };
