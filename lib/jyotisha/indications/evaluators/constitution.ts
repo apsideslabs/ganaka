@@ -177,8 +177,8 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     directClassicalPhalas.push(
       phalaFromRule('bphs_bhava_viveka_judgement', 'phala_bphs_bhava_viveka',
         [
-          { description: 'Lagna lord not placed in a trika house (6/8/12)', observed: `House ${llp?.house}`, met: !inTrika },
-          { description: 'Lagna lord not combust', observed: llp?.isCombust ? 'combust' : 'not combust', met: !llp?.isCombust },
+          { id: 'c_lagna_lord_not_placed_in_a_trika_house', description: 'Lagna lord not placed in a trika house (6/8/12)', expected: 'Lagna lord not placed in a trika house (6/8/12)', observed: `House ${llp?.house}`, met: !inTrika },
+          { id: 'c_lagna_lord_not_combust', description: 'Lagna lord not combust', expected: 'Lagna lord not combust', observed: llp?.isCombust ? 'combust' : 'not combust', met: !llp?.isCombust },
         ],
         inTrika || llp?.isCombust
           ? 'A bhava whose lord is lost among the trikesas, asleep, aged or dead gives no result (bhavasya phalam nastam).'
