@@ -191,6 +191,9 @@ export interface PanchangaResult {
   sunTimes: {
     sunrise: string;
     sunset: string;
+    /** Sunrise that ends the Hindu day begun at `sunrise`. */
+    nextSunrise?: string;
+    nextSunriseJD?: number;
     moonrise: string;
     moonset: string;
     solarNoon: string;
