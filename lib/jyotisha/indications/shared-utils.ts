@@ -10,7 +10,7 @@ import {
   RashiNumber,
   DignityType,
 } from '../types';
-import { CalculatedFact, FactCategory } from './types';
+import { CalculatedFact, FactCategory, DirectClassicalPhala, RuleCondition } from './types';
 
 export const RASHI_NAMES: Record<number, string> = {
   1: 'Meṣa (Aries)',
