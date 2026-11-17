@@ -1186,6 +1186,15 @@ export function calculatePanchanga(
     sunTimes: {
       sunrise: sunTimes.sunriseLocalHours,
       sunset: sunTimes.sunsetLocalHours,
+      // When the Hindu day that began at this sunrise ends. A vāra runs from
+      // sunrise to sunrise, so a birth after sunset — or before dawn — needs
+      // this to say which day it belongs to and where the night muhūrtas stop.
+      nextSunrise: calculateSolarTimes(
+        jd + 1, latitudeDeg, longitudeDeg, timezoneOffsetHours
+      ).sunriseLocalHours,
+      nextSunriseJD: calculateSolarTimes(
+        jd + 1, latitudeDeg, longitudeDeg, timezoneOffsetHours
+      ).sunriseJD,
       moonrise: lunarTimes.moonriseLocalHours,
       moonset: lunarTimes.moonsetLocalHours,
       solarNoon: formatJDTo12Hour(sunTimes.solarNoonJD, jd, timezoneOffsetHours),
