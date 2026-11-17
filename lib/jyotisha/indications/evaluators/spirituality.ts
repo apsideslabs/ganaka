@@ -146,13 +146,13 @@ export function evaluateSpiritualityDomain(chart: JyotishaChart): DomainIndicati
     const h9 = l9p?.house ?? 0; const h12 = l12p?.house ?? 0;
     directClassicalPhalas.push(
       phalaFromRule('bphs_bhagya_bhava_phala', 'phala_bphs_bhagya',
-        [{ description: '9th lord in a trikona or kendra', observed: `House ${h9}`, met: [1,4,7,10,5,9].includes(h9) }],
+        [{ id: 'c_9th_lord_in_a_trikona_or_kendra', description: '9th lord in a trikona or kendra', expected: '9th lord in a trikona or kendra', observed: `House ${h9}`, met: [1,4,7,10,5,9].includes(h9) }],
         'The 9th bhava governs dharma and the guru; its lord strong in a trikona gives fortune and faith.',
         CANONICAL_RULES.bphs_bhagya_bhava_phala),
     );
     directClassicalPhalas.push(
       phalaFromRule('bphs_vyaya_bhava_phala', 'phala_bphs_vyaya',
-        [{ description: '12th lord placed in the 9th or 5th', observed: `House ${h12}`, met: h12 === 9 || h12 === 5 }],
+        [{ id: 'c_12th_lord_placed_in_the_9th_or_5th', description: '12th lord placed in the 9th or 5th', expected: '12th lord placed in the 9th or 5th', observed: `House ${h12}`, met: h12 === 9 || h12 === 5 }],
         'The 12th bhava governs expenditure and liberation; joined to the 9th lord it gives moksha.',
         CANONICAL_RULES.bphs_vyaya_bhava_phala),
     );
