@@ -116,7 +116,7 @@ export function evaluateLifeThemesDomain(chart: JyotishaChart): DomainIndication
     const kendras = [1,4,7,10].filter((h) => (chart.bhavas as any[]).some((b: any) => b.houseNumber === h && (b.occupants?.length ?? 0) > 0)).length;
     directClassicalPhalas.push(
       phalaFromRule('bphs_nabhasa_life_pattern', 'phala_bphs_nabhasa',
-        [{ description: 'At least one kendra occupied', observed: `${kendras} of 4 kendras filled`, met: kendras >= 1 }],
+        [{ id: 'c_at_least_one_kendra_occupied', description: 'At least one kendra occupied', expected: 'At least one kendra occupied', observed: `${kendras} of 4 kendras filled`, met: kendras >= 1 }],
         'Nabhasa yogas describe the macro distribution of the grahas across kendra, trikona and upacaya, and are held to operate throughout life without waiting for a dasa.',
         CANONICAL_RULES.bphs_nabhasa_life_pattern),
     );
