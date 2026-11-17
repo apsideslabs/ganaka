@@ -136,6 +136,17 @@ export function evaluateHealthDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 14 - disease from the 6th and the lagna lord.
+  {
+    const l6 = getHouseLord(chart, 6); const l6p: any = chart.planets[l6.id];
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_roga_nirnaya', 'phala_phaladeepika_roga',
+        [{ id: 'c_pd_6th_lord', description: '6th lord not placed in the lagna', expected: 'not house 1', observed: `House ${l6p?.house}`, met: l6p?.house !== 1 }],
+        'Disease is read from the 6th bhava and its lord, the lagna and its lord, and the graha afflicting them.',
+        CANONICAL_RULES.phaladeepika_roga_nirnaya),
+    );
+  }
+
   return {
     id: 'health',
     title: 'Health-Related Classical Indications',
