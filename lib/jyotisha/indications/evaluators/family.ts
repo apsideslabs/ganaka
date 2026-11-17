@@ -14,6 +14,7 @@ import {
   getShadbalaRatio,
   makeFact,
   GRAHA_SANSKRIT_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -101,6 +102,26 @@ export function evaluateFamilyDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // BPHS 14 and 15 - the 3rd and 4th bhavas.
+  {
+    const l3 = getHouseLord(chart, 3); const l3p: any = chart.planets[l3.id];
+    const l4 = getHouseLord(chart, 4); const l4p: any = chart.planets[l4.id];
+    const h3 = l3p?.house ?? 0; const h4 = l4p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_sahaja_bhava_phala', 'phala_bphs_sahaja',
+        [{ description: '3rd lord placed in a kendra or trikona', observed: `House ${h3}`, met: [1,4,7,10,5,9].includes(h3) }],
+        'The 3rd bhava governs siblings and courage; its lord well placed gives brothers and valour (bhratrman vikrami).',
+        CANONICAL_RULES.bphs_sahaja_bhava_phala),
+    );
+    const own = /Own|Exalted|Moolatrikona/.test(String(l4p?.dignity ?? ''));
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_sukha_bhava_phala', 'phala_bphs_sukha',
+        [{ description: '4th lord in the 4th, or in its own sign / exaltation', observed: `House ${h4}, ${l4p?.dignity}`, met: h4 === 4 || own }],
+        'The 4th lord in the 4th or in its own dignity gives full domestic comfort, land and vehicles (purnam grha-sukham).',
+        CANONICAL_RULES.bphs_sukha_bhava_phala),
+    );
+  }
 
   return {
     id: 'family',
