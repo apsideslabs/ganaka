@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { REQUIRED_SHADBALA_RUPAS } from '../lib/shadbala/shadbala';
 import { calculateKPPosition } from '../lib/jyotisha/sphutas';
 import { placidusCusps } from '../lib/jyotisha/placidus';
 import { chartToJsonString } from '../lib/report/export-chart-json';
@@ -904,8 +905,10 @@ console.log('\n== Practitioner checklist ==');
   // 2. Shadbala required minimums: the common set.
   const req: any = {};
   for (const [p, o] of Object.entries(natal.shadbala) as any) req[p] = o.requiredRupas;
-  check('required shadbala matches the common set',
-    req.sun === 5 && req.moon === 6 && req.mars === 5 && req.mercury === 7 &&
+  // BPHS 27.32–33: the Sun requires 6.5 rūpas. This read 5.0 — a modern
+  // variant — which made a Sun below the classical minimum look strong.
+  check('required shadbala matches BPHS 27.32–33',
+    req.sun === 6.5 && req.moon === 6 && req.mars === 5 && req.mercury === 7 &&
     req.jupiter === 6.5 && req.venus === 5.5 && req.saturn === 5,
     JSON.stringify(req));
   check('every graha carries a shadbala ratio',
@@ -3514,6 +3517,75 @@ console.log('\n== KP sensitivity surfaces ==');
 
   const e: any = buildChartExport(natal);
   check('the exported KP block carries the sensitivity', !!e.kp?.cuspSubLordSensitivity);
+}
+
+/* ---------- SHADBALA MINIMUMS MUST MATCH BPHS 27.32–33 ---------- */
+
+console.log('\n== Shadbala requirements ==');
+{
+  // BPHS 27.32–33 (Santhanam): Sun 6.5, Moon 6.0, Mars 5.0, Mercury 7.0,
+  // Jupiter 6.5, Venus 5.5, Saturn 5.0 rūpas. The Sun was 5.0 here — a modern
+  // variant — which made a Sun below the classical minimum read as strong.
+  const BPHS: Record<string, number> = {
+    sun: 6.5, moon: 6.0, mars: 5.0, mercury: 7.0, jupiter: 6.5, venus: 5.5, saturn: 5.0,
+  };
+  for (const [p, rupas] of Object.entries(BPHS)) {
+    const got = REQUIRED_SHADBALA_RUPAS[p as keyof typeof REQUIRED_SHADBALA_RUPAS];
+    check(`${p} requires ${rupas} rūpas`, got === rupas, String(got));
+  }
+
+  // The ratio must be total ÷ required, and 1.00 is exactly the minimum.
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  for (const p of Object.keys(BPHS)) {
+    const b: any = (natal.shadbala as any)[p];
+    const expect = b.totalVirupas / (BPHS[p] * 60);
+    check(`${p} ratio is total ÷ required`, Math.abs(b.ratio - expect) < 0.02,
+      `${b.ratio} vs ${expect.toFixed(2)}`);
+  }
+}
+
+/* ---------------- ASHTAKAVARGA MUST MATCH BPHS CH.66 ------------ */
+
+console.log('\n== Ashtakavarga totals ==');
+{
+  // The seven BAV totals are NOT equal — they sum to 337.
+  const BPHS: Record<string, number> = {
+    sun: 48, moon: 49, mars: 39, mercury: 54, jupiter: 56, venus: 52, saturn: 39,
+  };
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const av: any = natal.ashtakavarga;
+  let sum = 0;
+  for (const [p, want] of Object.entries(BPHS)) {
+    const got = av.bav[p].totalBindus;
+    sum += got;
+    check(`${p} BAV totals ${want}`, got === want, String(got));
+  }
+  check('the seven BAV totals sum to 337', sum === 337, String(sum));
+
+  // SAV per sign must be the column sum of the seven BAVs.
+  let mismatch = 0;
+  for (let i = 0; i < 12; i++) {
+    const col = Object.keys(BPHS).reduce((a, p) => a + av.bav[p].bindusByRashi[i], 0);
+    if (col !== av.sav.bindusByRashi[i]) mismatch++;
+  }
+  check('SAV is the column sum of the seven BAVs', mismatch === 0, `${mismatch} signs`);
+}
+
+/* ---------------- JAIMINI ĀTMAKĀRAKA IS THE HIGHEST ------------- */
+
+console.log('\n== Jaimini kārakas ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const seven = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
+  const byDegree = seven
+    .map((p) => ({ p, d: (natal.planets as any)[p].siderealLongitude % 30 }))
+    .sort((a, b) => b.d - a.d);
+  const ak = natal.jaimini.charaKarakas[0];
+  check('the ātmakāraka is the graha with the highest degree in its sign',
+    ak.planet === byDegree[0].p, `${ak.planet} vs ${byDegree[0].p}`);
+  // The seven-graha scheme — the nodes are not given chara kārakas.
+  check('seven chara kārakas are assigned', natal.jaimini.charaKarakas.length === 7,
+    String(natal.jaimini.charaKarakas.length));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
