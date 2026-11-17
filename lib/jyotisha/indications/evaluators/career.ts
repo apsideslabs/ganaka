@@ -18,6 +18,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -237,6 +238,21 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // BPHS 21 - the 10th bhava for profession.
+  {
+    const l10 = getHouseLord(chart, 10); const l10p: any = chart.planets[l10.id];
+    const h10 = l10p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_karma_bhava_phala', 'phala_bphs_karma_bhava',
+        [
+          { description: '10th lord in a kendra or trikona', observed: `House ${h10}`, met: [1,4,7,10,5,9].includes(h10) },
+          { description: '10th lord not in a trika house', observed: `House ${h10}`, met: ![6,8,12].includes(h10) },
+        ],
+        'The 10th bhava governs action and profession; its lord well placed gives high position and honour, in a trika house servitude.',
+        CANONICAL_RULES.bphs_karma_bhava_phala),
+    );
+  }
 
   return {
     id: 'career',
