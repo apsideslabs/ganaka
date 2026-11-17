@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { calculateKPPosition } from '../lib/jyotisha/sphutas';
 import { placidusCusps } from '../lib/jyotisha/placidus';
 import { chartToJsonString } from '../lib/report/export-chart-json';
 import { calculateHouses } from '../lib/jyotisha/houses';
@@ -3386,6 +3387,55 @@ console.log('\n== KP promise rule ==');
   const prom = fs.readFileSync(path.join(process.cwd(), 'lib/kp/promise.ts'), 'utf8');
   check('significators.ts documents the three levels', /THREE levels/.test(sig));
   check('promise.ts documents the two-valued verdict', /TWO-VALUED/.test(prom));
+}
+
+/* ------------- KP IS READ ON THE KP AYANĀṂŚA, NOT LAHIRI --------- */
+
+console.log('\n== KP ayanāṃśa ==');
+{
+  // The engine carries `kp` and `kp_new`, but the KP layer used to inherit the
+  // chart's global ayanāṃśa. The difference is ~0.09° — small in degrees and
+  // decisive in subs, which are often under a degree wide.
+  const base = {
+    year: 1955, month: 2, day: 24, hour: 19, minute: 13, second: 0,
+    latitude: 37.7749, longitude: -122.4194, timezoneOffsetHours: -8,
+    locationName: 'San Francisco',
+  };
+  const results = ['lahiri', 'kp', 'kp_new'].map((a) => {
+    const c: any = calculateFullJyotishaChart({ ...base, ayanamshaType: a } as any);
+    const L = calculateKpLayer(c, new Date());
+    return { a, cusp7: L.cusps[6].longitude, sub: L.cusps[6].lords.subLord };
+  });
+
+  // Whatever the chart's ayanāṃśa, the KP verdict must be the same.
+  const first = results[0];
+  check('the KP layer is independent of the chart ayanāṃśa',
+    results.every((r) => Math.abs(r.cusp7 - first.cusp7) < 1e-6 && r.sub === first.sub),
+    results.map((r) => `${r.a}:${r.cusp7.toFixed(3)}/${r.sub}`).join(' '));
+
+  // And it must land on the KP ayanāṃśa, not Lahiri.
+  const lahiri: any = calculateFullJyotishaChart({ ...base, ayanamshaType: 'lahiri' } as any);
+  const kp: any = calculateFullJyotishaChart({ ...base, ayanamshaType: 'kp' } as any);
+  check('the KP ayanāṃśa differs from Lahiri', Math.abs(lahiri.meta.ayanamshaValue - kp.meta.ayanamshaValue) > 0.05,
+    `${lahiri.meta.ayanamshaValue.toFixed(4)} vs ${kp.meta.ayanamshaValue.toFixed(4)}`);
+}
+
+/* ---------------- THE KP SUB TABLE IS VIMSHOTTARI --------------- */
+
+console.log('\n== KP sub table ==');
+{
+  // Ashwini (0–13°20′, star lord Ketu) subdivided in Vimshottari proportion.
+  const cases: Array<[number, string, string]> = [
+    [0.0, 'ketu', 'ketu'], [1.0, 'ketu', 'venus'], [3.5, 'ketu', 'sun'],
+    [3.8, 'ketu', 'moon'], [5.0, 'ketu', 'mars'], [6.0, 'ketu', 'rahu'],
+    [8.0, 'ketu', 'jupiter'], [10.0, 'ketu', 'saturn'], [12.0, 'ketu', 'mercury'],
+    [13.5, 'venus', 'venus'],
+  ];
+  for (const [deg, star, sub] of cases) {
+    const k = calculateKPPosition(deg);
+    check(`${deg}° is ${star}/${sub}`, k.starLord === star && k.subLord === sub,
+      `${k.starLord}/${k.subLord}`);
+  }
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
