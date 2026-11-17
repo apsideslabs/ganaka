@@ -123,6 +123,18 @@ export function evaluateFamilyDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Phaladipika Ch. 8 - grahas in bhavas, organised by occupant.
+  {
+    const occ4 = ((chart.bhavas as any[]).find((b: any) => b.houseNumber === 4)?.occupants ?? []);
+    const benefic = occ4.some((o: any) => ['jupiter','venus','mercury'].includes(String(o.planet ?? o)));
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_bhava_ashraya', 'phala_phaladeepika_bhava_ashraya',
+        [{ id: 'c_pd_4th_benefic', description: 'A benefic occupies the 4th', expected: '>= 1 benefic', observed: occ4.length ? String(occ4.length) + ' occupant(s)' : 'empty', met: benefic }],
+        'Phaladipika reads each graha in each house; a benefic in the 4th supports domestic comfort.',
+        CANONICAL_RULES.phaladeepika_bhava_ashraya),
+    );
+  }
+
   return {
     id: 'family',
     title: 'Family & Domestic Life',
