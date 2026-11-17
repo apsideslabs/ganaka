@@ -89,22 +89,25 @@ export function evaluateChildrenDomain(chart: JyotishaChart): DomainIndication {
     },
   ];
 
-  if (cond1.every((c) => c.met)) {
-    directClassicalPhalas.push({
-      id: 'phala_bphs_santana',
-      ruleId: 'bphs_putra_santana',
-      sourceText: CANONICAL_RULES.bphs_putra_santana.sourceText,
-      chapterAndVerse: CANONICAL_RULES.bphs_putra_santana.chapterAndVerse,
-      sanskritTitle: CANONICAL_RULES.bphs_putra_santana.sanskritTitle || '',
-      sanskritShloka: CANONICAL_RULES.bphs_putra_santana.sanskritShloka,
-      editionOrManuscript: CANONICAL_RULES.bphs_putra_santana.editionOrManuscript,
-      conditions: cond1,
-      allConditionsMet: true,
-      verificationLevel: 'Fully Verified',
-      directPhalaText:
-        'Lineage continuity and filial happiness (Santāna-saukhya) are supported with virtuous, flourishing progeny.',
-    });
-  }
+  // Always record the rule, met or not. Dropping it when the condition fails
+  // left the Children domain empty — the reader could not tell whether the
+  // text had been consulted and refused the chart, or never consulted at all.
+  // Every other evaluator reports 'Condition Not Met'; this one did not.
+  directClassicalPhalas.push({
+    id: 'phala_bphs_santana',
+    ruleId: 'bphs_putra_santana',
+    sourceText: CANONICAL_RULES.bphs_putra_santana.sourceText,
+    chapterAndVerse: CANONICAL_RULES.bphs_putra_santana.chapterAndVerse,
+    sanskritTitle: CANONICAL_RULES.bphs_putra_santana.sanskritTitle || '',
+    sanskritShloka: CANONICAL_RULES.bphs_putra_santana.sanskritShloka,
+    editionOrManuscript: CANONICAL_RULES.bphs_putra_santana.editionOrManuscript,
+    conditions: cond1,
+    allConditionsMet: cond1.every((c) => c.met),
+    verificationLevel: cond1.every((c) => c.met) ? 'Fully Verified' : 'Condition Not Met',
+    directPhalaText:
+      'Lineage continuity and filial happiness (Santāna-saukhya) are supported with virtuous, flourishing progeny.',
+    reconciliationNotes: CANONICAL_RULES.bphs_putra_santana.textualDisagreementNotes,
+  });
 
   const supportingFactors: string[] = [];
   const limitingFactors: string[] = [];
