@@ -15,6 +15,9 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { CANONICAL_RULES } from '../lib/jyotisha/indications/classical-sources';
 import { generalSputaDrishti, sputaDrishti } from '../lib/shadbala/sputa-drishti';
 import { candidateDays } from '../lib/kp/candidate-days';
 import { REQUIRED_SHADBALA_RUPAS } from '../lib/shadbala/shadbala';
@@ -3697,6 +3700,91 @@ console.log('\n== Vāra across sunrise ==');
   check('the tithi advances with the vāra',
     after.panchanga.tithi.number !== before.panchanga.tithi.number,
     `${before.panchanga.tithi.number} vs ${after.panchanga.tithi.number}`);
+}
+
+/* ---------- THE CLASSICAL RULE REGISTRY MUST BE SOUND ---------- */
+
+console.log('\n== Classical rule registry ==');
+{
+  const ids = Object.keys(CANONICAL_RULES);
+  check('the registry holds a substantial rule set', ids.length >= 36, String(ids.length));
+
+  // Every rule must name a text, a chapter and a description. A rule without a
+  // chapter is an assertion, not a citation — which is what this file had
+  // before: eleven of its twelve BPHS chapters pointed at the wrong chapter.
+  const missing = ids.filter((id) => {
+    const r = (CANONICAL_RULES as any)[id];
+    return !r.sourceText || !r.chapterAndVerse || !r.ruleDescription || !r.scopeAndConditions;
+  });
+  check('every rule names its text, chapter, description and scope', missing.length === 0,
+    missing.join(','));
+
+  // BPHS chapter citations must fall inside the Santhanam numbering the file
+  // declares. A citation of "Ch. 45" for a bhāva chapter is the exact error
+  // that was here — 45 is Avasthas.
+  const BPHS_BHAVA: Record<number, string> = {
+    12: '1st', 13: '2nd', 14: '3rd', 15: '4th', 16: '5th', 17: '6th',
+    18: '7th', 19: '8th', 20: '9th', 21: '10th', 22: '11th', 23: '12th',
+  };
+  const badChapter: string[] = [];
+  for (const id of ids) {
+    const r = (CANONICAL_RULES as any)[id];
+    if (!r.sourceText.includes('Parāśara')) continue;
+    const m = /Ch\.\s*(\d+)/.exec(r.chapterAndVerse);
+    if (!m) continue;
+    const ch = Number(m[1]);
+    if (ch < 1 || ch > 97) badChapter.push(`${id}:Ch.${ch}`);
+  }
+  check('every BPHS chapter number is in range', badChapter.length === 0, badChapter.join(','));
+
+  // The specific chapter map: each bhāva rule must cite the chapter that
+  // actually carries that bhāva in the Santhanam edition.
+  const expect: Array<[string, number, string]> = [
+    ['bphs_lagna_tanu_phala', 12, '1st'],
+    ['bphs_dhana_bhava_phala', 13, '2nd'],
+    ['bphs_sahaja_bhava_phala', 14, '3rd'],
+    ['bphs_sukha_bhava_phala', 15, '4th'],
+    ['bphs_panchama_bhava_phala', 16, '5th'],
+    ['bphs_shashtha_bhava_phala', 17, '6th'],
+    ['bphs_jaya_bhava_phala', 18, '7th'],
+    ['bphs_ayur_bhava_phala', 19, '8th'],
+    ['bphs_bhagya_bhava_phala', 20, '9th'],
+    ['bphs_karma_bhava_phala', 21, '10th'],
+    ['bphs_labha_bhava_phala', 22, '11th'],
+    ['bphs_vyaya_bhava_phala', 23, '12th'],
+  ];
+  let wrong = 0;
+  for (const [id, ch, bhava] of expect) {
+    const r = (CANONICAL_RULES as any)[id];
+    if (!r) { wrong++; continue; }
+    if (!r.chapterAndVerse.includes(`Ch. ${ch}`)) {
+      wrong++;
+      console.log(`   ✗ ${id} should cite Ch. ${ch} (${bhava}) — has "${r.chapterAndVerse}"`);
+    }
+  }
+  check('each bhāva rule cites the chapter that carries that bhāva', wrong === 0, String(wrong));
+
+  // Every rule the evaluators ask for must exist.
+  const used = new Set<string>();
+  const walk = (dir: string) => {
+    for (const f of fs.readdirSync(dir)) {
+      const full = path.join(dir, f);
+      if (fs.statSync(full).isDirectory()) walk(full);
+      else if (f.endsWith('.ts')) {
+        const src = fs.readFileSync(full, 'utf8');
+        for (const m of src.matchAll(/CANONICAL_RULES\.([a-z0-9_]+)/g)) used.add(m[1]);
+      }
+    }
+  };
+  walk(path.join(process.cwd(), 'lib/jyotisha/indications/evaluators'));
+  const dangling = [...used].filter((u) => !(CANONICAL_RULES as any)[u]);
+  check('every rule id an evaluator uses exists in the registry', dangling.length === 0,
+    dangling.join(','));
+
+  // And the registry must not drift into unreferenced dead data.
+  const unused = ids.filter((id) => !used.has(id));
+  check('every rule in the registry is used by an evaluator', unused.length === 0,
+    unused.join(','));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
