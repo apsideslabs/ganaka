@@ -1431,12 +1431,20 @@ console.log('\n== Overall reading ==');
   check('thin-ground domains are named, not listed as rules',
     Array.isArray(reading.thinnest));
   check('the method is stated so the weights can be argued with',
-    reading.method.includes('40%') && reading.method.includes('25%'));
+    reading.method.includes('35%') && reading.method.includes('22%') &&
+    reading.method.includes('12%'));
 
-  // Five-layer scoring: weights sum to 1 and every layer is bounded.
+  // Layer scoring: weights sum to 1 and every layer is bounded. A spec with no
+  // classical tally keeps the original five layers.
   const spec = { id: 'career', label: 'Career', house: 10, karakas: ['sun', 'saturn'] as any, vargas: ['D1', 'D10'] };
   const scored = scoreDomain(natal, spec);
-  check('five layers are scored', scored.layers.length === 5);
+  check('five layers are scored when no classical tally is supplied', scored.layers.length === 5);
+  const scoredSix = scoreDomain(natal, { ...spec, classical: { tested: 4, met: 3 } });
+  check('a sixth Classical layer appears when a tally is supplied', scoredSix.layers.length === 6);
+  check('the sixth layer reads the ratio', (() => {
+    const l = scoredSix.layers.find((x) => x.name === 'Classical');
+    return !!l && Math.abs(l.score - 0.75) < 0.001;
+  })());
   check('layer weights sum to 1',
     Math.abs(scored.layers.reduce((a, l) => a + l.weight, 0) - 1) < 1e-9);
   check('every layer score is bounded 0-1',
@@ -3838,6 +3846,54 @@ console.log('\n== Overall reading: classical evidence ==');
   check('no thread names a non-graha',
     reading.threads.every((t: any) => /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/.test(t.observation)),
     reading.threads.map((t: any) => t.observation.slice(0, 20)).join('|'));
+}
+
+/* ---- THE SCORE AND THE CLASSICAL TALLY MUST AGREE ---- */
+
+console.log('\n== Sixth layer: classical in the score ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const report: any = generateClassicalChartIndications(natal);
+  const reading: any = buildOverallReading(report, natal);
+
+  const withClassical = reading.movements.flatMap((m: any) => m.scores)
+    .filter((s: any) => s.layers.some((l: any) => l.name === 'Classical'));
+  check('domains with tested rules carry a Classical layer', withClassical.length > 0,
+    String(withClassical.length));
+
+  // The layer must read the domain's own tally, not a global figure.
+  let wrong = 0;
+  for (const s of withClassical) {
+    const d = report.domains?.[s.id];
+    const ph = d?.directClassicalPhalas ?? [];
+    const met = ph.filter((x: any) => x.allConditionsMet).length;
+    const layer = s.layers.find((l: any) => l.name === 'Classical');
+    if (!layer.read.startsWith(`${met} of ${ph.length}`)) {
+      wrong++;
+      console.log(`   ✗ ${s.id}: layer says "${layer.read}", domain has ${met}/${ph.length}`);
+    }
+  }
+  check('the Classical layer reads the domain\'s own tally', wrong === 0, String(wrong));
+
+  // Weights must still sum to 1.0 whether or not the sixth layer is present.
+  const sumOk = reading.movements.flatMap((m: any) => m.scores).every((s: any) => {
+    const sum = s.layers.reduce((a: number, l: any) => a + l.weight, 0);
+    return Math.abs(sum - 1) < 0.001;
+  });
+  check('layer weights sum to 1.0 in every domain', sumOk);
+
+  // A domain where every rule failed must not read as strong on the rule layer.
+  const failedAll = reading.movements.flatMap((m: any) => m.scores).filter((s: any) => {
+    const l = s.layers.find((x: any) => x.name === 'Classical');
+    return l && l.score === 0;
+  });
+  check('a domain with no met rule scores 0 on the Classical layer',
+    failedAll.every((s: any) => s.layers.find((x: any) => x.name === 'Classical').score === 0),
+    String(failedAll.length));
+
+  // And the method must state the sixth layer, or the weighting is hidden.
+  check('the method names the sixth layer', /six layers/i.test(reading.method), reading.method.slice(0, 60));
+  check('the method names the classical weight', /12%/.test(reading.method));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
