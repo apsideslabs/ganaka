@@ -16,6 +16,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -160,6 +161,38 @@ export function evaluateWealthDomain(chart: JyotishaChart): DomainIndication {
     [],
     []
   );
+
+  // BPHS 13, 22, 42 - the wealth houses read together.
+  {
+    const l2 = getHouseLord(chart, 2); const l2p: any = chart.planets[l2.id];
+    const l11 = getHouseLord(chart, 11); const l11p: any = chart.planets[l11.id];
+    const h2 = l2p?.house ?? 0; const h11 = l11p?.house ?? 0;
+    const good = (h: number) => [1,4,7,10,5,9].includes(h);
+    const trika = (h: number) => [6,8,12].includes(h);
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_dhana_bhava_phala', 'phala_bphs_dhana_bhava',
+        [
+          { description: '2nd lord placed in a kendra or trikona', observed: `House ${h2}`, met: good(h2) },
+          { description: '2nd lord not in a trika house (6/8/12)', observed: `House ${h2}`, met: !trika(h2) },
+        ],
+        good(h2) && !trika(h2)
+          ? 'The 2nd lord in a kendra or trikona increases wealth (dhana-vrddhi).'
+          : 'The 2nd lord in a trika house destroys wealth (dhana-hani).',
+        CANONICAL_RULES.bphs_dhana_bhava_phala),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_labha_bhava_phala', 'phala_bphs_labha_bhava',
+        [{ description: '11th lord placed in a kendra or trikona', observed: `House ${h11}`, met: good(h11) }],
+        'The 11th bhava governs income; its lord well placed gives steady gain and the fulfilment of desires.',
+        CANONICAL_RULES.bphs_labha_bhava_phala),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_daridra_yogas', 'phala_bphs_daridra',
+        [{ description: '2nd and 11th lords not both in dusthanas', observed: `2nd in ${h2}, 11th in ${h11}`, met: !(trika(h2) && trika(h11)) }],
+        'Combinations for penury arise when the wealth lords fall in dusthanas joined to malefics. BPHS reads them only against the countervailing dhana yogas of Ch. 41.',
+        CANONICAL_RULES.bphs_daridra_yogas),
+    );
+  }
 
   return {
     id: 'wealth',
