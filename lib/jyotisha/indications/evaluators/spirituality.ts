@@ -17,6 +17,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   RASHI_NAMES,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -137,6 +138,25 @@ export function evaluateSpiritualityDomain(chart: JyotishaChart): DomainIndicati
     [],
     []
   );
+
+  // BPHS 20 and 23 - the 9th and 12th bhavas.
+  {
+    const l9 = getHouseLord(chart, 9); const l9p: any = chart.planets[l9.id];
+    const l12 = getHouseLord(chart, 12); const l12p: any = chart.planets[l12.id];
+    const h9 = l9p?.house ?? 0; const h12 = l12p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_bhagya_bhava_phala', 'phala_bphs_bhagya',
+        [{ description: '9th lord in a trikona or kendra', observed: `House ${h9}`, met: [1,4,7,10,5,9].includes(h9) }],
+        'The 9th bhava governs dharma and the guru; its lord strong in a trikona gives fortune and faith.',
+        CANONICAL_RULES.bphs_bhagya_bhava_phala),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_vyaya_bhava_phala', 'phala_bphs_vyaya',
+        [{ description: '12th lord placed in the 9th or 5th', observed: `House ${h12}`, met: h12 === 9 || h12 === 5 }],
+        'The 12th bhava governs expenditure and liberation; joined to the 9th lord it gives moksha.',
+        CANONICAL_RULES.bphs_vyaya_bhava_phala),
+    );
+  }
 
   return {
     id: 'spirituality',
