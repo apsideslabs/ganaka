@@ -363,3 +363,35 @@ export function makeFact(
     neutralOrMixed: tone === 'neutral',
   };
 }
+
+/**
+ * Build a DirectClassicalPhala straight from a registry rule.
+ *
+ * Every bhāva-phala chapter has the same shape: a stated condition on the
+ * bhāva lord and its occupants, and a result when that condition holds. Rather
+ * than repeat the citation plumbing in each evaluator, they call this with the
+ * rule id, the conditions they tested and the phala text the verse states.
+ */
+export function phalaFromRule(
+  ruleId: string,
+  id: string,
+  conditions: RuleCondition[],
+  directPhalaText: string,
+  r: any
+): DirectClassicalPhala {
+  const allMet = conditions.every((c) => c.met);
+  return {
+    id,
+    ruleId,
+    sourceText: r.sourceText,
+    chapterAndVerse: r.chapterAndVerse,
+    sanskritTitle: r.sanskritTitle || '',
+    sanskritShloka: r.sanskritShloka,
+    editionOrManuscript: r.editionOrManuscript,
+    conditions,
+    allConditionsMet: allMet,
+    verificationLevel: allMet ? 'Fully Verified' : 'Condition Not Met',
+    directPhalaText,
+    reconciliationNotes: r.textualDisagreementNotes,
+  };
+}
