@@ -187,6 +187,36 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // Phaladipika Ch. 15 - how a bhava is judged at all.
+  {
+    const ll = getHouseLord(chart, 1); const llp: any = chart.planets[ll.id];
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_bhava_chinta', 'phala_phaladeepika_bhava',
+        [{ id: 'c_pd_bhava_lord', description: 'Lagna lord carries strength (Shadbala >= 1)', expected: '>= 1.0', observed: String(llp?.shadbalaRatio ?? 'n/a'), met: (llp?.shadbalaRatio ?? 0) >= 1 }],
+        'A bhava gives its result through its lord; the occupants modify it and aspects protect or damage it.',
+        CANONICAL_RULES.phaladeepika_bhava_chinta),
+    );
+  }
+
+  // Saravali Ch. 30 - the grahas read bhava by bhava, by occupant rather than
+  // by lord. 87 verses, the longest chapter of the work.
+  {
+    const occupied = (chart.bhavas as any[]).filter((b: any) => (b.occupants?.length ?? 0) > 0).length;
+    const beneficsInKendra = [1,4,7,10].filter((h) => {
+      const b = (chart.bhavas as any[]).find((x: any) => x.houseNumber === h);
+      return (b?.occupants ?? []).some((o: any) => ['jupiter','venus','mercury'].includes(o.planet ?? o));
+    }).length;
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_bhavadhyaya', 'phala_saravali_bhavadhyaya',
+        [
+          { id: 'c_sv_occupied_bhavas', description: 'At least one bhava occupied', expected: '>= 1', observed: String(occupied), met: occupied >= 1 },
+          { id: 'c_sv_benefic_kendra', description: 'A benefic occupies a kendra', expected: '>= 1 kendra', observed: String(beneficsInKendra), met: beneficsInKendra >= 1 },
+        ],
+        'Saravali reads the twelve bhavas by the graha occupying each, where BPHS reads them by the lord. The two are complementary.',
+        CANONICAL_RULES.saravali_bhavadhyaya),
+    );
+  }
+
   return {
     id: 'constitution',
     title: 'Lagna & Fundamental Constitution',
