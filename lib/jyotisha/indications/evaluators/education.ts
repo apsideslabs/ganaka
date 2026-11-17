@@ -15,6 +15,7 @@ import {
   makeFact,
   GRAHA_SANSKRIT_NAMES,
   NATURAL_BENEFICS,
+  phalaFromRule,
 } from '../shared-utils';
 import { reconcileRulesAndContradictions } from '../conflict-resolver';
 
@@ -151,6 +152,21 @@ export function evaluateEducationDomain(chart: JyotishaChart): DomainIndication 
     [],
     []
   );
+
+  // BPHS 16 - the 5th bhava for learning.
+  {
+    const l5 = getHouseLord(chart, 5); const l5p: any = chart.planets[l5.id];
+    const h5 = l5p?.house ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('bphs_panchama_bhava_phala', 'phala_bphs_panchama',
+        [
+          { description: '5th lord in a kendra or trikona', observed: `House ${h5}`, met: [1,4,7,10,5,9].includes(h5) },
+          { description: '5th lord not in a trika house', observed: `House ${h5}`, met: ![6,8,12].includes(h5) },
+        ],
+        'The 5th bhava governs learning and merit; its lord well placed with Mercury and Jupiter gives sharp intelligence and success in study.',
+        CANONICAL_RULES.bphs_panchama_bhava_phala),
+    );
+  }
 
   return {
     id: 'education',
