@@ -158,6 +158,25 @@ export function evaluateSpiritualityDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // Phaladipika Ch. 27 and Saravali Ch. 32.
+  {
+    const l12 = getHouseLord(chart, 12); const l12p: any = chart.planets[l12.id];
+    directClassicalPhalas.push(
+      phalaFromRule('phaladeepika_pravrajya', 'phala_phaladeepika_pravrajya',
+        [{ id: 'c_pd_pravrajya', description: '12th lord linked to Saturn or the 9th', expected: 'renunciation link', observed: `House ${l12p?.house}`, met: [9, 5].includes(l12p?.house ?? 0) }],
+        'Four or more grahas in one bhava, or the 9th and 12th lords joined to Saturn, turn the native toward renunciation.',
+        CANONICAL_RULES.phaladeepika_pravrajya),
+    );
+    const l9 = getHouseLord(chart, 9); const l9p: any = chart.planets[l9.id];
+    const m9 = ((chart.planets.moon.rashiNumber - 1 + 8) % 12) + 1;
+    directClassicalPhalas.push(
+      phalaFromRule('saravali_bhagya_chinta', 'phala_saravali_bhagya',
+        [{ id: 'c_sv_9th_moon', description: '9th from the Moon supported', expected: 'kendra or trikona', observed: `Rasi ${m9}`, met: [1,4,7,10,5,9].includes(m9) }],
+        'Saravali reads fortune from the 9th counted from the lagna and again from the Moon.',
+        CANONICAL_RULES.saravali_bhagya_chinta),
+    );
+  }
+
   return {
     id: 'spirituality',
     title: 'Spiritual & Religious Inclination',
