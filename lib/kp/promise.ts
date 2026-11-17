@@ -60,7 +60,12 @@ export function evaluateCuspPromise(
   if (!cusp) return null;
 
   const subLord = cusp.lords.subLord;
-  const subLordRetrograde = (chart.planets as any)?.[subLord]?.isRetrograde === true;
+  // Rāhu and Ketu move retrograde by nature and never turn direct. Deferring a
+  // verdict until they do makes the matter permanently pending — on the Assam
+  // chart that parked Children and Health in "promised-when-direct" forever.
+  // The deferral is meaningful only for a graha that will actually station.
+  const isNode = subLord === 'rahu' || subLord === 'ketu';
+  const subLordRetrograde = !isNode && (chart.planets as any)?.[subLord]?.isRetrograde === true;
 
   const signifies = housesSignified(chart, cusps, subLord);
   const hitsMatter = signifies.filter((h) => matterHouses.includes(h));
