@@ -110,14 +110,14 @@ export function evaluateFamilyDomain(chart: JyotishaChart): DomainIndication {
     const h3 = l3p?.house ?? 0; const h4 = l4p?.house ?? 0;
     directClassicalPhalas.push(
       phalaFromRule('bphs_sahaja_bhava_phala', 'phala_bphs_sahaja',
-        [{ description: '3rd lord placed in a kendra or trikona', observed: `House ${h3}`, met: [1,4,7,10,5,9].includes(h3) }],
+        [{ id: 'c_3rd_lord_placed_in_a_kendra_or_trikona', description: '3rd lord placed in a kendra or trikona', expected: '3rd lord placed in a kendra or trikona', observed: `House ${h3}`, met: [1,4,7,10,5,9].includes(h3) }],
         'The 3rd bhava governs siblings and courage; its lord well placed gives brothers and valour (bhratrman vikrami).',
         CANONICAL_RULES.bphs_sahaja_bhava_phala),
     );
     const own = /Own|Exalted|Moolatrikona/.test(String(l4p?.dignity ?? ''));
     directClassicalPhalas.push(
       phalaFromRule('bphs_sukha_bhava_phala', 'phala_bphs_sukha',
-        [{ description: '4th lord in the 4th, or in its own sign / exaltation', observed: `House ${h4}, ${l4p?.dignity}`, met: h4 === 4 || own }],
+        [{ id: 'c_4th_lord_in_the_4th_or_in_its_own_sign', description: '4th lord in the 4th, or in its own sign / exaltation', expected: '4th lord in the 4th, or in its own sign / exaltation', observed: `House ${h4}, ${l4p?.dignity}`, met: h4 === 4 || own }],
         'The 4th lord in the 4th or in its own dignity gives full domestic comfort, land and vehicles (purnam grha-sukham).',
         CANONICAL_RULES.bphs_sukha_bhava_phala),
     );
