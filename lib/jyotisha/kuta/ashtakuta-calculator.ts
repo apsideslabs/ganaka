@@ -110,78 +110,86 @@ export function calculateVarnaKuta(groom: PersonLunarData, bride: PersonLunarDat
 // Jalacara (4, 10 [second half], 12)
 // Vanacara (5 - Leo)
 // Kīṭa (8 - Scorpio)
+/**
+ * Vaśya groups, the classical five.
+ *
+ *   Chatushpada  Aries, Taurus, 2nd half Sagittarius, 1st half Capricorn
+ *   Manava       Gemini, Virgo, Libra, 1st half Sagittarius, Aquarius
+ *   Jalachara    Cancer, 2nd half Capricorn, Pisces
+ *   Vanachara    Leo
+ *   Keeta        Scorpio
+ *
+ * Two signs are SPLIT at 15 degrees: Sagittarius is Manava in its first half and
+ * Chatushpada in its second, Capricorn is Chatushpada in its first half and
+ * Jalachara in its second. A sign name alone is therefore not enough - two
+ * people whose charts both say "Sagittarius" can fall in different groups.
+ *
+ * The previous implementation used an unrelated "affinity/control" map keyed on
+ * the whole sign and could not see the split at all, so it scored every
+ * Sagittarius and Capricorn the same regardless of the Moon's degree.
+ */
+type VashyaGroup = 'Chatushpada' | 'Manava' | 'Jalachara' | 'Vanachara' | 'Keeta';
+
+function vashyaGroup(rashiNumber: number, longitude: number): VashyaGroup {
+  const degInSign = ((longitude % 30) + 30) % 30;
+  if (rashiNumber === 9) return degInSign < 15 ? 'Manava' : 'Chatushpada';
+  if (rashiNumber === 10) return degInSign < 15 ? 'Chatushpada' : 'Jalachara';
+  if (rashiNumber === 1 || rashiNumber === 2) return 'Chatushpada';
+  if ([3, 6, 7, 11].includes(rashiNumber)) return 'Manava';
+  if (rashiNumber === 4 || rashiNumber === 12) return 'Jalachara';
+  if (rashiNumber === 5) return 'Vanachara';
+  return 'Keeta';
+}
+
+const VASHYA_ORDER: VashyaGroup[] = ['Chatushpada', 'Manava', 'Jalachara', 'Vanachara', 'Keeta'];
+
+/**
+ * The classical scoring table, rows = bride, columns = groom.
+ *
+ * The intermediate values are the one place the traditions genuinely differ: a
+ * 2014 digest gives Chatushpada-Vanachara 1.5 and Manava-Jalachara 1.5 where the
+ * Sanskrit-verse-derived table below gives 0 and 0.5. The difference never
+ * exceeds one and a half points of two. This follows the latter, which is the
+ * one stated with its verse; the alternative is recorded here rather than
+ * silently averaged.
+ */
+const VASHYA_MATRIX: number[][] = [
+  [2, 1, 1, 0, 1],
+  [1, 2, 0.5, 0, 1],
+  [1, 0.5, 2, 1, 1],
+  [0, 0, 1, 2, 0],
+  [1, 0, 1, 0, 2],
+];
+
 export function calculateVashyaKuta(groom: PersonLunarData, bride: PersonLunarData): SingleKutaResult {
-  const gR = groom.rashiNumber;
-  const bR = bride.rashiNumber;
+  const gGroup = vashyaGroup(groom.rashiNumber, groom.longitude);
+  const bGroup = vashyaGroup(bride.rashiNumber, bride.longitude);
   const maxScore = 2;
 
-  // Mutual Vaśya mapping per Muhūrta Cintāmaṇi Śloka 3:
-  // Aries controls Leo & Scorpio
-  // Taurus controls Cancer & Libra
-  // Gemini controls Virgo
-  // Cancer controls Scorpio & Sagittarius
-  // Leo controls Libra
-  // Virgo controls Pisces & Gemini
-  // Libra controls Capricorn & Virgo
-  // Scorpio controls Cancer
-  // Sagittarius controls Pisces
-  // Capricorn controls Aries & Aquarius
-  // Aquarius controls Aries
-  // Pisces controls Capricorn
-  const VASHYA_AFFINITY_MAP: Record<RashiNumber, RashiNumber[]> = {
-    1: [5, 8],
-    2: [4, 7],
-    3: [6],
-    4: [8, 9],
-    5: [7],
-    6: [12, 3],
-    7: [10, 6],
-    8: [4],
-    9: [12],
-    10: [1, 11],
-    11: [1],
-    12: [10],
-  };
+  const gi = VASHYA_ORDER.indexOf(gGroup);
+  const bi = VASHYA_ORDER.indexOf(bGroup);
+  const score = VASHYA_MATRIX[bi][gi];
 
-  const isSameRashi = gR === bR;
-  const groomControlsBride = VASHYA_AFFINITY_MAP[gR]?.includes(bR) || false;
-  const brideControlsGroom = VASHYA_AFFINITY_MAP[bR]?.includes(gR) || false;
+  const obtainedScore = score;
+  const verdict =
+    score >= 2 ? 'Śubha (Auspicious)' : score >= 1 ? 'Madhyama (Moderate)' : 'Aśubha (Inauspicious / Defective)';
 
-  let obtainedScore = 0;
-  let conditionStr = '';
-  let verdict: 'Śubha (Auspicious)' | 'Madhyama (Moderate)' | 'Aśubha (Inauspicious / Defective)';
-  let explanation = '';
+  const sameGroup = gGroup === bGroup;
+  const bhakshya = score === 0;
 
-  if (isSameRashi) {
-    obtainedScore = 2;
-    verdict = 'Śubha (Auspicious)';
-    conditionStr = 'Identical Rāśi (Mutual Affinity)';
-    explanation = 'Both share the same Moon sign, producing natural harmony and mutual understanding. Full 2 points awarded.';
-  } else if (groomControlsBride && brideControlsGroom) {
-    obtainedScore = 2;
-    verdict = 'Śubha (Auspicious)';
-    conditionStr = 'Mutual Vaśya (Reciprocal Magnetic Attraction)';
-    explanation = 'Both Moon signs are mutually amenable (Vaśya) to each other according to Muhūrta Cintāmaṇi. Full 2 points awarded.';
-  } else if (groomControlsBride) {
-    obtainedScore = 2;
-    verdict = 'Śubha (Auspicious)';
-    conditionStr = 'Bride in Groom’s Vaśya';
-    explanation = 'Bride’s Moon sign is in the Vaśya (amenable control) sphere of the Groom. Full 2 points awarded.';
-  } else if (brideControlsGroom) {
-    obtainedScore = 1;
-    verdict = 'Madhyama (Moderate)';
-    conditionStr = 'Groom in Bride’s Vaśya';
-    explanation = 'Groom’s Moon sign is in Bride’s Vaśya. Moderate harmony (1 point).';
-  } else {
-    // Check if one sign is food to another (Bhakṣya-Bhakṣaka: Leo vs Catuṣpāda / Aries etc.)
-    const isEnmity = (gR === 5 && [1, 2, 9].includes(bR)) || (bR === 5 && [1, 2, 9].includes(gR));
-    obtainedScore = isEnmity ? 0 : 0.5;
-    verdict = isEnmity ? 'Aśubha (Inauspicious / Defective)' : 'Madhyama (Moderate)';
-    conditionStr = isEnmity ? 'Vaira / Non-Vaśya (Predator-Prey conflict)' : 'Neutral / Non-Vaśya';
-    explanation = isEnmity
-      ? 'Hostile Vaśya relationship (one sign naturally preys on or opposes the other). 0 points.'
-      : 'Neither sign exerts primary Vaśya over the other. 0.5 points assigned for non-hostile indifference.';
-  }
+  const conditionStr = sameGroup
+    ? `Same Vaśya Group (${gGroup})`
+    : bhakshya
+      ? `Bhakṣya-Bhakṣaka (${gGroup} vs ${bGroup})`
+      : `Different Groups (${gGroup} vs ${bGroup})`;
+
+  const explanation = sameGroup
+    ? `Both Moon signs fall in the ${gGroup} group, the most harmonious case: the two temperaments move at a similar natural pace. Full 2 points.`
+    : bhakshya
+      ? `${gGroup} and ${bGroup} stand in the eater-and-eaten relation the texts call Bhakṣya-Bhakṣaka, read as one-sided influence rather than quarrel. 0 points.`
+      : `${gGroup} and ${bGroup} differ without natural antagonism. ${score} point${score === 1 ? '' : 's'}.`;
+
+  const deg = (l: number) => (((l % 30) + 30) % 30).toFixed(1);
 
   return {
     id: 'vashya',
@@ -191,10 +199,10 @@ export function calculateVashyaKuta(groom: PersonLunarData, bride: PersonLunarDa
     maxScore,
     obtainedScore,
     rawScore: obtainedScore,
-    isDoshaPresent: obtainedScore === 0,
+    isDoshaPresent: bhakshya,
     isCancelledByException: false,
-    groomValue: `${RASHIS[gR].sanskritName} (${RASHIS[gR].name})`,
-    brideValue: `${RASHIS[bR].sanskritName} (${RASHIS[bR].name})`,
+    groomValue: `${gGroup} (${groom.rashiName} ${deg(groom.longitude)}°)`,
+    brideValue: `${bGroup} (${bride.rashiName} ${deg(bride.longitude)}°)`,
     matchingCondition: conditionStr,
     classicalVerdict: verdict,
     explanation,
