@@ -3896,6 +3896,56 @@ console.log('\n== Sixth layer: classical in the score ==');
   check('the method names the classical weight', /12%/.test(reading.method));
 }
 
+/* ---- EVERY PHALA MUST TEST THE CONDITIONS ITS CHAPTER STATES ---- */
+
+console.log('\n== Condition depth ==');
+{
+  const natal: any = calculateFullJyotishaChart(FIXTURES[0].birth);
+  const report: any = generateClassicalChartIndications(natal);
+
+  const phalas = report.orderedDomainIds.flatMap(
+    (id: string) => (report.domains[id]?.directClassicalPhalas ?? []).map((p: any) => ({ id, p }))
+  );
+  check('the report produces phalas', phalas.length > 20, String(phalas.length));
+
+  // A bhāva-lord rule tested only on the lord's house placement is a rule read
+  // halfway. Every bhāva chapter qualifies the placement with the lord's
+  // combustion, its dignity and the bhāva's bindus.
+  const shallow = phalas.filter(
+    (x: any) => (x.p.conditions ?? []).some((c: any) => /lord/i.test(String(c.description ?? '')))
+      && (x.p.conditions ?? []).length < 4
+  );
+  check('every bhāva-lord phala tests at least four conditions', shallow.length === 0,
+    shallow.map((x: any) => `${x.id}/${x.p.ruleId}`).join(','));
+
+  const noConditions = phalas.filter((x: any) => !(x.p.conditions ?? []).length);
+  check('no phala reports a verdict with no conditions tested', noConditions.length === 0,
+    noConditions.map((x: any) => x.p.ruleId).join(','));
+
+  // The verdict must follow the conditions, not be set independently.
+  let inconsistent = 0;
+  for (const { p } of phalas) {
+    const allMet = (p.conditions ?? []).every((c: any) => c.met);
+    if (p.allConditionsMet !== allMet) inconsistent++;
+  }
+  check('allConditionsMet always equals the AND of the conditions', inconsistent === 0,
+    String(inconsistent));
+
+  // And the verification level must follow the verdict.
+  const wrongLevel = phalas.filter((x: any) =>
+    (x.p.allConditionsMet && x.p.verificationLevel !== 'Fully Verified') ||
+    (!x.p.allConditionsMet && x.p.verificationLevel !== 'Condition Not Met'));
+  check('the verification level follows the verdict', wrongLevel.length === 0,
+    String(wrongLevel.length));
+
+  // Every condition must carry the fields the type requires, or the reader
+  // cannot see what was tested.
+  const malformed = phalas.flatMap((x: any) => (x.p.conditions ?? []))
+    .filter((c: any) => !c.id || !c.description || !c.expected || !c.observed);
+  check('every condition states what was expected and what was observed',
+    malformed.length === 0, String(malformed.length));
+}
+
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
 
 console.log('\n== Export ==');
