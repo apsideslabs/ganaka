@@ -62,6 +62,17 @@ export interface ClassicalRuleCitation {
   sanskritShloka?: string; // Verbatim Sanskrit text of the rule
   ruleDescription: string;
   scopeAndConditions: string;
+  /**
+   * True only when the verse range has been checked against the actual text of
+   * the chapter — the Sanskrit read, and the range confirmed to exist.
+   *
+   * False or absent means the citation gives the right chapter (checked against
+   * a published contents list) and that chapter's verse count, but NOT the
+   * specific verse the rule is stated at. A reader must know which they are
+   * looking at; a chapter-level citation that reads like a verse citation is
+   * worse than no citation, because it invites trust it has not earned.
+   */
+  verseVerified?: boolean;
   editionOrManuscript?: string; // Edition note (e.g. 'Khemraj / Chowkhamba ed.')
   textualDisagreementNotes?: string;
 }
