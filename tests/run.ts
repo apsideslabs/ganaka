@@ -15,7 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
-import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas } from '../lib/jyotisha/kuta/ashtakuta-calculator';
+import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CANONICAL_RULES } from '../lib/jyotisha/indications/classical-sources';
@@ -3996,6 +3996,35 @@ console.log('\n== Vivaha kuta tables ==');
 
   // Same yoni scores full marks.
   check('a same-yoni pair scores 4', calculateYoniKuta(probe(1), probe(24)).obtainedScore === 4);
+
+  // The matrix must be symmetric, score 4 on the diagonal, stay in 0..4, and
+  // put every mahavaira pair at 0 both ways. The old code never produced a 1.
+  const { order, matrix } = YONI_TABLE_FOR_TEST as any;
+  let asym = 0, badDiag = 0, oor = 0;
+  for (let i = 0; i < order.length; i++) {
+    if (matrix[i][i] !== 4) badDiag++;
+    for (let j = 0; j < order.length; j++) {
+      if (matrix[i][j] !== matrix[j][i]) asym++;
+      if (matrix[i][j] < 0 || matrix[i][j] > 4) oor++;
+    }
+  }
+  check('the yoni matrix is symmetric', asym === 0, String(asym));
+  check('every same-animal cell scores 4', badDiag === 0, String(badDiag));
+  check('every yoni score is between 0 and 4', oor === 0, String(oor));
+
+  const MAHAV: Array<[string, string]> = [
+    ['Horse','Buffalo'],['Elephant','Lion'],['Sheep','Monkey'],['Serpent','Mongoose'],
+    ['Dog','Deer'],['Cat','Rat'],['Cow','Tiger'],
+  ];
+  check('every mahavaira pair is zero both ways',
+    MAHAV.every(([a, b]) => yoniScore(a, b) === 0 && yoniScore(b, a) === 0));
+
+  // The five-tier scale must actually be reachable. The old implementation
+  // produced only 4, 3, 2 and 0 - an unfriendly pair scored 2.
+  const tiers = new Set<number>();
+  for (const row of matrix) for (const v of row) tiers.add(v);
+  check('all five yoni tiers are reachable',
+    [0, 1, 2, 3, 4].every((t) => tiers.has(t)), [...tiers].sort().join(','));
 
   // Nadi: the 27 nakshatras follow the classical 1-2-3-3-2-1 zigzag.
   const NADI: Record<number, number> = {
