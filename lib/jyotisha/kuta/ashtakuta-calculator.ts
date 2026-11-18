@@ -372,58 +372,84 @@ const SWORN_ENMITY_PAIRS: [string, string][] = [
   ['Cow', 'Tiger'],
 ];
 
+
+/**
+ * The 14x14 yoni compatibility matrix.
+ *
+ * Five tiers: 4 same animal, 3 friendly, 2 neutral, 1 unfriendly, 0 sworn enemy.
+ * The previous implementation awarded only 4, 3, 2 and 0 - it used a "both
+ * herbivores" heuristic for the middle tiers and never produced a 1, so an
+ * unfriendly pair scored 2 where the table gives 1.
+ *
+ * The matrix is symmetric; a test asserts that, and asserts that all seven
+ * mahavaira pairs sit at 0 in both directions.
+ */
+const YONI_ORDER = [
+  'Horse', 'Elephant', 'Sheep', 'Serpent', 'Dog', 'Cat', 'Rat',
+  'Cow', 'Buffalo', 'Tiger', 'Deer', 'Monkey', 'Mongoose', 'Lion',
+] as const;
+
+const YONI_MATRIX: number[][] = [
+  [4, 2, 2, 3, 2, 2, 2, 3, 0, 1, 3, 3, 2, 1],
+  [2, 4, 3, 3, 2, 2, 2, 2, 3, 1, 2, 3, 2, 0],
+  [2, 3, 4, 2, 1, 2, 1, 3, 3, 1, 2, 0, 3, 1],
+  [3, 3, 2, 4, 2, 1, 1, 1, 1, 2, 2, 2, 0, 2],
+  [2, 2, 1, 2, 4, 1, 1, 2, 2, 1, 0, 2, 1, 1],
+  [2, 2, 2, 1, 1, 4, 0, 2, 2, 1, 3, 3, 2, 1],
+  [2, 2, 1, 1, 1, 0, 4, 2, 2, 2, 2, 2, 1, 2],
+  [3, 2, 3, 1, 2, 2, 2, 4, 3, 0, 3, 2, 2, 1],
+  [0, 3, 3, 1, 2, 2, 2, 3, 4, 1, 2, 2, 2, 1],
+  [1, 1, 1, 2, 1, 1, 2, 0, 1, 4, 1, 1, 2, 1],
+  [3, 2, 2, 2, 0, 3, 2, 3, 2, 1, 4, 2, 2, 1],
+  [3, 3, 0, 2, 2, 3, 2, 2, 2, 1, 2, 4, 3, 2],
+  [2, 2, 3, 0, 1, 2, 1, 2, 2, 2, 2, 3, 4, 2],
+  [1, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 4],
+];
+
+/** The yoni score for a pair of animals, 0 to 4. */
+export function yoniScore(a: string, b: string): number {
+  const i = YONI_ORDER.indexOf(a as any);
+  const j = YONI_ORDER.indexOf(b as any);
+  if (i < 0 || j < 0) return 2;
+  return YONI_MATRIX[i][j];
+}
+
+/** Exposed for the test that checks symmetry and the mahavaira rows. */
+export const YONI_TABLE_FOR_TEST = { order: YONI_ORDER, matrix: YONI_MATRIX };
+
 export function calculateYoniKuta(groom: PersonLunarData, bride: PersonLunarData): SingleKutaResult {
   const gYoni = NAKSHATRA_YONI_TABLE[groom.nakshatraNumber];
   const bYoni = NAKSHATRA_YONI_TABLE[bride.nakshatraNumber];
   const maxScore = 4;
 
-  const isSwornEnemy = SWORN_ENMITY_PAIRS.some(
-    ([a, b]) =>
-      (gYoni.animal === a && bYoni.animal === b) ||
-      (gYoni.animal === b && bYoni.animal === a)
-  );
+  const score = yoniScore(gYoni.animal, bYoni.animal);
+  const isSwornEnemy = score === 0 && gYoni.animal !== bYoni.animal;
 
-  let obtainedScore = 0;
+  let obtainedScore = score;
   let conditionStr = '';
   let verdict: 'Śubha (Auspicious)' | 'Madhyama (Moderate)' | 'Aśubha (Inauspicious / Defective)';
   let explanation = '';
 
   if (gYoni.animal === bYoni.animal) {
-    obtainedScore = 4;
     verdict = 'Śubha (Auspicious)';
     conditionStr = `Same Yoni (${gYoni.animal})`;
-    explanation = `Both bride and groom share the same Yoni species (${gYoni.animal}). Complete physical intimacy, biological affinity, and constitutional alignment. Full 4 points.`;
+    explanation = `Both share the same Yoni species (${gYoni.animal}). Complete physical intimacy, biological affinity and constitutional alignment. Full 4 points.`;
   } else if (isSwornEnemy) {
-    obtainedScore = 0;
     verdict = 'Aśubha (Inauspicious / Defective)';
     conditionStr = `Mahāvaira / Sworn Enmity (${gYoni.animal} vs ${bYoni.animal})`;
-    explanation = `The Yonis represent natural sworn predatory enemies in nature (${gYoni.animal} and ${bYoni.animal}). Classical treatises designate this as Mahāvaira Yoni Doṣa (0 points).`;
+    explanation = `${gYoni.animal} and ${bYoni.animal} are sworn enemies in nature. Muhūrta Cintāmaṇi designates this as Mahāvaira Yoni Doṣa (0 points).`;
+  } else if (score === 3) {
+    verdict = 'Śubha (Auspicious)';
+    conditionStr = `Friendly Animals (${gYoni.animal} & ${bYoni.animal})`;
+    explanation = `${gYoni.animal} and ${bYoni.animal} are friendly in the classical table, giving peaceful temperament and mutual comfort (3 points).`;
+  } else if (score === 2) {
+    verdict = 'Madhyama (Moderate)';
+    conditionStr = `Neutral Animals (${gYoni.animal} & ${bYoni.animal})`;
+    explanation = `${gYoni.animal} and ${bYoni.animal} are neutral to each other in the classical table (2 points).`;
   } else {
-    // Friendly vs Neutral vs Unfriendly scoring.
-    //
-    // KNOWN GAP: the classical table is a full 14×14 matrix with five tiers —
-    // 4 same, 3 friendly, 2 neutral, 1 unfriendly, 0 sworn enemy. Only the 4 and
-    // the 0 are agreed across traditions; the three middle tiers are laid out
-    // differently in the North Indian, Tamil and Muhūrta Cintāmaṇi-derived
-    // tables, and no single matrix is authoritative. This awards 3 or 2 on a
-    // herbivore heuristic and never awards 1, so an "unfriendly" pair scores 2
-    // where some tables would give 1. The 0 (mahāvaira) and 4 (same) cases,
-    // which are the two the texts agree on and which carry the verdict, are
-    // exact.
-    const HERBIVORES = ['Horse', 'Elephant', 'Sheep', 'Cow', 'Buffalo', 'Deer'];
-    const isBothHerbivore = HERBIVORES.includes(gYoni.animal) && HERBIVORES.includes(bYoni.animal);
-
-    if (isBothHerbivore) {
-      obtainedScore = 3;
-      verdict = 'Śubha (Auspicious)';
-      conditionStr = `Friendly Animals (${gYoni.animal} & ${bYoni.animal})`;
-      explanation = `Friendly non-competing animal species (${gYoni.animal} & ${bYoni.animal}). Generates peaceful temperament and mutual comfort (3 points).`;
-    } else {
-      obtainedScore = 2;
-      verdict = 'Madhyama (Moderate)';
-      conditionStr = `Neutral Animals (${gYoni.animal} & ${bYoni.animal})`;
-      explanation = `Neutral animal disposition between ${gYoni.animal} and ${bYoni.animal} (2 points).`;
-    }
+    verdict = 'Aśubha (Inauspicious / Defective)';
+    conditionStr = `Unfriendly Animals (${gYoni.animal} & ${bYoni.animal})`;
+    explanation = `${gYoni.animal} and ${bYoni.animal} are unfriendly in the classical table - limited instinctive compatibility (1 point).`;
   }
 
   return {
