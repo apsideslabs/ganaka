@@ -203,6 +203,19 @@ export function evaluateStatusDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jataka Parijata 7 - the longest raja-yoga chapter, 181 verses.
+  {
+    const l1 = getHouseLord(chart, 1); const l5 = getHouseLord(chart, 5);
+    const p1: any = chart.planets[l1.id]; const p5: any = chart.planets[l5.id];
+    const linked = l1.id !== l5.id && p1?.house === p5?.house;
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_raja_yoga', 'phala_jp_raja_yoga',
+        [{ id: 'c_jp_raja', description: 'Lagna lord and 5th lord in mutual relation', expected: 'conjunction', observed: linked ? 'conjoined' : 'separate', met: linked }],
+        'Vaidyanatha gives 181 verses to raja yoga, including Parvata, Kahala and Matsya; he puts malefics, not benefics, in the lagna and ninth for Matsya.',
+        CANONICAL_RULES.jataka_parijata_raja_yoga),
+    );
+  }
+
   return {
     id: 'status',
     title: 'Social Status, Authority & Public Life',
