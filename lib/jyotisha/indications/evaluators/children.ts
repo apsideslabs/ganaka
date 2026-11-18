@@ -135,6 +135,17 @@ export function evaluateChildrenDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jataka Parijata 13 - the 5th and 6th houses together.
+  {
+    const l5 = getHouseLord(chart, 5); const l5p: any = chart.planets[l5.id];
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_bhava_5_6', 'phala_jp_bhava_5_6',
+        [{ id: 'c_jp_5th', description: '5th lord in a kendra or trikona', expected: '1/4/7/10 or 5/9', observed: `House ${l5p?.house}`, met: [1,4,7,10,5,9].includes(l5p?.house ?? 0) }],
+        'Vaidyanatha pairs the 5th and 6th houses: children and learning on one side, disease and enemies on the other.',
+        CANONICAL_RULES.jataka_parijata_bhava_5_6),
+    );
+  }
+
   return {
     id: 'children',
     title: 'Children & Progeny',
