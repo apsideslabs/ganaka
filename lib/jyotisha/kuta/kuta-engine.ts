@@ -32,9 +32,19 @@ export function calculateKutaMilan(
 
   if (tradition === 'dashakuta') {
     const dashakutaExtra = calculateAllDashakutas(groomLunar, brideLunar);
-    // Combine 8 standard kūṭas + 4 distinct South Indian poruthams (Mahendra, Stree Deergha, Rajju, Vedha)
-    finalKutaResults = [...ashtakutaResults, ...dashakutaExtra];
-    maxTotalScore = 40; // 36 + 4 Porutham points
+    // A Daśakūṭa is TEN poruthams, not twelve. Six of the North Indian kūṭas
+    // appear in it under other names (Dina = Tārā, Rashi = Bhakūṭa,
+    // Rasyadhipati = Graha Maitrī, plus Gana, Yoni and Vaśya). The South drops
+    // Varṇa and Nāḍī — Nāḍī, the heaviest check in the North at 8 points, does
+    // not exist in this system at all — and adds four: Mahendra, Stree Deergha,
+    // Rajju, Vedha. Showing all twelve was a superset, not a Daśakūṭa.
+    const SOUTH_ONLY = new Set(['varna', 'nadi']);
+    finalKutaResults = [
+      ...ashtakutaResults.filter((k) => !SOUTH_ONLY.has(k.id)),
+      ...dashakutaExtra,
+    ];
+    // 2 + 3 + 4 + 5 + 6 + 7 = 27 from the six shared kūṭas, plus 4 poruthams.
+    maxTotalScore = 31;
   } else {
     finalKutaResults = ashtakutaResults;
     maxTotalScore = 36;
