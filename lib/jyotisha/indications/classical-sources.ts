@@ -9,6 +9,19 @@
  * - Jātaka Pārijāta of Vaidyanātha Dīkṣita [Kapoor / Subrahmanya Sastri editions]
  * - Uttarakālāmṛta of Kālidāsa [Subrahmanya Sastri edition]
  *
+ * WHAT THESE CITATIONS ARE, AND ARE NOT
+ *
+ * Each rule gives the chapter that carries its subject, checked against a
+ * published contents list, and that chapter's verse count. That is enough to
+ * find the passage; it is NOT a verse-level citation.
+ *
+ * Only the rules marked `verseVerified: true` have had their Sanskrit read and
+ * the verse range confirmed against the text itself. Everything else carries
+ * the right chapter and the right chapter length, but the specific verse the
+ * rule is stated at has not been opened. A reader must be able to tell which
+ * they are looking at, so the flag is required on the type rather than implied
+ * by the shape of the string.
+ *
  * CHAPTER NUMBERING — one convention throughout: R. Santhanam's two-volume
  * English edition, which is what the bhāva chapters below are cited from.
  * The bhāva-phala chapters are 12 (1st) through 23 (12th) and 24 (house
@@ -363,6 +376,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     id: 'bphs_bhava_viveka_judgement',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
     chapterAndVerse: 'Ch. 11 (Bhāvaviveka), Śloka 14–16',
+    verseVerified: true, // Ch. 11 runs 16 verses; 14–16 read in the Sanskrit.
     sanskritTitle: 'भावविवेकाध्यायः',
     sanskritShloka:
       'यो यो शुभैर्युतो दृष्टो भावो वा पतिदृष्टयुक् । युवा प्रवृद्धो राज्यस्थः कुमारो वाऽपि यत्पतिः ॥१४॥ तदीक्षणवशात् तत्तद्भावसौख्यं वदेद् बुधः । यद्यद् भावपतिर्नष्टस्त्रिकेशाद्यैश्च संयुक्तः ॥१५॥ भावं न वीक्षते सम्यक् सुप्तो वृद्धोमृतोऽथवा । पीडितो वाऽस्य भावस्य फलं नष्टं वदेद् ध्रुवम् ॥१६॥',
@@ -382,6 +396,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     id: 'bphs_dhana_bhava_phala',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
     chapterAndVerse: 'Ch. 13 (Dhanabhāva Phala), Śloka 1–5',
+    verseVerified: true, // Ch. 13 runs 13 verses; 1–13 read in the Sanskrit.
     sanskritTitle: 'धनभावफलाध्यायः',
     sanskritShloka:
       'धनभावफलं वच्मि श‍ृणु त्वं द्विजसत्तम । धनेशो धनभावस्थः केन्द्रकोणगतोऽपि वा ॥१॥ धनवृद्धिकरो ज्ञेयस्त्रिकस्थो धनहानिकृत् । धनदश्च धने सौम्यः पापो धनविनाशकृत् ॥२॥ धनाधिपो गुरुर्यस्य धनभावगतो भवेत् । भौमेन सहितो वाऽपि धनवान् स धनवान् नरो भवेत् ॥३॥ धनेशे लाभभावस्थे लाभेशे वा धनं गते । तावुभौ केन्द्रकोणस्थौ धनवान् स धनवान् नरो भवेत् ॥४॥ धनेशे केन्द्रराशिस्थे लाभेशे तत्त्रिकोणगे । गुरुशुक्रयुते दृष्टे धनलाभमुदीरयेत् ॥५॥',
@@ -425,6 +440,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     id: 'bphs_sahaja_bhava_phala',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
     chapterAndVerse: 'Ch. 14 (Sahajabhāva Phala), Śloka 1–15',
+    verseVerified: true, // Ch. 14 runs 15 verses; 1–15 read in the Sanskrit.
     sanskritTitle: 'सहजभावफलाध्यायः',
     sanskritShloka:
       'अथ विक्रमभावस्य फलं वक्ष्यामि भो द्विज । सहजे सौम्ययुग्दृष्टे भ्रातृमान् विक्रमी भ्रातृमान् नरः ॥१॥ सभौमो भ्रातृभावेशो भ्रातृभावं प्रपश्यति । भ्रातृक्षेत्रगतो वाऽपि भ्रातृभावं विनिर्दिशेत् ॥२॥',
@@ -439,6 +455,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     id: 'bphs_sukha_bhava_phala',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
     chapterAndVerse: 'Ch. 15 (Sukhabhāva Phala), Śloka 1–14',
+    verseVerified: true, // Ch. 15 runs 14 verses; 1–14 read in the Sanskrit.
     sanskritTitle: 'सुखभावफलाध्यायः',
     sanskritShloka:
       'सुखेशे सुखभावस्थे लग्नेशे तद्गतेऽपि वा । शुभदृष्टे च जातस्य पूर्णं गृहसुखं वदेत् ॥२॥ स्वगेहे स्वांशके स्वोच्चे सुखस्थानाधिपो यदि । भूमियानगृहादीनां सुखं वाद्यभवं तथा ॥३॥ बन्धुस्थानेश्वरे सौम्ये शुभग्रहयुतेक्षिते । शशिजे लग्नसंयुक्ते बन्धुपूज्यो भवेन्नरः ॥५॥',
@@ -456,6 +473,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     id: 'bphs_shashtha_bhava_phala',
     sourceText: 'Bṛhat Parāśara Horā Śāstra',
     chapterAndVerse: 'Ch. 17 (Ṣaṣṭhabhāva Phala), Śloka 1–28',
+    verseVerified: true, // Ch. 17 runs 28 verses; 1–28 read in the Sanskrit.
     sanskritTitle: 'षष्ठभावफलाध्यायः',
     sanskritShloka:
       'अथ विप्र फलं वक्ष्ये षष्ठभावसमुद्भवम् । देहे रोगव्रणाद्यं तत् श्रूयतामेकचेतसा ॥१॥ षष्ठाधिपः स्वगेहे वा देहे वाऽप्यष्टमे स्थितः । तदा व्रणा भवेद्देहे षष्ठराशिसमाश्रिते ॥२॥',
