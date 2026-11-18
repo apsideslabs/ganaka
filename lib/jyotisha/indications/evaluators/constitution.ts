@@ -275,6 +275,33 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // Jataka Parijata 11 and 8.
+  {
+    const l1 = getHouseLord(chart, 1); const l1p: any = chart.planets[l1.id];
+    const l2 = getHouseLord(chart, 2); const l2p: any = chart.planets[l2.id];
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_bhava_1_2', 'phala_jp_bhava_1_2',
+        [
+          { id: 'c_jp_1st', description: 'Lagna lord not in a trika house', expected: 'not 6/8/12', observed: `House ${l1p?.house}`, met: ![6,8,12].includes(l1p?.house ?? 0) },
+          { id: 'c_jp_2nd', description: '2nd lord not in a trika house', expected: 'not 6/8/12', observed: `House ${l2p?.house}`, met: ![6,8,12].includes(l2p?.house ?? 0) },
+        ],
+        'Vaidyanatha reads the first and second houses together: the body and its means.',
+        CANONICAL_RULES.jataka_parijata_bhava_1_2),
+    );
+    const rashiCount = new Map<number, number>();
+    for (const p of ['sun','moon','mars','mercury','jupiter','venus','saturn']) {
+      const r = (chart.planets as any)[p]?.rashiNumber;
+      if (r) rashiCount.set(r, (rashiCount.get(r) ?? 0) + 1);
+    }
+    const pairs = [...rashiCount.values()].filter((n) => n >= 2).length;
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_dvi_graha', 'phala_jp_dvi_graha',
+        [{ id: 'c_jp_dvi', description: 'At least one multiple conjunction', expected: '>= 1 pair', observed: String(pairs), met: pairs > 0 }],
+        'Two or more grahas together are read as one unit; Vaidyanatha gives 118 verses to the combinations.',
+        CANONICAL_RULES.jataka_parijata_dvi_graha),
+    );
+  }
+
   return {
     id: 'constitution',
     title: 'Lagna & Fundamental Constitution',
