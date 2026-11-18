@@ -17,6 +17,7 @@
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
 import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, calculateVashyaKuta, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
 import { evaluateDeeperHoroscopeMatching } from '../lib/jyotisha/kuta/deeper-matching';
+import { calculateKutaMilan } from '../lib/jyotisha/kuta/kuta-engine';
 import { calculateMahendraPorutham, calculateStreeDeerghaPorutham, calculateRajjuPorutham, calculateVedhaPorutham, calculateAllDashakutas } from '../lib/jyotisha/kuta/dashakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -4205,6 +4206,44 @@ console.log('\n== Kuja dosha ==');
     m.groom.hasDosha || m.groom.severity === 'None');
   check('cancellation reasons are always an array',
     Array.isArray(m.groom.cancellationReasons) && Array.isArray(m.bride.cancellationReasons));
+}
+
+/* ---------- THE TWO TRADITIONS SCORE ON DIFFERENT MODELS ---------- */
+
+console.log('\n== North vs South scoring ==');
+{
+  const base = { latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X' };
+  const g: any = calculateFullJyotishaChart({ ...base, year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0 } as any);
+  const b: any = calculateFullJyotishaChart({ ...base, year: 2010, month: 7, day: 14, hour: 8, minute: 20, second: 0 } as any);
+
+  const north: any = calculateKutaMilan(g, b, 'ashtakuta');
+  const south: any = calculateKutaMilan(g, b, 'dashakuta');
+
+  // North: eight kutas summed on graded weights, out of 36.
+  check('the North Indian model scores eight kutas', north.kutaResults.length === 8, String(north.kutaResults.length));
+  check('the North Indian maximum is 36', north.maxTotalScore === 36, String(north.maxTotalScore));
+  check('the North Indian total is the sum of the graded scores',
+    Math.abs(north.totalScore - north.kutaResults.reduce((a: number, k: any) => a + k.obtainedScore, 0)) < 1e-9);
+
+  // South: ten poruthams as pass/fail gates, out of ten.
+  check('the South Indian model scores ten poruthams', south.kutaResults.length === 10, String(south.kutaResults.length));
+  check('the South Indian maximum is 10', south.maxTotalScore === 10, String(south.maxTotalScore));
+  check('the South Indian total counts poruthams present',
+    south.totalScore === south.kutaResults.filter((k: any) => k.obtainedScore > 0).length,
+    String(south.totalScore));
+
+  // The South drops Varna and Nadi entirely.
+  const ids = south.kutaResults.map((k: any) => k.id);
+  check('the South Indian model drops Varna and Nadi',
+    !ids.includes('varna') && !ids.includes('nadi'), ids.join(','));
+  check('the South Indian model adds the four poruthams',
+    ['mahendra', 'stree_deergha', 'rajju', 'vedha'].every((id) => ids.includes(id)));
+
+  // Both percentages must be within range.
+  for (const r of [north, south]) {
+    check(`${r.kutaResults.length}-kuta percentage is within 0-100`,
+      r.percentageScore >= 0 && r.percentageScore <= 100, String(r.percentageScore));
+  }
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
