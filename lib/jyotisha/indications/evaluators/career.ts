@@ -298,6 +298,21 @@ export function evaluateCareerDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jataka Parijata 15 - the 10th, 11th and 12th read together.
+  {
+    const l10 = getHouseLord(chart, 10); const l11 = getHouseLord(chart, 11);
+    const p10: any = chart.planets[l10.id]; const p11: any = chart.planets[l11.id];
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_bhava_10_11_12', 'phala_jp_bhava_10_11_12',
+        [
+          { id: 'c_jp_10th', description: '10th lord in a kendra or trikona', expected: '1/4/7/10 or 5/9', observed: `House ${p10?.house}`, met: [1,4,7,10,5,9].includes(p10?.house ?? 0) },
+          { id: 'c_jp_11th', description: '11th lord not in a trika house', expected: 'not 6/8/12', observed: `House ${p11?.house}`, met: ![6,8,12].includes(p11?.house ?? 0) },
+        ],
+        'Vaidyanatha reads the 10th, 11th and 12th together because profession, gain and expenditure are one account.',
+        CANONICAL_RULES.jataka_parijata_bhava_10_11_12),
+    );
+  }
+
   return {
     id: 'career',
     title: 'Career & Professional Life',
