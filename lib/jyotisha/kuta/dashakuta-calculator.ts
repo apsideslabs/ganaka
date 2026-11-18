@@ -201,6 +201,15 @@ export function calculateRajjuPorutham(groom: PersonLunarData, bride: PersonLuna
 // 11. U. Phālgunī - P. Bhādrapadā
 // 12. Hasta - Śatabhiṣā
 // 13. Mṛgaśīrṣā - Dhaniṣṭhā & Citrā (Triple axis)
+//
+// Two traditions diverge here, and this file follows the South Indian one.
+// Raman's Muhurtha (1948) gives thirteen pairs in which Mrigashira pairs only
+// with Dhanishtha and CHITRA HAS NO PARTNER AT ALL - a couple with Chitra on one
+// side cannot fail vedha on his list. The Tamil porutham tables instead treat
+// Mrigashira, Chitra and Dhanishtha - the three Mars-ruled stars - as a group
+// of three in which any two count as vedha. That is the form implemented here,
+// which is why the list carries fifteen pairs rather than thirteen. The two
+// lists disagree only on Chitra; every other pair is identical.
 const VEDHA_PAIRS: [number, number][] = [
   [1, 18], // Aśvinī - Jyeṣṭhā
   [2, 17], // Bharaṇī - Anurādhā
