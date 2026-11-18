@@ -62,14 +62,14 @@ export function MatchingWorkspaceClient() {
 
   // Groom Form State (Default: New Delhi, 15 May 1990, 10:30)
   const [groomName, setGroomName] = useState('Groom (Vara)');
-  const [groomDate, setGroomDate] = useState('1990-05-15');
+  const [groomDate, setGroomDate] = useState('');
   const [groomTime, setGroomTime] = useState({ hour: 10, minute: 30, second: 0 });
   const [groomCitySearch, setGroomCitySearch] = useState('New Delhi');
   const [groomLocation, setGroomLocation] = useState(CITIES_DATABASE[0]);
 
   // Bride Form State (Default: Mumbai, 22 Nov 1993, 14:15)
   const [brideName, setBrideName] = useState('Bride (Kanyā)');
-  const [brideDate, setBrideDate] = useState('1993-11-22');
+  const [brideDate, setBrideDate] = useState('');
   const [brideTime, setBrideTime] = useState({ hour: 14, minute: 15, second: 0 });
   const [brideCitySearch, setBrideCitySearch] = useState('Mumbai');
   const [brideLocation, setBrideLocation] = useState(
@@ -77,12 +77,18 @@ export function MatchingWorkspaceClient() {
   );
 
   // Compute Groom Chart
+  // No chart is computed until a real date is entered. The form used to open
+  // pre-filled with 1990-05-15 and 1993-11-22, so the page showed a finished
+  // 36-point reading for two people who do not exist, with nothing marking it
+  // as placeholder. The `|| 1990` fallbacks made that worse: a malformed date
+  // silently became the same placeholder instead of reporting itself.
   const groomChart = useMemo(() => {
     const [y, m, d] = groomDate.split('-').map(Number);
+    if (!y || !m || !d) return null;
     const input: CalculationInput = {
-      year: y || 1990,
-      month: m || 5,
-      day: d || 15,
+      year: y,
+      month: m,
+      day: d,
       hour: groomTime.hour,
       minute: groomTime.minute,
       second: groomTime.second,
@@ -98,10 +104,11 @@ export function MatchingWorkspaceClient() {
   // Compute Bride Chart
   const brideChart = useMemo(() => {
     const [y, m, d] = brideDate.split('-').map(Number);
+    if (!y || !m || !d) return null;
     const input: CalculationInput = {
-      year: y || 1993,
-      month: m || 11,
-      day: d || 22,
+      year: y,
+      month: m,
+      day: d,
       hour: brideTime.hour,
       minute: brideTime.minute,
       second: brideTime.second,
@@ -116,11 +123,12 @@ export function MatchingWorkspaceClient() {
 
   // Compute Kūṭa Milan Result
   const matchingResult = useMemo(() => {
+    if (!groomChart || !brideChart) return null;
     return calculateKutaMilan(groomChart, brideChart, tradition);
   }, [groomChart, brideChart, tradition]);
 
-  const groomLunar = useMemo(() => extractLunarData(groomChart), [groomChart]);
-  const brideLunar = useMemo(() => extractLunarData(brideChart), [brideChart]);
+  const groomLunar = useMemo(() => (groomChart ? extractLunarData(groomChart) : null), [groomChart]);
+  const brideLunar = useMemo(() => (brideChart ? extractLunarData(brideChart) : null), [brideChart]);
 
   // City Search handlers
   const [showGroomCityDropdown, setShowGroomCityDropdown] = useState(false);
@@ -129,6 +137,24 @@ export function MatchingWorkspaceClient() {
   const groomCityResults = useCitySearch(groomCitySearch, 5, 5);
 
   const brideCityResults = useCitySearch(brideCitySearch, 5, 5);
+
+  // Nothing to read until both dates exist. Rendering the score banner with a
+  // null result would throw, and rendering it with placeholder data is what the
+  // form used to do.
+  if (!matchingResult) {
+    return (
+      <div className="w-full min-h-screen bg-[#FDFCF8] text-[#171614] flex items-center justify-center px-6">
+        <div className="bg-white border border-stone-200/90 rounded-2xl p-8 max-w-md text-center">
+          <p className="text-sm font-semibold text-stone-800">Enter both birth dates to see the match</p>
+          <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+            Nothing is calculated until the groom and the bride each have a date of birth. The
+            reading comes from the Moon sign and birth nakṣatra, so an accurate date and time is
+            what makes it meaningful.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-[#FDFCF8] text-[#171614] pb-16">
