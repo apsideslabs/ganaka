@@ -190,6 +190,19 @@ export function evaluateStatusDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Brihat Jataka 11 - raja yogas and their loss.
+  {
+    const l9 = getHouseLord(chart, 9); const l10 = getHouseLord(chart, 10);
+    const p9: any = chart.planets[l9.id]; const p10: any = chart.planets[l10.id];
+    const linked = l9.id !== l10.id && p9?.house === p10?.house;
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_raja_yoga', 'phala_bj_raja_yoga',
+        [{ id: 'c_bj_raja', description: '9th and 10th lords in mutual relation', expected: 'conjunction', observed: linked ? 'conjoined' : 'separate', met: linked }],
+        'Varahamihira gives combinations for power and for their loss; a weak raja yoga fails and leaves servitude instead.',
+        CANONICAL_RULES.brihat_jataka_raja_yoga),
+    );
+  }
+
   return {
     id: 'status',
     title: 'Social Status, Authority & Public Life',
