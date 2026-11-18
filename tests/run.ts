@@ -15,6 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
+import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas } from '../lib/jyotisha/kuta/ashtakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CANONICAL_RULES } from '../lib/jyotisha/indications/classical-sources';
@@ -3944,6 +3945,84 @@ console.log('\n== Condition depth ==');
     .filter((c: any) => !c.id || !c.description || !c.expected || !c.observed);
   check('every condition states what was expected and what was observed',
     malformed.length === 0, String(malformed.length));
+}
+
+/* ---------- THE KUTA TABLES MUST MATCH THE CLASSICAL LISTS ---------- */
+
+console.log('\n== Vivaha kuta tables ==');
+{
+  // The 14 yonis across 27 nakshatras, from the classical list. Magha and
+  // Purva Phalguni are the RAT; Dhanishtha and Purva Bhadrapada are the LION.
+  // Those four were swapped in the table, which put a Magha native in the Lion
+  // yoni - enemy of the Elephant - instead of the Rat yoni, enemy of the Cat.
+  const YONI: Record<number, string> = {
+    1:'Horse', 2:'Elephant', 3:'Sheep', 4:'Serpent', 5:'Serpent', 6:'Dog',
+    7:'Cat', 8:'Sheep', 9:'Cat', 10:'Rat', 11:'Rat', 12:'Cow', 13:'Buffalo',
+    14:'Tiger', 15:'Buffalo', 16:'Tiger', 17:'Deer', 18:'Deer', 19:'Dog',
+    20:'Monkey', 21:'Mongoose', 22:'Monkey', 23:'Lion', 24:'Horse', 25:'Lion',
+    26:'Cow', 27:'Elephant',
+  };
+  // groomValue carries the Sanskrit animal name, so compare on that.
+  const SANSKRIT: Record<string, string> = {
+    'अश्व': 'Horse', 'गज': 'Elephant', 'मेष': 'Sheep', 'सर्प': 'Serpent',
+    'श्वान': 'Dog', 'मार्जार': 'Cat', 'मूषक': 'Rat', 'गौ': 'Cow',
+    'महिष': 'Buffalo', 'व्याघ्र': 'Tiger', 'मृग': 'Deer', 'वानर': 'Monkey',
+    'नकुल': 'Mongoose', 'सिंह': 'Lion',
+  };
+  const probe = (nak: number) => ({
+    rashiNumber: 1, rashiLord: 'mars' as any, rashiName: 'Mesha',
+    nakshatraIndex: nak - 1, nakshatraNumber: nak, nakshatraName: 'x',
+    nakshatraPada: 1 as const, longitude: 0,
+  });
+  let wrong = 0;
+  for (const [n, animal] of Object.entries(YONI)) {
+    const r = calculateYoniKuta(probe(Number(n)), probe(1));
+    const deva = String(r.groomValue).match(/[\u0900-\u097F]+/)?.[0] ?? '';
+    const got = SANSKRIT[deva] ?? deva;
+    if (got !== animal) { wrong++; console.log(`   x nak ${n}: ${got}, expected ${animal}`); }
+  }
+  check('the yoni table matches the classical list for all 27 nakshatras',
+    wrong === 0, String(wrong));
+
+  // The seven mahavaira pairs must score 0 in both directions.
+  const PAIRS: Array<[number, number]> = [
+    [1, 13], [2, 23], [8, 22], [4, 21], [6, 17], [7, 10], [12, 14],
+  ];
+  const mahavaira = PAIRS.every(([a, b]) =>
+    calculateYoniKuta(probe(a), probe(b)).obtainedScore === 0 &&
+    calculateYoniKuta(probe(b), probe(a)).obtainedScore === 0);
+  check('the seven mahavaira yoni pairs score zero both ways', mahavaira);
+
+  // Same yoni scores full marks.
+  check('a same-yoni pair scores 4', calculateYoniKuta(probe(1), probe(24)).obtainedScore === 4);
+
+  // Nadi: the 27 nakshatras follow the classical 1-2-3-3-2-1 zigzag.
+  const NADI: Record<number, number> = {
+    1:0,2:1,3:2,4:2,5:1,6:0,7:0,8:1,9:2,10:2,11:1,12:0,13:0,14:1,15:2,16:2,
+    17:1,18:0,19:0,20:1,21:2,22:2,23:1,24:0,25:0,26:1,27:2,
+  };
+  let nadiWrong = 0;
+  for (const [n, idx] of Object.entries(NADI)) {
+    const a = calculateNadiKuta(probe(Number(n)), probe(1)).groomValue;
+    const got = /Ādi/.test(String(a)) ? 0 : /Madhya/.test(String(a)) ? 1 : 2;
+    if (got !== idx) nadiWrong++;
+  }
+  check('the nadi table follows the classical zigzag', nadiWrong === 0, String(nadiWrong));
+
+  // Every kuta must sum to the classical 36 and cap at its own maximum.
+  const MAX: Record<string, number> = {
+    varna: 1, vashya: 2, tara: 3, yoni: 4, graha_maitri: 5, gana: 6, bhakuta: 7, nadi: 8,
+  };
+  const all = calculateAllAshtakutas(probe(5), probe(20));
+  check('the eight kutas are all produced', all.length === 8, String(all.length));
+  check('the eight maxima sum to 36',
+    Object.values(MAX).reduce((a, b) => a + b, 0) === 36);
+  const badMax = all.filter((k) => k.maxScore !== MAX[k.id]);
+  check('each kuta carries its classical maximum', badMax.length === 0,
+    badMax.map((k) => `${k.id}:${k.maxScore}`).join(','));
+  const overScore = all.filter((k) => k.obtainedScore > k.maxScore || k.obtainedScore < 0);
+  check('no kuta scores outside its own range', overScore.length === 0,
+    overScore.map((k) => k.id).join(','));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
