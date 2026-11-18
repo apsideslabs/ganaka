@@ -43,14 +43,23 @@ export function calculateKutaMilan(
       ...ashtakutaResults.filter((k) => !SOUTH_ONLY.has(k.id)),
       ...dashakutaExtra,
     ];
-    // 2 + 3 + 4 + 5 + 6 + 7 = 27 from the six shared kūṭas, plus 4 poruthams.
-    maxTotalScore = 31;
+    // The South Indian model does NOT add graded points. Its ten poruthams are
+    // pass/fail gates: a porutham is either present or it is not, and the
+    // reading is "seven of ten", never "24 of 31". So the Daśakūṭa score counts
+    // how many poruthams are present, out of ten, rather than summing the
+    // North's graded weights.
+    maxTotalScore = 10;
   } else {
     finalKutaResults = ashtakutaResults;
     maxTotalScore = 36;
   }
 
-  totalScore = finalKutaResults.reduce((acc, k) => acc + k.obtainedScore, 0);
+  // A porutham counts as present when it scores anything at all — the South
+  // Indian tradition grades nothing, so half of a Tārā still means the Tārā
+  // porutham is there. The North sums the graded weights instead.
+  totalScore = tradition === 'dashakuta'
+    ? finalKutaResults.filter((k) => k.obtainedScore > 0).length
+    : finalKutaResults.reduce((acc, k) => acc + k.obtainedScore, 0);
   const percentageScore = Math.round((totalScore / maxTotalScore) * 100);
 
   // Key critical safety check flags per Muhūrta Cintāmaṇi
