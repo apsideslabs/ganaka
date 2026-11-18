@@ -194,6 +194,18 @@ export function evaluateWealthDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jataka Parijata 10 - the Ashtakavarga chapter.
+  {
+    const sav = (chart.ashtakavarga as any)?.sav;
+    const total = sav?.total ?? 0;
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_ashtakavarga', 'phala_jp_ashtakavarga',
+        [{ id: 'c_jp_av', description: 'The Sarvashtakavarga totals 337 bindus', expected: '337', observed: String(total), met: total === 337 }],
+        'Vaidyanatha arranges the Ashtakavarga so each bhinnashtakavarga sums to its classical figure and the seven together to 337.',
+        CANONICAL_RULES.jataka_parijata_ashtakavarga),
+    );
+  }
+
   return {
     id: 'wealth',
     title: 'Wealth & Resources',
