@@ -16,6 +16,7 @@
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
 import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, calculateVashyaKuta, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
+import { calculateMahendraPorutham, calculateStreeDeerghaPorutham, calculateRajjuPorutham, calculateVedhaPorutham, calculateAllDashakutas } from '../lib/jyotisha/kuta/dashakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CANONICAL_RULES } from '../lib/jyotisha/indications/classical-sources';
@@ -4083,6 +4084,76 @@ console.log('\n== Vivaha kuta tables ==');
   const overScore = all.filter((k) => k.obtainedScore > k.maxScore || k.obtainedScore < 0);
   check('no kuta scores outside its own range', overScore.length === 0,
     overScore.map((k) => k.id).join(','));
+}
+
+/* ---------- THE DASHAKUTA PORUTHAMS MUST MATCH THE TAMIL LISTS ---------- */
+
+console.log('\n== Dashakuta poruthams ==');
+{
+  const p = (nak: number) => ({
+    rashiNumber: 1, rashiLord: 'mars', rashiName: 'x',
+    nakshatraIndex: nak - 1, nakshatraNumber: nak, nakshatraName: `nak${nak}`,
+    nakshatraPada: 1, longitude: 0,
+  }) as any;
+
+  // Mahendra: the groom's star must be the 4th, 7th, 10th ... from the bride's,
+  // i.e. positions congruent to 1 mod 3 starting at 4.
+  const MAHENDRA = new Set([4, 7, 10, 13, 16, 19, 22, 25]);
+  let mahWrong = 0;
+  for (let d = 1; d <= 27; d++) {
+    const r = calculateMahendraPorutham(p(d), p(1));
+    const pass = r.obtainedScore === 1;
+    if (pass !== MAHENDRA.has(d)) mahWrong++;
+  }
+  check('Mahendra passes on exactly the classical octet', mahWrong === 0, String(mahWrong));
+
+  // Stree Deergha: full above 13, half from 7 to 13, none below 7.
+  check('Stree Deergha is full above 13', calculateStreeDeerghaPorutham(p(15), p(1)).obtainedScore === 1);
+  check('Stree Deergha is half between 7 and 13', calculateStreeDeerghaPorutham(p(9), p(1)).obtainedScore === 0.5);
+  check('Stree Deergha is zero below 7', calculateStreeDeerghaPorutham(p(4), p(1)).obtainedScore === 0);
+
+  // Rajju: the five ropes, six stars each except Siro which holds three.
+  const RAJJU: Record<string, number[]> = {
+    'Śiro': [5, 14, 23],
+    'Kaṇṭha': [4, 6, 13, 15, 22, 24],
+    'Nābhi': [3, 7, 12, 16, 21, 25],
+    'Kaṭi': [2, 8, 11, 17, 20, 26],
+    'Pāda': [1, 9, 10, 18, 19, 27],
+  };
+  let rajjuWrong = 0;
+  for (const [limb, stars] of Object.entries(RAJJU)) {
+    for (const n of stars) {
+      const r = calculateRajjuPorutham(p(n), p(1));
+      const got = String(r.groomValue).split(' ')[0];
+      if (got !== limb) { rajjuWrong++; console.log(`   x nak ${n}: ${got}, expected ${limb}`); }
+    }
+  }
+  check('the rajju table matches the five ropes for all 27 nakshatras', rajjuWrong === 0, String(rajjuWrong));
+  check('the rajju groups cover all 27 nakshatras exactly once',
+    Object.values(RAJJU).flat().length === 27 && new Set(Object.values(RAJJU).flat()).size === 27);
+  check('same rajju is a dosha', calculateRajjuPorutham(p(5), p(14)).obtainedScore === 0);
+  check('different rajju passes', calculateRajjuPorutham(p(5), p(4)).obtainedScore === 1);
+
+  // Vedha: the twelve classical pairs plus the Mars triple. Chitra is paired
+  // here (Tamil tradition) where Raman leaves it out.
+  const VEDHA: Array<[number, number]> = [
+    [1,18],[2,17],[3,16],[4,15],[6,22],[7,21],[8,20],[9,19],
+    [10,27],[11,26],[12,25],[13,24],
+    [5,23],[5,14],[14,23],
+  ];
+  let vedhaWrong = 0;
+  for (const [a, b] of VEDHA) {
+    if (calculateVedhaPorutham(p(a), p(b)).obtainedScore !== 0) vedhaWrong++;
+    if (calculateVedhaPorutham(p(b), p(a)).obtainedScore !== 0) vedhaWrong++;
+  }
+  check('every vedha pair is detected in both directions', vedhaWrong === 0, String(vedhaWrong));
+  check('a non-vedha pair passes', calculateVedhaPorutham(p(4), p(23)).obtainedScore === 1);
+
+  // Every porutham must carry its own maximum and stay in range.
+  const all = calculateAllDashakutas(p(5), p(20));
+  check('the four dashakuta poruthams are all produced', all.length === 4, String(all.length));
+  const bad = all.filter((k) => k.obtainedScore > k.maxScore || k.obtainedScore < 0);
+  check('no dashakuta scores outside its range', bad.length === 0, bad.map((k) => k.id).join(','));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
