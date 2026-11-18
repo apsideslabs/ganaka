@@ -3727,6 +3727,21 @@ console.log('\n== Classical rule registry ==');
   const ids = Object.keys(CANONICAL_RULES);
   check('the registry holds a substantial rule set', ids.length >= 36, String(ids.length));
 
+  // A chapter-level citation must not read like a verse-level one. The flag is
+  // the only thing that distinguishes them, so it is pinned here: if someone
+  // marks a rule verified, this test fails until the count is updated
+  // deliberately, and if a rule claims verification without carrying its
+  // Sanskrit that is caught too.
+  const verified = ids.filter((id) => (CANONICAL_RULES as any)[id].verseVerified === true);
+  check('the number of verse-verified rules is pinned', verified.length === 5,
+    `${verified.length}: ${verified.join(',')}`);
+  const verifiedWithoutSanskrit = verified.filter(
+    (id) => !(CANONICAL_RULES as any)[id].sanskritShloka);
+  check('a verse-verified rule must carry its Sanskrit',
+    verifiedWithoutSanskrit.length === 0, verifiedWithoutSanskrit.join(','));
+  check('most rules are honestly marked as chapter-level only',
+    verified.length < ids.length, `${verified.length} of ${ids.length}`);
+
   // Every rule must name a text, a chapter and a description. A rule without a
   // chapter is an assertion, not a citation — which is what this file had
   // before: eleven of its twelve BPHS chapters pointed at the wrong chapter.
