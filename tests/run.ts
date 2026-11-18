@@ -15,7 +15,7 @@
  * them — only these.
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
-import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
+import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, calculateVashyaKuta, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { CANONICAL_RULES } from '../lib/jyotisha/indications/classical-sources';
@@ -4038,6 +4038,36 @@ console.log('\n== Vivaha kuta tables ==');
     if (got !== idx) nadiWrong++;
   }
   check('the nadi table follows the classical zigzag', nadiWrong === 0, String(nadiWrong));
+
+  // Vashya runs on the five classical groups, and two signs are split at 15
+  // degrees. The old code used a whole-sign affinity map and could not see the
+  // split, so every Sagittarius scored the same regardless of the Moon degree.
+  const vp = (rashi: number, lon: number) => ({
+    rashiNumber: rashi, rashiLord: 'mars', rashiName: 'x',
+    nakshatraIndex: 0, nakshatraNumber: 1, nakshatraName: 'x',
+    nakshatraPada: 1, longitude: lon,
+  }) as any;
+  const groupOf = (rashi: number, lon: number) =>
+    String(calculateVashyaKuta(vp(rashi, lon), vp(3, 5)).groomValue).split(' ')[0];
+  check('Sagittarius splits at 15 degrees (Manava / Chatushpada)',
+    groupOf(9, 5) === 'Manava' && groupOf(9, 25) === 'Chatushpada',
+    `${groupOf(9, 5)} / ${groupOf(9, 25)}`);
+  check('Capricorn splits at 15 degrees (Chatushpada / Jalachara)',
+    groupOf(10, 5) === 'Chatushpada' && groupOf(10, 25) === 'Jalachara',
+    `${groupOf(10, 5)} / ${groupOf(10, 25)}`);
+  check('the five classical groups are all reachable',
+    new Set([groupOf(1,5), groupOf(3,5), groupOf(4,5), groupOf(5,5), groupOf(8,5)]).size === 5);
+
+  // The split must actually change the score: Aries is Chatushpada, so it is
+  // the same group as the second half of Sagittarius but not the first.
+  check('the split changes the vashya score',
+    calculateVashyaKuta(vp(1, 5), vp(9, 5)).obtainedScore === 1 &&
+    calculateVashyaKuta(vp(1, 5), vp(9, 25)).obtainedScore === 2,
+    `${calculateVashyaKuta(vp(1, 5), vp(9, 5)).obtainedScore} / ${calculateVashyaKuta(vp(1, 5), vp(9, 25)).obtainedScore}`);
+  check('same group scores the full 2',
+    calculateVashyaKuta(vp(1, 5), vp(1, 5)).obtainedScore === 2);
+  check('the bhakshya pair scores 0',
+    calculateVashyaKuta(vp(1, 5), vp(5, 5)).obtainedScore === 0);
 
   // Every kuta must sum to the classical 36 and cap at its own maximum.
   const MAX: Record<string, number> = {
