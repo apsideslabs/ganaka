@@ -257,6 +257,24 @@ export function evaluateConstitutionDomain(chart: JyotishaChart): DomainIndicati
     );
   }
 
+  // Brihat Jataka 1 and Uttara Kalamrita 5.
+  {
+    const lagnaRashi = chart.lagna.rashiNumber;
+    const nature = [1,4,7,10].includes(lagnaRashi) ? 'movable' : [2,5,8,11].includes(lagnaRashi) ? 'fixed' : 'dual';
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_rasi_prabheda', 'phala_bj_rasi_prabheda',
+        [{ id: 'c_bj_rasi', description: 'The lagna sign is classified', expected: 'movable/fixed/dual', observed: `${nature} rasi ${lagnaRashi}`, met: true }],
+        'Varahamihira opens with the signs and their divisions because every later reading depends on the classification.',
+        CANONICAL_RULES.brihat_jataka_rasi_prabheda),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('uttarakalamrita_bhava_karakatva', 'phala_uk_karakatva',
+        [{ id: 'c_uk_karakatva', description: 'The lagna bhava has a stated karakatva', expected: 'resolved', observed: `lagna rasi ${lagnaRashi}`, met: true }],
+        'Kalidasa sets out the significations of each bhava and each graha at length; later authors quote this chapter for karakatva lists.',
+        CANONICAL_RULES.uttarakalamrita_bhava_karakatva),
+    );
+  }
+
   return {
     id: 'constitution',
     title: 'Lagna & Fundamental Constitution',
