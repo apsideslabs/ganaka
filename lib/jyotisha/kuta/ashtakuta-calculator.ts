@@ -305,20 +305,25 @@ export function calculateTaraKuta(groom: PersonLunarData, bride: PersonLunarData
 // 4. Sarpa (Serpent): Rohiṇī, Mṛgaśīrṣā
 // 5. Śvā (Dog): Ārdrā, Mūla
 // 6. Mārjāra (Cat): Punarvasu, Āśleṣā
-// 7. Siṃha (Lion): Maghā, Pūrva Phālgunī
+// 7. Mūṣaka (Rat): Maghā, Pūrva Phālgunī
 // 8. Go (Cow): Uttara Phālgunī, Uttara Bhādrapadā
 // 9. Mahiṣa (Buffalo): Hasta, Svātī
 // 10. Vyāghra (Tiger): Citrā, Viśākhā
 // 11. Mṛga (Deer): Anurādhā, Jyeṣṭhā
 // 12. Vānara (Monkey): Pūrvāṣāḍhā, Śravaṇa
 // 13. Nakula (Mongoose): Uttarāṣāḍhā, Abhijit (or just Uttarāṣāḍhā)
-// 14. Mūṣaka (Rat): Dhaniṣṭhā, Pūrva Bhādrapadā
+// 14. Siṃha (Lion): Dhaniṣṭhā, Pūrva Bhādrapadā
 interface YoniClassification {
   animal: string;
   sanskrit: string;
   gender: 'Male' | 'Female';
 }
 
+// Maghā and Pūrva Phālgunī are the RAT (Mūṣaka); Dhaniṣṭhā and Pūrva Bhādrapadā
+// are the LION (Siṃha). These four were swapped here, which put a Maghā native
+// in the Lion yoni — enemy of the Elephant — instead of the Rat yoni, enemy of
+// the Cat. Four of the twenty-seven nakṣatras therefore scored against the
+// wrong sworn-enmity pair, and Yoni carries 4 of the 36 points.
 const NAKSHATRA_YONI_TABLE: Record<number, YoniClassification> = {
   1: { animal: 'Horse', sanskrit: 'अश्व (Aśva)', gender: 'Male' },
   2: { animal: 'Elephant', sanskrit: 'गज (Gaja)', gender: 'Male' },
@@ -329,8 +334,8 @@ const NAKSHATRA_YONI_TABLE: Record<number, YoniClassification> = {
   7: { animal: 'Cat', sanskrit: 'मार्जार (Mārjāra)', gender: 'Female' },
   8: { animal: 'Sheep', sanskrit: 'मेष (Meṣa)', gender: 'Male' },
   9: { animal: 'Cat', sanskrit: 'मार्जार (Mārjāra)', gender: 'Male' },
-  10: { animal: 'Lion', sanskrit: 'सिंह (Siṃha)', gender: 'Male' },
-  11: { animal: 'Lion', sanskrit: 'सिंह (Siṃha)', gender: 'Female' },
+  10: { animal: 'Rat', sanskrit: 'मूषक (Mūṣaka)', gender: 'Male' },
+  11: { animal: 'Rat', sanskrit: 'मूषक (Mūṣaka)', gender: 'Female' },
   12: { animal: 'Cow', sanskrit: 'गौ (Go)', gender: 'Male' },
   13: { animal: 'Buffalo', sanskrit: 'महिष (Mahiṣa)', gender: 'Female' },
   14: { animal: 'Tiger', sanskrit: 'व्याघ्र (Vyāghra)', gender: 'Female' },
@@ -342,9 +347,9 @@ const NAKSHATRA_YONI_TABLE: Record<number, YoniClassification> = {
   20: { animal: 'Monkey', sanskrit: 'वानर (Vānara)', gender: 'Male' },
   21: { animal: 'Mongoose', sanskrit: 'नकुल (Nakula)', gender: 'Male' },
   22: { animal: 'Monkey', sanskrit: 'वानर (Vānara)', gender: 'Female' },
-  23: { animal: 'Rat', sanskrit: 'मूषक (Mūṣaka)', gender: 'Female' },
+  23: { animal: 'Lion', sanskrit: 'सिंह (Siṃha)', gender: 'Female' },
   24: { animal: 'Horse', sanskrit: 'अश्व (Aśva)', gender: 'Female' },
-  25: { animal: 'Rat', sanskrit: 'मूषक (Mūṣaka)', gender: 'Male' },
+  25: { animal: 'Lion', sanskrit: 'सिंह (Siṃha)', gender: 'Male' },
   26: { animal: 'Cow', sanskrit: 'गौ (Go)', gender: 'Female' },
   27: { animal: 'Elephant', sanskrit: 'गज (Gaja)', gender: 'Female' },
 };
@@ -394,9 +399,17 @@ export function calculateYoniKuta(groom: PersonLunarData, bride: PersonLunarData
     conditionStr = `Mahāvaira / Sworn Enmity (${gYoni.animal} vs ${bYoni.animal})`;
     explanation = `The Yonis represent natural sworn predatory enemies in nature (${gYoni.animal} and ${bYoni.animal}). Classical treatises designate this as Mahāvaira Yoni Doṣa (0 points).`;
   } else {
-    // Friendly vs Neutral vs Unfriendly scoring
-    // Friends = 3, Neutral = 2, Unfriendly = 1
-    // Animals of same genus or harmless herbivores (e.g. Deer & Cow) score 3.
+    // Friendly vs Neutral vs Unfriendly scoring.
+    //
+    // KNOWN GAP: the classical table is a full 14×14 matrix with five tiers —
+    // 4 same, 3 friendly, 2 neutral, 1 unfriendly, 0 sworn enemy. Only the 4 and
+    // the 0 are agreed across traditions; the three middle tiers are laid out
+    // differently in the North Indian, Tamil and Muhūrta Cintāmaṇi-derived
+    // tables, and no single matrix is authoritative. This awards 3 or 2 on a
+    // herbivore heuristic and never awards 1, so an "unfriendly" pair scores 2
+    // where some tables would give 1. The 0 (mahāvaira) and 4 (same) cases,
+    // which are the two the texts agree on and which carry the verdict, are
+    // exact.
     const HERBIVORES = ['Horse', 'Elephant', 'Sheep', 'Cow', 'Buffalo', 'Deer'];
     const isBothHerbivore = HERBIVORES.includes(gYoni.animal) && HERBIVORES.includes(bYoni.animal);
 
