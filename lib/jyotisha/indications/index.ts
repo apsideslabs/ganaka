@@ -26,7 +26,7 @@ import { evaluateHealthDomain } from './evaluators/health';
 import { evaluateSpiritualityDomain } from './evaluators/spirituality';
 import { evaluateStatusDomain } from './evaluators/status';
 import { evaluateLifeThemesDomain } from './evaluators/life-themes';
-import { getHouseLord, getCharaKarakaPlanet, GRAHA_SANSKRIT_NAMES } from './shared-utils';
+import { getHouseLord, getCharaKarakaPlanet, GRAHA_SANSKRIT_NAMES, bhavaRuleConditions } from './shared-utils';
 
 export * from './types';
 export * from './classical-sources';
@@ -78,6 +78,37 @@ export function generateClassicalChartIndications(chart: JyotishaChart): Classic
     status,
     life_themes,
   };
+
+  // Deepen every phala to the conditions its bhāva chapter actually states.
+  //
+  // The evaluators test the placement of the bhāva lord, which is the first
+  // condition each chapter gives — but every one of them qualifies it with the
+  // lord's strength, its combustion and the bhāva's own bindus, and BPHS 24
+  // makes the whole chapter conditional on that scaling. Sixty of seventy-six
+  // phalas were reporting "met" on placement alone. The three further tests are
+  // appended here, once, so every domain gets them without twelve copies.
+  for (const id of Object.keys(domains) as DomainId[]) {
+    const d = domains[id];
+    const house = d.primaryBhavas?.[0];
+    if (!house) continue;
+    const lordId = getHouseLord(chart, house).id;
+    for (const phala of d.directClassicalPhalas ?? []) {
+      // Only bhāva-lord rules take these. Argala, nābhasa, kārakāṃśa and daśā
+      // rules state their own conditions; grafting bhāva-lord tests onto them
+      // would invent requirements their chapters do not make.
+      const isBhavaLordRule = (phala.conditions ?? [])
+        .some((c) => /lord/i.test(String(c.description ?? '')));
+      if (!isBhavaLordRule) continue;
+      const existing = new Set((phala.conditions ?? []).map((c) => c.id));
+      const extra = bhavaRuleConditions(chart, house, lordId).filter((c) => !existing.has(c.id));
+      if (!extra.length) continue;
+      phala.conditions = [...(phala.conditions ?? []), ...extra];
+      // Re-derive the verdict: a rule met on placement but with a combust or
+      // strengthless lord is not met.
+      phala.allConditionsMet = phala.conditions.every((c) => c.met);
+      phala.verificationLevel = phala.allConditionsMet ? 'Fully Verified' : 'Condition Not Met';
+    }
+  }
 
   // Extract highest Shadbala planet
   let strongestPlanetName = 'Sūrya';
