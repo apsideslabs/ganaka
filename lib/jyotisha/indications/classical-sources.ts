@@ -141,10 +141,12 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   jataka_parijata_indu_lagna: {
     id: 'jataka_parijata_indu_lagna',
     sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
-    chapterAndVerse: 'Adhyāya 7, Śloka 56–60',
+    chapterAndVerse: 'Adhyāya 11 (Prathamadvitīyabhāvaphala)',
     sanskritTitle: 'इन्दुलग्न धनविचारः',
     sanskritShloka: 'इन्दुलग्ने शुभैर्युक्ते धनवान् कीर्तिमान् भवेत्। पापैरल्पधनी ज्ञेयो मिश्रैर्मिश्रफलं वदेत्॥',
     editionOrManuscript: 'Jātaka Pārijāta, V. Subrahmanya Sastri ed.',
+    textualDisagreementNotes:
+      'This rule previously cited Adhyāya 7, Śloka 56–60. Adhyāya 7 is the Rājayoga chapter of 181 verses, so the citation cannot be right. The wealth lagnas belong with the first and second houses, Adhyāya 11. The chapter is relocated here; the verse number is not verified against a printed edition and is therefore not stated. The Sanskrit verse carried above has not been checked against a printed text either.',
     ruleDescription:
       'Evaluation of Indu Lagna: Natural benefics situated in or aspecting Indu Lagna bestow sustained financial fortune without sudden bankruptcy; malefics indicate intermittent financial stress.',
     scopeAndConditions:
@@ -1032,6 +1034,109 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     editionOrManuscript: 'P.S. Sastri (Ranjan Publications)',
     textualDisagreementNotes:
       'Sastri\'s division of Kāṇḍa 2 into two chapters is his own; the original gives no such break. Verse numbers follow Sastri, not Sareen.',
+  },
+
+  // ==========================================
+  // Jātaka Pārijāta — 18 adhyāyas, Vaidyanātha Dīkṣita
+  // ==========================================
+  jataka_parijata_jataka_bhanga: {
+    id: 'jataka_parijata_jataka_bhanga',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 6 (Jātakabhaṅga), Śloka 1–102',
+    sanskritTitle: 'जातकभङ्गाध्यायः',
+    ruleDescription:
+      'Yogas that spoil a chart: the combinations that break a good horoscope and leave the native learned but poor, or well-born but low in conduct. Vaidyanātha gives 102 verses to the subject — the most sustained treatment of chart-spoiling in the corpus, ahead of Sārāvalī\'s 24.',
+    scopeAndConditions:
+      'The spoiling graha or combination, the yoga it damages, and whether any benefic relief survives.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+    textualDisagreementNotes:
+      'This is the third classical source for yoga-nāśaka alongside BPHS 6.53 and Sārāvalī 38. Vaidyanātha is the fullest; BPHS the shortest.',
+  },
+
+  jataka_parijata_raja_yoga: {
+    id: 'jataka_parijata_raja_yoga',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 7 (Rājayoga), Śloka 1–181',
+    sanskritTitle: 'राजयोगाध्यायः',
+    ruleDescription:
+      'The longest rāja-yoga chapter in the corpus at 181 verses: kendra–trikoṇa combinations, Parvata yoga (7.128), Kahala yoga (7.130) and Matsya yoga (7.146), among others. Vaidyanātha differs from Sārāvalī on Matsya — he puts malefics, not benefics, in the lagna and the ninth.',
+    scopeAndConditions:
+      'The named combination, with the strength of its participants deciding whether it holds.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+    textualDisagreementNotes:
+      'Matsya yoga is the clearest disagreement between this text and Sārāvalī: Vaidyanātha requires malefics in the lagna and ninth, and verse 7.146 opens लग्नधर्मगते पापे, "a malefic in the lagna and the ninth". A reading must name which text it followed.',
+  },
+
+  jataka_parijata_dvi_graha: {
+    id: 'jataka_parijata_dvi_graha',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 8 (Dviyādigrahayoga), Śloka 1–118',
+    sanskritTitle: 'द्व्यादिग्रहयोगाध्यायः',
+    ruleDescription:
+      'Two or more grahas together, read as one unit: every pair, then triples and larger groups, each with its stated result. At 118 verses it is the fullest treatment of multiple conjunctions.',
+    scopeAndConditions:
+      'The grahas sharing a sign, their individual dignities, and the count.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+  },
+
+  jataka_parijata_bhava_1_2: {
+    id: 'jataka_parijata_bhava_1_2',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 11 (Prathamadvitīyabhāvaphala), Śloka 1–95',
+    sanskritTitle: 'प्रथमद्वितीयभावफलाध्यायः',
+    ruleDescription:
+      'The first and second houses: the body, the self, and wealth. The chapter covers Indu Lagna among the wealth indicators, which is why the wealth-lagna rule above is cited here.',
+    scopeAndConditions:
+      'Lagna lord and occupants for the body; 2nd lord, occupants and Indu Lagna for wealth.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+  },
+
+  jataka_parijata_bhava_5_6: {
+    id: 'jataka_parijata_bhava_5_6',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 13 (Pañcamaṣaṣṭhabhāvaphala), Śloka 1–80',
+    sanskritTitle: 'पञ्चमषष्ठभावफलाध्यायः',
+    ruleDescription:
+      'The fifth and sixth houses: children and learning on one side, disease and enemies on the other. Vaidyanātha pairs them in one chapter, which is worth noting — the texts often treat a bhāva\'s opposite as its context.',
+    scopeAndConditions:
+      '5th lord and occupants for children; 6th lord and occupants for disease.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+  },
+
+  jataka_parijata_bhava_7_8_9: {
+    id: 'jataka_parijata_bhava_7_8_9',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 14 (Saptamāṣṭamanavabhāvaphala), Śloka 1–103',
+    sanskritTitle: 'सप्तमाष्टमनवमभावफलाध्यायः',
+    ruleDescription:
+      'The seventh, eighth and ninth houses: the spouse, longevity and fortune, treated together in 103 verses. The chapter calls the 7th by the name of Kandarpa, the god of love.',
+    scopeAndConditions:
+      '7th lord for the spouse, 8th lord for longevity, 9th lord for fortune.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+  },
+
+  jataka_parijata_bhava_10_11_12: {
+    id: 'jataka_parijata_bhava_10_11_12',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 15 (Daśamaikādaśadvādaśabhāvaphala), Śloka 1–83',
+    sanskritTitle: 'दशमैकादशद्वादशभावफलाध्यायः',
+    ruleDescription:
+      'The tenth, eleventh and twelfth houses: profession, gain and expenditure. The last three bhavas are read together because gain and loss are one account.',
+    scopeAndConditions:
+      '10th lord for profession, 11th for income, 12th for expenditure.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
+  },
+
+  jataka_parijata_ashtakavarga: {
+    id: 'jataka_parijata_ashtakavarga',
+    sourceText: 'Jātaka Pārijāta (Vaidyanātha Dīkṣita)',
+    chapterAndVerse: 'Adhyāya 10 (Aṣṭakavargādhyāya), Śloka 1–72',
+    sanskritTitle: 'अष्टकवर्गाध्यायः',
+    ruleDescription:
+      'The Aṣṭakavarga: the bindu contributions and the Sarvāṣṭakavarga totals. Vaidyanātha\'s arrangement matches BPHS in the totals — each BAV sums to its classical figure and the seven together to 337 — while differing in presentation.',
+    scopeAndConditions:
+      'The bhinnāṣṭakavarga of each graha and the Sarvāṣṭakavarga of each sign.',
+    editionOrManuscript: 'V. Subrahmanya Sastri ed.',
   },
 
 };
