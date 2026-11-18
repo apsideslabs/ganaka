@@ -228,6 +228,27 @@ export function evaluateMarriageDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Jataka Parijata 6 and 14 - chart-spoiling, and the 7th with 8th and 9th.
+  {
+    const l7 = getHouseLord(chart, 7); const l7p: any = chart.planets[l7.id];
+    const l9 = getHouseLord(chart, 9); const l9p: any = chart.planets[l9.id];
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_bhava_7_8_9', 'phala_jp_bhava_7_8_9',
+        [
+          { id: 'c_jp_7th', description: '7th lord not in a trika house', expected: 'not 6/8/12', observed: `House ${l7p?.house}`, met: ![6,8,12].includes(l7p?.house ?? 0) },
+          { id: 'c_jp_9th', description: '9th lord in a kendra or trikona', expected: '1/4/7/10 or 5/9', observed: `House ${l9p?.house}`, met: [1,4,7,10,5,9].includes(l9p?.house ?? 0) },
+        ],
+        'Vaidyanatha reads the 7th, 8th and 9th together: the spouse, longevity and fortune share a chapter because they share the same axis.',
+        CANONICAL_RULES.jataka_parijata_bhava_7_8_9),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('jataka_parijata_jataka_bhanga', 'phala_jp_bhanga',
+        [{ id: 'c_jp_bhanga', description: 'The 7th lord is not combust or debilitated without cancellation', expected: 'unafflicted', observed: `${l7p?.dignity}, combust ${l7p?.isCombust}`, met: !(l7p?.isCombust || String(l7p?.dignity ?? '').startsWith('Debilitated')) }],
+        'Vaidyanatha gives 102 verses to yogas that spoil a chart — the fullest treatment of chart-spoiling in the corpus.',
+        CANONICAL_RULES.jataka_parijata_jataka_bhanga),
+    );
+  }
+
   return {
     id: 'marriage',
     title: 'Marriage & Partnership',
