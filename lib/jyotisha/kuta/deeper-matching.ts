@@ -112,52 +112,100 @@ export function evaluateDeeperHoroscopeMatching(groomChart: JyotishaChart, bride
       : 'Upapada displacement requires dedicated communication to harmonize domestic expectations.';
 
   // 5. Kuja Doṣa Sāmya (Mangala Balancement)
-  const gMarsHouse = groomChart.planets.mars.house;
-  const bMarsHouse = brideChart.planets.mars.house;
+  //
+  // Kuja doṣa is read from THREE reference points, not one: the lagna, the Moon
+  // and Venus. This previously used the lagna alone, which is why it would
+  // disagree with a pandit reading the same chart — the Moon-based check in
+  // particular is the one many families actually follow, and a chart can be
+  // free of the doṣa from the lagna while carrying it from the Moon.
   const KUJA_HOUSES = [1, 2, 4, 7, 8, 12];
 
-  const gHasKuja = KUJA_HOUSES.includes(gMarsHouse);
-  const bHasKuja = KUJA_HOUSES.includes(bMarsHouse);
+  const houseFrom = (chart: any, planet: string, refRashi: number): number => {
+    const r = chart.planets?.[planet]?.rashiNumber ?? 1;
+    return ((r - refRashi + 12) % 12) + 1;
+  };
 
-  // Check classical cancellations
-  const gMarsRashi = groomChart.planets.mars.rashiNumber;
-  const bMarsRashi = brideChart.planets.mars.rashiNumber;
-  const gCancelled = [1, 8, 10].includes(gMarsRashi); // Own sign or exalted
-  const bCancelled = [1, 8, 10].includes(bMarsRashi);
+  const kujaFrom = (chart: any) => {
+    const lagnaRashi = chart.lagna?.rashiNumber ?? 1;
+    const moonRashi = chart.planets?.moon?.rashiNumber ?? 1;
+    const venusRashi = chart.planets?.venus?.rashiNumber ?? 1;
+    const fromLagna = houseFrom(chart, 'mars', lagnaRashi);
+    const fromMoon = houseFrom(chart, 'mars', moonRashi);
+    const fromVenus = houseFrom(chart, 'mars', venusRashi);
+    const hits = [
+      { ref: 'lagna', house: fromLagna, afflicted: KUJA_HOUSES.includes(fromLagna) },
+      { ref: 'Moon', house: fromMoon, afflicted: KUJA_HOUSES.includes(fromMoon) },
+      { ref: 'Venus', house: fromVenus, afflicted: KUJA_HOUSES.includes(fromVenus) },
+    ];
+    return { hits, afflicted: hits.some((h) => h.afflicted), houses: hits.filter((h) => h.afflicted).map((h) => h.house) };
+  };
+
+  const gKuja = kujaFrom(groomChart);
+  const bKuja = kujaFrom(brideChart);
+
+  // Classical cancellations. Own sign (Aries, Scorpio) and exaltation
+  // (Capricorn) are the narrow reading; the broader one also exempts Mars
+  // aspected by or conjoined with Jupiter or the Moon, which is what most
+  // working astrologers apply. Both are collected so the reader can see which
+  // fired.
+  const cancellations = (chart: any): string[] => {
+    const out: string[] = [];
+    const mars: any = chart.planets?.mars;
+    const rashi = mars?.rashiNumber ?? 0;
+    if (rashi === 1) out.push('Mars in own sign (Meṣa)');
+    if (rashi === 8) out.push('Mars in own sign (Vṛścika)');
+    if (rashi === 10) out.push('Mars exalted (Makara)');
+    const marsHouse = mars?.house ?? 0;
+    const jup: any = chart.planets?.jupiter;
+    const moon: any = chart.planets?.moon;
+    if (jup?.house === marsHouse) out.push('Mars conjunct Jupiter');
+    if (moon?.house === marsHouse) out.push('Mars conjunct the Moon');
+    // Jupiter aspects the 5th, 7th and 9th from itself; the Moon the 7th.
+    const fromJup = ((marsHouse - (jup?.house ?? 0) + 12) % 12) + 1;
+    if ([5, 7, 9].includes(fromJup)) out.push('Mars aspected by Jupiter');
+    const fromMoon = ((marsHouse - (moon?.house ?? 0) + 12) % 12) + 1;
+    if (fromMoon === 7) out.push('Mars aspected by the Moon');
+    return out;
+  };
+
+  const gCancel = cancellations(groomChart);
+  const bCancel = cancellations(brideChart);
+  const gCancelled = gKuja.afflicted && gCancel.length > 0;
+  const bCancelled = bKuja.afflicted && bCancel.length > 0;
 
   let neutralizationStatus: MangalaDoshaComparison['neutralizationStatus'];
   let mangalaVerdict = '';
 
-  if (!gHasKuja && !bHasKuja) {
+  if (!gKuja.afflicted && !bKuja.afflicted) {
     neutralizationStatus = 'Both Free of Affliction';
-    mangalaVerdict = 'Both horoscopes are naturally free of Kuja / Maṅgala Doṣa. Completely serene energetic balance.';
-  } else if (gHasKuja && bHasKuja) {
+    mangalaVerdict = 'Neither chart carries Kuja / Maṅgala Doṣa from the lagna, the Moon or Venus.';
+  } else if (gKuja.afflicted && bKuja.afflicted) {
     neutralizationStatus = 'Sama-Kuja (Perfect Balancement)';
-    mangalaVerdict = 'Both charts possess Kuja Doṣa, fulfilling classical Kuja Sāmya (कुज साम्य). Equal martial energies neutralize each other completely.';
+    mangalaVerdict = 'Both charts carry Kuja Doṣa, fulfilling classical Kuja Sāmya (कुज साम्य). Equal martial energies neutralize each other.';
   } else if (gCancelled || bCancelled) {
     neutralizationStatus = 'Mitigated by Parihāra';
-    mangalaVerdict = 'Kuja affliction is rendered benign through classical cancellation (own sign or exalted Mars).';
+    mangalaVerdict = `Kuja affliction is rendered benign by classical cancellation: ${[...gCancel, ...bCancel].join('; ')}.`;
   } else {
     neutralizationStatus = 'One-Sided Affliction';
-    mangalaVerdict = 'Asymmetric Kuja Doṣa: one partner possesses unmitigated Martian placement while the other does not. Classical texts advise caution or specific remedial vows.';
+    mangalaVerdict = 'Asymmetric Kuja Doṣa: one partner carries an unmitigated Martian placement while the other does not. Classical texts advise caution or specific remedial vows.';
   }
 
   const mangalaComparison: MangalaDoshaComparison = {
     groom: {
-      hasDosha: gHasKuja,
+      hasDosha: gKuja.afflicted,
       isCancelled: gCancelled,
-      severity: !gHasKuja ? 'None' : gCancelled ? 'Mild' : 'Medium',
-      afflictedHouses: gHasKuja ? [gMarsHouse] : [],
+      severity: !gKuja.afflicted ? 'None' : gCancelled ? 'Mild' : gKuja.houses.length >= 2 ? 'High' : 'Medium',
+      afflictedHouses: gKuja.houses,
       cancellationReasons: gCancelled ? ['Mars in own sign or exaltation (Aries, Scorpio, or Capricorn)'] : [],
-      description: `Mars is in House ${gMarsHouse} (${RASHIS[gMarsRashi].sanskritName}).`,
+      description: `Mars in House ${gKuja.hits.map((h) => `${h.house} from ${h.ref}`).join(', ')} (${RASHIS[groomChart.planets.mars.rashiNumber].sanskritName}).`,
     },
     bride: {
-      hasDosha: bHasKuja,
+      hasDosha: bKuja.afflicted,
       isCancelled: bCancelled,
-      severity: !bHasKuja ? 'None' : bCancelled ? 'Mild' : 'Medium',
-      afflictedHouses: bHasKuja ? [bMarsHouse] : [],
+      severity: !bKuja.afflicted ? 'None' : bCancelled ? 'Mild' : bKuja.houses.length >= 2 ? 'High' : 'Medium',
+      afflictedHouses: bKuja.houses,
       cancellationReasons: bCancelled ? ['Mars in own sign or exaltation (Aries, Scorpio, or Capricorn)'] : [],
-      description: `Mars is in House ${bMarsHouse} (${RASHIS[bMarsRashi].sanskritName}).`,
+      description: `Mars in House ${bKuja.hits.map((h) => `${h.house} from ${h.ref}`).join(', ')} (${RASHIS[brideChart.planets.mars.rashiNumber].sanskritName}).`,
     },
     neutralizationStatus,
     verdict: mangalaVerdict,
