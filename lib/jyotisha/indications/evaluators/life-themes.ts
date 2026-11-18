@@ -170,6 +170,23 @@ export function evaluateLifeThemesDomain(chart: JyotishaChart): DomainIndication
     );
   }
 
+  // Brihat Jataka 12 and Uttara Kalamrita 6.
+  {
+    const occupied = (chart.bhavas as any[]).filter((b: any) => (b.occupants?.length ?? 0) > 0).length;
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_nabhasa', 'phala_bj_nabhasa',
+        [{ id: 'c_bj_nabhasa', description: 'The grahas distribute across the signs for a Nabhasa reading', expected: '>= 1 occupied bhava', observed: String(occupied), met: occupied >= 1 }],
+        'The Nabhasa yogas form by how the seven grahas distribute across movable, fixed and dual signs; they act throughout life and are not tied to a dasha.',
+        CANONICAL_RULES.brihat_jataka_nabhasa),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('uttarakalamrita_dasha_phala', 'phala_uk_dasha',
+        [{ id: 'c_uk_dasha', description: 'The running mahadasha lord is known', expected: 'dasha resolved', observed: String((chart.vimshottari as any)?.tree?.[0]?.lord ?? 'n/a'), met: !!(chart.vimshottari as any)?.tree?.[0]?.lord }],
+        'Kalidasa states the nine avasthas first because they decide what a graha dasa can give, then pairs each mahadasha with its sub-periods.',
+        CANONICAL_RULES.uttarakalamrita_dasha_phala),
+    );
+  }
+
   return {
     id: 'life_themes',
     title: 'Major Life Tendencies & Chart Emphasis',
