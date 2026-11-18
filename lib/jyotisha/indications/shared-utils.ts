@@ -395,3 +395,60 @@ export function phalaFromRule(
     reconciliationNotes: r.textualDisagreementNotes,
   };
 }
+
+/**
+ * The conditions every bhāva rule in this corpus actually states.
+ *
+ * Sixty of the seventy-six phalas tested a single condition — the lord's house
+ * placement — and reported "met" on that alone. But every bhāva chapter of
+ * BPHS, Phaladīpikā and Jātaka Pārijāta qualifies the placement with at least
+ * three further tests, and BPHS 24's closing verses make the whole chapter
+ * conditional on them:
+ *
+ *   "adjust results according to planetary strength, with full, half or quarter
+ *    results for full, medium or low strength."
+ *
+ * So a rule that fires on placement while the lord is combust, or the bhāva
+ * carries no bindus, is not met — it is a rule read halfway.
+ *
+ * Returns the three additional conditions the texts state. Callers spread them
+ * after their own placement test.
+ */
+export function bhavaRuleConditions(
+  chart: JyotishaChart,
+  house: number,
+  lordId: PlanetId
+): RuleCondition[] {
+  const lord: any = (chart.planets as any)[lordId];
+  const bindus = getHouseSAVBindus(chart, house);
+  const dignity = String(lord?.dignity ?? '');
+  const debilitated = dignity.startsWith('Debilitated');
+
+  // Only conditions that DESTROY a bhāva result are gates. Strength is not one:
+  // BPHS 24 closes by scaling a result to half or a quarter for a medium or low
+  // lord, so a weak lord still gives something. Treating it as a gate made
+  // almost every rule fail, which is not what the text says.
+  return [
+    {
+      id: `c_combust_h${house}`,
+      description: `The ${house}th lord is not burnt by the Sun`,
+      expected: 'not combust',
+      observed: lord?.isCombust ? 'combust' : 'not combust',
+      met: !lord?.isCombust,
+    },
+    {
+      id: `c_dignity_h${house}`,
+      description: `The ${house}th lord is not debilitated without cancellation`,
+      expected: 'not debilitated',
+      observed: dignity || 'unknown',
+      met: !debilitated,
+    },
+    {
+      id: `c_bindus_h${house}`,
+      description: `The ${house}th bhāva is not destitute of aṣṭakavarga bindus`,
+      expected: 'SAV bindus >= 20',
+      observed: `${bindus} bindus`,
+      met: bindus >= 20,
+    },
+  ];
+}
