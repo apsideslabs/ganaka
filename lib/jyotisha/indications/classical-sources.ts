@@ -171,7 +171,7 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
   uttarakalamrita_saraswati_yoga: {
     id: 'uttarakalamrita_saraswati_yoga',
     sourceText: 'Uttarakālāmṛta (Kālidāsa)',
-    chapterAndVerse: 'Kāṇḍa 4, Śloka 22–25',
+    chapterAndVerse: 'Kāṇḍa 4 (Grahabhāvaphala), Śloka 22–30',
     sanskritTitle: 'सरस्वती योग लक्षणम्',
     sanskritShloka: 'केन्द्रत्रिकोणगे जीवे बुधे शुक्रे च सुस्थिते। सरस्वती योगजातः सर्वशास्त्रविशारदः॥',
     editionOrManuscript: 'Uttarakālāmṛta ed. V. Subrahmanya Sastri',
@@ -893,6 +893,145 @@ export const CANONICAL_RULES: Record<string, ClassicalRuleCitation> = {
     scopeAndConditions:
       'The 3rd from the Upapada and its occupants.',
     editionOrManuscript: 'B. Suryanarain Rao, Raman Publications (1949)',
+  },
+
+  // ==========================================
+  // Bṛhat Jātaka — 28 chapters, GRETIL verse counts
+  // ==========================================
+  brihat_jataka_rasi_prabheda: {
+    id: 'brihat_jataka_rasi_prabheda',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 1 (Rāśiprabheda), Śloka 1–20',
+    ruleDescription:
+      'The signs and their divisions: which sign is movable, fixed or dual; which is diurnal or nocturnal; the exaltations and the limbs each sign governs. Varāhamihira opens the work here because every later reading depends on these classifications.',
+    scopeAndConditions:
+      'The sign\'s modality, its lord, and the exaltation degree of each graha within it.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL (Mizue Sugita, 2020)',
+    textualDisagreementNotes:
+      'Varāhamihira classifies by sign where Parāśara classifies by graha. The two systems answer different questions and are not interchangeable.',
+  },
+
+  brihat_jataka_graha_bheda: {
+    id: 'brihat_jataka_graha_bheda',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 2 (Grahayonibheda), Śloka 1–21',
+    ruleDescription:
+      'The planets: their natures, castes, sexes, aspects, natural and temporary friendships, and the ṣaḍbala. This chapter is where Varāhamihira sets out the temporary friendship (tātkālika) that Parāśara treats separately.',
+    scopeAndConditions:
+      'Natural friendship by sign ownership, temporary friendship by mutual house distance, and the resulting combined relation.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+    textualDisagreementNotes:
+      'Bṛhat Jātaka\'s five-fold relation (natural, temporary, and their combination into five grades) is the source later texts follow; BPHS states it more briefly.',
+  },
+
+  brihat_jataka_raja_yoga: {
+    id: 'brihat_jataka_raja_yoga',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 11 (Rājayoga), Śloka 1–20',
+    ruleDescription:
+      'Combinations for power and authority, and for their loss: kingship, political power, weak rāja yogas that fail, and the servitude that follows a broken one.',
+    scopeAndConditions:
+      'Kendra and trikoṇa lord relations, with the strength of the participants deciding whether the yoga holds.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+  },
+
+  brihat_jataka_nabhasa: {
+    id: 'brihat_jataka_nabhasa',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 12 (Nābhasa Yoga), Śloka 1–19',
+    ruleDescription:
+      'The Nābhasa yogas in Varāhamihira\'s arrangement: the Āśraya, Ākṛti and Saṃkhyā families, formed by how the seven grahas distribute across the signs. These act throughout life and are not tied to a daśā.',
+    scopeAndConditions:
+      'The distribution of the seven grahas across movable, fixed and dual signs, and the count in each house.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+    textualDisagreementNotes:
+      'Varāhamihira gives 19 verses here where BPHS Ch. 35 gives the full 32-yoga catalogue. The families agree; the individual names do not always.',
+  },
+
+  brihat_jataka_chandra_sila: {
+    id: 'brihat_jataka_chandra_sila',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 17 (Candrarāśiśīla), Śloka 1–13',
+    ruleDescription:
+      'Character by the Moon\'s sign — the temperament the native carries from the lunar placement, read independently of the lagna. Varāhamihira gives a whole chapter to it, which the Parāśarī texts fold into the general reading.',
+    scopeAndConditions:
+      'The Moon\'s sign alone, with its lord and any graha conjoined.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+  },
+
+  brihat_jataka_nakshatra_sila: {
+    id: 'brihat_jataka_nakshatra_sila',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 16 (Nakṣatraśīla), Śloka 1–14',
+    ruleDescription:
+      'Character by the birth nakṣatra: the mental and physical traits each of the 27 nakṣatras is said to give. Read alongside the Moon\'s sign, not instead of it.',
+    scopeAndConditions:
+      'The janma nakṣatra of the Moon.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+  },
+
+  brihat_jataka_bhava: {
+    id: 'brihat_jataka_bhava',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 20 (Bhāva), Śloka 1–11',
+    ruleDescription:
+      'The grahas in the bhavas, and the question the chapter closes on: when does a graha give its full result, and when none at all? Varāhamihira answers by dignity, aspect and the strength of the bhāva lord.',
+    scopeAndConditions:
+      'The occupying graha, its dignity, and the aspects falling on the bhāva.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+  },
+
+  brihat_jataka_anishta: {
+    id: 'brihat_jataka_anishta',
+    sourceText: 'Bṛhat Jātaka (Varāhamihira)',
+    chapterAndVerse: 'Ch. 23 (Aniṣṭa), Śloka 1–17',
+    ruleDescription:
+      'The misfortunes: loss of children and spouse, deformity, late marriage, disease, blindness, insanity, bondage. Varāhamihira lists them with their forming conditions and, importantly, with the conditions that cancel them.',
+    scopeAndConditions:
+      'The afflicting graha, the bhāva it damages, and any benefic relief on that bhāva.',
+    editionOrManuscript: 'P.S. Sastri / GRETIL',
+    textualDisagreementNotes:
+      'Varāhamihira pairs each aniṣṭa with its antidote in the same chapter. Reading the affliction without the antidote overstates it.',
+  },
+
+  // ==========================================
+  // Uttara Kālāmṛta — 8 kāṇḍas, P.S. Sastri numbering
+  // ==========================================
+  uttarakalamrita_bhava_karakatva: {
+    id: 'uttarakalamrita_bhava_karakatva',
+    sourceText: 'Uttarakālāmṛta (Kālidāsa)',
+    chapterAndVerse: 'Kāṇḍa 5 (Bhāvagraha Kārakatva), Śloka 1–55',
+    ruleDescription:
+      'The significations of each bhāva and each graha, set out at length: what the 1st through 12th houses govern, then what the Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rāhu and Ketu each signify. This is the chapter later authors quote for kārakatva lists.',
+    scopeAndConditions:
+      'The bhāva or graha being read, against the significations the kāṇḍa assigns.',
+    editionOrManuscript: 'P.S. Sastri (Ranjan Publications)',
+    textualDisagreementNotes:
+      'Kālidāsa\'s kārakatva lists are longer than BPHS\'s and occasionally differ. Where they do, the reading should name which text it followed.',
+  },
+
+  uttarakalamrita_dasha_phala: {
+    id: 'uttarakalamrita_dasha_phala',
+    sourceText: 'Uttarakālāmṛta (Kālidāsa)',
+    chapterAndVerse: 'Kāṇḍa 6 (Daśāphala), Śloka 1–43',
+    ruleDescription:
+      'The results of the major periods, with the nine avasthas of a graha stated first because they decide what its daśā can give. Kālidāsa pairs each mahādaśā with the sub-periods that modify it, and closes on the annual solar return.',
+    scopeAndConditions:
+      'The daśā lord\'s avasthā, its dignity, and the sub-period lord\'s relation to it.',
+    editionOrManuscript: 'P.S. Sastri (Ranjan Publications)',
+  },
+
+  uttarakalamrita_maraka: {
+    id: 'uttarakalamrita_maraka',
+    sourceText: 'Uttarakālāmṛta (Kālidāsa)',
+    chapterAndVerse: 'Kāṇḍa 2, Ch. 2 (Māraka), Śloka 1–29',
+    ruleDescription:
+      'Māraka grahas — those that can end life — by lordship of the 2nd and 7th, by association with the 8th lord, and by the daśā in force. Sastri splits the second kāṇḍa here because the first 76 verses carry no astrological content.',
+    scopeAndConditions:
+      'Lordship of the 2nd and 7th, association with the 8th lord, and the running daśā.',
+    editionOrManuscript: 'P.S. Sastri (Ranjan Publications)',
+    textualDisagreementNotes:
+      'Sastri\'s division of Kāṇḍa 2 into two chapters is his own; the original gives no such break. Verse numbers follow Sastri, not Sareen.',
   },
 
 };
