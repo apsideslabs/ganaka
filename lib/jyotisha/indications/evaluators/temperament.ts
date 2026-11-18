@@ -163,8 +163,9 @@ export function evaluateTemperamentDomain(chart: JyotishaChart): DomainIndicatio
 
   // Brihat Jataka 2 - the grahas, their natures and their five-fold relation.
   {
-    const rel: any = chart.relationships;
-    const fiveFold = !!rel && (Object.keys(rel).length > 0);
+    // The five-fold relation resolves when every graha carries a dignity.
+    const fiveFold = ['sun','moon','mars','mercury','jupiter','venus','saturn']
+      .every((g) => !!(chart.planets as any)[g]?.dignity);
     directClassicalPhalas.push(
       phalaFromRule('brihat_jataka_graha_bheda', 'phala_bj_graha_bheda',
         [{ id: 'c_bj_graha', description: 'The five-fold relationship table resolves', expected: 'natural and temporary relation present', observed: fiveFold ? 'resolved' : 'absent', met: fiveFold }],
