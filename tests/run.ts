@@ -4091,8 +4091,11 @@ console.log('\n== Vivaha kuta tables ==');
 
 console.log('\n== Dashakuta poruthams ==');
 {
-  const p = (nak: number) => ({
-    rashiNumber: 1, rashiLord: 'mars', rashiName: 'x',
+  // Give each probe a different rashi and lord by default, so the Rajju and
+  // Vedha parihara (same rashi / identical or friendly lords) does not fire and
+  // mask the base rule being tested. A parihara-specific case sets them equal.
+  const p = (nak: number, rashi = ((nak - 1) % 12) + 1, lord = 'mars') => ({
+    rashiNumber: rashi, rashiLord: lord, rashiName: `r${rashi}`,
     nakshatraIndex: nak - 1, nakshatraNumber: nak, nakshatraName: `nak${nak}`,
     nakshatraPada: 1, longitude: 0,
   }) as any;
@@ -4132,8 +4135,13 @@ console.log('\n== Dashakuta poruthams ==');
   check('the rajju table matches the five ropes for all 27 nakshatras', rajjuWrong === 0, String(rajjuWrong));
   check('the rajju groups cover all 27 nakshatras exactly once',
     Object.values(RAJJU).flat().length === 27 && new Set(Object.values(RAJJU).flat()).size === 27);
-  check('same rajju is a dosha', calculateRajjuPorutham(p(5), p(14)).obtainedScore === 0);
-  check('different rajju passes', calculateRajjuPorutham(p(5), p(4)).obtainedScore === 1);
+  // Different rashis and lords, so no parihara can fire.
+  check('same rajju is a dosha', calculateRajjuPorutham(p(5, 1, 'sun'), p(14, 8, 'saturn')).obtainedScore === 0);
+  check('different rajju passes', calculateRajjuPorutham(p(5, 1, 'sun'), p(4, 8, 'saturn')).obtainedScore === 1);
+  // And the parihara itself: same rajju, but identical lords, is set aside.
+  const rajjuParihara = calculateRajjuPorutham(p(5, 1, 'saturn'), p(14, 8, 'saturn'));
+  check('same rajju with identical lords is set aside',
+    rajjuParihara.obtainedScore === 1 && rajjuParihara.isCancelledByException === true);
 
   // Vedha: the twelve classical pairs plus the Mars triple. Chitra is paired
   // here (Tamil tradition) where Raman leaves it out.
@@ -4144,11 +4152,16 @@ console.log('\n== Dashakuta poruthams ==');
   ];
   let vedhaWrong = 0;
   for (const [a, b] of VEDHA) {
-    if (calculateVedhaPorutham(p(a), p(b)).obtainedScore !== 0) vedhaWrong++;
-    if (calculateVedhaPorutham(p(b), p(a)).obtainedScore !== 0) vedhaWrong++;
+    // distinct rashis and lords so the parihara cannot mask the base rule
+    if (calculateVedhaPorutham(p(a, 1, 'sun'), p(b, 8, 'saturn')).obtainedScore !== 0) vedhaWrong++;
+    if (calculateVedhaPorutham(p(b, 1, 'sun'), p(a, 8, 'saturn')).obtainedScore !== 0) vedhaWrong++;
   }
   check('every vedha pair is detected in both directions', vedhaWrong === 0, String(vedhaWrong));
-  check('a non-vedha pair passes', calculateVedhaPorutham(p(4), p(23)).obtainedScore === 1);
+  check('a non-vedha pair passes', calculateVedhaPorutham(p(4, 1, 'sun'), p(23, 8, 'saturn')).obtainedScore === 1);
+  // Vedha with both stars in the same rashi is set aside.
+  const vedhaParihara = calculateVedhaPorutham(p(1, 5, 'mars'), p(18, 5, 'mars'));
+  check('vedha in the same rashi is set aside',
+    vedhaParihara.obtainedScore === 1 && vedhaParihara.isCancelledByException === true);
 
   // Every porutham must carry its own maximum and stay in range.
   const all = calculateAllDashakutas(p(5), p(20));
