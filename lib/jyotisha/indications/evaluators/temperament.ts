@@ -144,6 +144,35 @@ export function evaluateTemperamentDomain(chart: JyotishaChart): DomainIndicatio
     );
   }
 
+  // Brihat Jataka 16 and 17 - character by nakshatra and by the Moon's sign.
+  {
+    const moon: any = chart.planets.moon;
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_chandra_sila', 'phala_bj_chandra_sila',
+        [{ id: 'c_bj_chandra', description: 'The Moon holds a known sign for the temperament reading', expected: 'sign resolved', observed: `Moon in rasi ${moon.rashiNumber}`, met: !!moon.rashiNumber }],
+        'Varahamihira gives a whole chapter to character by the Moon sign, read independently of the lagna.',
+        CANONICAL_RULES.brihat_jataka_chandra_sila),
+    );
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_nakshatra_sila', 'phala_bj_nakshatra_sila',
+        [{ id: 'c_bj_nakshatra', description: 'The janma nakshatra resolves', expected: 'nakshatra resolved', observed: String(moon.nakshatraName ?? 'n/a'), met: !!moon.nakshatraName }],
+        'Character by the birth nakshatra is read alongside the Moon sign, not instead of it.',
+        CANONICAL_RULES.brihat_jataka_nakshatra_sila),
+    );
+  }
+
+  // Brihat Jataka 2 - the grahas, their natures and their five-fold relation.
+  {
+    const rel: any = chart.relationships;
+    const fiveFold = !!rel && (Object.keys(rel).length > 0);
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_graha_bheda', 'phala_bj_graha_bheda',
+        [{ id: 'c_bj_graha', description: 'The five-fold relationship table resolves', expected: 'natural and temporary relation present', observed: fiveFold ? 'resolved' : 'absent', met: fiveFold }],
+        'Varahamihira sets out natural friendship by sign ownership and temporary friendship by mutual house distance, then combines them into five grades.',
+        CANONICAL_RULES.brihat_jataka_graha_bheda),
+    );
+  }
+
   return {
     id: 'temperament',
     title: 'Personality & Temperament',
