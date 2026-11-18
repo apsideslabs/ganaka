@@ -16,6 +16,7 @@
  */
 import { calculateFullJyotishaChart } from '../lib/jyotisha/calculator';
 import { calculateYoniKuta, calculateNadiKuta, calculateAllAshtakutas, calculateVashyaKuta, yoniScore, YONI_TABLE_FOR_TEST } from '../lib/jyotisha/kuta/ashtakuta-calculator';
+import { evaluateDeeperHoroscopeMatching } from '../lib/jyotisha/kuta/deeper-matching';
 import { calculateMahendraPorutham, calculateStreeDeerghaPorutham, calculateRajjuPorutham, calculateVedhaPorutham, calculateAllDashakutas } from '../lib/jyotisha/kuta/dashakuta-calculator';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -4154,6 +4155,43 @@ console.log('\n== Dashakuta poruthams ==');
   check('the four dashakuta poruthams are all produced', all.length === 4, String(all.length));
   const bad = all.filter((k) => k.obtainedScore > k.maxScore || k.obtainedScore < 0);
   check('no dashakuta scores outside its range', bad.length === 0, bad.map((k) => k.id).join(','));
+}
+
+/* ---------- KUJA DOSHA READS FROM THREE REFERENCE POINTS ---------- */
+
+console.log('\n== Kuja dosha ==');
+{
+  // Kuja dosha is read from the lagna, the Moon AND Venus. The engine used the
+  // lagna alone, which disagrees with a pandit reading the same chart - a chart
+  // can be free of it from the lagna while carrying it from the Moon.
+  const base = { latitude: 26.65, longitude: 91.15, timezoneOffsetHours: 5.5, locationName: 'X' };
+  const a: any = calculateFullJyotishaChart({ ...base, year: 2009, month: 3, day: 3, hour: 23, minute: 51, second: 0 } as any);
+  const b: any = calculateFullJyotishaChart({ ...base, year: 2010, month: 7, day: 14, hour: 8, minute: 20, second: 0 } as any);
+  const d: any = evaluateDeeperHoroscopeMatching(a, b);
+  const m = d.mangalaComparison;
+
+  check('the mangala comparison is produced', !!m && !!m.groom && !!m.bride);
+  check('a neutralization status is set', typeof m.neutralizationStatus === 'string' && m.neutralizationStatus.length > 0,
+    m.neutralizationStatus);
+
+  // The description must name all three reference points, which is what proves
+  // the reading is not lagna-only.
+  for (const who of ['groom', 'bride'] as const) {
+    check(`${who} kuja description names lagna, Moon and Venus`,
+      /from lagna/.test(m[who].description) && /from Moon/.test(m[who].description) && /from Venus/.test(m[who].description),
+      m[who].description);
+  }
+
+  // Afflicted houses must only ever be from the classical set.
+  const KUJA = [1, 2, 4, 7, 8, 12];
+  const badHouse = [...m.groom.afflictedHouses, ...m.bride.afflictedHouses].filter((h: number) => !KUJA.includes(h));
+  check('afflicted houses are all from the classical set', badHouse.length === 0, badHouse.join(','));
+
+  // Severity must follow the verdict.
+  check('a chart with no dosha reads severity None',
+    m.groom.hasDosha || m.groom.severity === 'None');
+  check('cancellation reasons are always an array',
+    Array.isArray(m.groom.cancellationReasons) && Array.isArray(m.bride.cancellationReasons));
 }
 
 /* ------------------------------------------------------ EXPORT COMPLETENESS */
