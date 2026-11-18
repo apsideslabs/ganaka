@@ -18,6 +18,7 @@
 import { PersonLunarData } from './ashtakuta-calculator';
 import { SingleKutaResult } from './types';
 import { KUTA_CITATIONS } from './citations';
+import { calculateNaturalFriendship } from '../dignity';
 
 // ----------------------------------------------------------------------
 // 1. MAHENDRA PORUTHAM (माहेन्द्र पोरुथम्)
@@ -146,10 +147,26 @@ export function calculateRajjuPorutham(groom: PersonLunarData, bride: PersonLuna
   const bRajju = NAKSHATRA_RAJJU_MAP[bride.nakshatraNumber];
 
   const isSameRajju = gRajju === bRajju;
-  const isPass = !isSameRajju;
+
+  // Classical parihāra: same Rajju is set aside when the Moon-sign lords are
+  // identical or mutual friends, and when both fall in the same rāśi. The
+  // traditions disagree on which of these apply, so every reason that fires is
+  // listed rather than collapsed into a bare cancelled flag.
+  const sameLord = groom.rashiLord === bride.rashiLord;
+  const friendLords = calculateNaturalFriendship(groom.rashiLord, bride.rashiLord) === 'Mitra';
+  const sameRashi = groom.rashiNumber === bride.rashiNumber;
+  const pariharaReasons: string[] = [];
+  if (sameLord) pariharaReasons.push(`identical Moon-sign lords (${groom.rashiLord})`);
+  else if (friendLords) pariharaReasons.push(`friendly Moon-sign lords (${groom.rashiLord} & ${bride.rashiLord})`);
+  if (sameRashi) pariharaReasons.push(`both in the same rāśi (${groom.rashiName})`);
+
+  const isCancelled = isSameRajju && pariharaReasons.length > 0;
+  const isPass = !isSameRajju || isCancelled;
 
   let explanation = '';
-  if (isPass) {
+  if (isCancelled) {
+    explanation = `Both share ${gRajju}, but the doṣa is set aside: ${pariharaReasons.join('; ')}.`;
+  } else if (isPass) {
     explanation = `Groom is in ${gRajju} and Bride is in ${bRajju}. Different Rajjus ensure longevity, sound marital constitution, and mutual protection.`;
   } else {
     explanation = `Both bride and groom share identical Rajju (${gRajju}). In South Indian tradition, Same Rajju is considered a major dosha: ${
@@ -173,8 +190,20 @@ export function calculateRajjuPorutham(groom: PersonLunarData, bride: PersonLuna
     maxScore: 1,
     obtainedScore: isPass ? 1 : 0,
     rawScore: isPass ? 1 : 0,
-    isDoshaPresent: !isPass,
-    isCancelledByException: false,
+    isDoshaPresent: isSameRajju && !isCancelled,
+    isCancelledByException: isCancelled,
+    exceptionApplied: isCancelled
+      ? {
+          id: 'rajju_parihara',
+          ruleTitle: 'Rajju Parihāra (friendly or identical rāśi lords)',
+          sanskritTitle: 'रज्जु परिहार',
+          sourceText: 'Mādhavīya / Jātaka Deśamārga',
+          chapterAndVerse: 'Rajju Porutham, parihāra',
+          conditionDescription: `Same Rajju (${gRajju}) set aside because ${pariharaReasons.join('; ')}.`,
+          effect: 'full_cancellation',
+          grantedPoints: 1,
+        }
+      : undefined,
     groomValue: gRajju,
     brideValue: bRajju,
     matchingCondition: isPass ? 'Different Rajju (Favorable)' : `Identical Rajju (${gRajju})`,
@@ -236,7 +265,18 @@ export function calculateVedhaPorutham(groom: PersonLunarData, bride: PersonLuna
     ([a, b]) => (gN === a && bN === b) || (gN === b && bN === a)
   );
 
-  const isPass = !hasVedha;
+  // Classical parihāra: Vedha is set aside when both stars fall in the same
+  // rāśi, or when the Moon-sign lords are identical or mutual friends.
+  const sameRashi = groom.rashiNumber === bride.rashiNumber;
+  const sameLord = groom.rashiLord === bride.rashiLord;
+  const friendLords = calculateNaturalFriendship(groom.rashiLord, bride.rashiLord) === 'Mitra';
+  const vedhaReasons: string[] = [];
+  if (sameRashi) vedhaReasons.push(`both stars in the same rāśi (${groom.rashiName})`);
+  if (sameLord) vedhaReasons.push(`identical Moon-sign lords (${groom.rashiLord})`);
+  else if (friendLords) vedhaReasons.push(`friendly Moon-sign lords (${groom.rashiLord} & ${bride.rashiLord})`);
+
+  const isCancelled = hasVedha && vedhaReasons.length > 0;
+  const isPass = !hasVedha || isCancelled;
 
   return {
     id: 'vedha',
@@ -246,13 +286,27 @@ export function calculateVedhaPorutham(groom: PersonLunarData, bride: PersonLuna
     maxScore: 1,
     obtainedScore: isPass ? 1 : 0,
     rawScore: isPass ? 1 : 0,
-    isDoshaPresent: !isPass,
-    isCancelledByException: false,
+    isDoshaPresent: hasVedha && !isCancelled,
+    isCancelledByException: isCancelled,
+    exceptionApplied: isCancelled
+      ? {
+          id: 'vedha_parihara',
+          ruleTitle: 'Vedha Parihāra (same rāśi or friendly lords)',
+          sanskritTitle: 'वेध परिहार',
+          sourceText: 'Mādhavīya',
+          chapterAndVerse: 'Vedha Porutham, parihāra',
+          conditionDescription: `Vedha set aside because ${vedhaReasons.join('; ')}.`,
+          effect: 'full_cancellation',
+          grantedPoints: 1,
+        }
+      : undefined,
     groomValue: groom.nakshatraName,
     brideValue: bride.nakshatraName,
     matchingCondition: isPass ? 'Free of Vedha affliction' : 'Vedha (Piercing / Mutually Obstructive) Nakṣatra Pair',
     classicalVerdict: isPass ? 'Śubha (Auspicious)' : 'Aśubha (Inauspicious / Defective)',
-    explanation: isPass
+    explanation: isCancelled
+      ? `Vedha between ${groom.nakshatraName} and ${bride.nakshatraName}, set aside because ${vedhaReasons.join('; ')}.`
+      : isPass
       ? `No Vedha discord between ${groom.nakshatraName} and ${bride.nakshatraName}. Free of mutually piercing cosmic rays.`
       : `Vedha detected between ${groom.nakshatraName} and ${bride.nakshatraName}. Classical Mādhavīya states that Vedha causes chronic antagonism and unprovoked friction.`,
     citation: KUTA_CITATIONS.vedha,
