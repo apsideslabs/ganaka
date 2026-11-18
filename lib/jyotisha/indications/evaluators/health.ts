@@ -147,6 +147,24 @@ export function evaluateHealthDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Brihat Jataka 23 and Uttara Kalamrita 2.2.
+  {
+    const l6 = getHouseLord(chart, 6); const l6p: any = chart.planets[l6.id];
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_anishta', 'phala_bj_anishta',
+        [{ id: 'c_bj_anishta', description: 'The 6th lord is not in a dusthana without relief', expected: 'not 8/12', observed: `House ${l6p?.house}`, met: ![8,12].includes(l6p?.house ?? 0) }],
+        'Varahamihira lists each misfortune with the conditions that cancel it in the same chapter; reading the affliction without the antidote overstates it.',
+        CANONICAL_RULES.brihat_jataka_anishta),
+    );
+    const l2 = getHouseLord(chart, 2); const l7 = getHouseLord(chart, 7);
+    directClassicalPhalas.push(
+      phalaFromRule('uttarakalamrita_maraka', 'phala_uk_maraka',
+        [{ id: 'c_uk_maraka', description: 'The 2nd and 7th lords are not both in dusthanas', expected: 'not both afflicted', observed: `2nd in ${(chart.planets[l2.id] as any)?.house}, 7th in ${(chart.planets[l7.id] as any)?.house}`, met: !([6,8,12].includes((chart.planets[l2.id] as any)?.house ?? 0) && [6,8,12].includes((chart.planets[l7.id] as any)?.house ?? 0)) }],
+        'Maraka grahas act by lordship of the 2nd and 7th, by association with the 8th lord, and by the dasha in force.',
+        CANONICAL_RULES.uttarakalamrita_maraka),
+    );
+  }
+
   return {
     id: 'health',
     title: 'Health-Related Classical Indications',
