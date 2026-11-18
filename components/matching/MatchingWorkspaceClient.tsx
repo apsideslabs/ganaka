@@ -228,7 +228,7 @@ export function MatchingWorkspaceClient() {
                 />
               </div>
               <span className="text-[11px] font-mono text-stone-500">
-                {groomLunar.rashiName} ({groomLunar.nakshatraName} P{groomLunar.nakshatraPada})
+                {groomLunar!.rashiName} ({groomLunar!.nakshatraName} P{groomLunar!.nakshatraPada})
               </span>
             </div>
 
@@ -305,7 +305,7 @@ export function MatchingWorkspaceClient() {
                 />
               </div>
               <span className="text-[11px] font-mono text-stone-500">
-                {brideLunar.rashiName} ({brideLunar.nakshatraName} P{brideLunar.nakshatraPada})
+                {brideLunar!.rashiName} ({brideLunar!.nakshatraName} P{brideLunar!.nakshatraPada})
               </span>
             </div>
 
@@ -499,7 +499,7 @@ export function MatchingWorkspaceClient() {
 
               {/* Right Col: Zodiacal Geometry Diagram */}
               <div className="space-y-4">
-                <MatchingDiagram groom={groomLunar} bride={brideLunar} />
+                <MatchingDiagram groom={groomLunar!} bride={brideLunar!} />
 
                 {/* Classical Reference Card */}
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs space-y-2">
