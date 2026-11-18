@@ -3969,11 +3969,12 @@ console.log('\n== Vivaha kuta tables ==');
     'महिष': 'Buffalo', 'व्याघ्र': 'Tiger', 'मृग': 'Deer', 'वानर': 'Monkey',
     'नकुल': 'Mongoose', 'सिंह': 'Lion',
   };
+  // rashiNumber is a 1..12 union on PersonLunarData, so the probe is cast.
   const probe = (nak: number) => ({
-    rashiNumber: 1, rashiLord: 'mars' as any, rashiName: 'Mesha',
+    rashiNumber: 1, rashiLord: 'mars', rashiName: 'Mesha',
     nakshatraIndex: nak - 1, nakshatraNumber: nak, nakshatraName: 'x',
-    nakshatraPada: 1 as const, longitude: 0,
-  });
+    nakshatraPada: 1, longitude: 0,
+  }) as any;
   let wrong = 0;
   for (const [n, animal] of Object.entries(YONI)) {
     const r = calculateYoniKuta(probe(Number(n)), probe(1));
