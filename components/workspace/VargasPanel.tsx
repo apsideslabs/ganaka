@@ -72,6 +72,13 @@ export function VargasPanel({
     () => workspaceSettings.vargaSetMode || 'standard'
   );
   const [selectedVargaId, setSelectedVargaId] = useState<VargaId>('D9');
+  // Chandra lagna: read the same chart from the Moon's sign instead of the
+  // ascendant. House 1 becomes the Moon's rashi, so every house number in the
+  // diagram shifts by the distance between the ascendant and the Moon. This is
+  // a standard way of reading a chart — the Moon's chart is what the Vimśottarī
+  // daśā and the kūṭa readings actually run on — and it changes nothing in the
+  // data, only the point the houses are counted from.
+  const [chartReference, setChartReference] = useState<'lagna' | 'chandra'>('lagna');
   const [activeTab, setActiveTab] = useState<'planets' | 'houses'>('planets');
 
   /**
@@ -313,15 +320,44 @@ export function VargasPanel({
       {/* ============================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: High-Definition SVG Chart Visualizer */}
-        <div className="lg:col-span-6 flex justify-center w-full">
+        <div className="lg:col-span-6 flex flex-col items-center w-full gap-2">
+          <div className="flex items-center gap-2 self-start">
+            <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Read from</span>
+            <div className="inline-flex rounded-lg border border-slate-200/90 overflow-hidden">
+              {(['lagna', 'chandra'] as const).map((ref) => (
+                <button
+                  key={ref}
+                  type="button"
+                  onClick={() => setChartReference(ref)}
+                  aria-pressed={chartReference === ref}
+                  className={`px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    chartReference === ref
+                      ? 'bg-[#8C2D19] text-white'
+                      : 'bg-white text-slate-600 hover:bg-stone-50'
+                  }`}
+                >
+                  {ref === 'lagna' ? 'Lagna' : 'Chandra Lagna'}
+                </button>
+              ))}
+            </div>
+            {chartReference === 'chandra' && (
+              <span className="text-[11px] text-slate-500">
+                house 1 is the Moon's sign in this varga
+              </span>
+            )}
+          </div>
           <DivisionalChartDiagram
-            key={`${selectedVargaId}-${activeVarga.lagnaRashi}`}
+            key={`${selectedVargaId}-${activeVarga.lagnaRashi}-${chartReference}`}
             vargaId={selectedVargaId}
             vargaName={activeDef.name}
             sanskritName={activeDef.sanskritName}
             significance={activeDef.significance}
             divisionFactor={activeDef.factor}
-            lagnaRashi={activeVarga.lagnaRashi}
+            lagnaRashi={
+              chartReference === 'chandra'
+                ? (activeVarga.planets.moon?.rashiNumber ?? activeVarga.lagnaRashi)
+                : activeVarga.lagnaRashi
+            }
             planets={activeVarga.planets}
             initialStyle={workspaceSettings.chartStyle || 'north'}
           />
