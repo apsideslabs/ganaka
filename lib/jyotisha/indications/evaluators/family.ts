@@ -147,6 +147,17 @@ export function evaluateFamilyDomain(chart: JyotishaChart): DomainIndication {
     );
   }
 
+  // Brihat Jataka 20 - grahas in the bhavas, and when they give nothing.
+  {
+    const occupied = (chart.bhavas as any[]).filter((b: any) => (b.occupants?.length ?? 0) > 0).length;
+    directClassicalPhalas.push(
+      phalaFromRule('brihat_jataka_bhava', 'phala_bj_bhava',
+        [{ id: 'c_bj_bhava', description: 'At least one bhava is occupied for the reading', expected: '>= 1', observed: String(occupied), met: occupied >= 1 }],
+        'Varahamihira closes the chapter on the question of when a graha gives its full result and when none: by dignity, aspect and the strength of the bhava lord.',
+        CANONICAL_RULES.brihat_jataka_bhava),
+    );
+  }
+
   return {
     id: 'family',
     title: 'Family & Domestic Life',
